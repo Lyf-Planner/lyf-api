@@ -35,10 +35,22 @@ export function buildWeek(timetable: any) {
   // Check if stored dates are for this week
   // If not, this is the first visit of the week, and we should feed in the template
   var now = new Date();
-  var start = moment(now).startOf("week").add(1, "day").toDate(); // Add a day startOf("week") starts at Sunday
+
+  // This sets the first day of the week to Monday. For some reason not a default
+  moment.updateLocale("en", {
+    week: {
+      dow: 1,
+    },
+  });
+
+  var start = moment(now).startOf("week").toDate();
   var storedStart = new Date(timetable.week?.Monday?.date);
 
   if (!storedStart || start.getTime() !== storedStart.getTime()) {
+    console.log(
+      "Refreshing timetable - week was detected as old: Monday was",
+      storedStart
+    );
     timetable.week = Object.assign(timetable.template);
     mapDatesToWeek(timetable.week);
   }
@@ -52,9 +64,16 @@ export function initialiseWeek(week: any) {
 
 export function mapDatesToWeek(week: any) {
   var now = new Date();
-  var start = moment(now).startOf("week");
-  for (var day of DaysList) {
-    // Add 1 instead of i because it mutates the original - otherwise we get Fibonacci!
-    week[day].date = start.add(1, "day").toDate(); // Index ahead a day as startOf("week") starts at Sunday
+
+  // First day of week is Monday
+  moment.updateLocale("en", {
+    week: {
+      dow: 1,
+    },
+  });
+
+  for (var i in DaysList) {
+    var start = moment(now).startOf("week");
+    week[DaysList[i]].date = start.add(i, "days").toDate();
   }
 }
