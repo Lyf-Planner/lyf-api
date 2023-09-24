@@ -1,4 +1,5 @@
 import moment from "moment";
+import { User } from "./types";
 
 export enum DaysOfWeek {
   Monday = "Monday",
