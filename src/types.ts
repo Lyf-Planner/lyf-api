@@ -1,10 +1,20 @@
-export type DayPlan = {
-  events: String[];
-  tasks: String[];
-  date: Date;
+export type User = {
+  user_id: string;
+  timetable: Timetable;
 };
 
 export type Timetable = {
+  upcoming: string[],
+  templates: Template[],
+  active_template: number, // Indexes which template to use in upcoming week
+  weeks: Week[] // Includes only weeks that have been modified by the user!
+}
+
+export type Upcoming = Event[];
+
+export type Template = Week
+
+export type Week = {
   Monday: DayPlan;
   Tuesday: DayPlan;
   Wednesday: DayPlan;
@@ -14,8 +24,22 @@ export type Timetable = {
   Sunday: DayPlan;
 };
 
-export type Upcoming = {};
-
-export type User = {
-  identifier: string;
+export type DayPlan = {
+  day: DaysOfWeek,
+  events: Event[];
+  tasks: Task[];
+  date?: Date; // Not included for Templates
 };
+
+export type Event = string
+export type Task = string
+
+export enum DaysOfWeek {
+  Monday = "Monday",
+  Tuesday = "Tuesday",
+  Wednesday = "Wednesday",
+  Thursday = "Thursday",
+  Friday = "Friday",
+  Saturday = "Saturday",
+  Sunday = "Sunday",
+}
