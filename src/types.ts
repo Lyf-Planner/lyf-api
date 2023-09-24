@@ -26,6 +26,7 @@ export type Week = {
 
 export type DayPlan = {
   day: DaysOfWeek,
+  metadata: string, 
   events: Event[];
   tasks: Task[];
   date?: Date; // Not included for Templates
