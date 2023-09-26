@@ -43,13 +43,14 @@ export function buildWeek(timetable: any) {
     },
   });
 
-  var start = moment(now).startOf("week").toDate();
-  var storedStart = new Date(timetable.week?.Monday?.date);
+  var start = moment(now).startOf("week").toDate().toISOString();
+  var storedStart = new Date(timetable.week?.Monday?.date).toISOString();
 
-  if (!storedStart || start.getTime() !== storedStart.getTime()) {
+  if (!storedStart || start !== storedStart) {
     console.log(
       "Refreshing timetable - week was detected as old: Monday was",
-      storedStart
+      storedStart,
+      start
     );
     timetable.week = Object.assign(timetable.template);
     mapDatesToWeek(timetable.week);
@@ -74,6 +75,6 @@ export function mapDatesToWeek(week: any) {
 
   for (var i in DaysList) {
     var start = moment(now).startOf("week");
-    week[DaysList[i]].date = start.add(i, "days").toDate();
+    week[DaysList[i]].date = start.add(i, "days").toDate().toISOString();
   }
 }
