@@ -1,7 +1,8 @@
 import { ObjectId } from "mongodb";
 import { usersCollection } from ".";
 import { Request, Response } from "express";
-import { buildTimetable } from "./timetable";
+import { buildTimetable } from "./timetable/buildTimetable";
+import { User } from "./types";
 
 export async function fetchSertUser(req: Request, res: Response) {
   const { user_id } = req.query;
@@ -19,14 +20,14 @@ export async function fetchSertUser(req: Request, res: Response) {
     delete user._id;
   }
 
-  buildTimetable(user);
+  buildTimetable(user as User);
   console.log("Returning user", user);
   res.send(user);
 }
 
 export async function updateUser(req: Request, res: Response) {
   var { user_id, ...user } = req.body;
-  
+
   try {
     await usersCollection.updateOne({ user_id }, { $set: { ...user } });
     res.status(200);
