@@ -44,7 +44,7 @@ export function buildWeek(timetable: any) {
   });
 
   var start = moment(now).startOf("week").toDate().toISOString();
-  var storedStart = new Date(timetable.week?.Monday?.date).toISOString();
+  var storedStart = timetable.week?.Monday?.date ? new Date(timetable.week.Monday.date).toISOString() : null;
 
   if (!storedStart || start !== storedStart) {
     console.log(
