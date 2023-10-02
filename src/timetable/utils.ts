@@ -19,9 +19,7 @@ export function initialiseWeek(week: any) {
   return week;
 }
 
-export function getStartOfCurrentWeek() {
-  var now = new Date();
-
+export function getStartOfCurrentWeek(date: string) {
   // This sets the first day of the week to Monday. For some reason not a default
   moment.updateLocale("en", {
     week: {
@@ -29,12 +27,11 @@ export function getStartOfCurrentWeek() {
     },
   });
 
-  return moment(now).startOf("week").toDate().toISOString();
+  var start = moment(date).utc(false).startOf("week").toDate().toUTCString();
+  return start;
 }
 
-export function mapDatesToWeek(week: any) {
-  var now = new Date();
-
+export function mapDatesToWeek(week: any, local_date: string) {
   // First day of week is Monday
   moment.updateLocale("en", {
     week: {
@@ -43,7 +40,11 @@ export function mapDatesToWeek(week: any) {
   });
 
   for (var i in DaysList) {
-    var start = moment(now).startOf("week");
-    week[DaysList[i]].date = start.add(i, "days").toDate().toISOString();
+    var start = moment(getStartOfCurrentWeek(local_date)).utc(false);
+    var next = start.add(i, "days").toDate();
+
+    week[DaysList[i]].date = `${next.getUTCFullYear()}-${
+      next.getUTCMonth() + 1
+    }-${next.getUTCDate()}`;
   }
 }

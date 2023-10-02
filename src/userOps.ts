@@ -5,8 +5,8 @@ import { buildTimetable } from "./timetable/buildTimetable";
 import { User } from "./types";
 
 export async function fetchSertUser(req: Request, res: Response) {
-  const { user_id } = req.query;
-  console.log("Got fetchSertUser request for");
+  const { user_id, local_date } = req.query;
+  console.log("Got fetchSertUser request", user_id, "for", local_date);
   var user = await usersCollection.findOne({ user_id });
   if (!user) {
     console.log("No user found, creating");
@@ -20,7 +20,7 @@ export async function fetchSertUser(req: Request, res: Response) {
     delete user._id;
   }
 
-  buildTimetable(user as User);
+  buildTimetable(user as User, local_date as string);
   console.log("Returning user", user);
   res.send(user);
 }
@@ -30,7 +30,7 @@ export async function updateUser(req: Request, res: Response) {
 
   try {
     await usersCollection.updateOne({ user_id }, { $set: { ...user } });
-    res.status(200);
+    res.status(200).end();
   } catch (err) {
     res.status(500).end(`${err}`);
   }
