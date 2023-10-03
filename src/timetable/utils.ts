@@ -48,3 +48,7 @@ export function mapDatesToWeek(week: any, local_date: string) {
     }-${next.getUTCDate()}`;
   }
 }
+
+export function formatDateData(date: Date) {
+  return `${date.getUTCFullYear()}-${date.getUTCMonth()+1}-${date.getUTCDate()}`;
+}

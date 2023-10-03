@@ -1,6 +1,6 @@
 import { User } from "../types";
 import { handleNewTimetableUser } from "./newTimetable";
-import { getStartOfCurrentWeek, mapDatesToWeek } from "./utils";
+import { formatDateData, getStartOfCurrentWeek, mapDatesToWeek } from "./utils";
 
 export function buildTimetable(user: User, local_date: string) {
   console.log("Building timetable for", user.user_id);
@@ -8,7 +8,7 @@ export function buildTimetable(user: User, local_date: string) {
   // Use the date string to get the date of the client - use UTC as a medium
   var year = local_date.split("-").map((x) => parseInt(x));
   var universal_date = new Date();
-  universal_date.setUTCFullYear(year[0], year[1], year[2]);
+  universal_date.setUTCFullYear(year[0], year[1]-1, year[2]); // -1 since we do not 0-index
   universal_date.setUTCHours(0, 0, 0, 0);
   var local_string = universal_date.toUTCString();
 
@@ -24,7 +24,7 @@ export function buildTimetable(user: User, local_date: string) {
 export function checkOutdatedWeek(timetable: any, local_date: string) {
   // Check if stored dates at index 0 are for this week
 
-  var start = getStartOfCurrentWeek(local_date);
+  var start = formatDateData(new Date(getStartOfCurrentWeek(local_date)));
   var storedStart = timetable.weeks[0].Monday.date
     ? timetable.weeks[0].Monday.date // These should be stored also as UTC strings
     : null;
