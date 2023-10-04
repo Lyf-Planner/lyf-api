@@ -3,6 +3,7 @@ import { usersCollection } from ".";
 import { Request, Response } from "express";
 import { buildTimetable } from "./timetable/buildTimetable";
 import { User } from "./types";
+import { buildNotes } from "./notes/buildNotes";
 
 export async function fetchSertUser(req: Request, res: Response) {
   const { user_id, local_date } = req.query;
@@ -21,6 +22,7 @@ export async function fetchSertUser(req: Request, res: Response) {
   }
 
   buildTimetable(user as User, local_date as string);
+  buildNotes(user as User);
   console.log("Returning user", user);
   res.send(user);
 }
