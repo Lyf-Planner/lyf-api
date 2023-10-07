@@ -1,6 +1,7 @@
 export type User = {
   user_id: string;
   timetable?: Timetable;
+  notes?: Notes;
 };
 
 export type Timetable = {
@@ -9,6 +10,15 @@ export type Timetable = {
   templates?: Template[];
   active_template?: number; // Indexes which template to use in upcoming week
   weeks?: Week[]; // Includes only weeks that have been modified by the user!
+};
+
+export type Notes = {
+  items: Note[];
+};
+
+export type Note = {
+  title: string;
+  content: string;
 };
 
 export type Upcoming = Event[];
