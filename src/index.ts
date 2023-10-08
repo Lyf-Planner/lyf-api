@@ -1,6 +1,7 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
-import { fetchSertUser, updateUser } from "./userOps";
+import { fetchSertUser, updateUser, autoLogin } from "./endpoints";
 import { Request, Response } from "express";
+import { verifyToken } from "./auth/resolveAuth";
 
 const dotenv = require('dotenv');
 const express = require("express");
@@ -33,7 +34,8 @@ async function main() {
   });
 
   // Users
-  server.get("/fetchSertUser", fetchSertUser);
+  server.get("/login", fetchSertUser);
+  server.get("/autoLogin", autoLogin);
   server.post("/updateUser", updateUser);
 
   const PORT = process.env.PORT || 8000;
