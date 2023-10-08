@@ -7,6 +7,7 @@ export type User = {
 
 export type Timetable = {
   upcoming?: string[];
+  todo?: string[];
   templates?: Template[];
   active_template?: number; // Indexes which template to use in upcoming week
   weeks?: Week[]; // Includes only weeks that have been modified by the user!

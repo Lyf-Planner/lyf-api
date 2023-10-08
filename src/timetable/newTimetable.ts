@@ -5,6 +5,7 @@ export function handleNewTimetableUser(user: User, local_date: string) {
   // Fill in anything empty - "the bare minimum"
   if (!user.timetable) user.timetable = {};
   if (!user.timetable?.upcoming) user.timetable.upcoming = [];
+  if (!user.timetable?.todo) user.timetable.todo = [];
   if (!user?.timetable?.weeks || user?.timetable?.weeks.length === 0) {
     user.timetable.weeks = [{}];
     initialiseWeek(user.timetable.weeks[0]);
