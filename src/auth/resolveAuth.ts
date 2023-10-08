@@ -1,18 +1,20 @@
 import { compare, hash } from "bcrypt";
 import * as jwt from "jsonwebtoken";
 import { User } from "../types";
+import { saveUser } from "../userOps";
 
 export async function authenticate(user: User, password: string) {
   if (!user.pass_hash) {
-    // Doesn't have account yet, append this as password
+    // Doesn't have account yet, append this as password and save
     var hashed = await hashPass(password);
     user.pass_hash = hashed;
-  }
-
-  const res = await compare(password, user.pass_hash);
-  if (!res) {
-    console.log("Authentication failed");
-    return false;
+    await saveUser(user);
+  } else {
+    const res = await compare(password, user.pass_hash);
+    if (!res) {
+      console.log("Authentication failed");
+      return false;
+    }
   }
 
   const token = jwt.sign(
@@ -27,7 +29,7 @@ export async function authenticate(user: User, password: string) {
   return token;
 }
 
-export async function verifyToken(token: string) {
+export function verifyToken(token: string) {
   return jwt.verify(token as string, process.env.JWT_SECRET as any);
 }
 

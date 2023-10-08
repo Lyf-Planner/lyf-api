@@ -1,44 +1,52 @@
-import { ObjectId } from "mongodb";
-import { usersCollection } from ".";
 import { Request, Response } from "express";
-import { buildTimetable } from "./timetable/buildTimetable";
 import { User } from "./types";
-import { buildNotes } from "./notes/buildNotes";
 import { authenticate, verifyToken } from "./auth/resolveAuth";
 import * as jwt from "jsonwebtoken";
-import { buildUserData, fetchSertUser } from "./userOps";
+import { buildUserData, fetchSertUser, saveUser } from "./userOps";
+import assert from "assert";
 
 export async function login(req: Request, res: Response) {
   var { user_id, password, local_date } = req.query;
+  console.log("Logging in", user_id);
+
   var user = await fetchSertUser(user_id as string);
   var token = await authenticate(user as User, password as string);
-  if (token) buildUserData(user as User, local_date as string);
+  if (!token) {
+    res.status(401).end();
+    return;
+  } else buildUserData(user as User, local_date as string);
 
-  user.token = token;
-  res.send(user);
+  var { pass_hash, ...userData } = user;
+  var payload = { user: userData, token };
+  console.log("Sending payload", payload);
+  res.status(200).send(payload).end();
 }
 
 export async function autoLogin(req: Request, res: Response) {
   var { token, local_date } = req.query;
   try {
-    var { user_id } = verifyToken(token as string) as jwt.JwtPayload;
+    var { user_id, exp } = verifyToken(token as string) as jwt.JwtPayload;
+    // Token has not expired!
+    assert(exp! > Math.floor(new Date().getTime() / 1000));
 
     var user = (await fetchSertUser(user_id)) as User;
     buildUserData(user, local_date as string);
-    return user;
+    var { pass_hash, ...userData } = user;
+    res.status(200).send(userData).end();
   } catch (err) {
     console.log(err);
-    return false;
+    res.status(401).end();
   }
 }
 
 export async function updateUser(req: Request, res: Response) {
-  var { user_id, ...user } = req.body;
+  var user = req.body;
 
   try {
-    await usersCollection.updateOne({ user_id }, { $set: { ...user } });
+    await saveUser(user);
     res.status(200).end();
   } catch (err) {
+    console.log("Update error", err);
     res.status(500).end(`${err}`);
   }
 }

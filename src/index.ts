@@ -1,9 +1,8 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
-import { fetchSertUser, updateUser, autoLogin } from "./endpoints";
+import { updateUser, autoLogin, login } from "./endpoints";
 import { Request, Response } from "express";
-import { verifyToken } from "./auth/resolveAuth";
 
-const dotenv = require('dotenv');
+const dotenv = require("dotenv");
 const express = require("express");
 const server = express();
 const cors = require("cors");
@@ -34,7 +33,7 @@ async function main() {
   });
 
   // Users
-  server.get("/login", fetchSertUser);
+  server.get("/login", login);
   server.get("/autoLogin", autoLogin);
   server.post("/updateUser", updateUser);
 
