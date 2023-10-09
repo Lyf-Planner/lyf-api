@@ -8,9 +8,10 @@ export function buildTimetable(user: User, local_date: string) {
   // Use the date string to get the date of the client - use UTC as a medium
   var year = local_date.split("-").map((x) => parseInt(x));
   var universal_date = new Date();
-  universal_date.setUTCFullYear(year[0], year[1]-1, year[2]); // -1 since we do not 0-index
+  universal_date.setUTCFullYear(year[0], year[1] - 1, year[2]); // -1 since we do not 0-index
   universal_date.setUTCHours(0, 0, 0, 0);
   var local_string = universal_date.toUTCString();
+  console.log("Parsed local time string as", local_string);
 
   // Check if the user is new, give them the bare timetable data if so
   handleNewTimetableUser(user, local_string);
@@ -44,7 +45,8 @@ export function rebuildWeeks(timetable: any, local_date: string) {
   // User's zeroth week is outdated, need to restructure
 
   // First, see if they have any info on the week we need.
-  var weekStart = getStartOfCurrentWeek(local_date);
+  var weekStart = formatDateData(new Date(getStartOfCurrentWeek(local_date)));
+  console.log("Rebuilding weeks with current start", weekStart);
   var currentWeekIndex = timetable.weeks?.findIndex(
     (week: any) => week.Monday!.date === weekStart
   );
