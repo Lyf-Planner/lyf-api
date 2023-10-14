@@ -40,7 +40,16 @@ export async function autoLogin(req: Request, res: Response) {
 }
 
 export async function updateUser(req: Request, res: Response) {
-  var user = req.body;
+  var { user, token } = req.body;
+  var { user_id } = verifyToken(token);
+
+  // Users must be authorised as themselves to update said account!
+  if (user.user_id !== user_id) {
+    res
+      .status(401)
+      .end("You must be authorised as this user to update account data");
+    return;
+  }
 
   try {
     await saveUser(user);

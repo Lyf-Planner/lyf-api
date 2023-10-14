@@ -29,8 +29,8 @@ export async function authenticate(user: User, password: string) {
   return token;
 }
 
-export function verifyToken(token: string) {
-  return jwt.verify(token as string, process.env.JWT_SECRET as any);
+export function verifyToken(token: string): jwt.JwtPayload {
+  return jwt.verify(token as string, process.env.JWT_SECRET as any) as any;
 }
 
 export async function hashPass(password: string) {
