@@ -4,6 +4,13 @@ import { buildTimetable } from "./timetable/buildTimetable";
 import { buildNotes } from "./notes/buildNotes";
 import { User } from "./types";
 
+export async function fetchUser(user_id: string) {
+  var user = await usersCollection.findOne({ user_id });
+  delete user!._id;
+
+  return user;
+}
+
 export async function fetchSertUser(user_id: string) {
   var user = await usersCollection.findOne({ user_id });
   if (!user) {
@@ -31,4 +38,8 @@ export async function saveUser(user: User) {
     { user_id: user?.user_id },
     { $set: { ...user } }
   );
+}
+
+export async function deleteUser(user_id: string) {
+  await usersCollection.deleteOne({ user_id });
 }

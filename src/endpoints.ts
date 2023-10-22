@@ -2,12 +2,17 @@ import { Request, Response } from "express";
 import { User } from "./types";
 import { authenticate, verifyToken } from "./auth/resolveAuth";
 import * as jwt from "jsonwebtoken";
-import { buildUserData, fetchSertUser, saveUser } from "./userOps";
+import {
+  buildUserData,
+  deleteUser,
+  fetchSertUser,
+  fetchUser,
+  saveUser,
+} from "./userOps";
 import assert from "assert";
 
 export async function login(req: Request, res: Response) {
   var { user_id, password, local_date } = req.query;
-  console.log("Logging in", user_id);
 
   var user = await fetchSertUser(user_id as string);
   var token = await authenticate(user as User, password as string);
@@ -57,5 +62,23 @@ export async function updateUser(req: Request, res: Response) {
   } catch (err) {
     console.log("Update error", err);
     res.status(500).end(`${err}`);
+  }
+}
+
+export async function deleteMe(req: Request, res: Response) {
+  var { token, password } = req.body;
+  var { user_id } = verifyToken(token);
+
+  var user = await fetchUser(user_id);
+  var anotherToken = await authenticate(user as User, password as string);
+  if (!!anotherToken && verifyToken(token)) {
+    await deleteUser(user_id);
+    res.status(200).end(`User ${user_id} deleted successfully`);
+  } else {
+    res
+      .status(401)
+      .end(
+        "Attempt to delete user was unauthorized"
+      );
   }
 }

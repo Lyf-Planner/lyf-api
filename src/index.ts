@@ -1,5 +1,5 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
-import { updateUser, autoLogin, login } from "./endpoints";
+import { updateUser, autoLogin, login, deleteMe } from "./endpoints";
 import { Request, Response } from "express";
 
 const dotenv = require("dotenv");
@@ -36,6 +36,7 @@ async function main() {
   server.get("/login", login);
   server.get("/autoLogin", autoLogin);
   server.post("/updateUser", updateUser);
+  server.post("/deleteMe", deleteMe)
 
   const PORT = process.env.PORT || 8000;
 
