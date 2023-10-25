@@ -1,6 +1,7 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 import { updateUser, autoLogin, login, deleteMe } from "./endpoints";
 import { Request, Response } from "express";
+import { rateLimit } from "express-rate-limit";
 
 const dotenv = require("dotenv");
 const express = require("express");
@@ -27,6 +28,10 @@ export const usersCollection = db.collection("users");
 
 async function main() {
   await client.connect();
+  const updateLimiter = rateLimit({
+    windowMs: 5 * 1000, // n * 1000 where the window is n seconds
+    limit: 1, // Requests per window
+  });
 
   server.get("/", (req: Request, res: Response) => {
     res.send("Lyf API!");
@@ -35,8 +40,8 @@ async function main() {
   // Users
   server.get("/login", login);
   server.get("/autoLogin", autoLogin);
-  server.post("/updateUser", updateUser);
-  server.post("/deleteMe", deleteMe)
+  server.post("/updateUser", updateLimiter, updateUser);
+  server.post("/deleteMe", deleteMe);
 
   const PORT = process.env.PORT || 8000;
 

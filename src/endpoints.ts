@@ -56,6 +56,8 @@ export async function updateUser(req: Request, res: Response) {
     return;
   }
 
+  console.log("Autosaving", user_id);
+
   try {
     await saveUser(user);
     res.status(200).end();
@@ -75,10 +77,6 @@ export async function deleteMe(req: Request, res: Response) {
     await deleteUser(user_id);
     res.status(200).end(`User ${user_id} deleted successfully`);
   } else {
-    res
-      .status(401)
-      .end(
-        "Attempt to delete user was unauthorized"
-      );
+    res.status(401).end("Attempt to delete user was unauthorized");
   }
 }
