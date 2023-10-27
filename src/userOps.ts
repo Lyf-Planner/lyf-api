@@ -5,14 +5,14 @@ import { buildNotes } from "./notes/buildNotes";
 import { User } from "./types";
 
 export async function fetchUser(user_id: string) {
-  var user = await usersCollection.findOne({ user_id });
+  var user = await usersCollection.findOne({ user_id }) as any;
   delete user!._id;
 
   return user;
 }
 
 export async function fetchSertUser(user_id: string) {
-  var user = await usersCollection.findOne({ user_id });
+  var user = await usersCollection.findOne({ user_id }) as any;
   if (!user) {
     console.log("No user found, creating");
     await usersCollection.insertOne({
