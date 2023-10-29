@@ -28,19 +28,20 @@ export const usersCollection = db.collection("users");
 
 async function main() {
   await client.connect();
-  const updateLimiter = rateLimit({
-    windowMs: 5 * 1000, // n * 1000 where the window is n seconds
+  const nSecondLimiter = (n: number) => rateLimit({
+    windowMs: n * 1000, // n * 1000 where the window is n seconds
     limit: 1, // Requests per window
   });
+
 
   server.get("/", (req: Request, res: Response) => {
     res.send("Lyf API!");
   });
 
   // Users
-  server.get("/login", login);
+  server.get("/login", nSecondLimiter(30), login);
   server.get("/autoLogin", autoLogin);
-  server.post("/updateUser", updateLimiter, updateUser);
+  server.post("/updateUser", nSecondLimiter(5), updateUser);
   server.post("/deleteMe", deleteMe);
 
   const PORT = process.env.PORT || 8000;
