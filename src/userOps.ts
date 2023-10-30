@@ -5,18 +5,19 @@ import { buildNotes } from "./notes/buildNotes";
 import { User } from "./types";
 
 export async function fetchUser(user_id: string) {
-  var user = await usersCollection.findOne({ user_id }) as any;
+  var user = (await usersCollection.findOne({ user_id })) as any;
   delete user!._id;
 
   return user;
 }
 
 export async function fetchSertUser(user_id: string) {
-  var user = await usersCollection.findOne({ user_id }) as any;
+  var user = (await usersCollection.findOne({ user_id })) as any;
   if (!user) {
     console.log("No user found, creating");
     await usersCollection.insertOne({
       _id: new ObjectId(),
+      created: new Date(),
       user_id,
     });
     user = { user_id };
@@ -36,7 +37,7 @@ export function buildUserData(user: User, local_date: string) {
 export async function saveUser(user: User) {
   await usersCollection.updateOne(
     { user_id: user?.user_id },
-    { $set: { ...user } }
+    { $set: { ...user, last_updated: new Date() } }
   );
 }
 

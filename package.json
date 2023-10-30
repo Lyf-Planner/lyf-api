@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "lyf-api",
   "version": "1.0.0",
   "description": "Lyf API Server",
   "main": "index.js",
