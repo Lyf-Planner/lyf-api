@@ -1,28 +1,12 @@
-export type User = {
-  user_id: string;
-  pass_hash: string;
-  timetable?: Timetable;
-  notes?: Notes;
-};
+import { List, ListItem } from "./abstract";
 
 export type Timetable = {
-  upcoming?: string[];
-  todo?: string[];
+  upcoming?: List;
+  todo?: List;
   templates?: Template[];
   active_template?: number; // Indexes which template to use in upcoming week
   weeks?: Week[]; // Includes only weeks that have been modified by the user!
 };
-
-export type Notes = {
-  items: Note[];
-};
-
-export type Note = {
-  title: string;
-  content: string;
-};
-
-export type Upcoming = Event[];
 
 export type Template = Week;
 
@@ -44,8 +28,8 @@ export type DayPlan = {
   date?: string; // Not included for Templates, uses ISO string
 };
 
-export type Event = string;
-export type Task = string;
+export type Event = ListItem;
+export type Task = ListItem;
 
 export enum DaysOfWeek {
   Monday = "Monday",
