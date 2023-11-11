@@ -1,4 +1,4 @@
-import { User } from "../types";
+import { User } from "../types/user";
 import { initialiseWeek, mapDatesToWeek } from "./utils";
 
 export function handleNewTimetableUser(user: User, local_date: string) {

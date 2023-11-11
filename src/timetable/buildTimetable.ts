@@ -1,4 +1,4 @@
-import { User } from "../types";
+import { User } from "../types/user";
 import { handleNewTimetableUser } from "./newTimetable";
 import { formatDateData, getStartOfCurrentWeek, mapDatesToWeek } from "./utils";
 
