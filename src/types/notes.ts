@@ -4,6 +4,7 @@ export type Notes = {
   items: Note[];
 };
 export type Note = {
+  id: string;
   type?: NoteType;
   title: string;
   content: NoteContent;
