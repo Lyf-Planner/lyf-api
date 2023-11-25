@@ -24,7 +24,7 @@ Tasks to contribute to Lyf API are defined in the [Lyf API Jira](https://lyf-pla
 - Checkout a branch from main, whose name should be that of the ticket (e.g. `git checkout -b LYFAPI-13`)
 - Consult @ethanhusband about the changes to be made / you intend to make
   - Request the .env file if you don't have it already
-- When the changes are complete and tested, make a PR and await review
+- When the changes are complete and tested, make a PR for `main` branch and await review
 
 ## Deployments
 
