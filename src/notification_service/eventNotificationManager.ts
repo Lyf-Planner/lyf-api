@@ -2,6 +2,7 @@ import { ExpoPushMessage, ExpoPushToken } from "expo-server-sdk";
 import { EventNotification } from "../types/user";
 import { pushNotificationToExpo } from "./expoPushService";
 import moment from "moment";
+import { Logger } from "../utils/logging";
 
 export class EventNotificationManager {
   private eventsQueue: EventNotification[] = [];
@@ -17,11 +18,13 @@ export class EventNotificationManager {
   }
 
   private refreshQueue() {
+    logger.debug("Checking event notification queue");
     var now = this.nearestMinute();
 
     if (this.eventsQueue.length === 0) return;
     while (this.eventsQueue[0].scheduled_for! <= now) {
       let poppedEvent = this.eventsQueue.shift()!;
+      logger.debug(`Publishing event ${poppedEvent.event_name}`);
       this.publish(poppedEvent);
     }
   }
@@ -85,3 +88,5 @@ export class EventNotificationManager {
     else return `$${remainingMins} minutes`;
   }
 }
+
+const logger = Logger.of(EventNotificationManager);
