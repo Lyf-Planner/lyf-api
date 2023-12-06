@@ -28,6 +28,8 @@ export type PremiumNotificationSettings = {
 export type EventNotification = {
   item_id: string;
   event_name: string;
+  event_datetime: Date;
   minutes_away: string;
-  notification_scheduled: string;
-}
+  scheduled_for?: Date;
+  to?: string;
+};

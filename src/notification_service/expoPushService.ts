@@ -4,7 +4,7 @@ import { Expo, ExpoPushMessage } from "expo-server-sdk";
 // optionally providing an access token if you have enabled push security
 var expo = new Expo({ accessToken: process.env.EXPO_NOTIFICATION_TOKEN });
 
-export const pushNotification = async (messages: ExpoPushMessage[]) => {
+export const pushNotificationToExpo = async (messages: ExpoPushMessage[]) => {
   for (var message of messages) {
     // Each push token looks like ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]
     // Check that all your push tokens appear to be valid Expo push tokens

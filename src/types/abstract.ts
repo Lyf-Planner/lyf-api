@@ -4,6 +4,7 @@ export type ListItem = {
   title: string;
   content: string;
   desc?: string;
+  date?: string;
   time?: string;
   notify?: boolean;
   minutes_before?: string;
