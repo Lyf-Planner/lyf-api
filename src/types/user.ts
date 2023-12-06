@@ -10,14 +10,24 @@ export type User = {
 };
 
 export type Premium = {
-  verification: string; // Stripe payment key or smth
-  enabled: boolean;
-  settings: PremiumFeatureSettings;
+  verification?: string; // Stripe payment key or smth
+  enabled?: boolean;
+  notifications?: PremiumNotificationSettings;
 };
 
-export type PremiumFeatureSettings = {
-  daily_notifications: boolean;
-  event_notifications: boolean;
-  mfa: boolean; 
+export type PremiumNotificationSettings = {
+  daily_notifications?: boolean;
+  daily_notification_time?: string;
+  persistent_daily_notification?: boolean;
+  event_notifications_enabled?: boolean;
+  event_notification_minutes_before?: string;
+  event_notifications?: EventNotification[];
+  notification_token?: string;
 };
 
+export type EventNotification = {
+  item_id: string;
+  event_name: string;
+  minutes_away: string;
+  notification_scheduled: string;
+}
