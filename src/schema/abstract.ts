@@ -1,11 +1,14 @@
+import { ObjectId } from "mongodb";
+
+export type ID = ObjectId;
+
 export type List = ListItem[];
 
 export type ListItem = {
-  id: string;
+  id: ID;
   title: string;
-  content: string;
-  desc?: string;
   date?: string;
+  desc?: string;
   time?: string;
   notify?: boolean;
   minutes_before?: string;

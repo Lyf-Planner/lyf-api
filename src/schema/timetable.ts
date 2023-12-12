@@ -1,11 +1,9 @@
-import { List, ListItem } from "./abstract";
+import { ID, ListItem } from "./abstract";
 
 export type Timetable = {
-  upcoming?: List;
-  todo?: List;
   templates?: Template[];
-  active_template?: number; // Indexes which template to use in upcoming week
-  weeks?: Week[]; // Includes only weeks that have been modified by the user!
+  active_template?: number;
+  items: (ID | ListItem)[];
 };
 
 export type Template = Week;
@@ -23,13 +21,10 @@ export type Week = {
 export type DayPlan = {
   day?: DaysOfWeek;
   metadata?: string;
-  events?: Event[];
-  tasks?: Task[];
+  events?: ListItem[];
+  tasks?: ListItem[];
   date?: string; // Not included for Templates, uses ISO string
 };
-
-export type Event = ListItem;
-export type Task = ListItem;
 
 export enum DaysOfWeek {
   Monday = "Monday",

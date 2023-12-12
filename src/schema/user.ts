@@ -1,11 +1,14 @@
+import { ID } from "./abstract";
 import { Notes } from "./notes";
 import { Timetable } from "./timetable";
 
 export type User = {
   user_id: string;
-  pass_hash: string;
+  pass_hash?: string;
+  notification_token_hash?: string;
+  friends?: ID|User[];
   timetable?: Timetable;
-  notes?: Notes;
+  notes?: Notes[];
   premium?: Premium;
 };
 

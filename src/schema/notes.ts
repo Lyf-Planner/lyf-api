@@ -1,10 +1,10 @@
-import { List } from "./abstract";
+import { ID, List } from "./abstract";
 
 export type Notes = {
-  items: Note[];
+  items: (ID | Note)[];
 };
 export type Note = {
-  id: string;
+  id: ID;
   type?: NoteType;
   title: string;
   content: NoteContent;
