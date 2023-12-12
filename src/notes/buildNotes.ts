@@ -1,4 +1,4 @@
-import { User } from "../types/user";
+import { User } from "../schema/user";
 import { handleNewNotesUser } from "./newNotes";
 
 export function buildNotes(user: User) {

@@ -1,8 +1,13 @@
 import { ExpoPushMessage, ExpoPushToken } from "expo-server-sdk";
-import { EventNotification } from "../types/user";
+import { EventNotification } from "../schema/user";
 import { pushNotificationToExpo } from "./expoPushService";
 import moment from "moment";
 import { Logger } from "../utils/logging";
+
+// When we need to start scaling this:
+// - Consider SQS
+// - Store queue in NoSQL database as an object, where there is a key for any minute (use iso string) with an event
+// - Then can easily read and write when necessary
 
 export class EventNotificationManager {
   private eventsQueue: EventNotification[] = [];
@@ -29,9 +34,9 @@ export class EventNotificationManager {
     }
   }
 
-  private nearestMinute() {
+  private nearestMinute(electedDate?: Date) {
     var coeff = 1000 * 60 * 5;
-    var date = new Date(); //or use any other date
+    var date = electedDate || new Date(); //or use any other date
     return new Date(Math.round(date.getTime() / coeff) * coeff);
   }
 

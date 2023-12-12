@@ -1,6 +1,7 @@
 export type List = ListItem[];
 
 export type ListItem = {
+  id: string;
   title: string;
   content: string;
   desc?: string;
