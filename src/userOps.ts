@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import { usersCollection } from ".";
 import { buildTimetable } from "./timetable/buildTimetable";
 import { buildNotes } from "./notes/buildNotes";
-import { User } from "./schema/user";
+import { User } from "./api/user";
 
 export async function fetchUser(user_id: string) {
   var user = (await usersCollection.findOne({ user_id })) as any;

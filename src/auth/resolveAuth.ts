@@ -1,6 +1,6 @@
 import { compare, hash } from "bcrypt";
 import * as jwt from "jsonwebtoken";
-import { User } from "../schema/user";
+import { User } from "../api/user";
 import { saveUser } from "../userOps";
 
 export async function authenticate(user: User, password: string) {

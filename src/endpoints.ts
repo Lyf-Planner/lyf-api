@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { User } from "./schema/user";
+import { User } from "./api/user";
 import { authenticate, verifyToken } from "./auth/resolveAuth";
 import * as jwt from "jsonwebtoken";
 import {

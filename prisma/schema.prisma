@@ -1,0 +1,188 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// USERS
+
+model User {
+  user_id                 String         @id
+  pass_hash               String
+  notification_token_hash String?
+  user_details            UserDetails    @relation(fields: [user_id], references: [user_id], map: "details_fk")
+  timetable               Timetable      @relation(fields: [user_id], references: [user_id], map: "timetable_fk")
+  notes                   NotesOnUsers[]
+}
+
+model UserDetails {
+  user_id    String           @id
+  user       User?
+  email      String?          @unique
+  name       String?
+  pfp_url    String?
+  friends    UserFriendship[] @relation("User A")
+  friends_of UserFriendship[] @relation("User B")
+}
+
+// FRIENDSHIPS
+
+model UserFriendship {
+  status    FriendshipStatus
+  user_id_A String
+  user_A    UserDetails      @relation("User A", references: [user_id], fields: [user_id_A], map: "user_A_fk")
+  user_id_B String
+  user_B    UserDetails      @relation("User B", references: [user_id], fields: [user_id_A], map: "user_B_fk")
+
+  @@id([user_id_A, user_id_B])
+}
+
+enum FriendshipStatus {
+  Confirmed
+  Pending
+  Removed
+  Declined
+}
+
+// TIMETABLE
+
+model Timetable {
+  user_id String              @id
+  items   ItemsOnTimetables[]
+  User    User[]
+}
+
+enum DaysOfWeek {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
+// NOTES
+
+model Note {
+  id       String         @id
+  owner_id String
+  type     NoteType
+  title    String
+  list_id  String?        @unique
+  list     ListItem?      @relation(fields: [list_id], references: [id])
+  content  String?
+  users    NotesOnUsers[]
+}
+
+model NotesOnUsers {
+  permissions ItemPermission
+  user_id     String
+  user        User           @relation(fields: [user_id], references: [user_id])
+  note_id     String
+  note        Note           @relation(fields: [note_id], references: [id])
+
+  @@id([user_id, note_id])
+}
+
+enum NoteType {
+  Note
+  List
+}
+
+// LISTS 
+
+model ListItem {
+  id               String              @id
+  owner_id         String
+  created          DateTime?
+  title            String
+  type             ListItemType
+  day              DaysOfWeek
+  date             String?
+  desc             String?
+  time             String?
+  notify           Boolean?
+  show_in_upcoming Boolean?
+  minutes_before   String?
+  notification     Notification        @relation(fields: [id], references: [item_id])
+  timetables       ItemsOnTimetables[]
+  note             Note?
+}
+
+enum ListItemType {
+  Event
+  Task
+  Note
+}
+
+model ItemsOnTimetables {
+  template_item Boolean
+  permissions   ItemPermission
+  user_id       String
+  timetable     Timetable      @relation(fields: [user_id], references: [user_id])
+  item_id       String
+  item          ListItem       @relation(fields: [item_id], references: [id])
+
+  @@id([user_id, item_id])
+}
+
+enum ItemPermission {
+  Owner
+  Editor
+  ReadOnly
+}
+
+// model ItemsOnNotes {
+//   note_id String
+//   note    Note     @relation(fields: [timetable_id], references: [timetable_id])
+//   item_id String
+//   item    ListItem @relation(fields: [item_id], references: [id])
+
+//   @@id([timetable_id, item_id])
+// }
+
+// Notification
+
+model Notification {
+  item_id       String             @id
+  status        NotificationStatus
+  scheduled_for DateTime
+  receipt       String?
+  to            String
+  ListItem      ListItem[]
+}
+
+enum NotificationStatus {
+  Cancelled
+  Planned
+  Sending
+  Sent
+  Received
+}
+
+// PREMIUM
+
+model Premium {
+  user_id       String               @id @unique
+  verification  String // Stripe payment key or smth
+  enabled       Boolean
+  notifications NotificationSettings @relation(fields: [user_id], references: [user_id])
+}
+
+model NotificationSettings {
+  user_id                           String   @id
+  daily_notifications               Boolean?
+  daily_notification_time           String?
+  persistent_daily_notification     Boolean?
+  event_notifications_enabled       Boolean?
+  event_notification_minutes_before String?
+  notification_token                String?
+  Premium                           Premium?
+}

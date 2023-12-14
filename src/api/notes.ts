@@ -1,11 +1,13 @@
-import { ID, List } from "./abstract";
+import { ID } from "./abstract";
+import { List } from "./list";
 
 export type Notes = {
-  items: (ID | Note)[];
+  items: Note[];
 };
+
 export type Note = {
   id: ID;
-  type?: NoteType;
+  type: NoteType;
   title: string;
   content: NoteContent;
 };

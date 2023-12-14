@@ -1,5 +1,5 @@
 import { ExpoPushMessage, ExpoPushToken } from "expo-server-sdk";
-import { EventNotification } from "../schema/user";
+import { EventNotification } from "../api/premium";
 import { pushNotificationToExpo } from "./expoPushService";
 import moment from "moment";
 import { Logger } from "../utils/logging";

@@ -1,4 +1,4 @@
-import { User } from "../schema/user";
+import { User } from "../api/user";
 
 export function handleNewNotesUser(user: User) {
   if (!user.notes)

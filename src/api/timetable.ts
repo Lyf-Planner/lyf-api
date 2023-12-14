@@ -1,25 +1,26 @@
-import { ID, ListItem } from "./abstract";
+import { ID } from "./abstract";
+import {ListItem} from "./list"
 
 export type Timetable = {
   templates?: Template[];
   active_template?: number;
-  items: (ID | ListItem)[];
+  items: ListItem[];
 };
 
 export type Template = Week;
 
 export type Week = {
-  Monday?: DayPlan;
-  Tuesday?: DayPlan;
-  Wednesday?: DayPlan;
-  Thursday?: DayPlan;
-  Friday?: DayPlan;
-  Saturday?: DayPlan;
-  Sunday?: DayPlan;
+  Monday: DayPlan;
+  Tuesday: DayPlan;
+  Wednesday: DayPlan;
+  Thursday: DayPlan;
+  Friday: DayPlan;
+  Saturday: DayPlan;
+  Sunday: DayPlan;
 };
 
 export type DayPlan = {
-  day?: DaysOfWeek;
+  day: DaysOfWeek;
   metadata?: string;
   events?: ListItem[];
   tasks?: ListItem[];

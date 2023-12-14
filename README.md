@@ -31,3 +31,9 @@ Tasks to contribute to Lyf API are defined in the [Lyf API Jira](https://lyf-pla
 Deployments are made by pushing to the `production` branch, where they will be automatically deployed by [Railway](https://railway.app/project/f775ac44-eda0-44f0-9299-df915e4b8f20/service/ec403ab7-ec5e-4902-81ac-74f195778b7a) if successfully built and can be accessed at [this endpoint](https://lyf-api-production.up.railway.app)
 
 If you intend on making a deployment, please consult @ethanhusband before doing so.
+
+## Notes
+
+It is worth noting that the backend models differ slightly to the database schema - the reason for this is that the database schema simply implies the patterns in which data is stored, whereas the backend schema implies the ways in which data should be defined when operated on in the backend itself.
+
+In the backend schema, we've defined

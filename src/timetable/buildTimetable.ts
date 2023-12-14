@@ -1,4 +1,4 @@
-import { User } from "../schema/user";
+import { User } from "../api/user";
 import { handleNewTimetableUser } from "./newTimetable";
 import { formatDateData, getStartOfCurrentWeek, mapDatesToWeek } from "./utils";
 

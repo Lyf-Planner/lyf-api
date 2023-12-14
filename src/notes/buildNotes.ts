@@ -1,4 +1,4 @@
-import { User } from "../schema/user";
+import { User } from "../api/user";
 import { handleNewNotesUser } from "./newNotes";
 
 export function buildNotes(user: User) {
