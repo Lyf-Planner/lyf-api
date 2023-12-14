@@ -1,4 +1,4 @@
-import { ID } from "./abstract";
+import { ID, UserAccess } from "./abstract";
 import { List } from "./list";
 
 export type Notes = {
@@ -10,6 +10,7 @@ export type Note = {
   type: NoteType;
   title: string;
   content: NoteContent;
+  permitted_users: UserAccess[];
 };
 
 export enum NoteType {

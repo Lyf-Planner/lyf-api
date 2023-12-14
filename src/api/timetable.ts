@@ -1,10 +1,9 @@
 import { ID } from "./abstract";
-import { ListItem } from "./list";
+import { ListItem, UserListItem } from "./list";
 
 export type Timetable = {
-  templates?: Template[];
   active_template?: number;
-  items: (ID | ListItem)[];
+  items: UserListItem[];
 };
 
 export type Template = Week;

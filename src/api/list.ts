@@ -1,7 +1,15 @@
-import { ID } from "./abstract";
+import { ID, UserAccess } from "./abstract";
 
 export type List = (ID | ListItem)[];
 
+// Relationship with list held by singular user
+export type UserListItem = {
+  id: ID;
+  show_in_upcoming?: boolean;
+  notification?: EventNotification;
+};
+
+// List item itself
 export type ListItem = {
   id: ID;
   title: string;
@@ -11,10 +19,8 @@ export type ListItem = {
   template_item?: boolean;
   desc?: string;
   time?: string;
-  notify?: boolean;
-  show_in_upcoming?: boolean;
-  minutes_before?: string;
-  notification?: EventNotification;
+  suggested_changes: List;
+  permitted_users: UserAccess[];
 };
 
 export type EventNotification = {

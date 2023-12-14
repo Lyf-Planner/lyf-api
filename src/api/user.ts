@@ -4,7 +4,7 @@ import { Premium } from "./premium";
 import { Timetable } from "./timetable";
 
 export type User = {
-  user_id: string;
+  user_id: ID;
   pass_hash: string;
   notification_token_hash?: string;
   details?: UserDetails;
@@ -18,5 +18,5 @@ export type UserDetails = {
   name?: string;
   email?: string;
   pfp_url?: string;
-  friends?: UserDetails[];
+  friends?: ID[];
 };
