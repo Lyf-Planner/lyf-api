@@ -2,7 +2,7 @@ import { ID } from "./abstract";
 import { List } from "./list";
 
 export type Notes = {
-  items: Note[];
+  items: (ID | Note)[];
 };
 
 export type Note = {

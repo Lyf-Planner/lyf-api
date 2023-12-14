@@ -1,12 +1,14 @@
 import { ID } from "./abstract";
 
-export type List = ListItem[];
+export type List = (ID | ListItem)[];
 
 export type ListItem = {
   id: ID;
   title: string;
   type: ListItemTypes;
   date?: string;
+  day?: string;
+  template_item?: boolean;
   desc?: string;
   time?: string;
   notify?: boolean;

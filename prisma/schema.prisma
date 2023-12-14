@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "cockroachdb"
   url      = env("DATABASE_URL")
 }
 
@@ -36,9 +36,9 @@ model UserDetails {
 model UserFriendship {
   status    FriendshipStatus
   user_id_A String
-  user_A    UserDetails      @relation("User A", references: [user_id], fields: [user_id_A], map: "user_A_fk")
+  user_A    UserDetails      @relation("User A", references: [user_id], fields: [user_id_A])
   user_id_B String
-  user_B    UserDetails      @relation("User B", references: [user_id], fields: [user_id_A], map: "user_B_fk")
+  user_B    UserDetails      @relation("User B", references: [user_id], fields: [user_id_B])
 
   @@id([user_id_A, user_id_B])
 }
