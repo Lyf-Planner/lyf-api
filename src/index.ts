@@ -1,4 +1,4 @@
-import { updateUser, autoLogin, login, deleteMe } from "./endpoints";
+import { updateUser, autoLogin, login, deleteMe } from "./rest/endpoints";
 import { Request, Response } from "express";
 import { rateLimit } from "express-rate-limit";
 import env from "./envManager";
