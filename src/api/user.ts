@@ -1,10 +1,10 @@
-import { ID } from "./abstract";
+import { ID, Identifiable } from "./abstract";
 import { Notes } from "./notes";
 import { Premium } from "./premium";
 import { Timetable } from "./timetable";
 
-export type User = {
-  user_id: ID;
+export type User = Identifiable & {
+  user_id: string;
   pass_hash: string;
   notification_token_hash?: string;
   details?: UserDetails;

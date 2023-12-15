@@ -1,7 +1,13 @@
-export type ID = String;
+import { ObjectId } from "mongodb";
+
+export type ID = ObjectId;
+
+export type Identifiable = {
+  _id: ID;
+};
 
 export type UserAccess = {
-  user_id: ID;
+  user_id: string;
   permissions: Permission;
 };
 

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { User } from "./api/user";
-import { authenticate, verifyToken } from "./auth/resolveAuth";
+import { User } from "../api/user";
+import { authenticate, verifyToken } from "../auth/resolveAuth";
 import * as jwt from "jsonwebtoken";
 import {
   buildUserData,
@@ -8,7 +8,7 @@ import {
   fetchSertUser,
   fetchUser,
   saveUser,
-} from "./userOps";
+} from "../userOps";
 import assert from "assert";
 
 export async function login(req: Request, res: Response) {
@@ -42,6 +42,10 @@ export async function autoLogin(req: Request, res: Response) {
     console.log(err);
     res.status(401).end();
   }
+}
+
+export async function createUser(req: Request, res: Response) {
+  
 }
 
 export async function updateUser(req: Request, res: Response) {

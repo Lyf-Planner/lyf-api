@@ -1,12 +1,11 @@
-import { ID, UserAccess } from "./abstract";
+import { ID, Identifiable, UserAccess } from "./abstract";
 import { List } from "./list";
 
 export type Notes = {
   items: (ID | Note)[];
 };
 
-export type Note = {
-  id: ID;
+export type Note = Identifiable & {
   type: NoteType;
   title: string;
   content: NoteContent;

@@ -1,17 +1,15 @@
-import { ID, UserAccess } from "./abstract";
+import { ID, Identifiable, UserAccess } from "./abstract";
 
-export type List = (ID | ListItem)[];
+export type List = (UserListItem | ListItem)[];
 
 // Relationship with list held by singular user
-export type UserListItem = {
-  id: ID;
+export type UserListItem = Identifiable & {
   show_in_upcoming?: boolean;
   notification?: EventNotification;
 };
 
 // List item itself
-export type ListItem = {
-  id: ID;
+export type ListItem = Identifiable & {
   title: string;
   type: ListItemTypes;
   date?: string;
@@ -19,7 +17,8 @@ export type ListItem = {
   template_item?: boolean;
   desc?: string;
   time?: string;
-  suggested_changes: List;
+  suggestions_only?: boolean;
+  suggested_changes?: List[];
   permitted_users: UserAccess[];
 };
 

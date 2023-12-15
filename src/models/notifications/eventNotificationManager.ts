@@ -1,8 +1,8 @@
 import { ExpoPushMessage, ExpoPushToken } from "expo-server-sdk";
-import { EventNotification } from "../api/premium";
-import { pushNotificationToExpo } from "./expoPushService";
+import { EventNotification } from "../../api/list";
+import { pushNotificationToExpo } from "../../services/expoPushService";
 import moment from "moment";
-import { Logger } from "../utils/logging";
+import { Logger } from "../../utils/logging";
 
 // When we need to start scaling this:
 // - Consider SQS
