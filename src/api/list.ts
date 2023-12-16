@@ -3,7 +3,9 @@ import { ID, Identifiable, UserAccess } from "./abstract";
 export type List = (UserListItem | ListItem)[];
 
 // Relationship with list held by singular user
+// Should only store current week and above
 export type UserListItem = Identifiable & {
+  data?: ListItem;
   show_in_upcoming?: boolean;
   notification?: EventNotification;
 };
@@ -19,7 +21,7 @@ export type ListItem = Identifiable & {
   time?: string;
   suggestions_only?: boolean;
   suggested_changes?: List[];
-  permitted_users: UserAccess[];
+  permitted_users?: UserAccess[];
 };
 
 export type EventNotification = {

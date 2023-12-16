@@ -36,7 +36,7 @@ export class Collection<T extends Identifiable> {
     return object;
   }
 
-  public async getMany(ids: ID[], throwOnUnfound = true): Promise<T[]> {
+  public async getManyById(ids: ID[], throwOnUnfound = true): Promise<T[]> {
     var results = (await this.collection
       .find({ _id: { $in: ids } })
       .toArray()) as any;
@@ -47,12 +47,27 @@ export class Collection<T extends Identifiable> {
     return results;
   }
 
-  public async get(id: ID, throwOnUnfound = true): Promise<T | null> {
+  public async getById(id: ID, throwOnUnfound = true): Promise<T | null> {
     var result = (await this.collection.findOne({ _id: id })) as T | null;
 
     result === null && this.handleSingleUnfound(id, throwOnUnfound);
 
     return result;
+  }
+
+  public async getWhere(
+    condition: Object,
+    acceptManyResults = false,
+    throwOnUnfound = true
+  ): Promise<T | T[] | null> {
+    var result = acceptManyResults
+      ? await this.collection.find(condition).toArray()
+      : await this.collection.findOne(condition);
+
+    if ((acceptManyResults && result?.length === 0) || !result)
+      this.handleConditionUnfound(condition, throwOnUnfound);
+
+    return acceptManyResults ? (result as T[]) : (result as T);
   }
 
   public async update(object: T, upsert = false): Promise<T> {
@@ -112,6 +127,16 @@ export class Collection<T extends Identifiable> {
       this.logger.error(message);
       throw new Error(message);
     } else this.logger.warn(message);
+  }
+
+  private handleConditionUnfound(condition: Object, throwOnUnfound: boolean) {
+    var message = `No results were found for query of docs where ${condition}`;
+    if (throwOnUnfound) {
+      this.logger.error(message);
+      throw new Error(message);
+    } else {
+      this.logger.warn(message);
+    }
   }
 
   private async handleDuplicateExists(object: T, upsert: boolean) {

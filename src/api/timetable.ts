@@ -6,6 +6,7 @@ export type Timetable = {
   items: UserListItem[];
 };
 
+// These types are used in the frontend!
 export type Template = Week;
 
 export type Week = {

@@ -9,7 +9,7 @@ export type Note = Identifiable & {
   type: NoteType;
   title: string;
   content: NoteContent;
-  permitted_users: UserAccess[];
+  permitted_users?: UserAccess[];
 };
 
 export enum NoteType {

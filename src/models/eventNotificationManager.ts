@@ -1,13 +1,13 @@
 import { ExpoPushMessage, ExpoPushToken } from "expo-server-sdk";
-import { EventNotification } from "../../api/list";
-import { pushNotificationToExpo } from "../../services/expoPushService";
+import { EventNotification } from "../api/list";
+import { Logger } from "../utils/logging";
+import expoPushService from "../services/expoPushService";
 import moment from "moment";
-import { Logger } from "../../utils/logging";
 
 // When we need to start scaling this:
 // - Consider SQS
 // - Store queue in NoSQL database as an object, where there is a key for any minute (use iso string) with an event
-// - Then can easily read and write when necessary
+// - Give this it's own microservice, to prevent effects when API gets horizontally scaled, or find a way of preventing double calls
 
 export class EventNotificationManager {
   private eventsQueue: EventNotification[] = [];
@@ -67,7 +67,7 @@ export class EventNotificationManager {
 
   private async publish(message: EventNotification) {
     var pushMessage = this.processForPublishing(message);
-    await pushNotificationToExpo([pushMessage]);
+    await expoPushService.pushNotificationToExpo([pushMessage]);
   }
 
   // Convert to ExpoPushMessage

@@ -26,11 +26,11 @@ export class Database {
     else return returnObject;
   }
 
-  public usersCollection = () =>
+  public usersCollection = (): Collection<User> =>
     this.initialisedGateway(this.usersCollectionRef);
-  public itemsCollection = () =>
+  public itemsCollection = (): Collection<ListItem> =>
     this.initialisedGateway(this.itemsCollectionRef);
-  public notesCollection = () =>
+  public notesCollection = (): Collection<Note> =>
     this.initialisedGateway(this.notesCollectionRef);
 
   private setClient() {
