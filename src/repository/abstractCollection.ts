@@ -33,6 +33,8 @@ export class Collection<T extends Identifiable> {
 
     var result = await this.collection.insertOne(object);
     assert(result.acknowledged);
+    object._id = result.insertedId;
+
     return object;
   }
 

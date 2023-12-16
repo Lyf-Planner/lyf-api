@@ -27,6 +27,8 @@ export class ItemService {
       item.permitted_users.filter((x) => x.user_id === user_id).length === 1
     );
   }
+
+
 }
 
 const itemService = new ItemService();

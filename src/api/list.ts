@@ -14,6 +14,7 @@ export type UserListItem = Identifiable & {
 export type ListItem = Identifiable & {
   title: string;
   type: ListItemTypes;
+  created: Date;
   date?: string;
   day?: string;
   template_item?: boolean;
