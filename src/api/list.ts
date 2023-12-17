@@ -16,13 +16,21 @@ export type ListItem = Identifiable & {
   type: ListItemTypes;
   created: Date;
   date?: string;
-  day?: string;
+  day?: string; // For templates
   template_item?: boolean;
   desc?: string;
   time?: string;
   suggestions_only?: boolean;
   suggested_changes?: List[];
   permitted_users?: UserAccess[];
+};
+
+export type ListItemInput = {
+  title: string;
+  type: ListItemTypes;
+  created?: Date;
+  date?: string;
+  day?: string; // For templates
 };
 
 export type EventNotification = {
