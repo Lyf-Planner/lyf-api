@@ -11,18 +11,46 @@ export type UserListItem = Identifiable & {
 };
 
 // List item itself
-export type ListItem = Identifiable & {
+export type ListItem = Identifiable &
+  ItemMetadata &
+  ItemSettings &
+  ItemSocialData;
+
+export type ItemMetadata = {
   title: string;
   type: ListItemTypes;
   created: Date;
   date?: string;
   day?: string; // For templates
-  template_item?: boolean;
   desc?: string;
   time?: string;
+};
+
+// Only modifiable by owners
+export type ItemSettings = {
+  template_item?: boolean;
   suggestions_only?: boolean;
-  suggested_changes?: List[];
+};
+
+export type ItemSocialData = {
+  suggested_changes?: SuggestedChange[];
+  comments?: Comment[];
   permitted_users?: UserAccess[];
+  invited_users?: string[];
+};
+
+export type SuggestedChange = {
+  data: ListItem;
+  user_id: string;
+  vote?: boolean;
+  approved_by?: string[];
+  dismissed_by?: string[];
+};
+
+export type Comment = {
+  text: string;
+  user_id: string;
+  tags: string[];
 };
 
 export type ListItemInput = {

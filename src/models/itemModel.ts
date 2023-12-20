@@ -1,8 +1,14 @@
 import { ObjectId } from "mongodb";
 import { ID, Permission, UserAccess } from "../api/abstract";
-import { ListItem, ListItemInput } from "../api/list";
+import {
+  ItemSettings,
+  ItemSocialData,
+  ListItem,
+  ListItemInput,
+} from "../api/list";
 import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
+import { ItemPermissions } from "./ItemPermissions";
 
 export class ItemModel {
   private logger = Logger.of(ItemModel);
@@ -24,7 +30,27 @@ export class ItemModel {
 
   // Upserts state to db
   public async commit() {
-    await db.itemsCollection().create(this.item, true, true);
+    // Commit should notify users if multiple!
+
+    await db.itemsCollection().update(this.item, true);
+  }
+
+  public async delete() {
+    await db.itemsCollection().delete(this.item._id);
+  }
+
+  public updateAsSuggestion(new_list: ListItem, user_id: string) {
+    this.item.suggested_changes?.push({
+      data: new_list,
+      user_id,
+      approved_by: [],
+      dismissed_by: [],
+    });
+  }
+
+  public requestorPermission() {
+    if (!this.requested_by) return;
+    return ItemPermissions.getUserPermission(this.item, this.requested_by);
   }
 
   // Builder method
@@ -36,9 +62,10 @@ export class ItemModel {
     var result = await db.itemsCollection().getById(id);
     var permitted =
       !checkPermissions ||
-      this.validateUserItemAccess(result as ListItem, user_id);
+      ItemPermissions.validateUserItemAccess(result as ListItem, user_id);
 
-    if (!permitted) throw new Error(`User not permitted to access item ${id}`);
+    if (!permitted)
+      throw new Error(`User ${user_id} is not permitted to access item ${id}`);
     else {
       return new ItemModel(result as ListItem, true, user_id);
     }
@@ -62,13 +89,6 @@ export class ItemModel {
     return model;
   }
 
-  static validateUserItemAccess(item: ListItem, user_id: string): boolean {
-    return (
-      !item.permitted_users ||
-      item.permitted_users.filter((x) => x.user_id === user_id).length === 1
-    );
-  }
-
   static async getRawUserItems(
     ids: ID[],
     user_id: string,
@@ -76,7 +96,8 @@ export class ItemModel {
   ): Promise<ListItem[]> {
     var results = await db.itemsCollection().getManyById(ids, false);
     var filteredResults = results.filter(
-      (x) => !validate_access || this.validateUserItemAccess(x, user_id)
+      (x) =>
+        !validate_access || ItemPermissions.validateUserItemAccess(x, user_id)
     );
     if (filteredResults.length !== results.length) {
       let logger = Logger.of(ItemModel);
@@ -88,5 +109,21 @@ export class ItemModel {
     }
 
     return filteredResults;
+  }
+
+  static settingsFieldsOnly(item: ListItem): ItemSettings {
+    return {
+      suggestions_only: item.suggestions_only,
+      template_item: item.template_item,
+    };
+  }
+
+  static socialFieldsOnly(item: ListItem): ItemSocialData {
+    return {
+      suggested_changes: item.suggested_changes,
+      comments: item.comments,
+      permitted_users: item.permitted_users,
+      invited_users: item.invited_users,
+    };
   }
 }

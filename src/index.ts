@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { UserEndpoints } from "./rest/user";
-import { ItemEndpoints } from "./rest/item";
+import { UserEndpoints } from "./rest/userEndpoints";
+import { ItemEndpoints } from "./rest/itemEndpoints";
 import { NoteEndpoints } from "./rest/note";
 import express from "express";
 import dotenv from "dotenv";

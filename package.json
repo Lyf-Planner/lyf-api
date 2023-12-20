@@ -34,6 +34,7 @@
     "expo-server-sdk": "^3.7.0",
     "express": "^4.17.1",
     "express-rate-limit": "^7.1.2",
+    "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",
     "moment": "^2.29.4",
     "mongodb": "^4.1.4",

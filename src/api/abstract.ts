@@ -12,7 +12,7 @@ export type UserAccess = {
 };
 
 export enum Permission {
-  Owner,
-  Editor,
-  Viewer,
+  Owner = "Owner",
+  Editor = "Editor",
+  Viewer = "Viewer",
 }
