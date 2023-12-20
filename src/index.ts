@@ -2,6 +2,7 @@ import { MongoClient, ServerApiVersion } from "mongodb";
 import { updateUser, autoLogin, login, deleteMe } from "./endpoints";
 import { Request, Response } from "express";
 import { rateLimit } from "express-rate-limit";
+import bodyParserErrorHandler from "express-body-parser-error-handler";
 
 const dotenv = require("dotenv");
 const express = require("express");
@@ -22,17 +23,18 @@ const client = new MongoClient(process.env.MONGO_URL as string, {
 //middleware
 server.use(cors());
 server.use(express.json());
+server.use(bodyParserErrorHandler());
 
 const db = client.db("lyf-tmp");
 export const usersCollection = db.collection("users");
 
 async function main() {
   await client.connect();
-  const nSecondLimiter = (n: number) => rateLimit({
-    windowMs: n * 1000, // n * 1000 where the window is n seconds
-    limit: 1, // Requests per window
-  });
-
+  const nSecondLimiter = (n: number) =>
+    rateLimit({
+      windowMs: n * 1000, // n * 1000 where the window is n seconds
+      limit: 1, // Requests per window
+    });
 
   server.get("/", (req: Request, res: Response) => {
     res.send("Lyf API!");

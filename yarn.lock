@@ -950,6 +950,16 @@
     "@types/qs" "*"
     "@types/serve-static" "*"
 
+"@types/express@^4.17.15":
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/@types/express/-/express-4.17.21.tgz#c26d4a151e60efe0084b23dc3369ebc631ed192d"
+  integrity sha512-ejlPM315qwLpaQlQDTjPdsUFSc6ZsP4AN6AlWnogPjQ7CVi7PYF3YVz+CY3jE2pwYf7E/7HlDAN0rV2GxTG0HQ==
+  dependencies:
+    "@types/body-parser" "*"
+    "@types/express-serve-static-core" "^4.17.33"
+    "@types/qs" "*"
+    "@types/serve-static" "*"
+
 "@types/http-errors@*":
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@types/http-errors/-/http-errors-2.0.3.tgz#c54e61f79b3947d040f150abd58f71efb422ff62"
@@ -1395,6 +1405,13 @@ etag@~1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==
+
+express-body-parser-error-handler@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/express-body-parser-error-handler/-/express-body-parser-error-handler-1.0.7.tgz#8476ec4bd0b64da739c3172d6694be5313e5f3e0"
+  integrity sha512-QNhHyCbFFFI/SqMMb9P/p7jF0muIziXkOqe6VVXNGRbK3fxRa9qOX5qAcwLv7xa4rg70h5KahDuok0xsqqsKMw==
+  dependencies:
+    "@types/express" "^4.17.15"
 
 express-rate-limit@^7.1.2:
   version "7.1.3"
