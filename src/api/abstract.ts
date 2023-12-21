@@ -6,6 +6,11 @@ export type Identifiable = {
   _id: ID;
 };
 
+export type Restricted = {
+  permitted_users: UserAccess[];
+  invited_users?: string[];
+};
+
 export type UserAccess = {
   user_id: string;
   permissions: Permission;

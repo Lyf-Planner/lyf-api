@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { UserEndpoints } from "./rest/userEndpoints";
 import { ItemEndpoints } from "./rest/itemEndpoints";
-import { NoteEndpoints } from "./rest/note";
+import { NoteEndpoints } from "./rest/noteEndpoints";
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";

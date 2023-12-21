@@ -1,15 +1,20 @@
-import { ID, Identifiable, UserAccess } from "./abstract";
+import { ID, Identifiable, Restricted } from "./abstract";
 import { List } from "./list";
 
 export type Notes = {
-  items: (ID | Note)[];
+  items: ID[];
 };
 
-export type Note = Identifiable & {
+export type Note = Identifiable &
+  Restricted & {
+    type: NoteType;
+    title: string;
+    content: NoteContent;
+  };
+
+export type NoteInput = {
   type: NoteType;
   title: string;
-  content: NoteContent;
-  permitted_users?: UserAccess[];
 };
 
 export enum NoteType {

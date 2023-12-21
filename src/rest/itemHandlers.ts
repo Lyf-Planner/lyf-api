@@ -6,7 +6,7 @@ import { ObjectId } from "mongodb";
 import { Logger } from "../utils/logging";
 import { ListItem, ListItemInput } from "../api/list";
 import { ItemModel } from "../models/itemModel";
-import { ItemPermissions } from "../models/ItemPermissions";
+import { ItemOperations } from "../models/ItemOperations";
 
 export class ItemHandlers {
   private logger = Logger.of(ItemHandlers);
@@ -21,40 +21,26 @@ export class ItemHandlers {
     // Should validate item input here!
 
     // Instantiate
-    var model = await ItemModel.createNew(itemInput, user_id, true);
+    var model = await ItemOperations.createNew(itemInput, user_id, true);
 
-    res.status(200).send(model.getItem());
+    res.status(200).send(model.getContent());
   }
 
-  protected async updateItemMetadata(req: Request, res: Response) {
+  protected async updateItem(req: Request, res: Response) {
     var item = req.body as ListItem;
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
-    var newItem = new ItemModel(item, false, user_id);
     var remoteItem: ItemModel;
 
     // Authorisation checks
     try {
       // These fns will check user is permitted on the item and has Permission > Viewer
-      remoteItem = await ItemModel.retrieveForUser(item._id, user_id);
-      ItemPermissions.permissibleMetadataUpdate(
-        remoteItem.getItem(),
-        newItem.getItem(),
-        user_id,
-        true
-      );
+      remoteItem = await ItemOperations.retrieveForUser(item._id, user_id);
+      await remoteItem.safeUpdate(item, user_id);
     } catch (err) {
       res.send(403).end(err);
       return;
-    }
-
-    // Perform update
-    if (item.suggestions_only) {
-      remoteItem!.updateAsSuggestion(item, user_id);
-      await remoteItem!.commit();
-    } else {
-      await newItem.commit();
     }
 
     res.send(200).end();
@@ -68,16 +54,16 @@ export class ItemHandlers {
     // Authorisation checks
     var item: ItemModel;
     try {
-      var item = await ItemModel.retrieveForUser(item_id, user_id);
+      var item = await ItemOperations.retrieveForUser(item_id, user_id);
       var perm = item.requestorPermission();
-      if (perm !== Permission.Owner)
+      if (!perm || perm !== Permission.Owner)
         throw new Error(`Items can only be deleted by their owner/creator`);
     } catch (err) {
       res.status(403).end(err);
     }
 
     // Perform delete
-    await item!.delete();
+    await item!.deleteFromDb();
     res.status(200).end();
   }
 
@@ -89,12 +75,12 @@ export class ItemHandlers {
     // Authorisation checks
     var item: ItemModel;
     try {
-      item = await ItemModel.retrieveForUser(item_id, user_id);
+      item = await ItemOperations.retrieveForUser(item_id, user_id);
     } catch (err) {
       res.status(403).end(err);
     }
 
-    res.status(200).json(item!.getItem()).end();
+    res.status(200).json(item!.getContent()).end();
   }
 
   protected async getItems(req: Request, res: Response) {
@@ -102,8 +88,8 @@ export class ItemHandlers {
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
-    // No auth checks need - automatically excludes those without perms
-    var items = await ItemModel.getRawUserItems(item_ids, user_id, true);
+    // No auth checks - automatically excludes those without perms
+    var items = await ItemOperations.getRawUserItems(item_ids, user_id, true);
 
     res.status(200).json(items!).end();
   }

@@ -5,14 +5,14 @@ export class ItemEndpoints extends ItemHandlers {
   constructor(server: express.Application) {
     super();
     server.post("/createItem", this.createItem);
-    server.post("/updateItemMetadata", this.updateItemMetadata);
+    server.post("/updateItem", this.updateItem);
     server.post("/deleteItem", this.deleteItem);
     server.get("/getItem", this.getItem);
     server.get("/getItems", this.getItems);
-    // server.post("/addressSuggestion");
-    // server.post("/addressInvite");
-    // server.post("/inviteUser");
-    // server.post("/addComment");
-    // server.post("/editComment");
+    // server.post("/addressItemSuggestion");
+    // server.post("/addressItemInvite");
+    // server.post("/inviteItemUser");
+    // server.post("/addItemComment");
+    // server.post("/editItemComment");
   }
 }

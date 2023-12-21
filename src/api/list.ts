@@ -1,17 +1,17 @@
-import { ID, Identifiable, UserAccess } from "./abstract";
+import { ID, Identifiable, Restricted } from "./abstract";
 
 export type List = (UserListItem | ListItem)[];
 
 // Relationship with list held by singular user
 // Should only store current week and above
 export type UserListItem = Identifiable & {
-  data?: ListItem;
   show_in_upcoming?: boolean;
   notification?: EventNotification;
 };
 
 // List item itself
 export type ListItem = Identifiable &
+  Restricted &
   ItemMetadata &
   ItemSettings &
   ItemSocialData;
@@ -35,8 +35,6 @@ export type ItemSettings = {
 export type ItemSocialData = {
   suggested_changes?: SuggestedChange[];
   comments?: Comment[];
-  permitted_users?: UserAccess[];
-  invited_users?: string[];
 };
 
 export type SuggestedChange = {
