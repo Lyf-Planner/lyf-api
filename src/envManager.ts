@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 // Expose this layer to access env vars throughout the app
 const env = {
   nodeEnv: process.env.NODE_ENV,
