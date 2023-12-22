@@ -1,5 +1,5 @@
 import {
-  Identifiable,
+  DBObject,
   Permission,
   Restricted,
   UserAccess,
@@ -8,7 +8,7 @@ import { Collection } from "../../repository/abstractCollection";
 import { RemoteObject } from "./remoteObject";
 
 export class RestrictedRemoteObject<
-  T extends Restricted & Identifiable
+  T extends Restricted & DBObject
 > extends RemoteObject<T> {
   protected requested_by: string;
 

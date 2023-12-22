@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { ID, Permission } from "../api/abstract";
+import { ID, Permission, Time } from "../api/abstract";
 import {
   ItemSettings,
   ItemSocialData,
@@ -10,6 +10,7 @@ import db from "../repository/dbAccess";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
 import { ItemModel } from "./itemModel";
 import { Logger } from "../utils/logging";
+import { v4 as uuid } from "uuid";
 
 export class ItemOperations {
   // Builder method
@@ -40,13 +41,12 @@ export class ItemOperations {
     commit = false // Also create in db
   ): Promise<ItemModel> {
     var item = itemInput as any;
-    item._id = new ObjectId();
+    item.id = uuid();
     item.permitted_users = [{ user_id, permissions: Permission.Owner }];
-    item.created = new Date();
     item = item as ListItem;
 
     var model = new ItemModel(item, false, user_id);
-    if (commit) await model.commit();
+    if (commit) await model.commit(true);
 
     return model;
   }

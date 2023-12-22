@@ -8,10 +8,16 @@ export class UserEndpoints extends UserHandlers {
     super();
     server.get("/testRest", this.testRest);
 
-    server.get("/login", nSecondLimiter(5), this.login.bind(this));
-    server.get("/autoLogin", this.autoLogin.bind(this));
+    server.get("/login", nSecondLimiter(3), this.login);
+    server.get("/autoLogin", this.autoLogin);
+    server.get("/getUser", this.getUser);
+    server.get("/getUsers", this.getUsers);
+    server.post("/createUser", nSecondLimiter(20), this.createUser);
+    server.post("/updateUser", this.updateUser);
+    server.post("/deleteMe", this.deleteMe);
 
-    server.post("/updateUser", nSecondLimiter(5), this.updateUser.bind(this));
-    server.post("/deleteMe", this.deleteMe.bind(this));
+    // server.post("/updatePremium")
+    // server.post("/updateFriend")
+    // server.post("/addressFriendInvite")
   }
 }

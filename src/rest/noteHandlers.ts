@@ -21,7 +21,7 @@ export class NoteHandlers {
     // Instantiate
     var model = await NoteOperations.createNew(noteInput, user_id, true);
 
-    res.status(200).send(model.getContent());
+    res.status(200).json(model.getContent()).end();
   }
 
   protected async updateNote(req: Request, res: Response) {
@@ -34,7 +34,7 @@ export class NoteHandlers {
     // Authorisation checks
     try {
       // These fns will check user is permitted on the note and has Permission > Viewer
-      remoteItem = await NoteOperations.retrieveForUser(note._id, user_id);
+      remoteItem = await NoteOperations.retrieveForUser(note.id, user_id);
       await remoteItem.safeUpdate(note, user_id);
     } catch (err) {
       res.send(403).end(err);

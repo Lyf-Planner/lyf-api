@@ -1,10 +1,11 @@
 import { ObjectId } from "mongodb";
 import { Note, NoteInput, NoteType } from "../api/notes";
-import { ID, Permission } from "../api/abstract";
+import { ID, Permission, Time } from "../api/abstract";
 import { NoteModel } from "./noteModel";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
 import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
+import { v4 as uuid } from "uuid";
 
 export class NoteOperations {
   // Builder method
@@ -35,14 +36,13 @@ export class NoteOperations {
     commit = false // Also create in db
   ): Promise<NoteModel> {
     var note = noteInput as any;
-    note._id = new ObjectId();
+    note.id = uuid();
     note.permitted_users = [{ user_id, permissions: Permission.Owner }];
-    note.created = new Date();
     note.content = note.type === NoteType.List ? [] : "";
     note = note as Note;
 
     var model = new NoteModel(note, false, user_id);
-    if (commit) await model.commit();
+    if (commit) await model.commit(true);
 
     return model;
   }
@@ -69,5 +69,9 @@ export class NoteOperations {
     }
 
     return filteredResults;
+  }
+
+  static permissionsField(note: Note) {
+    return note.permitted_users;
   }
 }

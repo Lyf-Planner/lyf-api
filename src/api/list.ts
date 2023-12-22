@@ -1,4 +1,4 @@
-import { ID, Identifiable, Restricted } from "./abstract";
+import { ID, Identifiable, Restricted, Time } from "./abstract";
 
 export type List = (UserListItem | ListItem)[];
 
@@ -11,6 +11,7 @@ export type UserListItem = Identifiable & {
 
 // List item itself
 export type ListItem = Identifiable &
+  Time &
   Restricted &
   ItemMetadata &
   ItemSettings &
@@ -19,7 +20,6 @@ export type ListItem = Identifiable &
 export type ItemMetadata = {
   title: string;
   type: ListItemTypes;
-  created: Date;
   date?: string;
   day?: string; // For templates
   desc?: string;

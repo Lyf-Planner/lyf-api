@@ -10,6 +10,7 @@ import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
 import { ItemOperations } from "./ItemOperations";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
+import { TimeOperations } from "./abstract/timeOperations";
 
 export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private logger = Logger.of(ItemModel);
@@ -17,7 +18,12 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   constructor(item: ListItem, from_db: boolean = false, requested_by: string) {
     super(db.itemsCollection(), item, from_db, requested_by);
   }
-  
+
+  public export() {
+    var { ...exported } = this.content;
+    return exported;
+  }
+
   // Update and throw if there are any permissions violations
   public async safeUpdate(
     proposed: ListItem,
@@ -37,6 +43,9 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
 
     // 3. No one should be editing the social fields
     this.throwIfModifiedReadOnlyFields(proposed);
+
+    // 4. No one should modify time fields
+    TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
 
     // Checks passed!
     this.logger.info(

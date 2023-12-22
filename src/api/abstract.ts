@@ -1,9 +1,14 @@
-import { ObjectId } from "mongodb";
+export type ID = string;
 
-export type ID = ObjectId;
+export type DBObject = Identifiable & Time;
 
 export type Identifiable = {
-  _id: ID;
+  id: ID;
+};
+
+export type Time = {
+  created: Date;
+  last_updated: Date;
 };
 
 export type Restricted = {

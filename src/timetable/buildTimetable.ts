@@ -3,7 +3,7 @@ import { handleNewTimetableUser } from "./newTimetable";
 import { formatDateData, getStartOfCurrentWeek, mapDatesToWeek } from "./utils";
 
 export function buildTimetable(user: User, local_date: string) {
-  console.log("Building timetable for", user.user_id);
+  console.log("Building timetable for", user.id);
 
   // Use the date string to get the date of the client - use UTC as a medium
   var year = local_date.split("-").map((x) => parseInt(x));

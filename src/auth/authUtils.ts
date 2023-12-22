@@ -2,28 +2,21 @@ import { compare, hash } from "bcrypt";
 import { Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
 import { User } from "../api/user";
-import { saveUser } from "../userOps";
 import env from "../envManager";
 import { Logger } from "../utils/logging";
+import assert from "assert";
 
 export class AuthUtils {
   private logger = Logger.of(AuthUtils);
 
   public async authenticate(user: User, password: string) {
-    if (!user.pass_hash) {
-      // Doesn't have account yet, append this as password and save
-      var hashed = await this.hashPass(password);
-      user.pass_hash = hashed;
-      await saveUser(user);
-    } else {
-      const res = await compare(password, user.pass_hash);
-      if (!res) {
-        console.log("Authentication failed");
-        return false;
-      }
+    const res = await compare(password, user.pass_hash);
+    if (!res) {
+      console.log("Authentication failed");
+      return false;
     }
 
-    const token = jwt.sign({ user_id: user.user_id }, env.jwtSecret as any, {
+    const token = jwt.sign({ user_id: user.id }, env.jwtSecret as any, {
       // Caution: Setting an expiry will only work if we encode an object
       // Don't change it back to a string!
       expiresIn: "1y",
@@ -42,10 +35,11 @@ export class AuthUtils {
   public authoriseHeader(req: Request, res: Response) {
     try {
       var token = req.headers["token"] as string;
-      var { user_id } = this.verifyToken(token);
+      var { user_id, exp } = this.verifyToken(token);
+      assert(exp! > Math.floor(new Date().getTime() / 1000));
       return user_id;
     } catch (err) {
-      let message = "Unauthorised token in request header";
+      let message = "Unauthorised or expired token in request header";
       this.logger.warn(message);
       res.status(401).end(message);
     }

@@ -23,7 +23,7 @@ export class ItemHandlers {
     // Instantiate
     var model = await ItemOperations.createNew(itemInput, user_id, true);
 
-    res.status(200).send(model.getContent());
+    res.status(200).json(model.export()).end();
   }
 
   protected async updateItem(req: Request, res: Response) {
@@ -36,7 +36,7 @@ export class ItemHandlers {
     // Authorisation checks
     try {
       // These fns will check user is permitted on the item and has Permission > Viewer
-      remoteItem = await ItemOperations.retrieveForUser(item._id, user_id);
+      remoteItem = await ItemOperations.retrieveForUser(item.id, user_id);
       await remoteItem.safeUpdate(item, user_id);
     } catch (err) {
       res.send(403).end(err);
@@ -80,7 +80,7 @@ export class ItemHandlers {
       res.status(403).end(err);
     }
 
-    res.status(200).json(item!.getContent()).end();
+    res.status(200).json(item!.export()).end();
   }
 
   protected async getItems(req: Request, res: Response) {

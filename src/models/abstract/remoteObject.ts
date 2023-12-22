@@ -1,7 +1,7 @@
-import { ID, Identifiable } from "../../api/abstract";
+import { DBObject, ID, Identifiable } from "../../api/abstract";
 import { Collection } from "../../repository/abstractCollection";
 
-export class RemoteObject<T extends Identifiable> {
+export class RemoteObject<T extends DBObject> {
   protected id: ID;
   protected collectionRef: Collection<T>;
   protected content: T;
@@ -10,16 +10,19 @@ export class RemoteObject<T extends Identifiable> {
   constructor(collection: any, content: T, from_db: boolean = false) {
     this.collectionRef = collection;
     this.content = content;
-    this.id = content._id;
+    this.id = content.id;
     this.from_db = from_db;
   }
 
-  public async commit(): Promise<void> {
-    await this.collectionRef.update(this.content, true);
+  public async commit(create: boolean = false): Promise<void> {
+    if (create) {
+      // Will add Time fields to content
+      this.content = await this.collectionRef.create(this.content, true);
+    } else await this.collectionRef.update(this.content, false);
   }
 
   public async deleteFromDb(): Promise<void> {
-    await this.collectionRef.delete(this.content._id);
+    await this.collectionRef.delete(this.content.id);
     this.from_db = false;
   }
 

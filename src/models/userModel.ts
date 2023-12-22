@@ -2,38 +2,76 @@ import { ID } from "../api/abstract";
 import { UserListItem } from "../api/list";
 import { User } from "../api/user";
 import db from "../repository/dbAccess";
-import itemService from "../services/itemService";
+import { Logger } from "../utils/logging";
+import { ItemOperations } from "./ItemOperations";
+import { RemoteObject } from "./abstract/remoteObject";
+import { TimeOperations } from "./abstract/timeOperations";
+import { UserOperations } from "./userOperations";
 
-export class UserModel {
-  private user_id: string;
-  public user?: User;
+export class UserModel extends RemoteObject<User> {
+  // If user is accessed by another, should only be able to view details!
+  private detailsAccessOnly: boolean;
+  private logger = Logger.of(UserModel);
 
-  constructor(user_id: string) {
-    this.user_id = user_id;
+  constructor(user: User, from_db: boolean, details_access_only: boolean) {
+    super(db.usersCollection(), user, from_db);
+    this.detailsAccessOnly = details_access_only;
   }
 
-  public async instantiate() {
-    this.user = (await db
-      .usersCollection()
-      .getWhere({ user_id: this.user_id })) as User;
+  public getUser() {
+    if (this.detailsAccessOnly)
+      return UserOperations.extractUserDetails(this.content);
+    else return this.content;
   }
 
-  public addNoteData() {}
+  // Get the user, but hide sensitive fields
+  public export() {
+    // Needs validator
+    if (this.detailsAccessOnly) return this.getUser();
+    else {
+      var { pass_hash, notification_token_hash, ...exported } = this.content;
+      return exported;
+    }
+  }
 
-  public async addListData() {
-    // Note: The efficiency of this section could definitely be improved
-    var items = this.user!.timetable?.items;
-    var queryIds = items?.map((x) => x._id) as ID[];
-    var data = await itemService.getUserItems(queryIds, this.user_id);
+  public async safeUpdate(proposed: User, user_id: ID) {
+    // 1. User can only update their own
+    this.throwIfUpdatingOtherUser(proposed, user_id);
 
-    // Match data to user items
-    this.user?.timetable?.items.forEach((x) => {
-      x.data = data.find((y) => y._id === x._id);
-    });
+    // 2. Cannot modify social fields on this endpoint
+    this.throwIfModifiedSensitiveFields(proposed, user_id);
 
-    // Filter out anything without data
-    this.user!.timetable!.items = this.user?.timetable?.items.filter(
-      (x) => !!x.data
-    ) as UserListItem[];
+    // 3. No one should modify time fields
+    TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
+
+    // Checks passed!
+    this.logger.info(`User ${user_id} safely updated note ${this.id}`);
+    this.content = proposed;
+    this.commit();
+  }
+
+  private throwIfUpdatingOtherUser(proposed: User, user_id: ID) {
+    if (!(proposed.id === user_id && user_id === this.id)) {
+      this.logger.error(
+        `User ${user_id} tried to modify other user ${this.id}`
+      );
+      throw new Error(`User does not have permission to modify another user`);
+    }
+  }
+
+  private throwIfModifiedSensitiveFields(proposed: User, user_id: ID) {
+    var oldFields = JSON.stringify(
+      UserOperations.extractSensitiveFields(this.content)
+    );
+    var newFields = JSON.stringify(
+      UserOperations.extractSensitiveFields(proposed)
+    );
+
+    if (oldFields !== newFields) {
+      this.logger.error(
+        `User ${user_id} tried to modify permissions on ${this.id}`
+      );
+      throw new Error(`Editors cannot modify permissions`);
+    }
   }
 }

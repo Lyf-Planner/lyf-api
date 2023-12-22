@@ -1,5 +1,5 @@
-import { Collection as mongoCollection, Db, Document, ObjectId } from "mongodb";
-import { ID, Identifiable } from "../api/abstract";
+import { Collection as mongoCollection, Db, ObjectId } from "mongodb";
+import { DBObject, ID } from "../api/abstract";
 import { Logger } from "../utils/logging";
 import assert from "assert";
 
@@ -7,7 +7,7 @@ import assert from "assert";
 // This class purely acts as the data access layer
 // Permissions and data validation should be handled by callers or parents
 
-export class Collection<T extends Identifiable> {
+export class Collection<T extends DBObject> {
   private logger = Logger.of(Collection<T>);
   protected collection: mongoCollection;
 
@@ -17,44 +17,44 @@ export class Collection<T extends Identifiable> {
 
   // CRUD Operations
 
-  public async create(
-    object: T,
-    checkDuplicate = true,
-    upsert = false
-  ): Promise<T> {
+  public async create(object: T, checkDuplicate = true): Promise<T> {
     var duplicateExists = checkDuplicate
-      ? await this.checkDuplicateExists(object._id)
+      ? await this.checkDuplicateExists(object.id)
       : false;
 
-    if (duplicateExists) {
-      // Handler will update doc if upsert = true
-      return await this.handleDuplicateExists(object, upsert);
-    }
+    if (duplicateExists) await this.handleDuplicateExists(object);
 
+    var toInsert = object as any;
+    toInsert._id = new ObjectId(object.id);
+    toInsert.last_updated = new Date();
+    toInsert.created = new Date();
     var result = await this.collection.insertOne(object);
     assert(result.acknowledged);
-    object._id = result.insertedId;
 
-    return object;
+    return this.exportWithoutUnderscoreId(toInsert);
   }
 
   public async getManyById(ids: ID[], throwOnUnfound = true): Promise<T[]> {
+    var objectIds = ids.map((x) => new ObjectId(x));
     var results = (await this.collection
-      .find({ _id: { $in: ids } })
+      .find({ _id: { $in: objectIds } })
       .toArray()) as any;
 
     results.length !== ids.length &&
       this.handleManyUnfound(results, ids, throwOnUnfound);
 
+    results = results.map((x: any) => this.exportWithoutUnderscoreId(x));
     return results;
   }
 
   public async getById(id: ID, throwOnUnfound = true): Promise<T | null> {
-    var result = (await this.collection.findOne({ _id: id })) as T | null;
+    var result = (await this.collection.findOne({
+      _id: new ObjectId(id),
+    })) as T | null;
 
     result === null && this.handleSingleUnfound(id, throwOnUnfound);
 
-    return result;
+    return this.exportWithoutUnderscoreId(result);
   }
 
   public async getWhere(
@@ -63,32 +63,41 @@ export class Collection<T extends Identifiable> {
     throwOnUnfound = true
   ): Promise<T | T[] | null> {
     var result = acceptManyResults
-      ? await this.collection.find(condition).toArray()
-      : await this.collection.findOne(condition);
+      ? ((await this.collection.find(condition).toArray()) as any)
+      : ((await this.collection.findOne(condition)) as any);
 
     if ((acceptManyResults && result?.length === 0) || !result)
       this.handleConditionUnfound(condition, throwOnUnfound);
+
+    if (acceptManyResults)
+      result = result?.map((x: any) => this.exportWithoutUnderscoreId(x));
+    else result = this.exportWithoutUnderscoreId(result);
 
     return acceptManyResults ? (result as T[]) : (result as T);
   }
 
   public async update(object: T, upsert = false): Promise<T> {
-    var result = await this.collection.updateOne({ _id: object._id }, object, {
-      upsert,
-    });
+    var insert = object as any;
+    insert._id = new ObjectId(object.id);
+    insert.last_updated = new Date();
+    var result = await this.collection.updateOne(
+      { _id: new ObjectId(object.id) },
+      insert,
+      {
+        upsert,
+      }
+    );
 
     result.upsertedCount &&
-      this.logger.warn(`Updated document ${object._id} was upserted!`);
+      this.logger.warn(`Updated document ${object.id} was upserted!`);
 
-    result.modifiedCount === 0 &&
-      !upsert &&
-      this.handleDidNotUpdate(object._id);
+    result.modifiedCount === 0 && !upsert && this.handleDidNotUpdate(object.id);
 
-    return object;
+    return this.exportWithoutUnderscoreId(object);
   }
 
   public async delete(id: ID): Promise<boolean> {
-    var result = await this.collection.deleteOne({ _id: id });
+    var result = await this.collection.deleteOne({ _id: new ObjectId(id) });
     if (result.deletedCount === 0) {
       this.handleDidNotDelete(id);
       return false;
@@ -100,7 +109,7 @@ export class Collection<T extends Identifiable> {
   // Helpers
 
   private async checkDuplicateExists(id: ID) {
-    var search = await this.collection.findOne({ _id: id });
+    var search = await this.collection.findOne({ _id: new ObjectId(id) });
     if (!!search) return true;
     else return false;
   }
@@ -112,7 +121,7 @@ export class Collection<T extends Identifiable> {
     searched: ID[],
     throwOnUnfound: boolean
   ) {
-    let foundIds = results.map((x: T) => x._id) as ID[];
+    let foundIds = results.map((x: T) => x.id) as ID[];
     let unfound = searched.filter((id: ID) => !foundIds.includes(id));
 
     let message = `Queried ${searched.length} documents in collection and did not find ${unfound}`;
@@ -141,15 +150,10 @@ export class Collection<T extends Identifiable> {
     }
   }
 
-  private async handleDuplicateExists(object: T, upsert: boolean) {
-    var message = `Create was called on object that already exists, ID ${object._id}`;
-    if (upsert) {
-      this.logger.warn(message + ". Updating instead!");
-      return await this.update(object);
-    } else {
-      this.logger.error(message);
-      throw new Error(message);
-    }
+  private async handleDuplicateExists(object: T) {
+    var message = `Create was called on object that already exists, ID ${object.id}`;
+    this.logger.error(message);
+    throw new Error(message);
   }
 
   private handleDidNotUpdate(id: ID) {
@@ -162,5 +166,10 @@ export class Collection<T extends Identifiable> {
     let message = `Object with ID ${id} was not deleted properly!`;
     this.logger.error(message);
     throw new Error(message);
+  }
+
+  private exportWithoutUnderscoreId(object: any) {
+    var { _id, ...exported } = object;
+    return exported;
   }
 }

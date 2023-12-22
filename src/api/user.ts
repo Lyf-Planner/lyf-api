@@ -1,22 +1,25 @@
-import { ID, Identifiable } from "./abstract";
+import { ObjectId } from "mongodb";
+import { ID, Identifiable, Time } from "./abstract";
 import { Notes } from "./notes";
 import { Premium } from "./premium";
 import { Timetable } from "./timetable";
 
-export type User = Identifiable & {
-  user_id: string;
-  pass_hash: string;
-  notification_token_hash?: string;
-  details?: UserDetails;
-  timetable?: Timetable;
-  notes?: Notes[];
-  premium?: Premium;
-};
+// Instead of using Identifiable, we use user_id as id
+export type User = UserDetails &
+  Time &
+  Identifiable & {
+    pass_hash: string;
+    notification_token_hash?: string;
+    timetable?: Timetable;
+    notes?: Notes[];
+    premium?: Premium;
+  };
 
 export type UserDetails = {
-  user_id: string;
+  id: ID;
   name?: string;
   email?: string;
   pfp_url?: string;
   friends?: ID[];
+  friend_requests?: ID[];
 };

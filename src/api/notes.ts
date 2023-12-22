@@ -1,11 +1,12 @@
-import { ID, Identifiable, Restricted } from "./abstract";
+import { ID, Identifiable, Restricted, Time } from "./abstract";
 import { List } from "./list";
 
 export type Notes = {
-  items: ID[];
+  items: string[];
 };
 
 export type Note = Identifiable &
+  Time &
   Restricted & {
     type: NoteType;
     title: string;
