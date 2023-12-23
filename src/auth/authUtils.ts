@@ -34,7 +34,14 @@ export class AuthUtils {
 
   public authoriseHeader(req: Request, res: Response) {
     try {
-      var token = req.headers["token"] as string;
+      var header = req.headers["Authorization"] as string;
+      var token;
+      if (header.startsWith("Bearer ")) {
+        token = header.substring(7, header.length);
+      } else {
+        throw new Error("Invalid Authorization header");
+      }
+
       var { user_id, exp } = this.verifyToken(token);
       assert(exp! > Math.floor(new Date().getTime() / 1000));
       return user_id;
