@@ -9,7 +9,7 @@ import env from "../envManager";
 export class Database {
   private logger = Logger.of(Database);
   private client: MongoClient = this.setClient();
-  private initialised = false;
+  private connected = false;
 
   private db = this.client.db(env.mongoDb);
   private usersCollectionRef = new Collection<User>("users", this.db);
@@ -17,11 +17,22 @@ export class Database {
   private notesCollectionRef = new Collection<Note>("notes", this.db);
 
   public async init() {
+    this.logger.info("Initialising DB connection");
     await this.client.connect();
-    this.initialised = true;
+    await this.client.db(env.mongoDb).command({ ping: 1 });
+    this.connected = true;
+    this.logger.info("DB initialised!");
   }
+
+  public async close() {
+    this.logger.info("Closing DB connection");
+    await this.client.close();
+    this.connected = false;
+    this.logger.info("DB connection closed");
+  }
+
   private initialisedGateway(returnObject: any) {
-    if (!this.initialised)
+    if (!this.connected)
       this.logger.error("Waiting for DB to initialise (connecting...)");
     else return returnObject;
   }
@@ -45,6 +56,5 @@ export class Database {
 }
 
 const db = new Database();
-db.init();
 
 export default db;

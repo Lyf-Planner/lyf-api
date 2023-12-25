@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import env from "./envManager";
 import bodyParserErrorHandler from "express-body-parser-error-handler";
+import db from "./repository/dbAccess";
 
 const server = express();
 
@@ -22,12 +23,11 @@ async function main() {
     res.send("Lyf API!");
   });
 
-  // Users
   const users = new UserEndpoints(server);
-  // Items
   const items = new ItemEndpoints(server);
-  // Notes
   const notes = new NoteEndpoints(server);
+
+  await db.init();
 
   const PORT = env.port;
 
@@ -35,5 +35,14 @@ async function main() {
     console.log(`server started at http://localhost:${PORT}`);
   });
 }
+
+async function shutdown() {
+  // Graceful shutdown
+  await db.close();
+  process.exit(0);
+}
+
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
 
 main();

@@ -53,11 +53,14 @@ export class UserHandlers {
   }
 
   protected async getUser(req: Request, res: Response) {
-    var { user_id } = req.body;
+    var { user_id } = req.query;
     var requestor_id = authUtils.authoriseHeader(req, res);
     if (!requestor_id) return;
 
-    var userModel = await UserOperations.retrieveForUser(user_id, requestor_id);
+    var userModel = await UserOperations.retrieveForUser(
+      user_id as string,
+      requestor_id
+    );
     res.status(200).json(userModel.export()).end();
   }
 
@@ -71,13 +74,20 @@ export class UserHandlers {
   protected async createUser(req: Request, res: Response) {
     var { user_id, password } = req.body;
 
+    var token;
+    var user;
     try {
-      var user = await UserOperations.createNew(user_id, password, true);
+      user = await UserOperations.createNew(user_id, password, true);
+      token = await authUtils.authenticate(
+        user.getUser() as User,
+        password as string
+      );
     } catch (err) {
       res.status(400).end(`Username ${user_id} is already taken`);
+      return;
     }
 
-    res.status(200).json(user!.export()).end();
+    res.status(200).json({ user: user?.export(), token }).end();
   }
 
   // Should consider breaking this up in future
@@ -115,6 +125,7 @@ export class UserHandlers {
       var user = await UserOperations.retrieveForUser(user_id, user_id);
     } catch (err) {
       res.status(403).end(err);
+      return;
     }
 
     // Perform delete
