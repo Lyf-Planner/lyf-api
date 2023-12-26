@@ -31,7 +31,7 @@ export class UserHandlers {
     }
     var exportedData = userModel.export();
     var payload = { user: exportedData, token };
-    console.log("Sending payload", payload);
+    
     res.status(200).json(payload).end();
   }
 
@@ -45,7 +45,7 @@ export class UserHandlers {
       var userModel = await UserOperations.retrieveForUser(user_id, user_id);
       res.status(200).json(userModel.export()).end();
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       res.status(401).end();
     }
   }
@@ -91,7 +91,7 @@ export class UserHandlers {
         password as string
       );
     } catch (err) {
-      logger.debug(err);
+      logger.error(err);
       res.status(400).end(`Username ${user_id} is already taken`);
       return;
     }
@@ -107,6 +107,9 @@ export class UserHandlers {
 
     // Users must be authorised as themselves to update said account!
     if (user.id !== user_id) {
+      logger.error(
+        `User ${user_id} tried to change username or modify another user ${user.id}`
+      );
       res
         .status(401)
         .end("You must be authorised as this user to update account data");
@@ -125,6 +128,7 @@ export class UserHandlers {
   }
 
   protected async deleteMe(req: Request, res: Response) {
+    var { password } = req.body;
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
@@ -132,10 +136,19 @@ export class UserHandlers {
 
     // Authorisation checks
     var user: UserModel;
+
     try {
       var user = await UserOperations.retrieveForUser(user_id, user_id);
+      var token = await authUtils.authenticate(
+        user.getUser() as User,
+        password as string
+      );
+      if (!token) throw new Error("Incorrect password");
     } catch (err) {
-      res.status(403).end(err);
+      logger.error(
+        `User ${user_id} entered incorrect password when trying to delete self`
+      );
+      res.status(401).end(err);
       return;
     }
 
