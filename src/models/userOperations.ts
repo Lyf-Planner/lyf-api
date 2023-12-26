@@ -26,9 +26,9 @@ export class UserOperations {
   ): Promise<UserModel> {
     var user = {} as any;
     user.id = user_id;
-    user.pass_hash = authUtils.hashPass(password);
+    user.pass_hash = await authUtils.hashPass(password);
     user.timetable = {
-      activeTemplate: 0,
+      active_template: 0,
       items: [],
     };
     user.notes = [];

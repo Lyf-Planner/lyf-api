@@ -6,13 +6,12 @@ import express from "express";
 export class UserEndpoints extends UserHandlers {
   constructor(server: express.Application) {
     super();
-    server.get("/testRest", this.testRest);
-
     server.get("/login", nSecondLimiter(3), this.login);
     server.get("/autoLogin", this.autoLogin);
+
+    server.post("/createUser", nSecondLimiter(20), this.createUser);
     server.get("/getUser", this.getUser);
     server.get("/getUsers", this.getUsers);
-    server.post("/createUser", nSecondLimiter(20), this.createUser);
     server.post("/updateUser", this.updateUser);
     server.post("/deleteMe", this.deleteMe);
 

@@ -2,17 +2,13 @@ import { Request, Response } from "express";
 import { User } from "../api/user";
 import authUtils from "../auth/authUtils";
 import { UserModel } from "../models/userModel";
-import assert from "assert";
-import * as jwt from "jsonwebtoken";
 import { UserOperations } from "../models/userOperations";
+import { Logger } from "../utils/logging";
 
 export class UserHandlers {
-  protected testRest(req: Request, res: Response) {
-    res.send("RestTestWorks!");
-  }
-
   protected async login(req: Request, res: Response) {
     var { user_id, password } = req.query;
+    logger.info(`Received login request for user ${user_id}`);
 
     var userModel;
     try {
@@ -43,6 +39,8 @@ export class UserHandlers {
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
+    logger.info(`Authorized autologin for user ${user_id}`);
+
     try {
       var userModel = await UserOperations.retrieveForUser(user_id, user_id);
       res.status(200).json(userModel.export()).end();
@@ -57,6 +55,8 @@ export class UserHandlers {
     var requestor_id = authUtils.authoriseHeader(req, res);
     if (!requestor_id) return;
 
+    logger.info(`Received request for user ${user_id} from "${requestor_id}"`);
+
     var userModel = await UserOperations.retrieveForUser(
       user_id as string,
       requestor_id
@@ -66,6 +66,12 @@ export class UserHandlers {
 
   protected async getUsers(req: Request, res: Response) {
     var { user_ids } = req.body;
+    var requestor_id = authUtils.authoriseHeader(req, res);
+    if (!requestor_id) return;
+
+    logger.info(
+      `Received request for user ids ${user_ids} from "${requestor_id}"`
+    );
 
     var users = await UserOperations.retrieveManyUsers(user_ids);
     res.status(200).json(users).end();
@@ -74,8 +80,10 @@ export class UserHandlers {
   protected async createUser(req: Request, res: Response) {
     var { user_id, password } = req.body;
 
+    logger.info(`Received request to create account "${user_id}"`);
     var token;
     var user;
+
     try {
       user = await UserOperations.createNew(user_id, password, true);
       token = await authUtils.authenticate(
@@ -83,6 +91,7 @@ export class UserHandlers {
         password as string
       );
     } catch (err) {
+      logger.debug(err);
       res.status(400).end(`Username ${user_id} is already taken`);
       return;
     }
@@ -119,6 +128,8 @@ export class UserHandlers {
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
+    logger.info(`Received self-deletion request from ${user_id}`);
+
     // Authorisation checks
     var user: UserModel;
     try {
@@ -133,3 +144,5 @@ export class UserHandlers {
     res.status(200).end();
   }
 }
+
+const logger = Logger.of(UserHandlers);

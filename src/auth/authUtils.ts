@@ -34,10 +34,10 @@ export class AuthUtils {
 
   public authoriseHeader(req: Request, res: Response) {
     try {
-      var header = req.headers["Authorization"] as string;
+      var header = req.headers["authorization"] as string;
       var token;
-      if (header.startsWith("Bearer ")) {
-        token = header.substring(7, header.length);
+      if (header && header.startsWith("Bearer ")) {
+        token = header.substring(7);
       } else {
         throw new Error("Invalid Authorization header");
       }
@@ -46,6 +46,7 @@ export class AuthUtils {
       assert(exp! > Math.floor(new Date().getTime() / 1000));
       return user_id;
     } catch (err) {
+      this.logger.debug(err);
       let message = "Unauthorised or expired token in request header";
       this.logger.warn(message);
       res.status(401).end(message);

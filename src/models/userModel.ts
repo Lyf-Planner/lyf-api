@@ -1,6 +1,6 @@
 import { ID } from "../api/abstract";
 import { UserListItem } from "../api/list";
-import { User } from "../api/user";
+import { User, UserDetails } from "../api/user";
 import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
 import { ItemOperations } from "./ItemOperations";
@@ -18,7 +18,7 @@ export class UserModel extends RemoteObject<User> {
     this.detailsAccessOnly = details_access_only;
   }
 
-  public getUser() {
+  public getUser(): UserDetails | User {
     if (this.detailsAccessOnly)
       return UserOperations.extractUserDetails(this.content);
     else return this.content;
