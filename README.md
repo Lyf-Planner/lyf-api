@@ -32,8 +32,4 @@ Deployments are made by pushing to the `production` branch, where they will be a
 
 If you intend on making a deployment, please consult @ethanhusband before doing so.
 
-## Notes
 
-It is worth noting that the backend models differ slightly to the database schema - the reason for this is that the database schema simply implies the patterns in which data is stored, whereas the backend schema implies the ways in which data should be defined when operated on in the backend itself.
-
-In the backend schema, we've defined
