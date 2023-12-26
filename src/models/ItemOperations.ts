@@ -3,6 +3,7 @@ import { ID, Permission, Time } from "../api/abstract";
 import {
   ItemSettings,
   ItemSocialData,
+  ItemStatus,
   ListItem,
   ListItemInput,
 } from "../api/list";
@@ -42,6 +43,7 @@ export class ItemOperations {
   ): Promise<ItemModel> {
     var item = itemInput as any;
     item.id = uuid();
+    item.status = ItemStatus.Upcoming;
     item.permitted_users = [{ user_id, permissions: Permission.Owner }];
     item = item as ListItem;
 
@@ -79,7 +81,6 @@ export class ItemOperations {
     // Needs validator
     return {
       suggestions_only: item.suggestions_only,
-      template_item: item.template_item,
     };
   }
 

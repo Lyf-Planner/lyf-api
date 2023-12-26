@@ -1,9 +1,7 @@
 import { ID } from "../api/abstract";
-import { UserListItem } from "../api/list";
 import { User, UserDetails } from "../api/user";
 import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
-import { ItemOperations } from "./ItemOperations";
 import { RemoteObject } from "./abstract/remoteObject";
 import { TimeOperations } from "./abstract/timeOperations";
 import { UserOperations } from "./userOperations";

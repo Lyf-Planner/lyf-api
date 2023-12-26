@@ -1,13 +1,7 @@
-import { ID, Identifiable, Restricted, Time } from "./abstract";
+import { Identifiable, Restricted, Time } from "./abstract";
+import { UserListItem } from "./timetable";
 
 export type List = (UserListItem | ListItem)[];
-
-// Relationship with list held by singular user
-// Should only store current week and above
-export type UserListItem = Identifiable & {
-  show_in_upcoming?: boolean;
-  notification?: EventNotification;
-};
 
 // List item itself
 export type ListItem = Identifiable &
@@ -20,6 +14,7 @@ export type ListItem = Identifiable &
 export type ItemMetadata = {
   title: string;
   type: ListItemTypes;
+  status: ItemStatus;
   date?: string;
   day?: string; // For templates
   desc?: string;
@@ -28,7 +23,6 @@ export type ItemMetadata = {
 
 // Only modifiable by owners
 export type ItemSettings = {
-  template_item?: boolean;
   suggestions_only?: boolean;
 };
 
@@ -54,22 +48,20 @@ export type Comment = {
 export type ListItemInput = {
   title: string;
   type: ListItemTypes;
-  created?: Date;
   date?: string;
   day?: string; // For templates
-};
-
-export type EventNotification = {
-  item_id: ID;
-  event_name: string;
-  event_datetime: Date;
-  minutes_away: string;
-  scheduled_for: Date;
-  to: string;
 };
 
 export enum ListItemTypes {
   Event = "Event",
   Task = "Task",
   Item = "Item",
+}
+
+export enum ItemStatus {
+  Cancelled = "Cancelled",
+  Tentative = "Tentative",
+  Upcoming = "Upcoming",
+  InProgress = "In Progress",
+  Done = "Done",
 }
