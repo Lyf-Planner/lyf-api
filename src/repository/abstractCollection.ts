@@ -1,4 +1,4 @@
-import { Collection as mongoCollection, Db, ObjectId } from "mongodb";
+import { Collection as mongoCollection, Db } from "mongodb";
 import { DBObject, ID } from "../api/abstract";
 import { Logger } from "../utils/logging";
 import assert from "assert";
@@ -25,9 +25,9 @@ export class Collection<T extends DBObject> {
     if (duplicateExists) await this.handleDuplicateExists(object);
 
     var toInsert = object as any;
-    toInsert._id = new ObjectId(object.id);
-    toInsert.last_updated = new Date();
-    toInsert.created = new Date();
+    toInsert._id = object.id; // We don't use Mongo ObjectIds, just UUIDs
+    toInsert.last_updated = new Date().toUTCString();
+    toInsert.created = new Date().toUTCString();
     var result = await this.collection.insertOne(object);
     assert(result.acknowledged);
 
@@ -35,9 +35,8 @@ export class Collection<T extends DBObject> {
   }
 
   public async getManyById(ids: ID[], throwOnUnfound = true): Promise<T[]> {
-    var objectIds = ids.map((x) => new ObjectId(x));
     var results = (await this.collection
-      .find({ _id: { $in: objectIds } })
+      .find({ _id: { $in: ids } })
       .toArray()) as any;
 
     results.length !== ids.length &&
@@ -49,7 +48,7 @@ export class Collection<T extends DBObject> {
 
   public async getById(id: ID, throwOnUnfound = true): Promise<T | null> {
     var result = (await this.collection.findOne({
-      _id: new ObjectId(id),
+      _id: id,
     })) as T | null;
 
     result === null && this.handleSingleUnfound(id, throwOnUnfound);
@@ -78,15 +77,11 @@ export class Collection<T extends DBObject> {
 
   public async update(object: T, upsert = false): Promise<T> {
     var insert = object as any;
-    insert._id = new ObjectId(object.id);
-    insert.last_updated = new Date();
-    var result = await this.collection.updateOne(
-      { _id: new ObjectId(object.id) },
-      insert,
-      {
-        upsert,
-      }
-    );
+    insert._id = object.id;
+    insert.last_updated = new Date().toUTCString();
+    var result = await this.collection.updateOne({ _id: object.id }, insert, {
+      upsert,
+    });
 
     result.upsertedCount &&
       this.logger.warn(`Updated document ${object.id} was upserted!`);
@@ -97,7 +92,7 @@ export class Collection<T extends DBObject> {
   }
 
   public async delete(id: ID): Promise<boolean> {
-    var result = await this.collection.deleteOne({ _id: new ObjectId(id) });
+    var result = await this.collection.deleteOne({ _id: id });
     if (result.deletedCount === 0) {
       this.handleDidNotDelete(id);
       return false;
@@ -109,7 +104,7 @@ export class Collection<T extends DBObject> {
   // Helpers
 
   private async checkDuplicateExists(id: ID) {
-    var search = await this.collection.findOne({ _id: new ObjectId(id) });
+    var search = await this.collection.findOne({ _id: id });
     if (!!search) return true;
     else return false;
   }
