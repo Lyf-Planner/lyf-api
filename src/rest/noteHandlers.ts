@@ -37,7 +37,7 @@ export class NoteHandlers {
       remoteItem = await NoteOperations.retrieveForUser(note.id, user_id);
       await remoteItem.safeUpdate(note, user_id);
     } catch (err) {
-      res.send(403).end(err);
+      res.send(403).end(`${err}`);
       return;
     }
 
@@ -57,7 +57,7 @@ export class NoteHandlers {
       if (!perm || perm !== Permission.Owner)
         throw new Error(`Notes can only be deleted by their owner/creator`);
     } catch (err) {
-      res.status(403).end(err);
+      res.status(403).end(`${err}`);
     }
 
     // Perform delete
@@ -75,7 +75,7 @@ export class NoteHandlers {
     try {
       note = await NoteOperations.retrieveForUser(note_id, user_id);
     } catch (err) {
-      res.status(403).end(err);
+      res.status(403).end(`${err}`);
     }
 
     res.status(200).json(note!.getContent()).end();

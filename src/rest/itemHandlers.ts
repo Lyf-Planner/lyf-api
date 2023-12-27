@@ -43,7 +43,7 @@ export class ItemHandlers {
       await remoteItem.safeUpdate(item, user_id);
     } catch (err) {
       logger.error(`User ${user_id} did not safely update item ${item.id}`);
-      res.send(403).end(err);
+      res.send(403).end(`${err}`);
       return;
     }
 
@@ -69,7 +69,7 @@ export class ItemHandlers {
       logger.error(
         `User ${user_id} tried to delete ${item_id} without valid permissions`
       );
-      res.status(403).end(err);
+      res.status(403).end(`${err}`);
     }
 
     // Perform delete
@@ -92,7 +92,7 @@ export class ItemHandlers {
       logger.error(
         `User ${user_id} requested item ${item_id} to which they don't have access`
       );
-      res.status(403).end(err);
+      res.status(403).end(`${err}`);
     }
 
     res.status(200).json(item!.export()).end();

@@ -120,7 +120,7 @@ export class UserHandlers {
       var remoteModel = await UserOperations.retrieveForUser(user.id, user_id);
       await remoteModel.safeUpdate(user, user_id);
     } catch (err) {
-      res.status(403).end(err);
+      res.status(403).end(`${err}`);
       return;
     }
 
@@ -148,7 +148,7 @@ export class UserHandlers {
       logger.error(
         `User ${user_id} entered incorrect password when trying to delete self`
       );
-      res.status(401).end(err);
+      res.status(401).end(`${err}`);
       return;
     }
 
