@@ -81,14 +81,18 @@ export class Collection<T extends DBObject> {
     insert._id = object.id;
     delete insert.id;
     insert.last_updated = new Date().toUTCString();
-    var result = await this.collection.updateOne({ _id: object.id }, insert, {
-      upsert,
-    });
+    var result = await this.collection.updateOne(
+      { _id: object.id },
+      { $set: insert },
+      {
+        upsert,
+      }
+    );
 
     result.upsertedCount &&
       this.logger.warn(`Updated document ${object.id} was upserted!`);
 
-    result.modifiedCount === 0 && !upsert && this.handleDidNotUpdate(object.id);
+    //result.modifiedCount === 0 && !upsert && this.handleDidNotUpdate(object.id);
 
     return this.exportWithoutUnderscoreId(object);
   }

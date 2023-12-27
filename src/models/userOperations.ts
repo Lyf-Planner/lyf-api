@@ -62,8 +62,6 @@ export class UserOperations {
 
   public static extractSensitiveFields(user: User) {
     return {
-      pass_hash: user.pass_hash,
-      notification_token_hash: user.notification_token_hash,
       friends: user.friends,
       friend_requests: user.friend_requests,
       premium: user.premium,

@@ -43,11 +43,11 @@ export class ItemHandlers {
       await remoteItem.safeUpdate(item, user_id);
     } catch (err) {
       logger.error(`User ${user_id} did not safely update item ${item.id}`);
-      res.send(403).end(`${err}`);
+      res.status(403).end(`${err}`);
       return;
     }
 
-    res.send(200).end();
+    res.status(200).end();
   }
 
   protected async deleteItem(req: Request, res: Response) {
@@ -107,7 +107,7 @@ export class ItemHandlers {
 
     // No auth checks - automatically excludes those without perms
     var items = await ItemOperations.getRawUserItems(item_ids, user_id, true);
-    logger.debug(`Got items ${items.map((x) => x.id)} for user`);
+    logger.debug(`Got items <${items.map((x) => x.id)}> for user`);
 
     res.status(200).json(items!).end();
   }

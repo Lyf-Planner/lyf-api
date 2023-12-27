@@ -124,7 +124,7 @@ export class UserHandlers {
       return;
     }
 
-    res.send(200).end();
+    res.status(200).end();
   }
 
   protected async deleteMe(req: Request, res: Response) {

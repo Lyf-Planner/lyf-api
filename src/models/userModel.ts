@@ -67,9 +67,11 @@ export class UserModel extends RemoteObject<User> {
 
     if (oldFields !== newFields) {
       this.logger.error(
-        `User ${user_id} tried to modify permissions on ${this.id}`
+        `User ${user_id} tried to modify sensitive fields on ${this.id}`
       );
-      throw new Error(`Editors cannot modify permissions`);
+      throw new Error(
+        `Users cannot modify sensitive fields such as friends or premium access on this endpoint`
+      );
     }
   }
 }

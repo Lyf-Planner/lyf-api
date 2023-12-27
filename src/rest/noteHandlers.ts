@@ -37,11 +37,11 @@ export class NoteHandlers {
       remoteItem = await NoteOperations.retrieveForUser(note.id, user_id);
       await remoteItem.safeUpdate(note, user_id);
     } catch (err) {
-      res.send(403).end(`${err}`);
+      res.status(403).end(`${err}`);
       return;
     }
 
-    res.send(200).end();
+    res.status(200).end();
   }
 
   protected async deleteNote(req: Request, res: Response) {
