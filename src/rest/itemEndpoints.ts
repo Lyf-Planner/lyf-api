@@ -6,8 +6,9 @@ export class ItemEndpoints extends ItemHandlers {
     super();
     server.post("/createItem", this.createItem);
     server.post("/updateItem", this.updateItem);
-    server.post("/deleteItem", this.deleteItem);
     server.post("/getItems", this.getItems);
+    // server.post("/searchItems", this.searchItems)
+    server.get("/deleteItem", this.deleteItem);
     server.get("/getItem", this.getItem);
 
     // server.post("/addressItemSuggestion");
