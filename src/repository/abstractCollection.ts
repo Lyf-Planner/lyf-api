@@ -82,17 +82,20 @@ export class Collection<T extends DBObject> {
     delete insert.id;
     insert.last_updated = new Date().toUTCString();
     var result = await this.collection.updateOne(
-      { _id: object.id },
-      { $set: insert },
+      { _id: insert._id },
+      { $set: { ...insert } },
       {
         upsert,
       }
     );
+    assert(result.acknowledged);
 
     result.upsertedCount &&
       this.logger.warn(`Updated document ${object.id} was upserted!`);
 
-    //result.modifiedCount === 0 && !upsert && this.handleDidNotUpdate(object.id);
+    result.modifiedCount === 0 &&
+      !upsert &&
+      this.handleDidNotUpdate(object.id, false);
 
     return this.exportWithoutUnderscoreId(object);
   }
@@ -123,13 +126,12 @@ export class Collection<T extends DBObject> {
     throwOnUnfound: boolean
   ) {
     let foundIds = results.map((x: T) => x.id) as ID[];
-    let unfound = searched.filter((id: ID) => !foundIds.includes(id));
 
-    let message = `Queried ${searched.length} documents in collection and did not find ${unfound}`;
+    let message = `Queried ${searched.length} documents in collection and did not find ${searched.length - results.length}`;
 
     if (throwOnUnfound) {
       this.logger.error(message);
-      throw new Error(`Documents queried were not found: ${unfound}`);
+      throw new Error(`Documents queried were not found`);
     } else this.logger.warn(message);
   }
 
@@ -157,10 +159,14 @@ export class Collection<T extends DBObject> {
     throw new Error(message);
   }
 
-  private handleDidNotUpdate(id: ID) {
+  private handleDidNotUpdate(id: ID, shouldThrow = true) {
     let message = `No document with ID ${id} was found in update call, and upsert = false`;
-    this.logger.error(message);
-    throw new Error(message);
+    if (shouldThrow) {
+      this.logger.error(message);
+      throw new Error(message);
+    } else {
+      this.logger.warn(message);
+    }
   }
 
   private handleDidNotDelete(id: ID) {
