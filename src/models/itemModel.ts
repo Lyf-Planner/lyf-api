@@ -4,7 +4,6 @@ import {
   ItemSettings,
   ItemSocialData,
   ListItem,
-  ListItemInput,
 } from "../api/list";
 import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";

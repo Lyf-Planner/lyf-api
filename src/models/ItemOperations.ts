@@ -5,7 +5,6 @@ import {
   ItemSocialData,
   ItemStatus,
   ListItem,
-  ListItemInput,
 } from "../api/list";
 import db from "../repository/dbAccess";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
@@ -37,17 +36,11 @@ export class ItemOperations {
 
   // Builder method
   static async createNew(
-    itemInput: ListItemInput,
+    itemInput: ListItem,
     user_id: string,
     commit = false // Also create in db
   ): Promise<ItemModel> {
-    var item = itemInput as any;
-    item.id = uuid();
-    item.status = ItemStatus.Upcoming;
-    item.permitted_users = [{ user_id, permissions: Permission.Owner }];
-    item = item as ListItem;
-
-    var model = new ItemModel(item, false, user_id);
+    var model = new ItemModel(itemInput, false, user_id);
     if (commit) await model.commit(true);
 
     return model;

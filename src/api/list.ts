@@ -1,4 +1,4 @@
-import { Identifiable, Restricted, Time } from "./abstract";
+import { ID, Identifiable, Restricted, Time } from "./abstract";
 import { UserListItem } from "./timetable";
 
 export type List = (UserListItem | ListItem)[];
@@ -43,13 +43,6 @@ export type Comment = {
   text: string;
   user_id: string;
   tags: string[];
-};
-
-export type ListItemInput = {
-  title: string;
-  type: ListItemTypes;
-  date?: string;
-  day?: string; // For templates
 };
 
 export enum ListItemTypes {
