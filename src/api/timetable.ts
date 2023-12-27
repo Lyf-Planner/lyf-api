@@ -3,6 +3,7 @@ import { ListItem } from "./list";
 
 export type Timetable = {
   active_template?: number;
+  first_day?: string;
   items: UserListItem[];
 };
 
