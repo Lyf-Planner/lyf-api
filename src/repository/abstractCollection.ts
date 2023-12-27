@@ -26,6 +26,7 @@ export class Collection<T extends DBObject> {
 
     var toInsert = object as any;
     toInsert._id = object.id; // We don't use Mongo ObjectIds, just UUIDs
+    delete toInsert.id;
     toInsert.last_updated = new Date().toUTCString();
     toInsert.created = new Date().toUTCString();
     var result = await this.collection.insertOne(object);
@@ -78,6 +79,7 @@ export class Collection<T extends DBObject> {
   public async update(object: T, upsert = false): Promise<T> {
     var insert = object as any;
     insert._id = object.id;
+    delete insert.id;
     insert.last_updated = new Date().toUTCString();
     var result = await this.collection.updateOne({ _id: object.id }, insert, {
       upsert,
@@ -164,7 +166,8 @@ export class Collection<T extends DBObject> {
   }
 
   private exportWithoutUnderscoreId(object: any) {
-    var { _id, ...exported } = object;
-    return exported;
+    object.id = object._id;
+    delete object._id;
+    return object;
   }
 }
