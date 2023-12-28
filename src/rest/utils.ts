@@ -1,7 +1,7 @@
 import rateLimit from "express-rate-limit";
 
-export const nSecondLimiter = (n: number) =>
+export const nSecondLimiter = (n: number, requests = 1) =>
   rateLimit({
     windowMs: n * 1000, // n * 1000 where the window is n seconds
-    limit: 1, // Requests per window
+    limit: requests, // Requests per window
   });
