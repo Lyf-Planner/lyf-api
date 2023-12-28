@@ -15,9 +15,9 @@ export class TimeOperations {
     user_id: string
   ) {
     // At the moment these are just the social fields
-    var oldUntouchableFields = JSON.stringify(this.timeFieldsOnly(original));
-    var newUntouchableFields = JSON.stringify(this.timeFieldsOnly(proposed));
-    if (oldUntouchableFields !== newUntouchableFields) {
+    const modified = proposed.created || proposed.last_updated;
+
+    if (modified) {
       var logger = Logger.of(TimeOperations);
       logger.error(
         `User ${user_id} tried to modify time fields on ${original.id}`
