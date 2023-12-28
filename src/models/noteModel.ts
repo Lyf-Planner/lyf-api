@@ -30,11 +30,11 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
     TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
 
     // Checks passed!
-    this.logger.info(
+    this.logger.debug(
       `User ${this.requested_by} safely updated note ${this.id}`
     );
     this.content = proposed;
-    this.commit();
+    await this.commit();
   }
 
   public export() {

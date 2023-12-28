@@ -8,7 +8,7 @@ import { Logger } from "../utils/logging";
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
     var { user_id, password } = req.query;
-    logger.info(`Received login request for user ${user_id}`);
+    logger.debug(`Received login request for user ${user_id}`);
 
     var userModel;
     try {
@@ -39,7 +39,7 @@ export class UserHandlers {
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
-    logger.info(`Authorized autologin for user ${user_id}`);
+    logger.debug(`Authorized autologin for user ${user_id}`);
 
     try {
       var userModel = await UserOperations.retrieveForUser(user_id, user_id);
@@ -55,7 +55,7 @@ export class UserHandlers {
     var requestor_id = authUtils.authoriseHeader(req, res);
     if (!requestor_id) return;
 
-    logger.info(`Received request for user ${user_id} from "${requestor_id}"`);
+    logger.debug(`Received request for user ${user_id} from "${requestor_id}"`);
 
     var userModel = await UserOperations.retrieveForUser(
       user_id as string,
@@ -69,7 +69,7 @@ export class UserHandlers {
     var requestor_id = authUtils.authoriseHeader(req, res);
     if (!requestor_id) return;
 
-    logger.info(
+    logger.debug(
       `Received request for user ids ${user_ids} from "${requestor_id}"`
     );
 

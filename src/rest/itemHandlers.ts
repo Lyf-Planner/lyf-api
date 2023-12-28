@@ -4,7 +4,7 @@ import db from "../repository/dbAccess";
 import { Permission } from "../api/abstract";
 import { ObjectId } from "mongodb";
 import { Logger } from "../utils/logging";
-import { ListItem, ListItemInput } from "../api/list";
+import { ListItem } from "../api/list";
 import { ItemModel } from "../models/itemModel";
 import { ItemOperations } from "../models/ItemOperations";
 
@@ -12,7 +12,7 @@ export class ItemHandlers {
   protected async createItem(req: Request, res: Response) {
     // Users only type a name in a section (implying type) to create an item
     // Should reevaluate this if we ever grant API access!
-    var itemInput = req.body as ListItemInput;
+    var itemInput = req.body as ListItem;
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
@@ -55,6 +55,8 @@ export class ItemHandlers {
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
+    logger.debug(`Removing item ${item_id}`);
+
     // Authorisation checks
     var item: ItemModel;
     try {
@@ -82,7 +84,7 @@ export class ItemHandlers {
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
-    logger.info(`Retreiving item ${item_id} for user ${user_id}`);
+    logger.debug(`Retreiving item ${item_id} for user ${user_id}`);
 
     // Authorisation checks
     var item: ItemModel;
@@ -103,11 +105,11 @@ export class ItemHandlers {
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
-    logger.info(`Retreiving items <${item_ids}> for user ${user_id}`);
+    logger.debug(`Retreiving items [${item_ids}] for user ${user_id}`);
 
     // No auth checks - automatically excludes those without perms
     var items = await ItemOperations.getRawUserItems(item_ids, user_id, true);
-    logger.debug(`Got items <${items.map((x) => x.id)}> for user`);
+    logger.debug(`Got items [${items.map((x) => x.id)}] for user`);
 
     res.status(200).json(items!).end();
   }

@@ -47,7 +47,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
 
     // Checks passed!
-    this.logger.info(
+    this.logger.debug(
       `User ${this.requested_by} safely updated item ${this.id}`
     );
     await this.processUpdate(proposed);

@@ -43,9 +43,9 @@ export class UserModel extends RemoteObject<User> {
     TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
 
     // Checks passed!
-    this.logger.info(`User ${user_id} safely updated note ${this.id}`);
+    this.logger.debug(`User ${user_id} safely updated user ${this.id}`);
     this.content = proposed;
-    this.commit();
+    await this.commit();
   }
 
   private throwIfUpdatingOtherUser(proposed: User, user_id: ID) {
