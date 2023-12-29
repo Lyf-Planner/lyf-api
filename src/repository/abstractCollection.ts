@@ -81,6 +81,7 @@ export class Collection<T extends DBObject> {
     insert._id = object.id;
     delete insert.id;
     insert.last_updated = new Date().toUTCString();
+    if (!insert.created && upsert) insert.created = new Date().toUTCString();
     var result = await this.collection.updateOne(
       { _id: insert._id },
       { $set: { ...insert } },
@@ -127,7 +128,11 @@ export class Collection<T extends DBObject> {
   ) {
     let foundIds = results.map((x: T) => x.id) as ID[];
 
-    let message = `Queried ${searched.length} documents in collection and did not find ${searched.length - results.length}`;
+    let message = `Queried ${
+      searched.length
+    } documents in collection and did not find ${
+      searched.length - results.length
+    }`;
 
     if (throwOnUnfound) {
       this.logger.error(message);

@@ -64,7 +64,6 @@ export class UserOperations {
     return {
       friends: user.friends,
       friend_requests: user.friend_requests,
-      premium: user.premium,
     };
   }
 }

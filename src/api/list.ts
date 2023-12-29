@@ -19,6 +19,7 @@ export type ItemMetadata = {
   day?: string; // For templates
   desc?: string;
   time?: string;
+  template_id?: string;
 };
 
 // Only modifiable by owners
