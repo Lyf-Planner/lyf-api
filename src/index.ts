@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { UserEndpoints } from "./rest/userEndpoints";
 import { ItemEndpoints } from "./rest/itemEndpoints";
 import { NoteEndpoints } from "./rest/noteEndpoints";
+import { Logger, LoggingLevel } from "./utils/logging";
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -23,9 +24,13 @@ async function main() {
     res.send("Lyf API!");
   });
 
-  const users = new UserEndpoints(server);
-  const items = new ItemEndpoints(server);
-  const notes = new NoteEndpoints(server);
+  Logger.setLevel(
+    env.nodeEnv === "prod" ? LoggingLevel.INFO : LoggingLevel.DEBUG
+  );
+
+  new UserEndpoints(server);
+  new ItemEndpoints(server);
+  new NoteEndpoints(server);
 
   await db.init();
 

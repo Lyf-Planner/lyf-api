@@ -105,11 +105,11 @@ export class ItemHandlers {
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
-    logger.debug(`Retreiving items [${item_ids}] for user ${user_id}`);
+    logger.debug(`Retreiving ${item_ids.length} for user ${user_id}`);
 
     // No auth checks - automatically excludes those without perms
     var items = await ItemOperations.getRawUserItems(item_ids, user_id, true);
-    logger.debug(`Got items [${items.map((x) => x.id)}] for user`);
+    logger.debug(`Got items ${items.length} for user`);
 
     res.status(200).json(items!).end();
   }
