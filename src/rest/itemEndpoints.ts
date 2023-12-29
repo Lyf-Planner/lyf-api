@@ -6,7 +6,7 @@ export class ItemEndpoints extends ItemHandlers {
   constructor(server: express.Application) {
     super();
     server.post("/createItem", nSecondLimiter(30, 60), this.createItem);
-    server.post("/updateItem", nSecondLimiter(50, 20), this.updateItem);
+    server.post("/updateItem", this.updateItem);
     server.post("/getItems", this.getItems);
     // server.post("/searchItems", this.searchItems)
     server.get("/deleteItem", nSecondLimiter(30, 60), this.deleteItem);
