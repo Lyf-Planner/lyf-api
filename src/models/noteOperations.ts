@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { Note, NoteInput, NoteType } from "../api/notes";
+import { Note, NoteType } from "../api/notes";
 import { ID, Permission, Time } from "../api/abstract";
 import { NoteModel } from "./noteModel";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
