@@ -16,6 +16,8 @@ export class NoteHandlers {
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
+    logger.debug(`Creating note ${noteInput.title} from user ${user_id}`);
+
     // Should validate item input here!
 
     // Instantiate
@@ -31,12 +33,17 @@ export class NoteHandlers {
 
     var remoteItem: NoteModel;
 
+    logger.debug(
+      `Updating note ${note.title} (${note.id}) from user ${user_id}`
+    );
+
     // Authorisation checks
     try {
       // These fns will check user is permitted on the note and has Permission > Viewer
       remoteItem = await NoteOperations.retrieveForUser(note.id, user_id);
       await remoteItem.safeUpdate(note, user_id);
     } catch (err) {
+      logger.error(`User ${user_id} did not safely update note ${note.id}`);
       res.status(403).end(`${err}`);
       return;
     }
@@ -49,6 +56,8 @@ export class NoteHandlers {
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
+    logger.debug(`Deleting note ${note_id} as requested by ${user_id}`);
+
     // Authorisation checks
     var note: NoteModel;
     try {
@@ -60,6 +69,9 @@ export class NoteHandlers {
       if (!perm || perm !== Permission.Owner)
         throw new Error(`Notes can only be deleted by their owner/creator`);
     } catch (err) {
+      logger.error(
+        `User ${user_id} tried to delete ${note_id} without valid permissions`
+      );
       res.status(403).end(`${err}`);
     }
 
@@ -73,11 +85,16 @@ export class NoteHandlers {
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
+    logger.debug(`Retreiving note ${note_id} for user ${user_id}`);
+
     // Authorisation checks
     var note: NoteModel;
     try {
       note = await NoteOperations.retrieveForUser(note_id, user_id);
     } catch (err) {
+      logger.error(
+        `User ${user_id} requested item ${note_id} to which they don't have access`
+      );
       res.status(403).end(`${err}`);
     }
 
@@ -89,9 +106,14 @@ export class NoteHandlers {
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
+    logger.debug(`Retreiving  ${note_ids.length} notes for user ${user_id}`);
+
     // No auth checks - automatically excludes those without perms
     var items = await NoteOperations.getRawUserNotes(note_ids, user_id, true);
+    logger.debug(`Got ${items.length} notes for user`);
 
     res.status(200).json(items!).end();
   }
 }
+
+const logger = Logger.of(NoteHandlers);
