@@ -2,7 +2,11 @@ import { ID, Identifiable, Restricted, Time } from "./abstract";
 import { List } from "./list";
 
 export type Notes = {
-  items: string[];
+  items: (UserNote | Note)[];
+};
+
+export type UserNote = {
+  id: ID;
 };
 
 export type Note = Identifiable &

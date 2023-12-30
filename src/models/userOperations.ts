@@ -31,7 +31,9 @@ export class UserOperations {
       active_template: 0,
       items: [],
     };
-    user.notes = [];
+    user.notes = {
+      items: [],
+    };
     user.premium = { enabled: false };
     user.friends = [];
     user.friend_requests = [];

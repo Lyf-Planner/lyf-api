@@ -6,9 +6,9 @@ export class NoteEndpoints extends NoteHandlers {
     super();
     server.post("/createNote", this.createNote);
     server.post("/updateNote", this.updateNote);
-    server.post("/deleteNote", this.deleteNote);
+    server.post("/getNotes", this.getNotes);
     server.get("/getNote", this.getNote);
-    server.get("/getNotes", this.getNotes);
+    server.get("/deleteNote", this.deleteNote);
 
     // server.post("/addressNoteInvite");
     // server.post("/inviteNoteUser");
