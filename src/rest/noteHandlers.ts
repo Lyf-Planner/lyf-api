@@ -45,14 +45,17 @@ export class NoteHandlers {
   }
 
   protected async deleteNote(req: Request, res: Response) {
-    var { note_id } = req.body;
+    var { note_id } = req.query;
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
     // Authorisation checks
     var note: NoteModel;
     try {
-      var note = await NoteOperations.retrieveForUser(note_id, user_id);
+      var note = await NoteOperations.retrieveForUser(
+        note_id as string,
+        user_id
+      );
       var perm = note.requestorPermission();
       if (!perm || perm !== Permission.Owner)
         throw new Error(`Notes can only be deleted by their owner/creator`);
