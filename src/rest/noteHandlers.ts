@@ -1,5 +1,5 @@
 import { Permission } from "../api/abstract";
-import { Note, NoteInput } from "../api/notes";
+import { Note } from "../api/notes";
 import authUtils from "../auth/authUtils";
 import { NoteModel } from "../models/noteModel";
 import { NoteOperations } from "../models/noteOperations";
@@ -12,7 +12,7 @@ export class NoteHandlers {
   protected async createNote(req: Request, res: Response) {
     // Users only type a name in a section (implying type) to create an item
     // Should reevaluate this if we ever grant API access!
-    var noteInput = req.body as NoteInput;
+    var noteInput = req.body as Note;
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
@@ -106,7 +106,7 @@ export class NoteHandlers {
     var user_id = authUtils.authoriseHeader(req, res);
     if (!user_id) return;
 
-    logger.debug(`Retreiving  ${note_ids.length} notes for user ${user_id}`);
+    logger.debug(`Retreiving ${note_ids.length} notes for user ${user_id}`);
 
     // No auth checks - automatically excludes those without perms
     var items = await NoteOperations.getRawUserNotes(note_ids, user_id, true);

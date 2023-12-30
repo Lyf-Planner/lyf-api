@@ -31,17 +31,11 @@ export class NoteOperations {
 
   // Builder method
   static async createNew(
-    noteInput: NoteInput,
+    noteInput: Note,
     user_id: string,
     commit = false // Also create in db
   ): Promise<NoteModel> {
-    var note = noteInput as any;
-    note.id = uuid();
-    note.permitted_users = [{ user_id, permissions: Permission.Owner }];
-    note.content = note.type === NoteType.List ? [] : "";
-    note = note as Note;
-
-    var model = new NoteModel(note, false, user_id);
+    var model = new NoteModel(noteInput, false, user_id);
     if (commit) await model.commit(true);
 
     return model;

@@ -17,11 +17,6 @@ export type Note = Identifiable &
     content: NoteContent;
   };
 
-export type NoteInput = {
-  type: NoteType;
-  title: string;
-};
-
 export enum NoteType {
   List = "List",
   Text = "Text", // These are often just referred to as Notes - they are the default
