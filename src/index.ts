@@ -9,6 +9,7 @@ import cors from "cors";
 import env from "./envManager";
 import bodyParserErrorHandler from "express-body-parser-error-handler";
 import db from "./repository/dbAccess";
+import { migrate } from "./migrate";
 
 const server = express();
 
@@ -33,6 +34,8 @@ async function main() {
   new NoteEndpoints(server);
 
   await db.init();
+
+  // await migrate();
 
   const PORT = env.port;
 

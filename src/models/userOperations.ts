@@ -28,7 +28,6 @@ export class UserOperations {
     user.id = user_id;
     user.pass_hash = await authUtils.hashPass(password);
     user.timetable = {
-      active_template: 0,
       items: [],
     };
     user.notes = {

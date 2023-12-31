@@ -1,11 +1,9 @@
-import { ObjectId } from "mongodb";
-import { Note, NoteType } from "../api/notes";
-import { ID, Permission, Time } from "../api/abstract";
+import { Note } from "../api/notes";
+import { ID } from "../api/abstract";
 import { NoteModel } from "./noteModel";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
 import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
-import { v4 as uuid } from "uuid";
 
 export class NoteOperations {
   // Builder method

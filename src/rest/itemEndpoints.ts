@@ -9,7 +9,7 @@ export class ItemEndpoints extends ItemHandlers {
     server.post("/updateItem", this.updateItem);
     server.post("/getItems", this.getItems);
     // server.post("/searchItems", this.searchItems)
-    server.get("/deleteItem", nSecondLimiter(30, 60), this.deleteItem);
+    server.get("/deleteItem", this.deleteItem);
     server.get("/getItem", this.getItem);
 
     // server.post("/addressItemSuggestion");

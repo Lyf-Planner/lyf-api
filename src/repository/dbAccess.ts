@@ -1,4 +1,4 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { Db, MongoClient, ServerApiVersion } from "mongodb";
 import { Collection } from "./abstractCollection";
 import { User } from "../api/user";
 import { ListItem } from "../api/list";
@@ -8,18 +8,26 @@ import env from "../envManager";
 
 export class Database {
   private logger = Logger.of(Database);
-  private client: MongoClient = this.setClient();
   private connected = false;
 
-  private db = this.client.db(env.mongoDb);
-  private usersCollectionRef = new Collection<User>("users", this.db);
-  private itemsCollectionRef = new Collection<ListItem>("items", this.db);
-  private notesCollectionRef = new Collection<Note>("notes", this.db);
+  private client: MongoClient;
+  private db: Db;
+  private usersCollectionRef: Collection<User>;
+  private itemsCollectionRef: Collection<ListItem>;
+  private notesCollectionRef: Collection<Note>;
+
+  constructor(connectionUrl?: string, dbName?: string) {
+    this.client = this.setClient(connectionUrl);
+    this.db = this.client.db(dbName || env.mongoDb);
+    this.usersCollectionRef = new Collection<User>("users", this.db);
+    this.itemsCollectionRef = new Collection<ListItem>("items", this.db);
+    this.notesCollectionRef = new Collection<Note>("notes", this.db);
+  }
 
   public async init() {
     this.logger.info("Initialising DB connection");
     await this.client.connect();
-    await this.client.db(env.mongoDb).command({ ping: 1 });
+    await this.db.command({ ping: 1 });
     this.connected = true;
     this.logger.info("DB initialised!");
   }
@@ -44,8 +52,8 @@ export class Database {
   public notesCollection = (): Collection<Note> =>
     this.initialisedGateway(this.notesCollectionRef);
 
-  private setClient() {
-    return new MongoClient(env.mongoUrl as string, {
+  private setClient(connectionUrl?: string) {
+    return new MongoClient(connectionUrl || (env.mongoUrl as string), {
       serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
