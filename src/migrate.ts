@@ -3,6 +3,7 @@ import env from "./envManager";
 import { v4 as uuid } from "uuid";
 import { NoteType } from "./api/notes";
 import { ItemStatus, ListItemTypes } from "./api/list";
+import moment from "moment";
 
 // https://lyf-planner.atlassian.net/browse/LYFAPI-23
 // Migrate old database lyf-tmp to a new one lyf-prod with the API 2.0 Schema
@@ -182,7 +183,7 @@ const getTimetableItems = (user: any, templateNames: any) => {
               id: event.id || uuid(),
               title: event.name,
               type: ListItemTypes.Event,
-              date: day.date,
+              date: moment(new Date(day.date)).format("YYYY-MM-DD"),
               day: null,
               permitted_users: [
                 { user_id: user.user_id, permissions: "Owner" },
