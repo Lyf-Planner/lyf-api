@@ -76,13 +76,18 @@ const processNotes = async (user: any, lyf_prod: any) => {
   for (var note of notes) {
     let noteContent = note.content;
     if (note.type === NoteType.List) {
+      var newContent = [];
       for (var item of noteContent) {
-        item.type = ListItemTypes.Task;
-        item.permitted_users = [
-          { user_id: user.user_id, permissions: "Owner" },
-        ];
-        delete item.finished;
+        newContent.push({
+          id: item.id || uuid(),
+          title: item.name,
+          status:
+            item.status ||
+            (item.finished ? ItemStatus.Done : ItemStatus.Upcoming),
+          permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
+        });
       }
+      noteContent = newContent;
     }
 
     let newNote = {
@@ -117,7 +122,9 @@ const getTemplateItems = (user: any) => {
           date: null,
           day: weekday.day,
           permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
-          status: event.finished ? ItemStatus.Done : ItemStatus.Upcoming,
+          status:
+            event.status ||
+            (event.finished ? ItemStatus.Done : ItemStatus.Upcoming),
         });
       }
     }
@@ -130,7 +137,9 @@ const getTemplateItems = (user: any) => {
           date: null,
           day: weekday.day,
           permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
-          status: task.finished ? ItemStatus.Done : ItemStatus.Upcoming,
+          status:
+            task.status ||
+            (task.finished ? ItemStatus.Done : ItemStatus.Upcoming),
         });
       }
     }
@@ -150,7 +159,9 @@ const getMiscItems = (user: any) => {
       date: null,
       day: null,
       permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
-      status: event.finished ? ItemStatus.Done : ItemStatus.Upcoming,
+      status:
+        event.status ||
+        (event.finished ? ItemStatus.Done : ItemStatus.Upcoming),
     });
   }
 
@@ -162,7 +173,8 @@ const getMiscItems = (user: any) => {
       date: null,
       day: null,
       permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
-      status: task.finished ? ItemStatus.Done : ItemStatus.Upcoming,
+      status:
+        task.status || (task.finished ? ItemStatus.Done : ItemStatus.Upcoming),
     });
   }
 
@@ -188,7 +200,9 @@ const getTimetableItems = (user: any, templateNames: any) => {
               permitted_users: [
                 { user_id: user.user_id, permissions: "Owner" },
               ],
-              status: event.finished ? ItemStatus.Done : ItemStatus.Upcoming,
+              status:
+                event.status ||
+                (event.finished ? ItemStatus.Done : ItemStatus.Upcoming),
             });
         }
       }
@@ -205,7 +219,9 @@ const getTimetableItems = (user: any, templateNames: any) => {
               permitted_users: [
                 { user_id: user.user_id, permissions: "Owner" },
               ],
-              status: task.finished ? ItemStatus.Done : ItemStatus.Upcoming,
+              status:
+                task.status ||
+                (task.finished ? ItemStatus.Done : ItemStatus.Upcoming),
             });
         }
       }
