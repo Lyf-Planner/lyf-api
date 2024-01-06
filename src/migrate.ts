@@ -157,12 +157,12 @@ const getMiscItems = (user: any) => {
   for (var task of user.timetable.todo as any) {
     items.push({
       _id: task.id || uuid(),
-      title: event.name,
+      title: task.name,
       type: ListItemTypes.Task,
       date: null,
       day: null,
       permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
-      status: event.finished ? ItemStatus.Done : ItemStatus.Upcoming,
+      status: task.finished ? ItemStatus.Done : ItemStatus.Upcoming,
     });
   }
 
