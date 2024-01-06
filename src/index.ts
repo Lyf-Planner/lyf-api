@@ -1,56 +1,57 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
-import { updateUser, autoLogin, login, deleteMe } from "./endpoints";
 import { Request, Response } from "express";
-import { rateLimit } from "express-rate-limit";
+import { UserEndpoints } from "./rest/userEndpoints";
+import { ItemEndpoints } from "./rest/itemEndpoints";
+import { NoteEndpoints } from "./rest/noteEndpoints";
+import { Logger, LoggingLevel } from "./utils/logging";
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import env from "./envManager";
 import bodyParserErrorHandler from "express-body-parser-error-handler";
+import db from "./repository/dbAccess";
+import { migrate } from "./migrate";
 
-const dotenv = require("dotenv");
-const express = require("express");
 const server = express();
-const cors = require("cors");
 
 dotenv.config();
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(process.env.MONGO_URL as string, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
 
 //middleware
 server.use(cors());
 server.use(express.json());
 server.use(bodyParserErrorHandler());
 
-const db = client.db("lyf-tmp");
-export const usersCollection = db.collection("users");
 
 async function main() {
-  await client.connect();
-  const nSecondLimiter = (n: number) =>
-    rateLimit({
-      windowMs: n * 1000, // n * 1000 where the window is n seconds
-      limit: 1, // Requests per window
-    });
-
   server.get("/", (req: Request, res: Response) => {
     res.send("Lyf API!");
   });
 
-  // Users
-  server.get("/login", nSecondLimiter(30), login);
-  server.get("/autoLogin", autoLogin);
-  server.post("/updateUser", nSecondLimiter(5), updateUser);
-  server.post("/deleteMe", deleteMe);
+  Logger.setLevel(
+    env.nodeEnv === "prod" ? LoggingLevel.INFO : LoggingLevel.DEBUG
+  );
 
-  const PORT = process.env.PORT || 8000;
+  new UserEndpoints(server);
+  new ItemEndpoints(server);
+  new NoteEndpoints(server);
+
+  await db.init();
+
+  // await migrate();
+
+  const PORT = env.port;
 
   server.listen(PORT, () => {
     console.log(`server started at http://localhost:${PORT}`);
   });
 }
+
+async function shutdown() {
+  // Graceful shutdown
+  await db.close();
+  process.exit(0);
+}
+
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
 
 main();
