@@ -81,6 +81,7 @@ const processNotes = async (user: any, lyf_prod: any) => {
         newContent.push({
           id: item.id || uuid(),
           title: item.name,
+          type: ListItemTypes.Item,
           status:
             item.status ||
             (item.finished ? ItemStatus.Done : ItemStatus.Upcoming),
