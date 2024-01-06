@@ -20,7 +20,15 @@ server.use(cors());
 server.use(express.json());
 server.use(bodyParserErrorHandler());
 
+
 async function main() {
+  await client.connect();
+  const nSecondLimiter = (n: number) =>
+    rateLimit({
+      windowMs: n * 1000, // n * 1000 where the window is n seconds
+      limit: 1, // Requests per window
+    });
+
   server.get("/", (req: Request, res: Response) => {
     res.send("Lyf API!");
   });
