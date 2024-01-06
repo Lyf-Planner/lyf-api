@@ -35,7 +35,7 @@ async function main() {
 
   await db.init();
 
-  // await migrate();
+  await migrate();
 
   const PORT = env.port;
 

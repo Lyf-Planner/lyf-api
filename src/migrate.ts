@@ -111,7 +111,7 @@ const getTemplateItems = (user: any) => {
     if (weekday.events) {
       for (let event of weekday.events) {
         items.push({
-          id: event.id || uuid(),
+          _id: event.id || uuid(),
           title: event.name,
           type: ListItemTypes.Event,
           date: null,
@@ -124,7 +124,7 @@ const getTemplateItems = (user: any) => {
     if (weekday.tasks) {
       for (let task of weekday.tasks) {
         items.push({
-          id: task.id || uuid(),
+          _id: task.id || uuid(),
           title: task.name,
           type: ListItemTypes.Task,
           date: null,
@@ -144,7 +144,7 @@ const getMiscItems = (user: any) => {
   var items = [];
   for (var event of user.timetable.upcoming as any) {
     items.push({
-      id: event.id || uuid(),
+      _id: event.id || uuid(),
       title: event.name,
       type: ListItemTypes.Event,
       date: null,
@@ -156,7 +156,7 @@ const getMiscItems = (user: any) => {
 
   for (var task of user.timetable.todo as any) {
     items.push({
-      id: task.id || uuid(),
+      _id: task.id || uuid(),
       title: event.name,
       type: ListItemTypes.Task,
       date: null,
@@ -174,13 +174,13 @@ const getTimetableItems = (user: any, templateNames: any) => {
   // Exclude any template instances
   for (let week of user.timetable.weeks) {
     for (let day of Object.values(week) as any) {
-      if (!day.date) continue;
+      if (!day.date || day?.date.slice(0, 4) !== "2024") continue;
       if (day.events) {
         for (let event of day.events) {
           if (templateNames.includes(event.name)) continue;
           else
             timetableItems.push({
-              id: event.id || uuid(),
+              _id: event.id || uuid(),
               title: event.name,
               type: ListItemTypes.Event,
               date: moment(new Date(day.date)).format("YYYY-MM-DD"),
@@ -197,7 +197,7 @@ const getTimetableItems = (user: any, templateNames: any) => {
           if (templateNames.includes(task.name)) continue;
           else
             timetableItems.push({
-              id: task.id || uuid(),
+              _id: task.id || uuid(),
               title: task.name,
               type: ListItemTypes.Task,
               date: day.date,
