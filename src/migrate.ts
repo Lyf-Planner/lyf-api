@@ -121,6 +121,7 @@ const getTemplateItems = (user: any) => {
           type: ListItemTypes.Event,
           date: null,
           day: weekday.day,
+          time: event.time,
           permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
           status:
             event.status ||
@@ -158,6 +159,7 @@ const getMiscItems = (user: any) => {
       type: ListItemTypes.Event,
       date: null,
       day: null,
+      time: event.time,
       permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
       status:
         event.status ||
@@ -197,6 +199,7 @@ const getTimetableItems = (user: any, templateNames: any) => {
               type: ListItemTypes.Event,
               date: moment(new Date(day.date)).format("YYYY-MM-DD"),
               day: null,
+              time: event.time,
               permitted_users: [
                 { user_id: user.user_id, permissions: "Owner" },
               ],
@@ -214,7 +217,7 @@ const getTimetableItems = (user: any, templateNames: any) => {
               _id: task.id || uuid(),
               title: task.name,
               type: ListItemTypes.Task,
-              date: day.date,
+              date: moment(new Date(day.date)).format("YYYY-MM-DD"),
               day: null,
               permitted_users: [
                 { user_id: user.user_id, permissions: "Owner" },
