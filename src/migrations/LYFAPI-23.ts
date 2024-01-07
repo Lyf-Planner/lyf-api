@@ -1,8 +1,8 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
-import env from "./envManager";
+import env from "../envManager";
 import { v4 as uuid } from "uuid";
-import { NoteType } from "./api/notes";
-import { ItemStatus, ListItemTypes } from "./api/list";
+import { NoteType } from "../api/notes";
+import { ItemStatus, ListItemTypes } from "../api/list";
 import moment from "moment";
 
 // https://lyf-planner.atlassian.net/browse/LYFAPI-23
