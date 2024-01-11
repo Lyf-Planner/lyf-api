@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-const packagejson = require('./package.json')
+const packagejson = require('../package.json')
 
 // Expose this layer to access env vars throughout the app
 const env = {
