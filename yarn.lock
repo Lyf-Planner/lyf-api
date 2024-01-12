@@ -1991,7 +1991,7 @@ node-fetch@^2.6.0, node-fetch@^2.6.6, node-fetch@^2.6.7:
 
 node-schedule@^2.1.1:
   version "2.1.1"
-  resolved "https://registry.npmjs.org/node-schedule/-/node-schedule-2.1.1.tgz"
+  resolved "https://registry.yarnpkg.com/node-schedule/-/node-schedule-2.1.1.tgz#6958b2c5af8834954f69bb0a7a97c62b97185de3"
   integrity sha512-OXdegQq03OmXEjt2hZP33W2YPs/E5BcFQks46+G2gAxs4gHOIVD1u7EqlYLYSKsaIpyKCK9Gbk0ta1/gjRSMRQ==
   dependencies:
     cron-parser "^4.2.0"
