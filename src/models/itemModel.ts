@@ -108,13 +108,20 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     original: ListItem,
     proposed: ListItem
   ) {
-    var old = JSON.stringify(
-      original.notifications.filter((x) => x.user_id !== user_id)
-    );
-    var recent = JSON.stringify(
-      proposed.notifications.filter((x) => x.user_id !== user_id)
-    );
-    if (old !== recent) {
+    var success = true;
+    if (!original.notifications) {
+      success = proposed.notifications.length <= 1;
+    } else {
+      var old = JSON.stringify(
+        original.notifications.filter((x) => x.user_id !== user_id)
+      );
+      var recent = JSON.stringify(
+        proposed.notifications.filter((x) => x.user_id !== user_id)
+      );
+      success = old === recent;
+    }
+
+    if (!success) {
       this.logger.error(
         `User ${this.requested_by} tried to modify other users notifications on ${this.id}`
       );
