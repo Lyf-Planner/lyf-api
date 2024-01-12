@@ -1,10 +1,6 @@
 import { ObjectId } from "mongodb";
 import { ID, Permission, UserAccess } from "../api/abstract";
-import {
-  ItemSettings,
-  ItemSocialData,
-  ListItem,
-} from "../api/list";
+import { ItemSettings, ItemSocialData, ListItem } from "../api/list";
 import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
 import { ItemOperations } from "./ItemOperations";
@@ -34,17 +30,20 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       user_id
     );
 
-    // 1. User cannot be a Viewer
+    // 1. Cannot update as a Viewer
     this.throwIfReadOnly(perm);
 
     // 2. Editors can only modify metadata
     this.throwIfEditorModifiedNonMetadata(proposed, perm);
 
-    // 3. No one should be editing the social fields
+    // 3. No one should be editing the social fields (comments, suggestions etc.)
     this.throwIfModifiedReadOnlyFields(proposed);
 
     // 4. No one should modify time fields
     TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
+
+    // 5. Should not update anyone elses notifications
+    this.throwIfModifiedOtherNotifications(user_id, this.content, proposed);
 
     // Checks passed!
     this.logger.debug(
@@ -101,6 +100,25 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       throw new Error(
         `Suggestions and comments cannot be modified on this endpoint`
       );
+    }
+  }
+
+  private throwIfModifiedOtherNotifications(
+    user_id: string,
+    original: ListItem,
+    proposed: ListItem
+  ) {
+    var old = JSON.stringify(
+      original.notifications.filter((x) => x.user_id !== user_id)
+    );
+    var recent = JSON.stringify(
+      proposed.notifications.filter((x) => x.user_id !== user_id)
+    );
+    if (old !== recent) {
+      this.logger.error(
+        `User ${this.requested_by} tried to modify other users notifications on ${this.id}`
+      );
+      throw new Error(`Users can only update their own notifications`);
     }
   }
 
