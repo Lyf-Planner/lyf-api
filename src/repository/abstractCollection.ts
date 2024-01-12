@@ -27,8 +27,8 @@ export class Collection<T extends DBObject> {
     var toInsert = object as any;
     toInsert._id = object.id; // We don't use Mongo ObjectIds, just UUIDs
     delete toInsert.id;
-    toInsert.last_updated = new Date().toUTCString();
-    toInsert.created = new Date().toUTCString();
+    toInsert.last_updated = new Date().toISOString();
+    toInsert.created = new Date().toISOString();
     var result = await this.collection.insertOne(object);
     assert(result.acknowledged);
 
@@ -80,8 +80,8 @@ export class Collection<T extends DBObject> {
     var insert = object as any;
     insert._id = object.id;
     delete insert.id;
-    insert.last_updated = new Date().toUTCString();
-    if (!insert.created && upsert) insert.created = new Date().toUTCString();
+    insert.last_updated = new Date().toISOString();
+    if (!insert.created && upsert) insert.created = new Date().toISOString();
     var result = await this.collection.updateOne(
       { _id: insert._id },
       { $set: { ...insert } },
