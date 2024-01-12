@@ -110,7 +110,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   ) {
     var success = true;
     if (!original.notifications) {
-      success = proposed.notifications.length <= 1;
+      success = !proposed.notifications || proposed.notifications.length <= 1;
     } else {
       var old = JSON.stringify(
         original.notifications.filter((x) => x.user_id !== user_id)
