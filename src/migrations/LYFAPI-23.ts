@@ -9,7 +9,7 @@ import moment from "moment";
 // Migrate old database lyf-tmp (1.0.0) to a new database with the API 2.0 Schema
 
 export const migrate = async () => {
-  if (env.version !== "1.0.0") return;
+  return;
   console.log("Starting migration to API 2.0 Schema");
   const client = new MongoClient(env.mongoUrl as string, {
     serverApi: {
