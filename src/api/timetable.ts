@@ -1,4 +1,4 @@
-import { ID, Identifiable } from "./abstract";
+import { Identifiable } from "./abstract";
 import { ListItem } from "./list";
 
 export type Timetable = {
@@ -11,16 +11,6 @@ export type Timetable = {
 // Should only store current week and above
 export type UserListItem = Identifiable & {
   show_in_upcoming?: boolean;
-  notification?: EventNotification;
-};
-
-export type EventNotification = {
-  item_id: ID;
-  event_name: string;
-  event_datetime: Date;
-  minutes_away: string;
-  scheduled_for: Date;
-  to: string;
 };
 
 // These types are used in the frontend!
