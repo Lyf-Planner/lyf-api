@@ -11,23 +11,27 @@ export class Database {
   private connected = false;
 
   private client: MongoClient;
-  private db: Db;
+  private database: Db;
   private usersCollectionRef: Collection<User>;
   private itemsCollectionRef: Collection<ListItem>;
   private notesCollectionRef: Collection<Note>;
 
   constructor(connectionUrl?: string, dbName?: string) {
     this.client = this.setClient(connectionUrl);
-    this.db = this.client.db(dbName || env.mongoDb);
-    this.usersCollectionRef = new Collection<User>("users", this.db);
-    this.itemsCollectionRef = new Collection<ListItem>("items", this.db);
-    this.notesCollectionRef = new Collection<Note>("notes", this.db);
+    this.database = this.client.db(dbName || env.mongoDb);
+    this.usersCollectionRef = new Collection<User>("users", this.database);
+    this.itemsCollectionRef = new Collection<ListItem>("items", this.database);
+    this.notesCollectionRef = new Collection<Note>("notes", this.database);
+  }
+
+  public getDb() {
+    return this.database;
   }
 
   public async init() {
     this.logger.info("Initialising DB connection");
     await this.client.connect();
-    await this.db.command({ ping: 1 });
+    await this.database.command({ ping: 1 });
     this.connected = true;
     this.logger.info("DB initialised!");
   }

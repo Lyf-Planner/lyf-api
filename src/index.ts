@@ -9,7 +9,8 @@ import cors from "cors";
 import env from "./envManager";
 import bodyParserErrorHandler from "express-body-parser-error-handler";
 import db from "./repository/dbAccess";
-import { migrate } from "./migrate";
+import expoPushService from "./notifications/expoPushService";
+import notificationManager from "./notifications/notificationManager";
 
 const server = express();
 
@@ -19,7 +20,6 @@ dotenv.config();
 server.use(cors());
 server.use(express.json());
 server.use(bodyParserErrorHandler());
-
 
 async function main() {
   server.get("/", (req: Request, res: Response) => {
@@ -36,8 +36,6 @@ async function main() {
 
   await db.init();
 
-  // await migrate();
-
   const PORT = env.port;
 
   server.listen(PORT, () => {
@@ -47,6 +45,7 @@ async function main() {
 
 async function shutdown() {
   // Graceful shutdown
+  await notificationManager.cleanup();
   await db.close();
   process.exit(0);
 }

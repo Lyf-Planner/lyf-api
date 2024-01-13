@@ -1,15 +1,13 @@
 import { ObjectId } from "mongodb";
 import { ID, Permission, UserAccess } from "../api/abstract";
-import {
-  ItemSettings,
-  ItemSocialData,
-  ListItem,
-} from "../api/list";
+import { ItemSettings, ItemSocialData, ListItem } from "../api/list";
 import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
 import { ItemOperations } from "./ItemOperations";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
 import { TimeOperations } from "./abstract/timeOperations";
+import notificationManager from "../notifications/notificationManager";
+import assert from "assert";
 
 export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private logger = Logger.of(ItemModel);
@@ -23,6 +21,18 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     return exported;
   }
 
+  public async delete() {
+    if (this.content.notifications) {
+      for (let notif of this.content.notifications) {
+        notificationManager.removeEventNotification(
+          this.content,
+          notif.user_id
+        );
+      }
+    }
+    await this.deleteFromDb();
+  }
+
   // Update and throw if there are any permissions violations
   public async safeUpdate(
     proposed: ListItem,
@@ -34,19 +44,31 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       user_id
     );
 
-    // 1. User cannot be a Viewer
+    // SAFETY CHECKS
+    // 1. Cannot update as a Viewer
     this.throwIfReadOnly(perm);
 
     // 2. Editors can only modify metadata
     this.throwIfEditorModifiedNonMetadata(proposed, perm);
 
-    // 3. No one should be editing the social fields
+    // 3. No one should be editing the social fields (comments, suggestions etc.)
     this.throwIfModifiedReadOnlyFields(proposed);
 
     // 4. No one should modify time fields
     TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
 
-    // Checks passed!
+    // 5. Should not update anyone elses notifications
+    this.throwIfModifiedOtherNotifications(user_id, proposed);
+
+    // Checks passed
+
+    // PRE-COMMIT TASKS
+    // 1. Action any notification updates
+    this.handleNotificationChanges({ ...proposed });
+
+    // 2. Handle any time changes
+    this.handleTimeChanges({ ...proposed });
+
     this.logger.debug(
       `User ${this.requested_by} safely updated item ${this.id}`
     );
@@ -101,6 +123,82 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       throw new Error(
         `Suggestions and comments cannot be modified on this endpoint`
       );
+    }
+  }
+
+  private throwIfModifiedOtherNotifications(
+    user_id: string,
+    proposed: ListItem
+  ) {
+    var success = true;
+    if (!this.content.notifications) {
+      success = !proposed.notifications || proposed.notifications.length <= 1;
+    } else {
+      var old = JSON.stringify(
+        this.content.notifications.filter((x) => x.user_id !== user_id)
+      );
+      var recent = JSON.stringify(
+        proposed.notifications.filter((x) => x.user_id !== user_id)
+      );
+      success = old === recent;
+    }
+
+    if (!success) {
+      this.logger.error(
+        `User ${this.requested_by} tried to modify other users notifications on ${this.id}`
+      );
+      throw new Error(`Users can only update their own notifications`);
+    }
+  }
+
+  private handleNotificationChanges(proposed: ListItem) {
+    const oldNotif =
+      this.content.notifications &&
+      this.content.notifications.find((x) => x.user_id === this.requested_by);
+    const newNotif =
+      proposed.notifications &&
+      proposed.notifications.find((x) => x.user_id === this.requested_by);
+
+    if (!oldNotif && newNotif) {
+      this.logger.info(
+        `User ${this.requested_by} set new notification on ${proposed.id}`
+      );
+      notificationManager.setEventNotification(proposed, this.requested_by);
+    } else if (
+      oldNotif &&
+      newNotif &&
+      JSON.stringify(oldNotif) !== JSON.stringify(newNotif)
+    ) {
+      notificationManager.updateEventNotification(proposed, this.requested_by);
+    } else if (oldNotif && !newNotif) {
+      notificationManager.removeEventNotification(proposed, this.requested_by);
+    }
+  }
+
+  private handleTimeChanges(proposed: ListItem) {
+    if (proposed.time !== this.content.time && proposed.notifications) {
+      for (let notification of proposed.notifications) {
+        var oldNotif =
+          this.content.notifications &&
+          this.content.notifications.find(
+            (x) => x.user_id === notification.user_id
+          );
+        if (!oldNotif) {
+          notificationManager.setEventNotification(
+            proposed,
+            notification.user_id
+          );
+        } else {
+          notificationManager.updateEventNotification(
+            proposed,
+            notification.user_id
+          );
+        }
+      }
+
+      if (proposed.permitted_users.length > 1) {
+        // Notify other users of a time change
+      }
     }
   }
 

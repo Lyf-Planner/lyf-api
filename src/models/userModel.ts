@@ -1,5 +1,6 @@
 import { ID } from "../api/abstract";
 import { User, UserDetails } from "../api/user";
+import notificationManager from "../notifications/notificationManager";
 import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
 import { RemoteObject } from "./abstract/remoteObject";
@@ -27,12 +28,13 @@ export class UserModel extends RemoteObject<User> {
     // Needs validator
     if (this.detailsAccessOnly) return this.getUser();
     else {
-      var { pass_hash, notification_token_hash, ...exported } = this.content;
+      var { pass_hash, expo_tokens, ...exported } = this.content;
       return exported;
     }
   }
 
   public async safeUpdate(proposed: User, user_id: ID) {
+    // SAFETY CHECKS
     // 1. User can only update their own
     this.throwIfUpdatingOtherUser(proposed, user_id);
 
@@ -43,6 +45,9 @@ export class UserModel extends RemoteObject<User> {
     TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
 
     // Checks passed!
+    // PRE-COMMIT
+    this.checkDailyNotifications(proposed);
+
     this.logger.debug(`User ${user_id} safely updated user ${this.id}`);
     this.content = proposed;
     await this.commit();
@@ -72,6 +77,22 @@ export class UserModel extends RemoteObject<User> {
       throw new Error(
         `Users cannot modify sensitive fields such as friends or premium access on this endpoint`
       );
+    }
+  }
+
+  private checkDailyNotifications(proposed: User) {
+    var oldEnabled = this.content.premium?.notifications?.daily_notifications;
+    var newEnabled = proposed.premium?.notifications?.daily_notifications;
+
+    var oldTime = this.content.premium?.notifications?.daily_notification_time;
+    var newTime = proposed.premium?.notifications?.daily_notification_time;
+
+    if (!oldEnabled && newEnabled) {
+      notificationManager.setDailyNotifications(proposed);
+    } else if (oldEnabled && newEnabled && oldTime !== newTime) {
+      notificationManager.updateDailyNotifications(proposed);
+    } else if (oldEnabled && !newEnabled) {
+      notificationManager.removeDailyNotifications(proposed.id);
     }
   }
 }
