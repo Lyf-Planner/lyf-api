@@ -1,14 +1,15 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
-import env from "./envManager";
+import env from "../envManager";
 import { v4 as uuid } from "uuid";
-import { NoteType } from "./api/notes";
-import { ItemStatus, ListItemTypes } from "./api/list";
+import { NoteType } from "../api/notes";
+import { ItemStatus, ListItemTypes } from "../api/list";
 import moment from "moment";
 
 // https://lyf-planner.atlassian.net/browse/LYFAPI-23
-// Migrate old database lyf-tmp to a new one lyf-prod with the API 2.0 Schema
+// Migrate old database lyf-tmp (1.0.0) to a new database with the API 2.0 Schema
 
 export const migrate = async () => {
+  return;
   console.log("Starting migration to API 2.0 Schema");
   const client = new MongoClient(env.mongoUrl as string, {
     serverApi: {
@@ -20,7 +21,7 @@ export const migrate = async () => {
   var mongoConnection = await client.connect();
 
   var lyf_tmp = mongoConnection.db("lyf-tmp");
-  var lyf_prod = mongoConnection.db("lyf-prod");
+  var lyf_db = mongoConnection.db(env.mongoDb);
 
   const allUsers = await lyf_tmp
     .collection("users")
@@ -34,9 +35,9 @@ export const migrate = async () => {
   for (let user of allUsers) {
     console.log("\nProcessing user", user.user_id);
 
-    const user_notes = await processNotes(user, lyf_prod);
+    const user_notes = await processNotes(user, lyf_db);
 
-    const user_items = await processItems(user, lyf_prod);
+    const user_items = await processItems(user, lyf_db);
 
     let newUser = {
       _id: user.user_id,
@@ -64,7 +65,7 @@ export const migrate = async () => {
       "notes"
     );
 
-    await lyf_prod.collection("users").insertOne(newUser);
+    await lyf_db.collection("users").insertOne(newUser);
   }
 };
 
@@ -76,13 +77,19 @@ const processNotes = async (user: any, lyf_prod: any) => {
   for (var note of notes) {
     let noteContent = note.content;
     if (note.type === NoteType.List) {
+      var newContent = [];
       for (var item of noteContent) {
-        item.type = ListItemTypes.Task;
-        item.permitted_users = [
-          { user_id: user.user_id, permissions: "Owner" },
-        ];
-        delete item.finished;
+        newContent.push({
+          id: item.id || uuid(),
+          title: item.name,
+          type: ListItemTypes.Item,
+          status:
+            item.status ||
+            (item.finished ? ItemStatus.Done : ItemStatus.Upcoming),
+          permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
+        });
       }
+      noteContent = newContent;
     }
 
     let newNote = {
@@ -116,8 +123,11 @@ const getTemplateItems = (user: any) => {
           type: ListItemTypes.Event,
           date: null,
           day: weekday.day,
+          time: event.time,
           permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
-          status: event.finished ? ItemStatus.Done : ItemStatus.Upcoming,
+          status:
+            event.status ||
+            (event.finished ? ItemStatus.Done : ItemStatus.Upcoming),
         });
       }
     }
@@ -130,7 +140,9 @@ const getTemplateItems = (user: any) => {
           date: null,
           day: weekday.day,
           permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
-          status: task.finished ? ItemStatus.Done : ItemStatus.Upcoming,
+          status:
+            task.status ||
+            (task.finished ? ItemStatus.Done : ItemStatus.Upcoming),
         });
       }
     }
@@ -149,20 +161,24 @@ const getMiscItems = (user: any) => {
       type: ListItemTypes.Event,
       date: null,
       day: null,
+      time: event.time,
       permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
-      status: event.finished ? ItemStatus.Done : ItemStatus.Upcoming,
+      status:
+        event.status ||
+        (event.finished ? ItemStatus.Done : ItemStatus.Upcoming),
     });
   }
 
   for (var task of user.timetable.todo as any) {
     items.push({
       _id: task.id || uuid(),
-      title: event.name,
+      title: task.name,
       type: ListItemTypes.Task,
       date: null,
       day: null,
       permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
-      status: event.finished ? ItemStatus.Done : ItemStatus.Upcoming,
+      status:
+        task.status || (task.finished ? ItemStatus.Done : ItemStatus.Upcoming),
     });
   }
 
@@ -185,10 +201,13 @@ const getTimetableItems = (user: any, templateNames: any) => {
               type: ListItemTypes.Event,
               date: moment(new Date(day.date)).format("YYYY-MM-DD"),
               day: null,
+              time: event.time,
               permitted_users: [
                 { user_id: user.user_id, permissions: "Owner" },
               ],
-              status: event.finished ? ItemStatus.Done : ItemStatus.Upcoming,
+              status:
+                event.status ||
+                (event.finished ? ItemStatus.Done : ItemStatus.Upcoming),
             });
         }
       }
@@ -200,12 +219,14 @@ const getTimetableItems = (user: any, templateNames: any) => {
               _id: task.id || uuid(),
               title: task.name,
               type: ListItemTypes.Task,
-              date: day.date,
+              date: moment(new Date(day.date)).format("YYYY-MM-DD"),
               day: null,
               permitted_users: [
                 { user_id: user.user_id, permissions: "Owner" },
               ],
-              status: task.finished ? ItemStatus.Done : ItemStatus.Upcoming,
+              status:
+                task.status ||
+                (task.finished ? ItemStatus.Done : ItemStatus.Upcoming),
             });
         }
       }

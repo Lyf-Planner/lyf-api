@@ -9,7 +9,8 @@ export type ListItem = Identifiable &
   Restricted &
   ItemMetadata &
   ItemSettings &
-  ItemSocialData;
+  ItemSocialData &
+  ItemNotifications;
 
 export type ItemMetadata = {
   title: string;
@@ -30,6 +31,15 @@ export type ItemSettings = {
 export type ItemSocialData = {
   suggested_changes?: SuggestedChange[];
   comments?: Comment[];
+};
+
+export type ItemNotifications = {
+  notifications: ItemNotificationData[];
+};
+
+export type ItemNotificationData = {
+  user_id: ID;
+  minutes_before: string;
 };
 
 export type SuggestedChange = {

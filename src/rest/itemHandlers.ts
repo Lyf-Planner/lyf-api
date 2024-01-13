@@ -42,7 +42,9 @@ export class ItemHandlers {
       remoteItem = await ItemOperations.retrieveForUser(item.id, user_id);
       await remoteItem.safeUpdate(item, user_id);
     } catch (err) {
-      logger.error(`User ${user_id} did not safely update item ${item.id}`);
+      logger.error(
+        `User ${user_id} did not safely update item ${item.id}: ${err}`
+      );
       res.status(403).end(`${err}`);
       return;
     }
@@ -75,7 +77,7 @@ export class ItemHandlers {
     }
 
     // Perform delete
-    await item!.deleteFromDb();
+    await item!.delete();
     res.status(200).end();
   }
 
