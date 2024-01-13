@@ -26,8 +26,10 @@ export class NotificationManager {
     this.defineEventNotification();
     this.defineDailyNotification();
     this.agenda.on("ready", async () => {
-      this.logger.info("Starting Agenda");
-      await this.agenda.start();
+      this.logger.info("Starting Agenda...");
+      await this.agenda.start(() => {
+        this.logger.info("Agenda started.");
+      });
     });
   }
 
