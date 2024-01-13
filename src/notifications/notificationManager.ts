@@ -37,25 +37,6 @@ export class NotificationManager {
 
   // EVENT NOTIFICATIONS
 
-  public setEventNotification = async (item: any, user_id: string) => {
-    var id = this.getUniqueJobId(item.id, user_id);
-
-    this.throwIfInfertile(item);
-    var notification = this.getUserNotification(item, user_id);
-    this.logger.info(`Creating event notification ${id}`);
-
-    var setTime = this.getScheduledTime(item, notification.minutes_before);
-
-    var user = await UserOperations.retrieveForUser(user_id, user_id);
-    await this.agenda.schedule(setTime, "Event Notification", {
-      id,
-      to: user.getContent().expo_tokens,
-      title: item.title,
-      minutes_before: notification.minutes_before,
-      time: item.time,
-    });
-  };
-
   private defineEventNotification() {
     this.logger.info("Defining Event Notifications");
     this.agenda.define("Event Notification", async (job: any, done: any) => {
@@ -74,6 +55,28 @@ export class NotificationManager {
     });
   }
 
+  public setEventNotification = async (item: any, user_id: string) => {
+    var id = this.getUniqueJobId(item.id, user_id);
+
+    this.throwIfInfertile(item);
+    var notification = this.getUserNotification(item, user_id);
+
+    var setTime = this.getScheduledTime(item, notification.minutes_before);
+
+    // Don't schedule where time has already passed
+    if (setTime < new Date()) return;
+
+    this.logger.info(`Creating event notification ${id}`);
+    var user = await UserOperations.retrieveForUser(user_id, user_id);
+    await this.agenda.schedule(setTime, "Event Notification", {
+      id,
+      to: user.getContent().expo_tokens,
+      title: item.title,
+      minutes_before: notification.minutes_before,
+      time: item.time,
+    });
+  };
+
   public async updateEventNotification(item: any, user_id: string) {
     // The package does not offer a direct update method, so just recreate
     await this.removeEventNotification(item, user_id);
@@ -82,6 +85,7 @@ export class NotificationManager {
   }
 
   public async removeEventNotification(item: ListItem, user_id: string) {
+    this.logger.info(`Removing event ${item.id}:${user_id}`);
     var id = this.getUniqueJobId(item.id, user_id);
     await this.agenda.cancel({ "data.id": id });
   }
@@ -107,10 +111,16 @@ export class NotificationManager {
     var user = await UserOperations.retrieveForUser(user_id, user_id);
     var time =
       user.getContent().premium?.notifications?.daily_notification_time;
-    await this.agenda.schedule(`everyday at ${time}`, "Daily Notification", {
-      to: user.getContent().expo_tokens,
-      user_id,
-    });
+
+    var timeArray = time!.split(":");
+    await this.agenda.every(
+      `${timeArray[1]} ${timeArray[0]} * * *`,
+      "Daily Notification",
+      {
+        to: user.getContent().expo_tokens,
+        user_id,
+      }
+    );
   }
 
   public async updateDailyNotifications(user_id: string) {
@@ -119,6 +129,7 @@ export class NotificationManager {
   }
 
   public async removeDailyNotifications(user_id: string) {
+    this.logger.info(`Removing daily notifications for user ${user_id}`);
     await this.agenda.cancel({ "data.user_id": user_id });
   }
 
