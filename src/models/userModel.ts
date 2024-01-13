@@ -88,9 +88,9 @@ export class UserModel extends RemoteObject<User> {
     var newTime = proposed.premium?.notifications?.daily_notification_time;
 
     if (!oldEnabled && newEnabled) {
-      notificationManager.setDailyNotifications(proposed.id);
+      notificationManager.setDailyNotifications(proposed);
     } else if (oldEnabled && newEnabled && oldTime !== newTime) {
-      notificationManager.updateDailyNotifications(proposed.id);
+      notificationManager.updateDailyNotifications(proposed);
     } else if (newEnabled && !oldEnabled) {
       notificationManager.removeDailyNotifications(proposed.id);
     }

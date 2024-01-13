@@ -8,6 +8,7 @@ import moment from "moment";
 import db from "../repository/dbAccess";
 import { TwentyFourHourToAMPM, formatDateData } from "../utils/dates";
 import { ItemOperations } from "../models/ItemOperations";
+import { User } from "../api/user";
 const Agenda = require("agenda");
 
 export class NotificationManager {
@@ -106,26 +107,24 @@ export class NotificationManager {
     });
   }
 
-  public async setDailyNotifications(user_id: string) {
-    this.logger.info(`Setting up daily notification for ${user_id}`);
-    var user = await UserOperations.retrieveForUser(user_id, user_id);
-    var time =
-      user.getContent().premium?.notifications?.daily_notification_time;
+  public async setDailyNotifications(user: User) {
+    this.logger.info(`Setting up daily notification for ${user.id}`);
+    var time = user.premium?.notifications?.daily_notification_time;
 
     var timeArray = time!.split(":");
     await this.agenda.every(
       `${timeArray[1]} ${timeArray[0]} * * *`,
       "Daily Notification",
       {
-        to: user.getContent().expo_tokens,
-        user_id,
+        to: user.expo_tokens,
+        user_id: user.id,
       }
     );
   }
 
-  public async updateDailyNotifications(user_id: string) {
-    await this.removeDailyNotifications(user_id);
-    await this.setDailyNotifications(user_id);
+  public async updateDailyNotifications(user: User) {
+    await this.removeDailyNotifications(user.id);
+    await this.setDailyNotifications(user);
   }
 
   public async removeDailyNotifications(user_id: string) {
