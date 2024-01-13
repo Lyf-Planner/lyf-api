@@ -80,8 +80,8 @@ export class NotificationManager {
 
   public async updateEventNotification(item: any, user_id: string) {
     // The package does not offer a direct update method, so just recreate
-    await this.removeEventNotification(item, user_id);
-    await this.setEventNotification(item, user_id);
+    await this.removeEventNotification({ ...item }, user_id);
+    await this.setEventNotification({ ...item }, user_id);
     return;
   }
 
@@ -121,7 +121,8 @@ export class NotificationManager {
   }
 
   public async updateDailyNotifications(user: User) {
-    await this.removeDailyNotifications(user.id);
+    var id = user.id;
+    await this.removeDailyNotifications(id);
     await this.setDailyNotifications(user);
   }
 
