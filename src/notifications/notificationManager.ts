@@ -1,4 +1,4 @@
-import { ListItem } from "../api/list";
+import { ListItem, ListItemTypes } from "../api/list";
 import { UserOperations } from "../models/userOperations";
 import { UserModel } from "../models/userModel";
 import expoPushService from "./expoPushService";
@@ -6,7 +6,8 @@ import { ExpoPushMessage } from "expo-server-sdk";
 import { Logger } from "../utils/logging";
 import moment from "moment";
 import db from "../repository/dbAccess";
-import { TwentyFourHourToAMPM } from "../utils/dates";
+import { TwentyFourHourToAMPM, formatDateData } from "../utils/dates";
+import { ItemOperations } from "../models/ItemOperations";
 const Agenda = require("agenda");
 
 export class NotificationManager {
@@ -22,6 +23,7 @@ export class NotificationManager {
 
   constructor() {
     this.defineEventNotification();
+    this.defineDailyNotification();
     this.agenda.on("ready", async () => {
       this.logger.info("Starting Agenda");
       await this.agenda.start();
@@ -33,17 +35,19 @@ export class NotificationManager {
     await this.agenda.stop();
   }
 
+  // EVENT NOTIFICATIONS
+
   public setEventNotification = async (item: any, user_id: string) => {
     var id = this.getUniqueJobId(item.id, user_id);
 
     this.throwIfInfertile(item);
     var notification = this.getUserNotification(item, user_id);
-    this.logger.info(`Creating notification ${id}`);
+    this.logger.info(`Creating event notification ${id}`);
 
     var setTime = this.getScheduledTime(item, notification.minutes_before);
 
     var user = await UserOperations.retrieveForUser(user_id, user_id);
-    this.agenda.schedule(setTime, "Event Notification", {
+    await this.agenda.schedule(setTime, "Event Notification", {
       id,
       to: user.getContent().expo_tokens,
       title: item.title,
@@ -82,6 +86,42 @@ export class NotificationManager {
     await this.agenda.cancel({ "data.id": id });
   }
 
+  // DAILY NOTIFICATIONS
+
+  private defineDailyNotification() {
+    this.logger.info("Defining Daily Notifications");
+    this.agenda.define("Daily Notification", async (job: any, done: any) => {
+      var { to, user_id } = job.attrs.data;
+      console.log("Sending daily notification to", to);
+      var subtext = await this.getUserDaily(user_id);
+      var message = this.formatExpoPushMessage(to, "Today's Schedule", subtext);
+      await expoPushService.pushNotificationToExpo([message]);
+      done();
+    });
+  }
+
+  public async setDailyNotifications(user_id: string) {
+    this.logger.info(`Setting up daily notification for ${user_id}`);
+    var user = await UserOperations.retrieveForUser(user_id, user_id);
+    var time =
+      user.getContent().premium?.notifications?.daily_notification_time;
+    await this.agenda.schedule(`everyday at ${time}`, "Daily Notification", {
+      to: user.getContent().expo_tokens,
+      user_id,
+    });
+  }
+
+  public async updateDailyNotifications(user_id: string) {
+    await this.removeDailyNotifications(user_id);
+    await this.setDailyNotifications(user_id);
+  }
+
+  public async removeDailyNotifications(user_id: string) {
+    await this.agenda.cancel({ "data.user_id": user_id });
+  }
+
+  // HELPERS
+
   private getUniqueJobId = (prefix: string, suffix: string) => {
     return prefix + "|" + suffix;
   };
@@ -110,6 +150,43 @@ export class NotificationManager {
       );
     return notification;
   };
+
+  private async getUserDaily(user_id: string) {
+    var user = await UserOperations.retrieveForUser(user_id, user_id);
+    var userItemIds = user
+      .getContent()
+      .timetable?.items.map((x) => x.id) as any;
+    var items = await ItemOperations.getRawUserItems(userItemIds, user_id);
+    const curDay = moment().format("dddd");
+    const curDate = formatDateData(new Date());
+    items = items.filter(
+      (x) => x.day === curDay || (x.date === curDate && !x.template_id)
+    );
+
+    const eventCount = items.filter(
+      (x) => x.type === ListItemTypes.Event
+    ).length;
+    const taskCount = items.filter((x) => x.type === ListItemTypes.Task).length;
+
+    // I know it doesn't look pretty, okay.
+    if (taskCount + eventCount === 0) {
+      return "You have nothing planned for today :)";
+    } else if (eventCount === 0) {
+      return `You have ${taskCount ? taskCount : "no"} task${
+        taskCount === 1 ? "" : "s"
+      } on today :)`;
+    } else if (taskCount === 0) {
+      return `You have ${eventCount ? eventCount : "no"} task${
+        eventCount === 1 ? "" : "s"
+      } on today :)`;
+    } else {
+      return `You have ${eventCount ? eventCount : "no"} event${
+        eventCount === 1 ? "" : "s"
+      } and ${taskCount ? taskCount : "no"} task${
+        taskCount === 1 ? "" : "s"
+      } on today :)`;
+    }
+  }
 
   private getScheduledTime = (item: ListItem, minutes_before: string) => {
     var eventDateTime = new Date(item.date!);

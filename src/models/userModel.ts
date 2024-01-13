@@ -1,5 +1,6 @@
 import { ID } from "../api/abstract";
 import { User, UserDetails } from "../api/user";
+import notificationManager from "../notifications/notificationManager";
 import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
 import { RemoteObject } from "./abstract/remoteObject";
@@ -33,6 +34,7 @@ export class UserModel extends RemoteObject<User> {
   }
 
   public async safeUpdate(proposed: User, user_id: ID) {
+    // SAFETY CHECKS
     // 1. User can only update their own
     this.throwIfUpdatingOtherUser(proposed, user_id);
 
@@ -43,6 +45,9 @@ export class UserModel extends RemoteObject<User> {
     TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
 
     // Checks passed!
+    // PRE-COMMIT
+    this.checkDailyNotifications(proposed);
+
     this.logger.debug(`User ${user_id} safely updated user ${this.id}`);
     this.content = proposed;
     await this.commit();
@@ -72,6 +77,22 @@ export class UserModel extends RemoteObject<User> {
       throw new Error(
         `Users cannot modify sensitive fields such as friends or premium access on this endpoint`
       );
+    }
+  }
+
+  private checkDailyNotifications(proposed: User) {
+    var oldEnabled = this.content.premium?.notifications?.daily_notifications;
+    var newEnabled = proposed.premium?.notifications?.daily_notifications;
+
+    var oldTime = this.content.premium?.notifications?.daily_notification_time;
+    var newTime = proposed.premium?.notifications?.daily_notification_time;
+
+    if (!oldEnabled && newEnabled) {
+      notificationManager.setDailyNotifications(proposed.id);
+    } else if (oldEnabled && newEnabled && oldTime !== newTime) {
+      notificationManager.updateDailyNotifications(proposed.id);
+    } else if (newEnabled && !oldEnabled) {
+      notificationManager.removeDailyNotifications(proposed.id);
     }
   }
 }
