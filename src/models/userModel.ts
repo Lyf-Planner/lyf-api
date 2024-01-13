@@ -27,7 +27,7 @@ export class UserModel extends RemoteObject<User> {
     // Needs validator
     if (this.detailsAccessOnly) return this.getUser();
     else {
-      var { pass_hash, notification_token_hash, ...exported } = this.content;
+      var { pass_hash, expo_tokens, ...exported } = this.content;
       return exported;
     }
   }

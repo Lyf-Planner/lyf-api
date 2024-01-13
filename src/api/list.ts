@@ -39,7 +39,7 @@ export type ItemNotifications = {
 
 export type ItemNotificationData = {
   user_id: ID;
-  minutes_before: number;
+  minutes_before: string;
 };
 
 export type SuggestedChange = {

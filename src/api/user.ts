@@ -9,7 +9,7 @@ export type User = UserDetails &
   Time &
   Identifiable & {
     pass_hash: string;
-    notification_token_hash?: string;
+    expo_tokens?: string[];
     timetable?: Timetable;
     notes?: Notes[];
     premium?: Premium;
