@@ -97,12 +97,21 @@ export class NotificationManager {
   private defineDailyNotification() {
     this.logger.info("Defining Daily Notifications");
     this.agenda.define("Daily Notification", async (job: any, done: any) => {
-      var { to, user_id } = job.attrs.data;
-      console.log("Sending daily notification to", to);
-      var subtext = await this.getUserDaily(user_id);
+      var { user_id } = job.attrs.data;
+      var user = await UserOperations.retrieveForUser(user_id, user_id);
+
+      console.log(
+        "Sending daily notification to",
+        user.getContent().expo_tokens
+      );
+      var subtext = await this.getUserDaily(user);
       if (!subtext) return;
 
-      var message = this.formatExpoPushMessage(to, "Today's Schedule", subtext);
+      var message = this.formatExpoPushMessage(
+        user.getContent().expo_tokens || [],
+        "Today's Schedule",
+        subtext
+      );
       await expoPushService.pushNotificationToExpo([message]);
       done();
     });
@@ -163,12 +172,14 @@ export class NotificationManager {
     return notification;
   };
 
-  private async getUserDaily(user_id: string) {
-    var user = await UserOperations.retrieveForUser(user_id, user_id);
+  private async getUserDaily(user: UserModel) {
     var userItemIds = user
       .getContent()
       .timetable?.items.map((x) => x.id) as any;
-    var items = await ItemOperations.getRawUserItems(userItemIds, user_id);
+    var items = await ItemOperations.getRawUserItems(
+      userItemIds,
+      user.getContent().id
+    );
     const curDay = moment().format("dddd");
     const curDate = formatDateData(new Date());
     items = items.filter(
