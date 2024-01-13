@@ -112,14 +112,12 @@ export class NotificationManager {
     var time = user.premium?.notifications?.daily_notification_time;
 
     var timeArray = time!.split(":");
-    await this.agenda.every(
-      `${timeArray[1]} ${timeArray[0]} * * *`,
-      "Daily Notification",
-      {
-        to: user.expo_tokens,
-        user_id: user.id,
-      }
-    );
+    const job = this.agenda.create("Daily Notification", {
+      to: user.expo_tokens,
+      user_id: user.id,
+    });
+    job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * *`);
+    await job.save();
   }
 
   public async updateDailyNotifications(user: User) {
