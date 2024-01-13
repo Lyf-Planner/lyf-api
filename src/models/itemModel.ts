@@ -21,6 +21,18 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     return exported;
   }
 
+  public async delete() {
+    if (this.content.notifications) {
+      for (let notif of this.content.notifications) {
+        notificationManager.removeEventNotification(
+          this.content,
+          notif.user_id
+        );
+      }
+    }
+    await this.deleteFromDb();
+  }
+
   // Update and throw if there are any permissions violations
   public async safeUpdate(
     proposed: ListItem,
