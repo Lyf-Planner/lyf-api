@@ -77,7 +77,7 @@ export class ItemHandlers {
     }
 
     // Perform delete
-    await item!.deleteFromDb();
+    await item!.delete();
     res.status(200).end();
   }
 
