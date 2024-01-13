@@ -94,6 +94,8 @@ export class NotificationManager {
       var { to, user_id } = job.attrs.data;
       console.log("Sending daily notification to", to);
       var subtext = await this.getUserDaily(user_id);
+      if (!subtext) return;
+
       var message = this.formatExpoPushMessage(to, "Today's Schedule", subtext);
       await expoPushService.pushNotificationToExpo([message]);
       done();
@@ -170,7 +172,10 @@ export class NotificationManager {
 
     // I know it doesn't look pretty, okay.
     if (taskCount + eventCount === 0) {
-      return "You have nothing planned for today :)";
+      return user.getContent().premium?.notifications
+        ?.persistent_daily_notification
+        ? "You have nothing planned for today :)"
+        : "";
     } else if (eventCount === 0) {
       return `You have ${taskCount ? taskCount : "no"} task${
         taskCount === 1 ? "" : "s"
