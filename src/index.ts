@@ -22,6 +22,7 @@ server.use(express.json());
 server.use(bodyParserErrorHandler());
 
 async function main() {
+  process.env.TZ = "Australia/Sydney";
   server.get("/", (req: Request, res: Response) => {
     res.send("Lyf API!");
   });
