@@ -10,7 +10,6 @@ import db from "../repository/dbAccess";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
 import { ItemModel } from "./itemModel";
 import { Logger } from "../utils/logging";
-import { v4 as uuid } from "uuid";
 
 export class ItemOperations {
   // Builder method
@@ -71,7 +70,6 @@ export class ItemOperations {
   }
 
   static isTemplate(item: ListItem) {
-    console.log("testing if item is template where", item.day, item.date);
     return item.day && !item.date;
   }
 

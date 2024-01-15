@@ -14,8 +14,10 @@ export class TimeOperations {
     proposed: any,
     user_id: string
   ) {
-    // At the moment these are just the social fields
-    const modified = proposed.created || proposed.last_updated;
+    const modified =
+      (proposed.created && proposed.created !== original.created) ||
+      (proposed.last_updated &&
+        proposed.last_updated !== original.last_updated);
 
     if (modified) {
       var logger = Logger.of(TimeOperations);

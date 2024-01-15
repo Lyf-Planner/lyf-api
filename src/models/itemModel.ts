@@ -202,6 +202,19 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     }
   }
 
+  public async  clearNotification(user_id: string) {
+    this.logger.info(
+      `Clearing notification on item ${this.id} for user ${user_id}`
+    );
+    var newNotifications = this.content.notifications;
+    const i = newNotifications.findIndex((x) => x.user_id === user_id);
+    newNotifications.splice(i, 1);
+    await this.safeUpdate(
+      { ...this.content, notifications: newNotifications },
+      user_id
+    );
+  }
+
   // Determine whether to update or add as suggestion
   private async processUpdate(proposed: ListItem) {
     if (this.content.suggestions_only) {
