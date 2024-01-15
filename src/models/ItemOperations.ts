@@ -10,7 +10,6 @@ import db from "../repository/dbAccess";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
 import { ItemModel } from "./itemModel";
 import { Logger } from "../utils/logging";
-import { v4 as uuid } from "uuid";
 
 export class ItemOperations {
   // Builder method
@@ -68,6 +67,10 @@ export class ItemOperations {
     }
 
     return filteredResults;
+  }
+
+  static isTemplate(item: ListItem) {
+    return item.day && !item.date;
   }
 
   static settingsFieldsOnly(item: ListItem): ItemSettings {
