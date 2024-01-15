@@ -9,6 +9,7 @@ import db from "../repository/dbAccess";
 import { TwentyFourHourToAMPM, formatDateData } from "../utils/dates";
 import { ItemOperations } from "../models/ItemOperations";
 import { User } from "../api/user";
+import { DaysOfWeek } from "../api/timetable";
 const Agenda = require("agenda");
 
 export class NotificationManager {
@@ -24,6 +25,7 @@ export class NotificationManager {
 
   constructor() {
     this.defineEventNotification();
+    this.defineRoutineNotification();
     this.defineDailyNotification();
     this.agenda.on("ready", async () => {
       this.logger.info("Starting Agenda...");
@@ -58,9 +60,13 @@ export class NotificationManager {
   }
 
   public setEventNotification = async (item: any, user_id: string) => {
+    if (ItemOperations.isTemplate(item)) {
+      this.setRoutineNotification(item, user_id);
+      return;
+    }
     var id = this.getUniqueJobId(item.id, user_id);
 
-    this.throwIfInfertile(item);
+    this.throwIfInfertileEvent(item);
     var notification = this.getUserNotification(item, user_id);
 
     var setTime = this.getScheduledTime(item, notification.minutes_before);
@@ -141,10 +147,65 @@ export class NotificationManager {
     await this.agenda.cancel({ "data.user_id": user_id });
   }
 
+  // ROUTINE NOTIFICATIONS
+
+  private defineRoutineNotification() {
+    this.logger.info("Defining Routine Notifications");
+    this.agenda.define("Routine Notification", async (job: any, done: any) => {
+      var { to, title, minutes_before, id, time } = job.attrs.data;
+      console.log("Sending scheduled notification to", to);
+      var message = this.formatExpoPushMessage(
+        to,
+        title,
+        `Starting in ${minutes_before} minute${
+          minutes_before === 1 ? "" : "s"
+        } (at ${TwentyFourHourToAMPM(time)})`
+      );
+      await expoPushService.pushNotificationToExpo([message]);
+      await this.agenda.cancel({ "data.id": id });
+      done();
+    });
+  }
+
+  public async setRoutineNotification(item: ListItem, user_id: string) {
+    this.logger.info(`Setting up routine notification for ${user_id}`);
+    var user = (
+      await UserOperations.retrieveForUser(user_id, user_id)
+    ).getContent();
+
+    var notification = item.notifications.find((x) => x.user_id === user_id);
+    var id = this.getUniqueJobId(item.id, user_id);
+    var timeArray = item.time!.split(":");
+    const job = this.agenda.create("Routine Notification", {
+      id,
+      to: user.expo_tokens,
+      title: item.title,
+      minutes_before: notification!.minutes_before,
+      time: item.time,
+    });
+
+    // We do this +1 because Sunday is treated as the zeroth day
+    const day =
+      (Object.values(DaysOfWeek).findIndex((x) => x === item.day) + 1) % 7;
+    job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * ${day}`);
+    await job.save();
+  }
+
+  public async updateRoutineNotification(item: ListItem, user_id: string) {
+    await this.removeRoutineNotification(item, user_id);
+    await this.setRoutineNotification(item, user_id);
+  }
+
+  public async removeRoutineNotification(item: ListItem, user_id: string) {
+    this.logger.info(`Removing routine ${item.id}:${user_id}`);
+    var id = this.getUniqueJobId(item.id, user_id);
+    await this.agenda.cancel({ "data.id": id });
+  }
+
   // HELPERS
 
   private getUniqueJobId = (prefix: string, suffix: string) => {
-    return prefix + "|" + suffix;
+    return prefix + ":" + suffix;
   };
 
   private formatExpoPushMessage(to: string[], title: string, body: string) {
@@ -156,7 +217,7 @@ export class NotificationManager {
   }
 
   // Fertile = has time date and minutes before
-  private throwIfInfertile = (proposed: any) => {
+  private throwIfInfertileEvent = (proposed: any) => {
     if (!proposed.date || !proposed.time)
       throw new Error(
         "Cannot create a notification on an event without date or time"
@@ -198,19 +259,17 @@ export class NotificationManager {
         ? "You have nothing planned for today :)"
         : "";
     } else if (eventCount === 0) {
-      return `You have ${taskCount ? taskCount : "no"} task${
+      return `You have ${taskCount} task${
         taskCount === 1 ? "" : "s"
       } on today :)`;
     } else if (taskCount === 0) {
-      return `You have ${eventCount ? eventCount : "no"} task${
+      return `You have ${eventCount} events${
         eventCount === 1 ? "" : "s"
       } on today :)`;
     } else {
-      return `You have ${eventCount ? eventCount : "no"} event${
+      return `You have ${eventCount} event${
         eventCount === 1 ? "" : "s"
-      } and ${taskCount ? taskCount : "no"} task${
-        taskCount === 1 ? "" : "s"
-      } on today :)`;
+      } and ${taskCount} task${taskCount === 1 ? "" : "s"} on today :)`;
     }
   }
 

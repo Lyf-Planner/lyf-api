@@ -70,6 +70,11 @@ export class ItemOperations {
     return filteredResults;
   }
 
+  static isTemplate(item: ListItem) {
+    console.log("testing if item is template where", item.day, item.date);
+    return item.day && !item.date;
+  }
+
   static settingsFieldsOnly(item: ListItem): ItemSettings {
     // Needs validator
     return {
