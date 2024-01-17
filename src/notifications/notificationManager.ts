@@ -12,6 +12,8 @@ import { User } from "../api/user";
 import { DaysOfWeek } from "../api/timetable";
 const Agenda = require("agenda");
 
+const DEFAULT_MINS_BEFORE = "5";
+
 export class NotificationManager {
   private logger = Logger.of(NotificationManager);
   private agenda = new Agenda({
@@ -182,13 +184,8 @@ export class NotificationManager {
 
       const item = await ItemOperations.retrieveForUser(item_id, user_id);
       const title = item.getContent().title;
-      const notification = item
-        .getContent()
-        .notifications?.find((x) => x.user_id === user_id);
-      if (!notification)
-        throw new Error(
-          "Tried to send notification when user has not set one on the item"
-        );
+      const notification = this.getUserNotification(item.getContent(), user_id);
+
       const minutes_before = parseInt(notification.minutes_before);
       const time = item.getContent().time!;
 
@@ -235,6 +232,12 @@ export class NotificationManager {
       throw new Error(
         `Server Error; Event notification cannot be setup if user has no event notification data`
       );
+    if (!notification.minutes_before) {
+      this.logger.warn(
+        `Item ${item.id} had a notification for user ${user_id} with no minutes_before!`
+      );
+      this.setDefaultMinsIfEmpty(notification);
+    }
     return notification;
   };
 
@@ -286,6 +289,11 @@ export class NotificationManager {
       .add(-parseInt(minutes_before), "minutes")
       .toDate();
     return setTime;
+  };
+
+  private setDefaultMinsIfEmpty = (notification: any) => {
+    if (!notification.minutes_before)
+      notification.minutes_before = DEFAULT_MINS_BEFORE;
   };
 }
 
