@@ -79,14 +79,14 @@ export class UserHandlers {
   }
 
   protected async createUser(req: Request, res: Response) {
-    var { user_id, password } = req.body;
+    var { user_id, password, timezone } = req.body;
 
     logger.info(`Received request to create account "${user_id}"`);
     var token;
     var user;
 
     try {
-      user = await UserOperations.createNew(user_id, password);
+      user = await UserOperations.createNew(user_id, password, true, timezone);
       token = await authUtils.authenticate(
         user.getUser() as User,
         password as string
