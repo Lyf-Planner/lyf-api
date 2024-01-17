@@ -39,6 +39,10 @@ async function main() {
 
   const PORT = env.port;
 
+  server.set(
+    "trust proxy",
+    1 /* number of proxies between user and server (express-rate-limit) */
+  );
   server.listen(PORT, () => {
     console.log(`server started at http://localhost:${PORT}`);
   });
