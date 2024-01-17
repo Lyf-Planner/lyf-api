@@ -5,7 +5,7 @@ import { Logger } from "../utils/logging";
 
 const logger = new Logger("AuthMiddleware");
 const TOKEN_PREFIX = "Bearer ";
-const EXCLUDED_ENDPOINTS = ["/login"];
+const EXCLUDED_ENDPOINTS = ["/login", "/createUser"];
 
 export const authoriseHeader = (
   req: Request,
