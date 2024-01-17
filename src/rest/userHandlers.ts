@@ -79,6 +79,7 @@ export class UserHandlers {
   }
 
   protected async createUser(req: Request, res: Response) {
+    // This endpoint is excluded from the auth middleware
     var { user_id, password, timezone } = req.body;
 
     logger.info(`Received request to create account "${user_id}"`);
