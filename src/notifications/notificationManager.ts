@@ -1,4 +1,4 @@
-import { ListItem, ListItemTypes } from "../api/list";
+import { ItemStatus, ListItem, ListItemTypes } from "../api/list";
 import { UserOperations } from "../models/userOperations";
 import { UserModel } from "../models/userModel";
 import expoPushService from "./expoPushService";
@@ -185,6 +185,14 @@ export class NotificationManager {
       const item = await ItemOperations.retrieveForUser(item_id, user_id);
       const title = item.getContent().title;
       const notification = this.getUserNotification(item.getContent(), user_id);
+      const status = item.getContent().status;
+      if (status === ItemStatus.Cancelled) {
+        this.logger.warn(
+          `Cancelling notification for ${id} as event was cancelled`
+        );
+        await this.agenda.cancel({ "data.id": id });
+        return;
+      }
 
       const minutes_before = parseInt(notification.minutes_before);
       const time = item.getContent().time!;
