@@ -86,7 +86,7 @@ export class UserHandlers {
     var user;
 
     try {
-      user = await UserOperations.createNew(user_id, password, true);
+      user = await UserOperations.createNew(user_id, password);
       token = await authUtils.authenticate(
         user.getUser() as User,
         password as string

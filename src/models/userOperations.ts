@@ -22,7 +22,8 @@ export class UserOperations {
   static async createNew(
     user_id: string,
     password: string,
-    commit = false // Also create in db
+    commit = true, // Also create in db
+    timezone?: string
   ): Promise<UserModel> {
     var user = {} as any;
     user.id = user_id;
@@ -33,6 +34,7 @@ export class UserOperations {
     user.notes = {
       items: [],
     };
+    user.timezone = timezone || process.env.TZ;
     user.premium = { enabled: false };
     user.friends = [];
     user.friend_requests = [];
