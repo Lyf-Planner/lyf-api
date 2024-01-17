@@ -5,6 +5,7 @@ import { NoteModel } from "../models/noteModel";
 import { NoteOperations } from "../models/noteOperations";
 import { Logger } from "../utils/logging";
 import { Request, Response } from "express";
+import { getMiddlewareVars } from "./utils";
 
 export class NoteHandlers {
   private logger = Logger.of(NoteHandlers);
@@ -13,8 +14,7 @@ export class NoteHandlers {
     // Users only type a name in a section (implying type) to create an item
     // Should reevaluate this if we ever grant API access!
     var noteInput = req.body as Note;
-    var user_id = authUtils.authoriseHeader(req, res);
-    if (!user_id) return;
+    var user_id = getMiddlewareVars(res).user_id
 
     logger.debug(`Creating note ${noteInput.title} from user ${user_id}`);
 
@@ -28,8 +28,7 @@ export class NoteHandlers {
 
   protected async updateNote(req: Request, res: Response) {
     var note = req.body as Note;
-    var user_id = authUtils.authoriseHeader(req, res);
-    if (!user_id) return;
+    var user_id = getMiddlewareVars(res).user_id
 
     var remoteItem: NoteModel;
 
@@ -53,8 +52,7 @@ export class NoteHandlers {
 
   protected async deleteNote(req: Request, res: Response) {
     var { note_id } = req.query;
-    var user_id = authUtils.authoriseHeader(req, res);
-    if (!user_id) return;
+    var user_id = getMiddlewareVars(res).user_id
 
     logger.debug(`Deleting note ${note_id} as requested by ${user_id}`);
 
@@ -82,8 +80,7 @@ export class NoteHandlers {
 
   protected async getNote(req: Request, res: Response) {
     var { note_id } = req.body;
-    var user_id = authUtils.authoriseHeader(req, res);
-    if (!user_id) return;
+    var user_id = getMiddlewareVars(res).user_id
 
     logger.debug(`Retreiving note ${note_id} for user ${user_id}`);
 
@@ -103,8 +100,7 @@ export class NoteHandlers {
 
   protected async getNotes(req: Request, res: Response) {
     var { note_ids } = req.body;
-    var user_id = authUtils.authoriseHeader(req, res);
-    if (!user_id) return;
+    var user_id = getMiddlewareVars(res).user_id
 
     logger.debug(`Retreiving ${note_ids.length} notes for user ${user_id}`);
 

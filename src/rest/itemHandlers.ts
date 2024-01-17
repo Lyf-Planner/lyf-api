@@ -7,14 +7,14 @@ import { Logger } from "../utils/logging";
 import { ListItem } from "../api/list";
 import { ItemModel } from "../models/itemModel";
 import { ItemOperations } from "../models/ItemOperations";
+import { getMiddlewareVars } from "./utils";
 
 export class ItemHandlers {
   protected async createItem(req: Request, res: Response) {
     // Users only type a name in a section (implying type) to create an item
     // Should reevaluate this if we ever grant API access!
     var itemInput = req.body as ListItem;
-    var user_id = authUtils.authoriseHeader(req, res);
-    if (!user_id) return;
+    var user_id = getMiddlewareVars(res).user_id
 
     logger.debug(`Creating item ${itemInput.title} from user ${user_id}`);
 
@@ -28,8 +28,7 @@ export class ItemHandlers {
 
   protected async updateItem(req: Request, res: Response) {
     var item = req.body as ListItem;
-    var user_id = authUtils.authoriseHeader(req, res);
-    if (!user_id) return;
+    var user_id = getMiddlewareVars(res).user_id;
 
     var remoteItem: ItemModel;
     logger.debug(
@@ -54,8 +53,7 @@ export class ItemHandlers {
 
   protected async deleteItem(req: Request, res: Response) {
     var { item_id } = req.query;
-    var user_id = authUtils.authoriseHeader(req, res);
-    if (!user_id) return;
+    var user_id = getMiddlewareVars(res).user_id
 
     logger.debug(`Deleting item ${item_id} as requested by ${user_id}`);
 
@@ -83,8 +81,7 @@ export class ItemHandlers {
 
   protected async getItem(req: Request, res: Response) {
     var { item_id } = req.body;
-    var user_id = authUtils.authoriseHeader(req, res);
-    if (!user_id) return;
+    var user_id = getMiddlewareVars(res).user_id
 
     logger.debug(`Retreiving item ${item_id} for user ${user_id}`);
 
@@ -104,8 +101,7 @@ export class ItemHandlers {
 
   protected async getItems(req: Request, res: Response) {
     var { item_ids } = req.body;
-    var user_id = authUtils.authoriseHeader(req, res);
-    if (!user_id) return;
+    var user_id = getMiddlewareVars(res).user_id
 
     logger.debug(`Retreiving ${item_ids.length} items for user ${user_id}`);
 

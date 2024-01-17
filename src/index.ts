@@ -3,13 +3,13 @@ import { UserEndpoints } from "./rest/userEndpoints";
 import { ItemEndpoints } from "./rest/itemEndpoints";
 import { NoteEndpoints } from "./rest/noteEndpoints";
 import { Logger, LoggingLevel } from "./utils/logging";
+import { authoriseHeader } from "./rest/authMiddleware";
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import env from "./envManager";
 import bodyParserErrorHandler from "express-body-parser-error-handler";
 import db from "./repository/dbAccess";
-import expoPushService from "./notifications/expoPushService";
 import notificationManager from "./notifications/notificationManager";
 
 const server = express();
@@ -20,6 +20,7 @@ dotenv.config();
 server.use(cors());
 server.use(express.json());
 server.use(bodyParserErrorHandler());
+server.use(authoriseHeader);
 
 async function main() {
   process.env.TZ = "Australia/Sydney";
