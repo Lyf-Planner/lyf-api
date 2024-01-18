@@ -1,15 +1,9 @@
-import { ObjectId } from "mongodb";
-import { ID, Permission, Time } from "../api/abstract";
-import {
-  ItemSettings,
-  ItemSocialData,
-  ItemStatus,
-  ListItem,
-} from "../api/list";
-import db from "../repository/dbAccess";
+import { ID } from "../api/abstract";
+import { ItemSettings, ItemSocialData, ListItem } from "../api/list";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
 import { ItemModel } from "./itemModel";
 import { Logger } from "../utils/logging";
+import db from "../repository/dbAccess";
 
 export class ItemOperations {
   // Builder method

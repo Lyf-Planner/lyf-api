@@ -1,8 +1,8 @@
 import { compare, hash } from "bcrypt";
-import * as jwt from "jsonwebtoken";
 import { User } from "../api/user";
-import env from "../envManager";
 import { Logger } from "../utils/logging";
+import * as jwt from "jsonwebtoken";
+import env from "../envManager";
 
 export class AuthUtils {
   private logger = Logger.of(AuthUtils);

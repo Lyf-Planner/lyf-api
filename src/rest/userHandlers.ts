@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import { User } from "../api/user";
-import authUtils from "../auth/authUtils";
 import { UserModel } from "../models/userModel";
 import { UserOperations } from "../models/userOperations";
 import { Logger } from "../utils/logging";
 import { getMiddlewareVars } from "./utils";
+import authUtils from "../auth/authUtils";
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {

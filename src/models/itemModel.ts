@@ -1,13 +1,11 @@
-import { ObjectId } from "mongodb";
-import { ID, Permission, UserAccess } from "../api/abstract";
-import { ItemSettings, ItemSocialData, ListItem } from "../api/list";
-import db from "../repository/dbAccess";
+import { Permission } from "../api/abstract";
+import { ListItem } from "../api/list";
 import { Logger } from "../utils/logging";
 import { ItemOperations } from "./ItemOperations";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
 import { TimeOperations } from "./abstract/timeOperations";
 import notificationManager from "../notifications/notificationManager";
-import assert from "assert";
+import db from "../repository/dbAccess";
 
 export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private logger = Logger.of(ItemModel);
@@ -202,7 +200,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     }
   }
 
-  public async  clearNotification(user_id: string) {
+  public async clearNotification(user_id: string) {
     this.logger.info(
       `Clearing notification on item ${this.id} for user ${user_id}`
     );

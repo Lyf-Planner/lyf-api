@@ -1,11 +1,11 @@
 import { ID } from "../api/abstract";
 import { User, UserDetails } from "../api/user";
-import notificationManager from "../notifications/notificationManager";
-import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
 import { RemoteObject } from "./abstract/remoteObject";
 import { TimeOperations } from "./abstract/timeOperations";
 import { UserOperations } from "./userOperations";
+import notificationManager from "../notifications/notificationManager";
+import db from "../repository/dbAccess";
 
 export class UserModel extends RemoteObject<User> {
   // If user is accessed by another, should only be able to view details!
@@ -100,7 +100,6 @@ export class UserModel extends RemoteObject<User> {
 
   private checkTimezoneChange(proposed: User) {
     if (proposed.timezone !== this.content.timezone) {
-      
     }
   }
 }

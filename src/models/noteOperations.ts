@@ -2,8 +2,8 @@ import { Note } from "../api/notes";
 import { ID } from "../api/abstract";
 import { NoteModel } from "./noteModel";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
-import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
+import db from "../repository/dbAccess";
 
 export class NoteOperations {
   // Builder method

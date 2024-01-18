@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb";
 import { ID, Identifiable, Time } from "./abstract";
 import { Notes } from "./notes";
 import { Premium } from "./premium";

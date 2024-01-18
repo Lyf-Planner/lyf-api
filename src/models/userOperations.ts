@@ -1,9 +1,9 @@
-import { ID, Time } from "../api/abstract";
+import { ID } from "../api/abstract";
 import { User, UserDetails } from "../api/user";
-import authUtils from "../auth/authUtils";
-import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
 import { UserModel } from "./userModel";
+import authUtils from "../auth/authUtils";
+import db from "../repository/dbAccess";
 
 export class UserOperations {
   // Builder method

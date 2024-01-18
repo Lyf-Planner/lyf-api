@@ -1,8 +1,5 @@
 import { Request, Response } from "express";
-import authUtils from "../auth/authUtils";
-import db from "../repository/dbAccess";
 import { Permission } from "../api/abstract";
-import { ObjectId } from "mongodb";
 import { Logger } from "../utils/logging";
 import { ListItem } from "../api/list";
 import { ItemModel } from "../models/itemModel";
