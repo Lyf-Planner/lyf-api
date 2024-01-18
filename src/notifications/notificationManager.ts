@@ -60,17 +60,20 @@ export class NotificationManager {
     var id = this.getUniqueJobId(item.id, user_id);
 
     this.throwIfInfertileEvent(item);
+    var user = (
+      await UserOperations.retrieveForUser(user_id, user_id)
+    ).getContent();
     var notification = this.getUserNotification(item, user_id);
     var setTime = this.getScheduledTime(item, notification.minutes_before);
-    var user = (await UserOperations.retrieveForUser(user_id, user_id)).getContent()
-
-    // Don't schedule where time has already passed
-    if (setTime < new Date()) return;
+    setTime = this.adjustToUserTimezone(
+      setTime,
+      user.timezone || (process.env.TZ as string)
+    );
 
     this.logger.info(`Creating event notification ${id}`);
     await this.agenda.schedule(setTime, "Event Notification", {
       id,
-      tz: user.timezone || process.env.TZ
+      tz: user.timezone || process.env.TZ,
     });
   };
 
@@ -118,7 +121,9 @@ export class NotificationManager {
       user_id: user.id,
       tz: user.timezone || process.env.TZ,
     });
-    job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * *`);
+    const timezone = user.timezone || process.env.TZ;
+    job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * *`, { timezone });
+
     await job.save();
   }
 
@@ -157,11 +162,12 @@ export class NotificationManager {
     });
 
     var timeArray = item.time!.split(":");
+    const timezone = user.timezone || process.env.TZ;
 
-    // We do this +1 because Sunday is treated as the zeroth day
+    // We do this +1 because Sunday is treated as the zeroth day otherwise
     const day =
       (Object.values(DaysOfWeek).findIndex((x) => x === item.day) + 1) % 7;
-    job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * ${day}`);
+    job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * ${day}`, { timezone });
     await job.save();
   }
 
@@ -278,7 +284,7 @@ export class NotificationManager {
     if (taskCount + eventCount === 0) {
       return user.getContent().premium?.notifications
         ?.persistent_daily_notification
-        ? "You have nothing planned for today :)"
+        ? "Nothing planned for today :)"
         : "";
     } else if (eventCount === 0) {
       return `You have ${taskCount} task${
@@ -303,6 +309,20 @@ export class NotificationManager {
       .add(-parseInt(minutes_before), "minutes")
       .toDate();
     return setTime;
+  };
+
+  private adjustToUserTimezone = (setTime: Date, user_tz: string) => {
+    // Set time was calculated using server timezone
+    const date = new Date();
+    const serverOffset = new Date(
+      date.toLocaleString("en-US", { timeZone: process.env.TZ })
+    );
+    const userOffset = new Date(
+      date.toLocaleString("en-US", { timeZone: user_tz })
+    );
+    var difference = (userOffset.getTime() - serverOffset.getTime()) / 6e4;
+    const adjustedTime = moment(setTime).add(difference).toDate();
+    return adjustedTime;
   };
 
   private setDefaultMinsIfEmpty = (notification: any) => {
