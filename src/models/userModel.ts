@@ -99,7 +99,7 @@ export class UserModel extends RemoteObject<User> {
   }
 
   private checkTimezoneChange(proposed: User) {
-    if (proposed.timezone !== this.content.timezone) {
+    if (this.content.timezone && proposed.timezone !== this.content.timezone) {
       notificationManager.handleUserTzChange(proposed);
     }
   }
