@@ -10,6 +10,7 @@ import { TwentyFourHourToAMPM, formatDateData } from "../utils/dates";
 import { ItemOperations } from "../models/ItemOperations";
 import { User } from "../api/user";
 import { DaysOfWeek } from "../api/timetable";
+import { pluralisedQuantity } from "../utils/text";
 const Agenda = require("agenda");
 
 const DEFAULT_MINS_BEFORE = "5";
@@ -213,9 +214,12 @@ export class NotificationManager {
       var message = this.formatExpoPushMessage(
         to,
         title,
-        `Starting in ${minutes_before} minute${
-          minutes_before === 1 ? "" : "s"
-        } (at ${TwentyFourHourToAMPM(time)})`
+        `${
+          item.getContent().type === ListItemTypes.Event ? "Starting in" : "In"
+        } ${pluralisedQuantity(
+          minutes_before,
+          "minute"
+        )} (at ${TwentyFourHourToAMPM(time)})`
       );
       await expoPushService.pushNotificationToExpo([message]);
       await this.agenda.cancel({ "data.id": id });
@@ -287,17 +291,14 @@ export class NotificationManager {
         ? "Nothing planned for today :)"
         : "";
     } else if (eventCount === 0) {
-      return `You have ${taskCount} task${
-        taskCount === 1 ? "" : "s"
-      } on today :)`;
+      return `You have ${pluralisedQuantity(taskCount, "task")} on today :)`;
     } else if (taskCount === 0) {
-      return `You have ${eventCount} events${
-        eventCount === 1 ? "" : "s"
-      } on today :)`;
+      return `You have ${pluralisedQuantity(eventCount, "event")} on today :)`;
     } else {
-      return `You have ${eventCount} event${
-        eventCount === 1 ? "" : "s"
-      } and ${taskCount} task${taskCount === 1 ? "" : "s"} on today :)`;
+      return `You have ${pluralisedQuantity(
+        eventCount,
+        "event"
+      )} and ${pluralisedQuantity(taskCount, "task")} on today :)`;
     }
   }
 
