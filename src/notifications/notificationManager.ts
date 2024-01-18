@@ -46,7 +46,7 @@ export class NotificationManager {
   private defineEventNotification() {
     this.logger.info("Defining Event Notifications");
     this.agenda.define("Event Notification", async (job: any, done: any) => {
-      var { id } = job.attrs.data;
+      var { id, tz } = job.attrs.data;
       await this.sendItemNotification(id, true);
       done();
     });
@@ -61,8 +61,8 @@ export class NotificationManager {
 
     this.throwIfInfertileEvent(item);
     var notification = this.getUserNotification(item, user_id);
-
     var setTime = this.getScheduledTime(item, notification.minutes_before);
+    var user = (await UserOperations.retrieveForUser(user_id, user_id)).getContent()
 
     // Don't schedule where time has already passed
     if (setTime < new Date()) return;
@@ -70,6 +70,7 @@ export class NotificationManager {
     this.logger.info(`Creating event notification ${id}`);
     await this.agenda.schedule(setTime, "Event Notification", {
       id,
+      tz: user.timezone || process.env.TZ
     });
   };
 
@@ -91,7 +92,7 @@ export class NotificationManager {
   private defineDailyNotification() {
     this.logger.info("Defining Daily Notifications");
     this.agenda.define("Daily Notification", async (job: any, done: any) => {
-      var { user_id } = job.attrs.data;
+      var { user_id, tz } = job.attrs.data;
       var user = await UserOperations.retrieveForUser(user_id, user_id);
 
       this.logger.info(`Sending daily notification to ${user_id}`);
@@ -115,6 +116,7 @@ export class NotificationManager {
     var timeArray = time!.split(":");
     const job = this.agenda.create("Daily Notification", {
       user_id: user.id,
+      tz: user.timezone || process.env.TZ,
     });
     job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * *`);
     await job.save();
@@ -136,7 +138,7 @@ export class NotificationManager {
   private defineRoutineNotification() {
     this.logger.info("Defining Routine Notifications");
     this.agenda.define("Routine Notification", async (job: any, done: any) => {
-      var { id } = job.attrs.data;
+      var { id, tz } = job.attrs.data;
       await this.sendItemNotification(id);
       done();
     });
@@ -146,8 +148,12 @@ export class NotificationManager {
     this.logger.info(`Setting up routine notification for ${user_id}`);
 
     var id = this.getUniqueJobId(item.id, user_id);
+    var user = (
+      await UserOperations.retrieveForUser(user_id, user_id)
+    ).getContent();
     const job = this.agenda.create("Routine Notification", {
       id,
+      tz: user.timezone || process.env.TZ,
     });
 
     var timeArray = item.time!.split(":");
