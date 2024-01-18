@@ -61,15 +61,24 @@ export class NotificationManager {
     var id = this.getUniqueJobId(item.id, user_id);
 
     this.throwIfInfertileEvent(item);
-    var user = (
+    const user = (
       await UserOperations.retrieveForUser(user_id, user_id)
     ).getContent();
-    var notification = this.getUserNotification(item, user_id);
+    const notification = this.getUserNotification(item, user_id);
+    const timezone = user.timezone || (process.env.TZ as string);
     var setTime = this.getScheduledTime(
       item,
       notification.minutes_before,
-      user.timezone || (process.env.TZ as string)
+      timezone
     );
+
+    // Ensure notification is for ahead of current time!
+    if (setTime < moment().tz(timezone, true).toDate()) {
+      this.logger.info(
+        `Not setting notification for ${user_id} on item ${item.id} - set time is past current`
+      );
+      return;
+    }
 
     this.logger.info(`Creating event notification ${id}`);
     await this.agenda.schedule(setTime, "Event Notification", {
