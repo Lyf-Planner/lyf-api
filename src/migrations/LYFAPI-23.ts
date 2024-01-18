@@ -3,7 +3,7 @@ import env from "../envManager";
 import { v4 as uuid } from "uuid";
 import { NoteType } from "../api/notes";
 import { ItemStatus, ListItemTypes } from "../api/list";
-import moment from "moment";
+import moment from "moment-timezone";
 
 // https://lyf-planner.atlassian.net/browse/LYFAPI-23
 // Migrate old database lyf-tmp (1.0.0) to a new database with the API 2.0 Schema

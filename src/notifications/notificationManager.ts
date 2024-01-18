@@ -4,7 +4,7 @@ import { UserModel } from "../models/userModel";
 import expoPushService from "./expoPushService";
 import { ExpoPushMessage } from "expo-server-sdk";
 import { Logger } from "../utils/logging";
-import moment from "moment";
+import moment from "moment-timezone";
 import db from "../repository/dbAccess";
 import { TwentyFourHourToAMPM, formatDateData } from "../utils/dates";
 import { ItemOperations } from "../models/ItemOperations";
@@ -64,9 +64,9 @@ export class NotificationManager {
       await UserOperations.retrieveForUser(user_id, user_id)
     ).getContent();
     var notification = this.getUserNotification(item, user_id);
-    var setTime = this.getScheduledTime(item, notification.minutes_before);
-    setTime = this.adjustToUserTimezone(
-      setTime,
+    var setTime = this.getScheduledTime(
+      item,
+      notification.minutes_before,
       user.timezone || (process.env.TZ as string)
     );
 
@@ -301,28 +301,19 @@ export class NotificationManager {
     }
   }
 
-  private getScheduledTime = (item: ListItem, minutes_before: string) => {
+  private getScheduledTime = (
+    item: ListItem,
+    minutes_before: string,
+    timezone: string
+  ) => {
     var eventDateTime = new Date(item.date!);
     var timeArray = item.time!.split(":");
     eventDateTime.setHours(parseInt(timeArray[0]), parseInt(timeArray[1]));
     var setTime = moment(eventDateTime)
+      .tz(timezone, true)
       .add(-parseInt(minutes_before), "minutes")
       .toDate();
     return setTime;
-  };
-
-  private adjustToUserTimezone = (setTime: Date, user_tz: string) => {
-    // Set time was calculated using server timezone
-    const date = new Date();
-    const serverOffset = new Date(
-      date.toLocaleString("en-US", { timeZone: process.env.TZ })
-    );
-    const userOffset = new Date(
-      date.toLocaleString("en-US", { timeZone: user_tz })
-    );
-    var difference = (userOffset.getTime() - serverOffset.getTime()) / 6e4;
-    const adjustedTime = moment(setTime).add(difference).toDate();
-    return adjustedTime;
   };
 
   private setDefaultMinsIfEmpty = (notification: any) => {
