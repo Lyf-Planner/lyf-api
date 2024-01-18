@@ -8,11 +8,11 @@ export type User = UserDetails &
   Time &
   Identifiable & {
     pass_hash: string;
+    timetable: Timetable;
+    notes: Notes[];
+    premium?: Premium;
     timezone?: string;
     expo_tokens?: string[];
-    timetable?: Timetable;
-    notes?: Notes[];
-    premium?: Premium;
   };
 
 export type UserDetails = {

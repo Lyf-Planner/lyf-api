@@ -45,14 +45,14 @@ export class UserModel extends RemoteObject<User> {
     TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
 
     // Checks passed!
-    // PRE-COMMIT
-    this.checkDailyNotifications(proposed);
-
-    this.checkTimezoneChange(proposed);
-
     this.logger.debug(`User ${user_id} safely updated user ${this.id}`);
     this.content = proposed;
     await this.commit();
+
+    // POST-COMMIT (update other items like notifications)
+    this.checkDailyNotifications(proposed);
+
+    this.checkTimezoneChange(proposed);
   }
 
   private throwIfUpdatingOtherUser(proposed: User, user_id: ID) {
@@ -100,6 +100,7 @@ export class UserModel extends RemoteObject<User> {
 
   private checkTimezoneChange(proposed: User) {
     if (proposed.timezone !== this.content.timezone) {
+      notificationManager.handleUserTzChange(proposed);
     }
   }
 }

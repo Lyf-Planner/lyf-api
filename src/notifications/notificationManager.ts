@@ -194,6 +194,41 @@ export class NotificationManager {
     await this.agenda.cancel({ "data.id": id });
   }
 
+  // TIMEZONE CHANGE HANDLER
+
+  public async handleUserTzChange(user: User) {
+    const userItems = user.timetable.items;
+    const timezone = user.timezone || (process.env.TZ as string);
+
+    for (let item_id in userItems) {
+      let id = this.getUniqueJobId(item_id, user.id);
+      let job = await db
+        .getDb()
+        .collection("cron-jobs")
+        .findOne({ "data.id": id });
+
+      if (job) {
+        switch (job.name) {
+          case "Event Notification":
+            var setTime = new Date(job.nextRunAt);
+            var newTime = moment(setTime).tz(timezone, true).toDate();
+            await db
+              .getDb()
+              .collection("cron-jobs")
+              .updateOne({ id }, { $set: { nextRunAt: newTime } });
+            continue;
+          case "Daily Notification":
+          case "Event Notification":
+            await db
+              .getDb()
+              .collection("cron-jobs")
+              .updateOne({ id }, { $set: { repeatTimezone: timezone } });
+            continue;
+        }
+      }
+    }
+  }
+
   // HELPERS
 
   private sendItemNotification = async (id: string, clearFromItem = false) => {
