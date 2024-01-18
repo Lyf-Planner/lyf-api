@@ -48,6 +48,8 @@ export class UserModel extends RemoteObject<User> {
     // PRE-COMMIT
     this.checkDailyNotifications(proposed);
 
+    this.checkTimezoneChange(proposed);
+
     this.logger.debug(`User ${user_id} safely updated user ${this.id}`);
     this.content = proposed;
     await this.commit();
@@ -93,6 +95,12 @@ export class UserModel extends RemoteObject<User> {
       notificationManager.updateDailyNotifications({ ...proposed });
     } else if (oldEnabled && !newEnabled) {
       notificationManager.removeDailyNotifications(proposed.id);
+    }
+  }
+
+  private checkTimezoneChange(proposed: User) {
+    if (proposed.timezone !== this.content.timezone) {
+      
     }
   }
 }

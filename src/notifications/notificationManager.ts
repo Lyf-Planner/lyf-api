@@ -209,18 +209,19 @@ export class NotificationManager {
 
       const minutes_before = parseInt(notification.minutes_before);
       const time = item.getContent().time!;
+      var subtext = minutes_before
+        ? `${
+            item.getContent().type === ListItemTypes.Event
+              ? "Starting in"
+              : "In"
+          } ${pluralisedQuantity(
+            minutes_before,
+            "minute"
+          )} (at ${TwentyFourHourToAMPM(time)})`
+        : `Starting now (${TwentyFourHourToAMPM(time)}`;
 
       this.logger.info(`Sending scheduled notification ${id} to ${user_id}`);
-      var message = this.formatExpoPushMessage(
-        to,
-        title,
-        `${
-          item.getContent().type === ListItemTypes.Event ? "Starting in" : "In"
-        } ${pluralisedQuantity(
-          minutes_before,
-          "minute"
-        )} (at ${TwentyFourHourToAMPM(time)})`
-      );
+      var message = this.formatExpoPushMessage(to, title, subtext);
       await expoPushService.pushNotificationToExpo([message]);
       await this.agenda.cancel({ "data.id": id });
 
