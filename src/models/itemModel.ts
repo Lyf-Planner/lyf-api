@@ -1,13 +1,11 @@
-import { ObjectId } from "mongodb";
-import { ID, Permission, UserAccess } from "../api/abstract";
-import { ItemSettings, ItemSocialData, ListItem } from "../api/list";
-import db from "../repository/dbAccess";
+import { Permission } from "../api/abstract";
+import { ListItem } from "../api/list";
 import { Logger } from "../utils/logging";
 import { ItemOperations } from "./ItemOperations";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
 import { TimeOperations } from "./abstract/timeOperations";
 import notificationManager from "../notifications/notificationManager";
-import assert from "assert";
+import db from "../repository/dbAccess";
 
 export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private logger = Logger.of(ItemModel);
@@ -178,6 +176,16 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private handleTimeChanges(proposed: ListItem) {
     if (proposed.time !== this.content.time && proposed.notifications) {
       for (let notification of proposed.notifications) {
+        // Case: time was deleted
+        if (!proposed.time) {
+          notificationManager.removeEventNotification(
+            proposed,
+            notification.user_id
+          );
+          continue;
+        }
+
+        // Otherwise update them all
         var oldNotif =
           this.content.notifications &&
           this.content.notifications.find(
@@ -202,7 +210,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     }
   }
 
-  public async  clearNotification(user_id: string) {
+  public async clearNotification(user_id: string) {
     this.logger.info(
       `Clearing notification on item ${this.id} for user ${user_id}`
     );

@@ -1,11 +1,10 @@
-import { ID, Permission } from "../api/abstract";
+import { Permission } from "../api/abstract";
 import { Note } from "../api/notes";
-import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
-import { RemoteObject } from "./abstract/remoteObject";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
 import { TimeOperations } from "./abstract/timeOperations";
 import { NoteOperations } from "./noteOperations";
+import db from "../repository/dbAccess";
 
 export class NoteModel extends RestrictedRemoteObject<Note> {
   private logger = Logger.of(NoteModel);

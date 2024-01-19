@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from "moment-timezone";
 
 export function TwentyFourHourToAMPM(time: string) {
   var [hours, mins] = time.split(":");

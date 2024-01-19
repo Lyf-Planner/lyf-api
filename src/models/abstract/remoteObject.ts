@@ -1,4 +1,4 @@
-import { DBObject, ID, Identifiable } from "../../api/abstract";
+import { DBObject, ID } from "../../api/abstract";
 import { Collection } from "../../repository/abstractCollection";
 
 export class RemoteObject<T extends DBObject> {

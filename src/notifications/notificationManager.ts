@@ -1,16 +1,20 @@
-import { ListItem, ListItemTypes } from "../api/list";
+import { ItemStatus, ListItem, ListItemTypes } from "../api/list";
 import { UserOperations } from "../models/userOperations";
 import { UserModel } from "../models/userModel";
-import expoPushService from "./expoPushService";
 import { ExpoPushMessage } from "expo-server-sdk";
 import { Logger } from "../utils/logging";
-import moment from "moment";
-import db from "../repository/dbAccess";
 import { TwentyFourHourToAMPM, formatDateData } from "../utils/dates";
 import { ItemOperations } from "../models/ItemOperations";
 import { User } from "../api/user";
 import { DaysOfWeek } from "../api/timetable";
+import { pluralisedQuantity } from "../utils/text";
+import expoPushService from "./expoPushService";
+import moment from "moment-timezone";
+import db from "../repository/dbAccess";
+
 const Agenda = require("agenda");
+
+const DEFAULT_MINS_BEFORE = "5";
 
 export class NotificationManager {
   private logger = Logger.of(NotificationManager);
@@ -50,7 +54,11 @@ export class NotificationManager {
     });
   }
 
-  public setEventNotification = async (item: any, user_id: string) => {
+  public setEventNotification = async (
+    item: any,
+    user_id: string,
+    send_if_passed: boolean = false
+  ) => {
     if (ItemOperations.isTemplate(item)) {
       this.setRoutineNotification(item, user_id);
       return;
@@ -58,14 +66,31 @@ export class NotificationManager {
     var id = this.getUniqueJobId(item.id, user_id);
 
     this.throwIfInfertileEvent(item);
-    var notification = this.getUserNotification(item, user_id);
+    const user = (
+      await UserOperations.retrieveForUser(user_id, user_id)
+    ).getContent();
+    const notification = this.getUserNotification(item, user_id);
+    const timezone = user.timezone || (process.env.TZ as string);
+    var setTime = this.getScheduledTime(
+      item,
+      notification.minutes_before,
+      timezone
+    );
 
-    var setTime = this.getScheduledTime(item, notification.minutes_before);
+    // Ensure notification is for ahead of current time!
+    this.logger.debug(`Notification ${id} set for ${setTime}`)
+    const local_tz_time = moment().tz(timezone).toDate();
+    this.logger.debug(`Local time is ${local_tz_time}`)
+    if (setTime < local_tz_time && !send_if_passed) {
+      this.logger.info(
+        `Not setting notification for ${user_id} on item ${item.id} - set time is past current`
+      );
+      return;
+    }
 
-    // Don't schedule where time has already passed
-    if (setTime < new Date()) return;
-
-    this.logger.info(`Creating event notification ${id}`);
+    this.logger.info(
+      `Creating event notification ${id} at ${setTime.toUTCString()}`
+    );
     await this.agenda.schedule(setTime, "Event Notification", {
       id,
     });
@@ -90,6 +115,7 @@ export class NotificationManager {
     this.logger.info("Defining Daily Notifications");
     this.agenda.define("Daily Notification", async (job: any, done: any) => {
       var { user_id } = job.attrs.data;
+
       var user = await UserOperations.retrieveForUser(user_id, user_id);
 
       this.logger.info(`Sending daily notification to ${user_id}`);
@@ -114,7 +140,9 @@ export class NotificationManager {
     const job = this.agenda.create("Daily Notification", {
       user_id: user.id,
     });
-    job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * *`);
+    const timezone = user.timezone || process.env.TZ;
+    job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * *`, { timezone });
+
     await job.save();
   }
 
@@ -144,16 +172,20 @@ export class NotificationManager {
     this.logger.info(`Setting up routine notification for ${user_id}`);
 
     var id = this.getUniqueJobId(item.id, user_id);
+    var user = (
+      await UserOperations.retrieveForUser(user_id, user_id)
+    ).getContent();
     const job = this.agenda.create("Routine Notification", {
       id,
     });
 
     var timeArray = item.time!.split(":");
+    const timezone = user.timezone || process.env.TZ;
 
-    // We do this +1 because Sunday is treated as the zeroth day
+    // We do this +1 because Sunday is treated as the zeroth day otherwise
     const day =
       (Object.values(DaysOfWeek).findIndex((x) => x === item.day) + 1) % 7;
-    job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * ${day}`);
+    job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * ${day}`, { timezone });
     await job.save();
   }
 
@@ -166,6 +198,42 @@ export class NotificationManager {
     this.logger.info(`Removing routine ${item.id}:${user_id}`);
     var id = this.getUniqueJobId(item.id, user_id);
     await this.agenda.cancel({ "data.id": id });
+  }
+
+  // TIMEZONE CHANGE HANDLER
+
+  public async handleUserTzChange(user: User) {
+    this.logger.info(
+      `Adjusting notification timezones for user ${user.id} to ${user.timezone}`
+    );
+    const userItems = user.timetable.items;
+
+    for (let item of userItems) {
+      let id = this.getUniqueJobId(item.id, user.id);
+      const job = await db
+        .getDb()
+        .collection("cron-jobs")
+        .findOne({ "data.id": id });
+
+      if (job) {
+        const itemObj = (
+          await ItemOperations.retrieveForUser(item.id, user.id)
+        ).getContent();
+
+        switch (job.name) {
+          case "Event Notification":
+            await this.removeEventNotification({ ...itemObj }, user.id);
+            await this.setEventNotification({ ...itemObj }, user.id, true);
+            break;
+          case "Daily Notification":
+            await this.updateDailyNotifications(user);
+            break;
+          case "Routine Notification":
+            await this.updateRoutineNotification({ ...itemObj }, user.id);
+            break;
+        }
+      }
+    }
   }
 
   // HELPERS
@@ -182,24 +250,31 @@ export class NotificationManager {
 
       const item = await ItemOperations.retrieveForUser(item_id, user_id);
       const title = item.getContent().title;
-      const notification = item
-        .getContent()
-        .notifications?.find((x) => x.user_id === user_id);
-      if (!notification)
-        throw new Error(
-          "Tried to send notification when user has not set one on the item"
+      const notification = this.getUserNotification(item.getContent(), user_id);
+      const status = item.getContent().status;
+      if (status === ItemStatus.Cancelled) {
+        this.logger.warn(
+          `Cancelling notification for ${id} as event was cancelled`
         );
+        await this.agenda.cancel({ "data.id": id });
+        return;
+      }
+
       const minutes_before = parseInt(notification.minutes_before);
       const time = item.getContent().time!;
+      var subtext = minutes_before
+        ? `${
+            item.getContent().type === ListItemTypes.Event
+              ? "Starting in"
+              : "In"
+          } ${pluralisedQuantity(
+            minutes_before,
+            "minute"
+          )} (at ${TwentyFourHourToAMPM(time)})`
+        : `Starting now (${TwentyFourHourToAMPM(time)}`;
 
       this.logger.info(`Sending scheduled notification ${id} to ${user_id}`);
-      var message = this.formatExpoPushMessage(
-        to,
-        title,
-        `Starting in ${minutes_before} minute${
-          minutes_before === 1 ? "" : "s"
-        } (at ${TwentyFourHourToAMPM(time)})`
-      );
+      var message = this.formatExpoPushMessage(to, title, subtext);
       await expoPushService.pushNotificationToExpo([message]);
       await this.agenda.cancel({ "data.id": id });
 
@@ -235,6 +310,12 @@ export class NotificationManager {
       throw new Error(
         `Server Error; Event notification cannot be setup if user has no event notification data`
       );
+    if (!notification.minutes_before) {
+      this.logger.warn(
+        `Item ${item.id} had a notification for user ${user_id} with no minutes_before!`
+      );
+      this.setDefaultMinsIfEmpty(notification);
+    }
     return notification;
   };
 
@@ -261,31 +342,51 @@ export class NotificationManager {
     if (taskCount + eventCount === 0) {
       return user.getContent().premium?.notifications
         ?.persistent_daily_notification
-        ? "You have nothing planned for today :)"
+        ? "Nothing planned for today :)"
         : "";
     } else if (eventCount === 0) {
-      return `You have ${taskCount} task${
-        taskCount === 1 ? "" : "s"
-      } on today :)`;
+      return `You have ${pluralisedQuantity(taskCount, "task")} on today :)`;
     } else if (taskCount === 0) {
-      return `You have ${eventCount} events${
-        eventCount === 1 ? "" : "s"
-      } on today :)`;
+      return `You have ${pluralisedQuantity(eventCount, "event")} on today :)`;
     } else {
-      return `You have ${eventCount} event${
-        eventCount === 1 ? "" : "s"
-      } and ${taskCount} task${taskCount === 1 ? "" : "s"} on today :)`;
+      return `You have ${pluralisedQuantity(
+        eventCount,
+        "event"
+      )} and ${pluralisedQuantity(taskCount, "task")} on today :)`;
     }
   }
 
-  private getScheduledTime = (item: ListItem, minutes_before: string) => {
-    var eventDateTime = new Date(item.date!);
-    var timeArray = item.time!.split(":");
-    eventDateTime.setHours(parseInt(timeArray[0]), parseInt(timeArray[1]));
-    var setTime = moment(eventDateTime)
+  private getScheduledTime = (
+    item: ListItem,
+    minutes_before: string,
+    timezone: string
+  ) => {
+    var dateArray = item.date!.split("-").map((x) => parseInt(x));
+    var timeArray = item.time!.split(":").map((x) => parseInt(x));
+    return this.setTimezoneDate(dateArray, timeArray, minutes_before, timezone);
+  };
+
+  private setTimezoneDate(
+    date_array: number[],
+    time_array: number[],
+    minutes_before: string,
+    timezone: string
+  ) {
+    return moment()
+      .tz(timezone)
+      .year(date_array[0])
+      .month(date_array[1] - 1)
+      .date(date_array[2])
+      .hours(time_array[0])
+      .minutes(time_array[1])
+      .seconds(0)
       .add(-parseInt(minutes_before), "minutes")
       .toDate();
-    return setTime;
+  }
+
+  private setDefaultMinsIfEmpty = (notification: any) => {
+    if (!notification.minutes_before)
+      notification.minutes_before = DEFAULT_MINS_BEFORE;
   };
 }
 

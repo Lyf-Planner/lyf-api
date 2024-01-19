@@ -1,10 +1,8 @@
 import { compare, hash } from "bcrypt";
-import { Request, Response } from "express";
-import * as jwt from "jsonwebtoken";
 import { User } from "../api/user";
-import env from "../envManager";
 import { Logger } from "../utils/logging";
-import assert from "assert";
+import * as jwt from "jsonwebtoken";
+import env from "../envManager";
 
 export class AuthUtils {
   private logger = Logger.of(AuthUtils);
@@ -30,27 +28,6 @@ export class AuthUtils {
 
   public async hashPass(password: string) {
     return await hash(password, 10);
-  }
-
-  public authoriseHeader(req: Request, res: Response) {
-    try {
-      var header = req.headers["authorization"] as string;
-      var token;
-      if (header && header.startsWith("Bearer ")) {
-        token = header.substring(7);
-      } else {
-        throw new Error("Invalid Authorization header");
-      }
-
-      var { user_id, exp } = this.verifyToken(token);
-      assert(exp! > Math.floor(new Date().getTime() / 1000));
-      return user_id;
-    } catch (err) {
-      this.logger.debug(err);
-      let message = "Unauthorised or expired token in request header";
-      this.logger.warn(message);
-      res.status(401).end(message);
-    }
   }
 }
 

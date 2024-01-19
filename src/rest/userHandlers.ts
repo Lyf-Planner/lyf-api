@@ -1,12 +1,14 @@
 import { Request, Response } from "express";
 import { User } from "../api/user";
-import authUtils from "../auth/authUtils";
 import { UserModel } from "../models/userModel";
 import { UserOperations } from "../models/userOperations";
 import { Logger } from "../utils/logging";
+import { getMiddlewareVars } from "./utils";
+import authUtils from "../auth/authUtils";
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
+    // This endpoint is excluded from the auth middleware
     var { user_id, password } = req.query;
     logger.debug(`Received login request for user ${user_id}`);
 
@@ -31,13 +33,14 @@ export class UserHandlers {
     }
     var exportedData = userModel.export();
     var payload = { user: exportedData, token };
-    
+
     res.status(200).json(payload).end();
   }
 
   protected async autoLogin(req: Request, res: Response) {
-    var user_id = authUtils.authoriseHeader(req, res);
-    if (!user_id) return;
+    var user_id = getMiddlewareVars(res).user_id;
+
+    // The auth middleware has already done all the work here
 
     logger.debug(`Authorized autologin for user ${user_id}`);
 
@@ -52,8 +55,7 @@ export class UserHandlers {
 
   protected async getUser(req: Request, res: Response) {
     var { user_id } = req.query;
-    var requestor_id = authUtils.authoriseHeader(req, res);
-    if (!requestor_id) return;
+    var requestor_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Received request for user ${user_id} from "${requestor_id}"`);
 
@@ -66,8 +68,7 @@ export class UserHandlers {
 
   protected async getUsers(req: Request, res: Response) {
     var { user_ids } = req.body;
-    var requestor_id = authUtils.authoriseHeader(req, res);
-    if (!requestor_id) return;
+    var requestor_id = getMiddlewareVars(res).user_id;
 
     logger.debug(
       `Received request for user ids ${user_ids} from "${requestor_id}"`
@@ -78,14 +79,15 @@ export class UserHandlers {
   }
 
   protected async createUser(req: Request, res: Response) {
-    var { user_id, password } = req.body;
+    // This endpoint is excluded from the auth middleware
+    var { user_id, password, timezone } = req.body;
 
     logger.info(`Received request to create account "${user_id}"`);
     var token;
     var user;
 
     try {
-      user = await UserOperations.createNew(user_id, password, true);
+      user = await UserOperations.createNew(user_id, password, true, timezone);
       token = await authUtils.authenticate(
         user.getUser() as User,
         password as string
@@ -102,8 +104,7 @@ export class UserHandlers {
   // Should consider breaking this up in future
   protected async updateUser(req: Request, res: Response) {
     var { user } = req.body;
-    var user_id = authUtils.authoriseHeader(req, res);
-    if (!user_id) return;
+    var user_id = getMiddlewareVars(res).user_id;
 
     // Users must be authorised as themselves to update said account!
     if (user.id !== user_id) {
@@ -129,8 +130,7 @@ export class UserHandlers {
 
   protected async deleteMe(req: Request, res: Response) {
     var { password } = req.body;
-    var user_id = authUtils.authoriseHeader(req, res);
-    if (!user_id) return;
+    var user_id = getMiddlewareVars(res).user_id;
 
     logger.info(`Received self-deletion request from ${user_id}`);
 

@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb";
 import { ID, Identifiable, Time } from "./abstract";
 import { Notes } from "./notes";
 import { Premium } from "./premium";
@@ -9,10 +8,11 @@ export type User = UserDetails &
   Time &
   Identifiable & {
     pass_hash: string;
-    expo_tokens?: string[];
-    timetable?: Timetable;
-    notes?: Notes[];
+    timetable: Timetable;
+    notes: Notes[];
     premium?: Premium;
+    timezone?: string;
+    expo_tokens?: string[];
   };
 
 export type UserDetails = {

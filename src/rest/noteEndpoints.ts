@@ -1,5 +1,5 @@
-import express from "express";
 import { NoteHandlers } from "./noteHandlers";
+import express from "express";
 
 export class NoteEndpoints extends NoteHandlers {
   constructor(server: express.Application) {

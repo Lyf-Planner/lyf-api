@@ -1,11 +1,11 @@
 import { ID } from "../api/abstract";
 import { User, UserDetails } from "../api/user";
-import notificationManager from "../notifications/notificationManager";
-import db from "../repository/dbAccess";
 import { Logger } from "../utils/logging";
 import { RemoteObject } from "./abstract/remoteObject";
 import { TimeOperations } from "./abstract/timeOperations";
 import { UserOperations } from "./userOperations";
+import notificationManager from "../notifications/notificationManager";
+import db from "../repository/dbAccess";
 
 export class UserModel extends RemoteObject<User> {
   // If user is accessed by another, should only be able to view details!
@@ -43,10 +43,11 @@ export class UserModel extends RemoteObject<User> {
 
     // 3. No one should modify time fields
     TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
-
     // Checks passed!
-    // PRE-COMMIT
+
+    // PRE-COMMIT (update other items like notifications)
     this.checkDailyNotifications(proposed);
+    this.checkTimezoneChange(proposed);
 
     this.logger.debug(`User ${user_id} safely updated user ${this.id}`);
     this.content = proposed;
@@ -93,6 +94,12 @@ export class UserModel extends RemoteObject<User> {
       notificationManager.updateDailyNotifications({ ...proposed });
     } else if (oldEnabled && !newEnabled) {
       notificationManager.removeDailyNotifications(proposed.id);
+    }
+  }
+
+  private checkTimezoneChange(proposed: User) {
+    if (this.content.timezone && proposed.timezone !== this.content.timezone) {
+      notificationManager.handleUserTzChange(proposed);
     }
   }
 }
