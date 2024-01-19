@@ -54,7 +54,11 @@ export class NotificationManager {
     });
   }
 
-  public setEventNotification = async (item: any, user_id: string) => {
+  public setEventNotification = async (
+    item: any,
+    user_id: string,
+    send_if_passed: boolean = false
+  ) => {
     if (ItemOperations.isTemplate(item)) {
       this.setRoutineNotification(item, user_id);
       return;
@@ -74,14 +78,17 @@ export class NotificationManager {
     );
 
     // Ensure notification is for ahead of current time!
-    if (setTime < moment().tz(timezone, true).toDate()) {
+    const local_tz_time = moment().tz(timezone).toDate();
+    if (setTime < local_tz_time && !send_if_passed) {
       this.logger.info(
         `Not setting notification for ${user_id} on item ${item.id} - set time is past current`
       );
       return;
     }
 
-    this.logger.info(`Creating event notification ${id}`);
+    this.logger.info(
+      `Creating event notification ${id} at ${setTime.toUTCString()}`
+    );
     await this.agenda.schedule(setTime, "Event Notification", {
       id,
     });
@@ -194,40 +201,34 @@ export class NotificationManager {
   // TIMEZONE CHANGE HANDLER
 
   public async handleUserTzChange(user: User) {
+    this.logger.info(
+      `Adjusting notification timezones for user ${user.id} to ${user.timezone}`
+    );
     const userItems = user.timetable.items;
-    const timezone = user.timezone || (process.env.TZ as string);
 
-    for (let item_id in userItems) {
-      let id = this.getUniqueJobId(item_id, user.id);
-      let job = await db
+    for (let item of userItems) {
+      let id = this.getUniqueJobId(item.id, user.id);
+      const job = await db
         .getDb()
         .collection("cron-jobs")
         .findOne({ "data.id": id });
 
       if (job) {
+        const itemObj = (
+          await ItemOperations.retrieveForUser(item.id, user.id)
+        ).getContent();
+
         switch (job.name) {
           case "Event Notification":
-            var setTime = new Date(job.nextRunAt);
-            var newTime = moment(setTime).tz(timezone, true).toDate();
-            await db
-              .getDb()
-              .collection("cron-jobs")
-              .updateOne(
-                { id },
-                {
-                  $set: {
-                    nextRunAt: newTime,
-                  },
-                }
-              );
-            continue;
+            await this.removeEventNotification({ ...itemObj }, user.id);
+            await this.setEventNotification({ ...itemObj }, user.id, true);
+            break;
           case "Daily Notification":
-          case "Event Notification":
-            await db
-              .getDb()
-              .collection("cron-jobs")
-              .updateOne({ id }, { $set: { repeatTimezone: timezone } });
-            continue;
+            await this.updateDailyNotifications(user);
+            break;
+          case "Routine Notification":
+            await this.updateRoutineNotification({ ...itemObj }, user.id);
+            break;
         }
       }
     }
@@ -358,15 +359,28 @@ export class NotificationManager {
     minutes_before: string,
     timezone: string
   ) => {
-    var eventDateTime = new Date(item.date!);
-    var timeArray = item.time!.split(":");
-    eventDateTime.setHours(parseInt(timeArray[0]), parseInt(timeArray[1]));
-    var setTime = moment(eventDateTime)
-      .tz(timezone, true)
+    var dateArray = item.date!.split("-").map((x) => parseInt(x));
+    var timeArray = item.time!.split(":").map((x) => parseInt(x));
+    return this.setTimezoneDate(dateArray, timeArray, minutes_before, timezone);
+  };
+
+  private setTimezoneDate(
+    date_array: number[],
+    time_array: number[],
+    minutes_before: string,
+    timezone: string
+  ) {
+    return moment()
+      .tz(timezone)
+      .year(date_array[0])
+      .month(date_array[1] - 1)
+      .date(date_array[2])
+      .hours(time_array[0])
+      .minutes(time_array[1])
+      .seconds(0)
       .add(-parseInt(minutes_before), "minutes")
       .toDate();
-    return setTime;
-  };
+  }
 
   private setDefaultMinsIfEmpty = (notification: any) => {
     if (!notification.minutes_before)

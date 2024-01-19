@@ -43,16 +43,15 @@ export class UserModel extends RemoteObject<User> {
 
     // 3. No one should modify time fields
     TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
-
     // Checks passed!
+
+    // PRE-COMMIT (update other items like notifications)
+    this.checkDailyNotifications(proposed);
+    this.checkTimezoneChange(proposed);
+
     this.logger.debug(`User ${user_id} safely updated user ${this.id}`);
     this.content = proposed;
     await this.commit();
-
-    // POST-COMMIT (update other items like notifications)
-    this.checkDailyNotifications(proposed);
-
-    this.checkTimezoneChange(proposed);
   }
 
   private throwIfUpdatingOtherUser(proposed: User, user_id: ID) {
