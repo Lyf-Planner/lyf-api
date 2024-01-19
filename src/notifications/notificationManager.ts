@@ -78,6 +78,7 @@ export class NotificationManager {
     );
 
     // Ensure notification is for ahead of current time!
+    this.logger.debug(`Notification ${id} set for ${setTime}`)
     const local_tz_time = moment().tz(timezone).toDate();
     if (setTime < local_tz_time && !send_if_passed) {
       this.logger.info(
