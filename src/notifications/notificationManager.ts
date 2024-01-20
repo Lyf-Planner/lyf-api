@@ -268,7 +268,7 @@ export class NotificationManager {
             minutes_before,
             "minute"
           )} (at ${TwentyFourHourToAMPM(time)})`
-        : `${isEvent ? "Starting now" : "Now"} (${TwentyFourHourToAMPM(time)}`;
+        : `${isEvent ? "Starting now" : "Now"} (${TwentyFourHourToAMPM(time)})`;
 
       this.logger.info(`Sending scheduled notification ${id} to ${user_id}`);
       var message = this.formatExpoPushMessage(to, title, subtext);
