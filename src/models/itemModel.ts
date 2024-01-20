@@ -176,6 +176,16 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private handleTimeChanges(proposed: ListItem) {
     if (proposed.time !== this.content.time && proposed.notifications) {
       for (let notification of proposed.notifications) {
+        // Case: time was deleted
+        if (!proposed.time) {
+          notificationManager.removeEventNotification(
+            proposed,
+            notification.user_id
+          );
+          continue;
+        }
+
+        // Otherwise update them all
         var oldNotif =
           this.content.notifications &&
           this.content.notifications.find(
