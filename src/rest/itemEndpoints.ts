@@ -1,4 +1,4 @@
-import { ItemHandlers } from "./itemHandlers";
+import { ItemHandlers } from "./handlers/itemHandlers";
 import { nSecondLimiter } from "./utils";
 import express from "express";
 
@@ -8,7 +8,6 @@ export class ItemEndpoints extends ItemHandlers {
     server.post("/createItem", nSecondLimiter(30, 60), this.createItem);
     server.post("/updateItem", this.updateItem);
     server.post("/getItems", this.getItems);
-    // server.post("/searchItems", this.searchItems)
     server.get("/deleteItem", this.deleteItem);
     server.get("/getItem", this.getItem);
 

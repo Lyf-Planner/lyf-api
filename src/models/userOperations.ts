@@ -15,7 +15,7 @@ export class UserOperations {
       throw new Error(`User ${user_id} does not exist`);
     }
 
-    return new UserModel(user, true, requestor_id !== user_id);
+    return new UserModel(user, true, requestor_id === user_id);
   }
 
   // Builder method
@@ -39,7 +39,7 @@ export class UserOperations {
     user.friends = [];
     user.friend_requests = [];
 
-    var model = new UserModel(user, false, false);
+    var model = new UserModel(user, false, true);
     if (commit) await model.commit(true);
 
     return model;

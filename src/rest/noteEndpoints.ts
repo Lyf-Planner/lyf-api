@@ -1,4 +1,4 @@
-import { NoteHandlers } from "./noteHandlers";
+import { NoteHandlers } from "./handlers/noteHandlers";
 import express from "express";
 
 export class NoteEndpoints extends NoteHandlers {

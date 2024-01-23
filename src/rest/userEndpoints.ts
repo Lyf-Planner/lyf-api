@@ -1,19 +1,40 @@
-import { UserHandlers } from "./userHandlers";
+import { UserHandlers } from "./handlers/userHandlers";
 import { nSecondLimiter } from "./utils";
-
+import {
+  loginValidator,
+  autologinValidator,
+  getUserValidator,
+  getUsersValidator,
+  creationValidator,
+  updateMeValidator,
+  deleteMeValidator,
+} from "./validators/userValidators";
+import { validate } from "./validationMiddleware";
 import express from "express";
+
 
 export class UserEndpoints extends UserHandlers {
   constructor(server: express.Application) {
     super();
-    server.get("/login", nSecondLimiter(3), this.login);
-    server.get("/autoLogin", this.autoLogin);
+    server.get(
+      "/login",
+      validate(loginValidator),
+      nSecondLimiter(2),
+      this.login
+    );
+    server.get("/autoLogin", validate(autologinValidator), this.autoLogin);
 
-    server.post("/createUser", nSecondLimiter(20), this.createUser);
-    server.get("/getUser", this.getUser);
-    server.get("/getUsers", this.getUsers);
-    server.post("/updateUser", this.updateUser);
-    server.post("/deleteMe", this.deleteMe);
+    server.get("/getUser", validate(getUserValidator), this.getUser);
+    server.post("/getUsers", validate(getUsersValidator), this.getUsers);
+    server.post(
+      "/createUser",
+      creationValidator,
+      nSecondLimiter(20),
+      this.createUser
+    );
+    server.post("/updateUser", this.updateUser); // Deprecated soon
+    server.post("/updateMe", validate(updateMeValidator), this.updateMe);
+    server.post("/deleteMe", validate(deleteMeValidator), this.deleteMe);
 
     // server.post("/updatePremium")
     // server.post("/updateFriend")

@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import { User } from "../api/user";
-import { UserModel } from "../models/userModel";
-import { UserOperations } from "../models/userOperations";
-import { Logger } from "../utils/logging";
-import { getMiddlewareVars } from "./utils";
-import authUtils from "../auth/authUtils";
+import { User } from "../../api/user";
+import { UserModel } from "../../models/userModel";
+import { UserOperations } from "../../models/userOperations";
+import { Logger } from "../../utils/logging";
+import { getMiddlewareVars } from "../utils";
+import authUtils from "../../auth/authUtils";
+import { updateMeBody } from "../validators/userValidators";
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
@@ -101,25 +102,30 @@ export class UserHandlers {
     res.status(200).json({ user: user?.export(), token }).end();
   }
 
-  // Should consider breaking this up in future
+  // Deprecated soon!
   protected async updateUser(req: Request, res: Response) {
     var { user } = req.body;
     var user_id = getMiddlewareVars(res).user_id;
 
-    // Users must be authorised as themselves to update said account!
-    if (user.id !== user_id) {
-      logger.error(
-        `User ${user_id} tried to change username or modify another user ${user.id}`
-      );
-      res
-        .status(401)
-        .end("You must be authorised as this user to update account data");
+    try {
+      var remoteModel = await UserOperations.retrieveForUser(user_id, user_id);
+      await remoteModel.safeUpdate(user, user_id);
+    } catch (err) {
+      res.status(403).end(`${err}`);
       return;
     }
 
+    res.status(200).end();
+  }
+
+  // Should consider breaking this up in future
+  protected async updateMe(req: Request, res: Response) {
+    const user = req.body as updateMeBody;
+    const user_id = getMiddlewareVars(res).user_id;
+
     try {
-      var remoteModel = await UserOperations.retrieveForUser(user.id, user_id);
-      await remoteModel.safeUpdate(user, user_id);
+      var remoteModel = await UserOperations.retrieveForUser(user_id, user_id);
+      await remoteModel.updateSelf(user);
     } catch (err) {
       res.status(403).end(`${err}`);
       return;

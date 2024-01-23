@@ -10,7 +10,6 @@ export type PremiumNotificationSettings = {
   persistent_daily_notification?: boolean;
   event_notifications_enabled?: boolean;
   event_notification_minutes_before?: string;
-  notification_token: string;
 };
 
 

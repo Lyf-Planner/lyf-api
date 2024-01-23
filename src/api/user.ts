@@ -9,14 +9,13 @@ export type User = UserDetails &
   Identifiable & {
     pass_hash: string;
     timetable: Timetable;
-    notes: Notes[];
+    notes: Notes;
     premium?: Premium;
     timezone?: string;
     expo_tokens?: string[];
   };
 
-export type UserDetails = {
-  id: ID;
+export type UserDetails = Identifiable & {
   name?: string;
   email?: string;
   pfp_url?: string;

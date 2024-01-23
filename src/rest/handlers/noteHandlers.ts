@@ -1,10 +1,10 @@
-import { Permission } from "../api/abstract";
-import { Note } from "../api/notes";
-import { NoteModel } from "../models/noteModel";
-import { NoteOperations } from "../models/noteOperations";
-import { Logger } from "../utils/logging";
+import { Permission } from "../../api/abstract";
+import { Note } from "../../api/notes";
+import { NoteModel } from "../../models/noteModel";
+import { NoteOperations } from "../../models/noteOperations";
+import { Logger } from "../../utils/logging";
 import { Request, Response } from "express";
-import { getMiddlewareVars } from "./utils";
+import { getMiddlewareVars } from "../utils";
 
 export class NoteHandlers {
   private logger = Logger.of(NoteHandlers);
