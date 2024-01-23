@@ -45,7 +45,6 @@ export type ItemNotificationData = {
 export type SuggestedChange = {
   data: ListItem;
   user_id: string;
-  vote?: boolean;
   approved_by?: string[];
   dismissed_by?: string[];
 };
@@ -53,7 +52,7 @@ export type SuggestedChange = {
 export type Comment = {
   text: string;
   user_id: string;
-  tags: string[];
+  replies: Comment[];
 };
 
 export enum ListItemTypes {

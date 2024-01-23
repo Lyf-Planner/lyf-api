@@ -1,6 +1,5 @@
 import { body, query } from "express-validator";
 import { isValidTimeZone } from "./utils";
-import assert from "assert";
 import { ID } from "../../api/abstract";
 import { Timetable } from "../../api/timetable";
 import { Notes } from "../../api/notes";

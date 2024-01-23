@@ -1,15 +1,28 @@
 import { ItemHandlers } from "./handlers/itemHandlers";
 import { nSecondLimiter } from "./utils";
 import express from "express";
+import { validate } from "./validationMiddleware";
+import {
+  createItemValidator,
+  deleteItemValidator,
+  getItemValidator,
+  getItemsValidator,
+  updateItemValidator,
+} from "./validators/itemValidators";
 
 export class ItemEndpoints extends ItemHandlers {
   constructor(server: express.Application) {
     super();
-    server.post("/createItem", nSecondLimiter(30, 60), this.createItem);
-    server.post("/updateItem", this.updateItem);
-    server.post("/getItems", this.getItems);
-    server.get("/deleteItem", this.deleteItem);
-    server.get("/getItem", this.getItem);
+    server.post(
+      "/createItem",
+      nSecondLimiter(30, 60),
+      validate(createItemValidator),
+      this.createItem
+    );
+    server.post("/updateItem", validate(updateItemValidator), this.updateItem);
+    server.post("/getItems", validate(getItemsValidator), this.getItems);
+    server.get("/deleteItem", validate(deleteItemValidator), this.deleteItem);
+    server.get("/getItem", validate(getItemValidator), this.getItem);
 
     // server.post("/addressItemSuggestion");
     // server.post("/addressItemInvite");
