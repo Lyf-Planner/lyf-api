@@ -1,7 +1,10 @@
-export type Premium = {
+export type Premium = PremiumIndicator & {
   verification?: string; // Stripe payment key or smth
-  enabled: boolean;
   notifications?: PremiumNotificationSettings;
+};
+
+export type PremiumIndicator = {
+  enabled: boolean;
 };
 
 export type PremiumNotificationSettings = {
@@ -11,5 +14,3 @@ export type PremiumNotificationSettings = {
   event_notifications_enabled?: boolean;
   event_notification_minutes_before?: string;
 };
-
-

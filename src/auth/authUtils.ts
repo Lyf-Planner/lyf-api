@@ -7,6 +7,7 @@ import env from "../envManager";
 export class AuthUtils {
   private logger = Logger.of(AuthUtils);
 
+  // Verify password matches user pass_hash, mint token if so
   public async authenticate(user: User, password: string) {
     const res = await compare(password, user.pass_hash);
     if (!res) {
@@ -16,7 +17,7 @@ export class AuthUtils {
 
     const token = jwt.sign({ user_id: user.id }, env.jwtSecret as any, {
       // Caution: Setting an expiry will only work if we encode an object
-      // Don't change it back to a string!
+      // Don't change the content (user_id) back to a string!
       expiresIn: "1y",
     });
     return token;

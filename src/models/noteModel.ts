@@ -22,11 +22,8 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
     // 1. User cannot be Viewer
     this.throwIfReadOnly(perm);
 
-    // 2. Cannot modify social fields on this endpoint
-    this.throwIfEditorModifiedPerms(proposed, perm);
-
-    // 3. No one should modify time fields
-    TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
+    // 2. Cannot modify social fields unless you are the owner
+    this.throwIfNonOwnerModifiedPerms(proposed, perm);
 
     // Checks passed!
     this.logger.debug(
@@ -51,18 +48,20 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
     }
   }
 
-  private throwIfEditorModifiedPerms(proposed: Note, perm?: Permission) {
-    if (perm === Permission.Editor) {
+  private throwIfNonOwnerModifiedPerms(proposed: Note, perm?: Permission) {
+    if (perm !== Permission.Owner) {
       var oldPerms = JSON.stringify(
-        NoteOperations.permissionsField(this.content)
+        RestrictedRemoteObject.extractPermissionFields(this.content)
       );
-      var newPerms = JSON.stringify(NoteOperations.permissionsField(proposed));
+      var newPerms = JSON.stringify(
+        RestrictedRemoteObject.extractPermissionFields(proposed)
+      );
 
-      if (oldPerms !== newPerms) {
+      if (newPerms && oldPerms !== newPerms) {
         this.logger.error(
           `User ${this.requested_by} tried to modify permissions on ${this.id}`
         );
-        throw new Error(`Editors cannot modify permissions`);
+        throw new Error(`Non-owners cannot modify permissions`);
       }
     }
   }

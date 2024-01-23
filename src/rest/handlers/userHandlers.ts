@@ -4,13 +4,17 @@ import { UserModel } from "../../models/userModel";
 import { UserOperations } from "../../models/userOperations";
 import { Logger } from "../../utils/logging";
 import { getMiddlewareVars } from "../utils";
+import {
+  getUserQuery,
+  loginQuery,
+  updateMeBody,
+} from "../validators/userValidators";
 import authUtils from "../../auth/authUtils";
-import { updateMeBody } from "../validators/userValidators";
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
     // This endpoint is excluded from the auth middleware
-    var { user_id, password } = req.query;
+    var { user_id, password } = req.query as loginQuery;
     logger.debug(`Received login request for user ${user_id}`);
 
     var userModel;
@@ -55,7 +59,7 @@ export class UserHandlers {
   }
 
   protected async getUser(req: Request, res: Response) {
-    var { user_id } = req.query;
+    var { user_id } = req.query as getUserQuery;
     var requestor_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Received request for user ${user_id} from "${requestor_id}"`);
@@ -118,16 +122,18 @@ export class UserHandlers {
     res.status(200).end();
   }
 
-  // Should consider breaking this up in future
+  // Update user identified in header.
+  // This endpoint should not permit Premium updates in future
   protected async updateMe(req: Request, res: Response) {
     const user = req.body as updateMeBody;
     const user_id = getMiddlewareVars(res).user_id;
 
     try {
+      // The work in terms of data safety is done by the validators
       var remoteModel = await UserOperations.retrieveForUser(user_id, user_id);
       await remoteModel.updateSelf(user);
     } catch (err) {
-      res.status(403).end(`${err}`);
+      res.status(500).end(`${err}`);
       return;
     }
 
@@ -150,6 +156,10 @@ export class UserHandlers {
         password as string
       );
       if (!token) throw new Error("Incorrect password");
+
+      // Perform delete
+      await user!.deleteFromDb();
+      res.status(200).end();
     } catch (err) {
       logger.error(
         `User ${user_id} entered incorrect password when trying to delete self`
@@ -157,10 +167,6 @@ export class UserHandlers {
       res.status(401).end(`${err}`);
       return;
     }
-
-    // Perform delete
-    await user!.deleteFromDb();
-    res.status(200).end();
   }
 }
 

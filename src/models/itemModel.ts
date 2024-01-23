@@ -49,13 +49,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     // 2. Editors can only modify metadata
     this.throwIfEditorModifiedNonMetadata(proposed, perm);
 
-    // 3. No one should be editing the social fields (comments, suggestions etc.)
-    this.throwIfModifiedReadOnlyFields(proposed);
-
-    // 4. No one should modify time fields
-    TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
-
-    // 5. Should not update anyone elses notifications
+    // 3. Should not update anyone elses notifications
     this.throwIfModifiedOtherNotifications(user_id, proposed);
 
     // Checks passed
@@ -90,10 +84,10 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   ) {
     if (perm === Permission.Editor) {
       var oldNonMetadataFields = JSON.stringify(
-        ItemOperations.excludeMetadata(this.content)
+        ItemOperations.excludeEditorFields(this.content)
       );
       var newNonMetadataFields = JSON.stringify(
-        ItemOperations.excludeMetadata(proposed)
+        ItemOperations.excludeEditorFields(proposed)
       );
 
       if (oldNonMetadataFields !== newNonMetadataFields) {
@@ -102,25 +96,6 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
         );
         throw new Error(`Editors can only modify metadata`);
       }
-    }
-  }
-
-  private throwIfModifiedReadOnlyFields(proposed: ListItem) {
-    // At the moment these are just the social fields
-
-    var oldUntouchableFields = JSON.stringify(
-      ItemOperations.socialFieldsOnly(this.content)
-    );
-    var newUntouchableFields = JSON.stringify(
-      ItemOperations.socialFieldsOnly(proposed)
-    );
-    if (oldUntouchableFields !== newUntouchableFields) {
-      this.logger.error(
-        `User ${this.requested_by} tried to modify social fields on ${this.id}`
-      );
-      throw new Error(
-        `Suggestions and comments cannot be modified on this endpoint`
-      );
     }
   }
 

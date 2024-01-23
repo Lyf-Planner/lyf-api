@@ -74,17 +74,19 @@ export class ItemOperations {
     };
   }
 
-  static excludeMetadata(item: ListItem): any {
-    var { title, type, created, date, day, desc, time, ...remaining } = item;
+  static excludeEditorFields(item: ListItem): any {
+    var {
+      title,
+      type,
+      status,
+      date,
+      day,
+      desc,
+      time,
+      notifications,
+      ...remaining
+    } = item;
     // Need to validate the excluded items are of type ItemMetadata, so this function will error if that type is changed!
     return remaining;
-  }
-
-  static socialFieldsOnly(item: ListItem): ItemSocialData {
-    // Needs validator
-    return {
-      suggested_changes: item.suggested_changes,
-      comments: item.comments,
-    };
   }
 }

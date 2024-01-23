@@ -12,11 +12,15 @@ export const loginValidator = [
   query("password", "Password cannot be empty!").not().isEmpty(),
 ];
 
+export type loginQuery = { user_id: string; password: string };
+
 export const autologinValidator = [query("*").isEmpty()];
 
 export const getUserValidator = [
   query("user_id", "User ID cannot be empty").not().isEmpty(),
 ];
+
+export type getUserQuery = { user_id: string };
 
 // POST
 

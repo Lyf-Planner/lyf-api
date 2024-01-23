@@ -38,6 +38,13 @@ export class RestrictedRemoteObject<
     );
   }
 
+  static extractPermissionFields(object: Restricted) {
+    return {
+      permitted_users: object.permitted_users,
+      invited_users: object.invited_users,
+    };
+  }
+
   static getUserPermission(
     access_list: UserAccess[],
     user_id: string

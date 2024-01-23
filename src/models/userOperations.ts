@@ -4,6 +4,7 @@ import { Logger } from "../utils/logging";
 import { UserModel } from "./userModel";
 import authUtils from "../auth/authUtils";
 import db from "../repository/dbAccess";
+import { PremiumIndicator } from "../api/premium";
 
 export class UserOperations {
   // Builder method
@@ -52,7 +53,7 @@ export class UserOperations {
     return users;
   }
 
-  public static extractUserDetails(user: User): UserDetails {
+  public static extractUserDetails(user: User): UserDetails & PremiumIndicator {
     // Needs validator
     return {
       id: user.id,
@@ -60,6 +61,7 @@ export class UserOperations {
       email: user.email,
       pfp_url: user.pfp_url,
       friends: user.friends,
+      enabled: !!user.premium?.enabled,
     };
   }
 

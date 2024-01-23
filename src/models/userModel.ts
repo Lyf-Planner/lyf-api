@@ -29,7 +29,7 @@ export class UserModel extends RemoteObject<User> {
     // Needs validator
     if (!this.requestedBySelf) return this.getUser();
     else {
-      var { pass_hash, expo_tokens, ...exported } = this.content;
+      const { pass_hash, expo_tokens, ...exported } = this.content;
       return exported;
     }
   }

@@ -62,8 +62,4 @@ export class NoteOperations {
 
     return filteredResults;
   }
-
-  static permissionsField(note: Note) {
-    return note.permitted_users;
-  }
 }
