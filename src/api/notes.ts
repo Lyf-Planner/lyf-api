@@ -5,6 +5,7 @@ export type Notes = {
   items: (UserNote | Note)[];
 };
 
+// Relationship
 export type UserNote = {
   id: ID;
 };
