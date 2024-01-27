@@ -23,7 +23,7 @@ server.use(bodyParserErrorHandler());
 server.use(authoriseHeader);
 
 async function main() {
-  process.env.TZ = "Australia/Sydney";
+  process.env.TZ = "Australia/Melbourne";
   server.get("/", (req: Request, res: Response) => {
     res.send("Lyf API!");
   });
