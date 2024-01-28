@@ -56,9 +56,9 @@ export type createItemBody = ListItem;
 export const updateItemValidator = [
   // Essentials
   body("id").isString(),
-  body("title").isString(),
-  body("type").custom((perm) => Object.values(ListItemTypes).includes(perm)),
-  body("status").custom((status) => Object.values(ItemStatus).includes(status)),
+  body("title").isString().optional(),
+  body("type").custom((perm) => Object.values(ListItemTypes).includes(perm)).optional(),
+  body("status").custom((status) => Object.values(ItemStatus).includes(status)).optional(),
   // Item extra details
   body("date").isDate({ format: "YYYY-MM-DD" }).optional({ nullable: true }),
   body("day")

@@ -2,8 +2,7 @@ import { Permission } from "../api/abstract";
 import { Note } from "../api/notes";
 import { Logger } from "../utils/logging";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
-import { TimeOperations } from "./abstract/timeOperations";
-import { NoteOperations } from "./noteOperations";
+import { updateNoteBody } from "../rest/validators/noteValidators";
 import db from "../repository/dbAccess";
 
 export class NoteModel extends RestrictedRemoteObject<Note> {
@@ -13,7 +12,7 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
     super(db.notesCollection(), note, from_db, requested_by);
   }
 
-  public async safeUpdate(proposed: Note, user_id: string) {
+  public async safeUpdate(proposed: updateNoteBody, user_id: string) {
     var perm = RestrictedRemoteObject.getUserPermission(
       this.content.permitted_users,
       user_id
@@ -29,7 +28,9 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
     this.logger.debug(
       `User ${this.requested_by} safely updated note ${this.id}`
     );
-    this.content = proposed;
+
+    // Apply changeset
+    this.content = { ...this.content, ...proposed };
     await this.commit();
   }
 

@@ -3,7 +3,7 @@ import { ListItem } from "../api/list";
 import { Logger } from "../utils/logging";
 import { ItemOperations } from "./ItemOperations";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
-import { TimeOperations } from "./abstract/timeOperations";
+import { updateItemBody } from "../rest/validators/itemValidators";
 import notificationManager from "../notifications/notificationManager";
 import db from "../repository/dbAccess";
 
@@ -33,7 +33,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
 
   // Update and throw if there are any permissions violations
   public async safeUpdate(
-    proposed: ListItem,
+    proposed: updateItemBody,
     user_id: string
   ): Promise<boolean> {
     // Run through permissions checks for updates
@@ -64,7 +64,9 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     this.logger.debug(
       `User ${this.requested_by} safely updated item ${this.id}`
     );
-    await this.processUpdate(proposed);
+
+    // Apply changeset
+    await this.processUpdate({ ...this.content, ...proposed });
     return true;
   }
 
