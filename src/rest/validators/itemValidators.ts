@@ -31,7 +31,7 @@ export const createItemValidator = [
   body("notifications.*.minutes_before").isString(),
   // Social stuff
   body("permitted_users").isArray(),
-  body("permitted_users.*.id").isString(),
+  body("permitted_users.*.user_id").isString(),
   body("permitted_users.*.permissions").custom((perm) =>
     Object.values(Permission).includes(perm)
   ),
@@ -72,7 +72,7 @@ export const updateItemValidator = [
   body("notifications.*.minutes_before").isString(),
   // Social stuff
   body("permitted_users").isArray(),
-  body("permitted_users.*.id").isString(),
+  body("permitted_users.*.user_id").isString(),
   body("permitted_users.*.permissions").custom((perm) =>
     Object.values(Permission).includes(perm)
   ),
