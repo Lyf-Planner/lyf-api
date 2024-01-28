@@ -7,26 +7,26 @@ import { DaysOfWeek } from "../../api/timetable";
 
 export const getItemValidator = [query("item_id").isString()];
 
-export const deleteItemValidator = [query("item_id").isString()]
+export const deleteItemValidator = [query("item_id").isString()];
 
 // POST
 
 export const createItemValidator = [
   // Essentials
   body("id").isString(),
-  body("template_id").optional().isString(),
+  body("template_id").isString().optional({ nullable: true }),
   body("title").isString(),
   body("type").custom((perm) => Object.values(ListItemTypes).includes(perm)),
   body("status").custom((status) => Object.values(ItemStatus).includes(status)),
   // Item extra details
-  body("date").optional().isDate({ format: "YYYY-MM-DD" }),
+  body("date").isDate({ format: "YYYY-MM-DD" }).optional({ nullable: true }),
   body("day")
-    .optional()
-    .custom((status) => Object.values(DaysOfWeek).includes(status)),
-  body("time").optional().isTime({ hourFormat: "hour24" }),
-  body("desc").optional().isString(),
+    .custom((status) => Object.values(DaysOfWeek).includes(status))
+    .optional({ nullable: true }),
+  body("time").isTime({ hourFormat: "hour24" }).optional({ nullable: true }),
+  body("desc").isString().optional({ nullable: true }),
   // Notifications
-  body("notifications").optional().isArray(),
+  body("notifications").isArray().optional({ nullable: true }),
   body("notifications.*.user_id").isString(),
   body("notifications.*.minutes_before").isString(),
   // Social stuff
@@ -35,17 +35,17 @@ export const createItemValidator = [
   body("permitted_users.*.permissions").custom((perm) =>
     Object.values(Permission).includes(perm)
   ),
-  body("invited_users").optional().isArray(),
+  body("invited_users").isArray().optional({ nullable: true }),
   body("invited_users.*").isString(),
-  body("suggestions_only").optional().isBoolean(),
-  body("suggested_changes").optional().isObject(), // This should be of Item type - hard to validate
+  body("suggestions_only").isBoolean().optional({ nullable: true }),
+  body("suggested_changes").isObject().optional({ nullable: true }), // This should be of Item type - hard to validate
   body("suggested_changes.*.user_id").isString(),
   body("suggested_changes.*.vote").isInt(),
   body("suggested_changes.*.approved_by").isArray(),
   body("suggested_changes.*.approved_by.*").isString(),
   body("suggested_changes.*.dismissed_by").isArray(),
   body("suggested_changes.*.dismissed_by.*").isString(),
-  body("comments").optional().isArray(),
+  body("comments").isArray().optional({ nullable: true }),
   body("comments.**.user_id").isString(),
   body("comments.**.text").isString(),
   body("comments.**.replies").isArray(),
@@ -60,14 +60,14 @@ export const updateItemValidator = [
   body("type").custom((perm) => Object.values(ListItemTypes).includes(perm)),
   body("status").custom((status) => Object.values(ItemStatus).includes(status)),
   // Item extra details
-  body("date").optional().isDate({ format: "YYYY-MM-DD" }),
+  body("date").isDate({ format: "YYYY-MM-DD" }).optional({ nullable: true }),
   body("day")
-    .optional()
-    .custom((status) => Object.values(DaysOfWeek).includes(status)),
-  body("time").optional().isTime({ hourFormat: "hour24" }),
-  body("desc").optional().isString(),
+    .custom((status) => Object.values(DaysOfWeek).includes(status))
+    .optional({ nullable: true }),
+  body("time").isTime({ hourFormat: "hour24" }).optional({ nullable: true }),
+  body("desc").isString().optional({ nullable: true }),
   // Notifications
-  body("notifications").optional().isArray(),
+  body("notifications").isArray().optional({ nullable: true }),
   body("notifications.*.user_id").isString(),
   body("notifications.*.minutes_before").isString(),
   // Social stuff
@@ -76,17 +76,17 @@ export const updateItemValidator = [
   body("permitted_users.*.permissions").custom((perm) =>
     Object.values(Permission).includes(perm)
   ),
-  body("invited_users").optional().isArray(),
+  body("invited_users").isArray().optional({ nullable: true }),
   body("invited_users.*").isString(),
-  //   body("suggestions_only").optional().isBoolean(),
-  //   body("suggested_changes").optional().isObject(), // This should be of Item type - hard to validate
+  //   body("suggestions_only").optional({ nullable: true }).isBoolean(),
+  //   body("suggested_changes").optional({ nullable: true }).isObject(), // This should be of Item type - hard to validate
   //   body("suggested_changes.*.user_id").isString(),
   //   body("suggested_changes.*.vote").isInt(),
   //   body("suggested_changes.*.approved_by").isArray(),
   //   body("suggested_changes.*.approved_by.*").isString(),
   //   body("suggested_changes.*.dismissed_by").isArray(),
   //   body("suggested_changes.*.dismissed_by.*").isString(),
-  //   body("comments").optional().isArray(),
+  //   body("comments").optional({ nullable: true }).isArray(),
   //   body("comments.**.user_id").isString(),
   //   body("comments.**.text").isString(),
   //   body("comments.**.replies").isArray(),

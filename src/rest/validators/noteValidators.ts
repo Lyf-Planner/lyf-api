@@ -23,17 +23,17 @@ export const createNoteValidator = [
   body("permitted_users.*.permissions").custom((perm) =>
     Object.values(Permission).includes(perm)
   ),
-  body("invited_users").optional().isArray(),
+  body("invited_users").isArray().optional({ nullable: true }),
   body("invited_users.*").isString(),
-  //   body("suggestions_only").optional().isBoolean(),
-  //   body("suggested_changes").optional().isObject(), // This should be of Note type - hard to validate
+  //   body("suggestions_only").optional({ nullable: true }).isBoolean(),
+  //   body("suggested_changes").optional({ nullable: true }).isObject(), // This should be of Note type - hard to validate
   //   body("suggested_changes.*.user_id").isString(),
   //   body("suggested_changes.*.vote").isInt(),
   //   body("suggested_changes.*.approved_by").isArray(),
   //   body("suggested_changes.*.approved_by.*").isString(),
   //   body("suggested_changes.*.dismissed_by").isArray(),
   //   body("suggested_changes.*.dismissed_by.*").isString(),
-  //   body("comments").optional().isArray(),
+  //   body("comments").optional({ nullable: true }).isArray(),
   //   body("comments.**.user_id").isString(),
   //   body("comments.**.text").isString(),
   //   body("comments.**.replies").isArray(),
@@ -53,17 +53,17 @@ export const updateNoteValidator = [
   body("permitted_users.*.permissions").custom((perm) =>
     Object.values(Permission).includes(perm)
   ),
-  body("invited_users").optional().isArray(),
+  body("invited_users").isArray().optional({ nullable: true }),
   body("invited_users.*").isString(),
-  //   body("suggestions_only").optional().isBoolean(),
-  //   body("suggested_changes").optional().isObject(), // This should be of Note type - hard to validate
+  //   body("suggestions_only").optional({ nullable: true }).isBoolean(),
+  //   body("suggested_changes").optional({ nullable: true }).isObject(), // This should be of Note type - hard to validate
   //   body("suggested_changes.*.user_id").isString(),
   //   body("suggested_changes.*.vote").isInt(),
   //   body("suggested_changes.*.approved_by").isArray(),
   //   body("suggested_changes.*.approved_by.*").isString(),
   //   body("suggested_changes.*.dismissed_by").isArray(),
   //   body("suggested_changes.*.dismissed_by.*").isString(),
-  //   body("comments").optional().isArray(),
+  //   body("comments").optional({ nullable: true }).isArray(),
   //   body("comments.**.user_id").isString(),
   //   body("comments.**.text").isString(),
   //   body("comments.**.replies").isArray(),
