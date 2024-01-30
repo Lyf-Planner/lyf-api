@@ -19,7 +19,7 @@ export const createNoteValidator = [
   body("content").exists(), // This is too hard to validate
   // Social stuff
   body("permitted_users").isArray(),
-  body("permitted_users.*.id").isString(),
+  body("permitted_users.*.user_id").isString(),
   body("permitted_users.*.permissions").custom((perm) =>
     Object.values(Permission).includes(perm)
   ),
