@@ -56,6 +56,7 @@ export type createItemBody = ListItem;
 export const updateItemValidator = [
   // Essentials
   body("id").isString(),
+  body("template_id").isString().optional(),
   body("title").isString().optional(),
   body("type").custom((perm) => Object.values(ListItemTypes).includes(perm)).optional(),
   body("status").custom((status) => Object.values(ItemStatus).includes(status)).optional(),
