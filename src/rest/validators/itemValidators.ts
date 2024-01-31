@@ -112,3 +112,7 @@ export const inviteUserValidator = [
 ];
 
 export type inviteUserBody = { item_id: string; user_id: string };
+
+export const joinItemValidator = [body("item_id").isString()];
+
+export type joinItemBody = { item_id: string };

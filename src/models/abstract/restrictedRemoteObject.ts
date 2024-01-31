@@ -45,12 +45,12 @@ export class RestrictedRemoteObject<
     };
   }
 
-  static getUserPermission(
-    access_list: UserAccess[],
-    user_id: string
-  ): Permission | undefined {
-    var perm = access_list?.find((x) => x.user_id === user_id);
-    if (!perm) return;
+  public getUserPermission(user_id: string): Permission | undefined {
+    var perm = this.content.permitted_users?.find((x) => x.user_id === user_id);
+    var invite = this.content.invited_users?.find((x) => x.user_id === user_id);
+
+    if (!perm || !invite) return;
+    else if (invite) return Permission.Invitee;
     else return perm.permissions;
   }
 }

@@ -1,6 +1,5 @@
 import { ID } from "../api/abstract";
-import { ItemSettings, ItemSocialData, ListItem } from "../api/list";
-import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
+import { ItemSettings, ListItem } from "../api/list";
 import { ItemModel } from "./itemModel";
 import { Logger } from "../utils/logging";
 import db from "../repository/dbAccess";
@@ -13,17 +12,13 @@ export class ItemOperations {
     checkPermissions = true
   ): Promise<ItemModel> {
     var result = await db.itemsCollection().getById(id);
-    var permitted =
-      !checkPermissions ||
-      !!RestrictedRemoteObject.getUserPermission(
-        result?.permitted_users!,
-        user_id
-      );
+    var item = new ItemModel(result as ListItem, true, user_id);
 
+    var permitted = !checkPermissions || !!item.getUserPermission(user_id);
     if (!permitted)
       throw new Error(`User ${user_id} is not permitted to access item ${id}`);
     else {
-      return new ItemModel(result as ListItem, true, user_id);
+      return item;
     }
   }
 
@@ -45,10 +40,10 @@ export class ItemOperations {
     validate_access = true
   ): Promise<ListItem[]> {
     var results = await db.itemsCollection().getManyById(ids, false);
-    var filteredResults = results.filter(
-      (x) =>
-        !validate_access ||
-        !!RestrictedRemoteObject.getUserPermission(x.permitted_users, user_id)
+    var items = results.map((x) => new ItemModel(x as ListItem, true, user_id));
+
+    var filteredResults = items.filter(
+      (x) => !validate_access || !!x.getUserPermission(user_id)
     );
 
     if (filteredResults.length !== results.length) {
@@ -60,7 +55,7 @@ export class ItemOperations {
       );
     }
 
-    return filteredResults;
+    return filteredResults.map((x) => x.export());
   }
 
   static isTemplate(item: ListItem) {

@@ -8,8 +8,10 @@ import {
   createItemBody,
   getItemsBody,
   inviteUserBody,
+  joinItemBody,
   updateItemBody,
 } from "../validators/itemValidators";
+import { UserOperations } from "../../models/userOperations";
 
 export class ItemHandlers {
   protected async createItem(req: Request, res: Response) {
@@ -119,9 +121,40 @@ export class ItemHandlers {
     if (user_id === invited_by) {
       res.status(400).end("You can't invite yourself to the item :)");
     } else {
-      var item = await ItemOperations.retrieveForUser(item_id, invited_by);
-      await item.inviteUser(user_id, invited_by);
-      res.status(200).end;
+      try {
+        var item = await ItemOperations.retrieveForUser(item_id, invited_by);
+        const invitee = await UserOperations.retrieveForUser(
+          user_id,
+          invited_by
+        );
+        // Update item data
+        await item.inviteUser(invitee, invited_by);
+
+        // Update user data
+        await invitee.inviteUserToItem(item_id);
+        res.status(200).end();
+      } catch (err) {
+        res.status(400).end(`${err}`);
+      }
+    }
+  }
+
+  protected async joinItem(req: Request, res: Response) {
+    const { item_id } = req.body as joinItemBody;
+    const user_id = getMiddlewareVars(res).user_id;
+
+    try {
+      // Update item data
+      let item = await ItemOperations.retrieveForUser(item_id, user_id);
+      await item.joinItem(user_id);
+
+      // Update user data
+      let user = await UserOperations.retrieveForUser(user_id, user_id);
+      await user.acceptItemInvite(item_id);
+
+      res.status(200).end();
+    } catch (err) {
+      res.status(400).end(`${err}`);
     }
   }
 }

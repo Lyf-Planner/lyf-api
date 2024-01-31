@@ -32,6 +32,18 @@ export class UserModel extends RemoteObject<User> {
     await this.commit();
   }
 
+  public async acceptItemInvite(item_id: ID) {
+    // Remove from invites
+    const i = this.content.timetable.invited_items?.findIndex(
+      (x) => x === item_id
+    )!;
+    this.content.timetable.invited_items?.splice(i, 1);
+
+    // Add to items
+    this.content.timetable.items.push({ id: item_id });
+    await this.commit();
+  }
+
   // Get the user, but hide sensitive fields
   public export() {
     // Needs validator
