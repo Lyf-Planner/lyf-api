@@ -35,6 +35,7 @@ export class UserOperations {
     };
     user.notes = {
       items: [],
+      invited_items: [],
     };
     user.timezone = timezone || process.env.TZ;
     user.premium = {

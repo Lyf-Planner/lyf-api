@@ -1,10 +1,11 @@
-import { Identifiable } from "./abstract";
+import { ID, Identifiable } from "./abstract";
 import { ListItem } from "./list";
 
 export type Timetable = {
   active_template?: number;
   first_day?: string;
   items: UserListItem[];
+  invited_items?: ID[];
 };
 
 // Relationship with list held by singular user

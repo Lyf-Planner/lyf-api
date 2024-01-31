@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
 import { Permission } from "../../api/abstract";
 import { Logger } from "../../utils/logging";
-import { ListItem } from "../../api/list";
 import { ItemModel } from "../../models/itemModel";
 import { ItemOperations } from "../../models/ItemOperations";
 import { getMiddlewareVars } from "../utils";
 import {
   createItemBody,
   getItemsBody,
+  inviteUserBody,
   updateItemBody,
 } from "../validators/itemValidators";
 
@@ -110,6 +110,19 @@ export class ItemHandlers {
     logger.debug(`Got ${items.length} items for user`);
 
     res.status(200).json(items!).end();
+  }
+
+  protected async inviteUser(req: Request, res: Response) {
+    const { item_id, user_id } = req.body as inviteUserBody;
+    var invited_by = getMiddlewareVars(res).user_id;
+
+    if (user_id === invited_by) {
+      res.status(400).end("You can't invite yourself to the item :)");
+    } else {
+      var item = await ItemOperations.retrieveForUser(item_id, invited_by);
+      await item.inviteUser(user_id, invited_by);
+      res.status(200).end;
+    }
   }
 }
 

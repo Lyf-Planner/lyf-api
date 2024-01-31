@@ -74,7 +74,7 @@ export class ItemOperations {
     };
   }
 
-  static excludeEditorFields(item: ListItem): any {
+  static excludeMetadataFields(item: ListItem): any {
     var {
       title,
       type,

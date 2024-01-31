@@ -7,6 +7,7 @@ import {
   deleteItemValidator,
   getItemValidator,
   getItemsValidator,
+  inviteUserValidator,
   updateItemValidator,
 } from "./validators/itemValidators";
 
@@ -24,9 +25,9 @@ export class ItemEndpoints extends ItemHandlers {
     server.get("/deleteItem", validate(deleteItemValidator), this.deleteItem);
     server.get("/getItem", validate(getItemValidator), this.getItem);
 
+    server.post("/inviteUser", validate(inviteUserValidator), this.inviteUser);
+    // server.post("/joinItem");
     // server.post("/addressItemSuggestion");
-    // server.post("/addressItemInvite");
-    // server.post("/inviteItemUser");
     // server.post("/addItemComment");
     // server.post("/editItemComment");
   }

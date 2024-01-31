@@ -1,11 +1,13 @@
-import { Permission } from "../api/abstract";
+import { ID, Permission } from "../api/abstract";
 import { ListItem } from "../api/list";
 import { Logger } from "../utils/logging";
 import { ItemOperations } from "./ItemOperations";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
 import { updateItemBody } from "../rest/validators/itemValidators";
+import { UserOperations } from "./userOperations";
 import notificationManager from "../notifications/notificationManager";
 import db from "../repository/dbAccess";
+
 
 export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private logger = Logger.of(ItemModel);
@@ -46,10 +48,10 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     // 1. Cannot update as a Viewer
     this.throwIfReadOnly(perm);
 
-    // 2. Editors can only modify metadata
-    this.throwIfEditorModifiedNonMetadata(proposed, perm);
+    // 2. Should only modify metadata on this endpoint
+    this.throwIfModifiedNonMetadata(proposed);
 
-    // 3. Should not update anyone elses notifications
+    // 3. Should not update anyone elses notifications (this is the only restriction within modifying metadata)
     this.throwIfModifiedOtherNotifications(user_id, proposed);
 
     // Checks passed
@@ -70,6 +72,30 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     return true;
   }
 
+  public async inviteUser(user_id: ID, invited_by: ID) {
+    const inviter = this.content.permitted_users.find(
+      (x) => x.user_id === invited_by
+    );
+    const invitee = await UserOperations.retrieveForUser(user_id, invited_by);
+
+    // User must be the owner to do this! (currently)
+    if (!inviter || inviter?.permissions !== Permission.Owner) {
+      throw new Error(
+        "You must be the creator of this task/event to add other users"
+      );
+    }
+
+    // Add the user to the invite list
+    this.content.invited_users
+      ? this.content.invited_users.push(user_id)
+      : (this.content.invited_users = [user_id]);
+    await this.commit();
+
+    // Make the change on the invited user so the invited user knows
+
+    await invitee.inviteUserToItem(this.id);
+  }
+
   // Helpers
   private throwIfReadOnly(perm?: Permission) {
     if (!perm || perm === Permission.Viewer) {
@@ -80,24 +106,19 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     }
   }
 
-  private throwIfEditorModifiedNonMetadata(
-    proposed: ListItem,
-    perm?: Permission
-  ) {
-    if (perm === Permission.Editor) {
-      var oldNonMetadataFields = JSON.stringify(
-        ItemOperations.excludeEditorFields(this.content)
-      );
-      var newNonMetadataFields = JSON.stringify(
-        ItemOperations.excludeEditorFields(proposed)
-      );
+  private throwIfModifiedNonMetadata(proposed: ListItem) {
+    var oldNonMetadataFields = JSON.stringify(
+      ItemOperations.excludeMetadataFields(this.content)
+    );
+    var newNonMetadataFields = JSON.stringify(
+      ItemOperations.excludeMetadataFields(proposed)
+    );
 
-      if (oldNonMetadataFields !== newNonMetadataFields) {
-        this.logger.error(
-          `User ${this.requested_by} tried to modify non-metadata on ${this.id}`
-        );
-        throw new Error(`Editors can only modify metadata`);
-      }
+    if (oldNonMetadataFields !== newNonMetadataFields) {
+      this.logger.error(
+        `User ${this.requested_by} tried to modify non-metadata on ${this.id}`
+      );
+      throw new Error(`Editors can only modify metadata`);
     }
   }
 

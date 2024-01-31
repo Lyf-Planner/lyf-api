@@ -58,8 +58,12 @@ export const updateItemValidator = [
   body("id").isString(),
   body("template_id").isString().optional(),
   body("title").isString().optional(),
-  body("type").custom((perm) => Object.values(ListItemTypes).includes(perm)).optional(),
-  body("status").custom((status) => Object.values(ItemStatus).includes(status)).optional(),
+  body("type")
+    .custom((perm) => Object.values(ListItemTypes).includes(perm))
+    .optional(),
+  body("status")
+    .custom((status) => Object.values(ItemStatus).includes(status))
+    .optional(),
   // Item extra details
   body("date").isDate({ format: "YYYY-MM-DD" }).optional({ nullable: true }),
   body("day")
@@ -101,3 +105,10 @@ export const getItemsValidator = [
 ];
 
 export type getItemsBody = { item_ids: ID[] };
+
+export const inviteUserValidator = [
+  body("item_id").isString(),
+  body("user_id").isString(),
+];
+
+export type inviteUserBody = { item_id: string; user_id: string };
