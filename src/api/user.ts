@@ -10,6 +10,7 @@ export type User = UserDetails &
     pass_hash: string;
     timetable: Timetable;
     notes: Notes;
+    private?: boolean;
     premium?: Premium;
     timezone?: string;
     expo_tokens?: string[];

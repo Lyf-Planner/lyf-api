@@ -10,7 +10,8 @@ export class UserOperations {
   // Builder method
   public static async retrieveForUser(user_id: ID, requestor_id: string) {
     var user = (await db.usersCollection().getById(user_id)) as User;
-    if (!user) {
+    const user_undiscoverable = user_id !== requestor_id && user.private;
+    if (!user || user_undiscoverable) {
       var logger = Logger.of(UserOperations);
       logger.error(`User ${user_id} does not exist`);
       throw new Error(`User ${user_id} does not exist`);
