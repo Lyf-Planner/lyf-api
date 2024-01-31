@@ -36,7 +36,16 @@ export class UserOperations {
       items: [],
     };
     user.timezone = timezone || process.env.TZ;
-    user.premium = { enabled: false };
+    user.premium = {
+      enabled: true,
+      notifications: {
+        daily_notifications: true,
+        daily_notification_time: "08:00",
+        persistent_daily_notification: true,
+        event_notifications_enabled: true,
+        event_notification_minutes_before: "5",
+      },
+    };
     user.friends = [];
     user.friend_requests = [];
 
