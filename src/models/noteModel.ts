@@ -13,10 +13,7 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
   }
 
   public async safeUpdate(proposed: updateNoteBody, user_id: string) {
-    var perm = RestrictedRemoteObject.getUserPermission(
-      this.content.permitted_users,
-      user_id
-    );
+    var perm = this.getUserPermission(user_id);
 
     // 1. User cannot be Viewer
     this.throwIfReadOnly(perm);
@@ -41,7 +38,7 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
 
   // Helpers
   private throwIfReadOnly(perm?: Permission) {
-    if (!perm || perm === Permission.Viewer) {
+    if (!perm || perm === Permission.Viewer || perm === Permission.Invitee) {
       this.logger.error(
         `User ${this.requested_by} tried to modify as Viewer on ${this.id}`
       );

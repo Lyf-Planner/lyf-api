@@ -13,17 +13,14 @@ export class NoteOperations {
     checkPermissions = true
   ): Promise<NoteModel> {
     var result = await db.notesCollection().getById(id);
-    var permitted =
-      !checkPermissions ||
-      !!RestrictedRemoteObject.getUserPermission(
-        result?.permitted_users!,
-        user_id
-      );
+    var note = new NoteModel(result as Note, true, user_id);
+
+    var permitted = !checkPermissions || !!note.getUserPermission(user_id);
 
     if (!permitted)
       throw new Error(`User ${user_id} is not permitted to access item ${id}`);
     else {
-      return new NoteModel(result as Note, true, user_id);
+      return note;
     }
   }
 
@@ -45,11 +42,9 @@ export class NoteOperations {
     validate_access = true
   ): Promise<Note[]> {
     var results = await db.notesCollection().getManyById(ids, false);
-    var filteredResults = results.filter(
-      (x) =>
-        !validate_access ||
-        !!RestrictedRemoteObject.getUserPermission(x.permitted_users, user_id)
-    );
+    var filteredResults = results
+      .map((x) => new NoteModel(x as Note, true, user_id))
+      .filter((x) => !validate_access || !!x.getUserPermission(user_id));
 
     if (filteredResults.length !== results.length) {
       let logger = Logger.of(NoteModel);
@@ -60,6 +55,6 @@ export class NoteOperations {
       );
     }
 
-    return filteredResults;
+    return filteredResults.map((x) => x.export());
   }
 }
