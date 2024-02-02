@@ -78,9 +78,9 @@ export class NotificationManager {
     );
 
     // Ensure notification is for ahead of current time!
-    this.logger.debug(`Notification ${id} set for ${setTime}`)
+    this.logger.debug(`Notification ${id} set for ${setTime}`);
     const local_tz_time = moment().tz(timezone).toDate();
-    this.logger.debug(`Local time is ${local_tz_time}`)
+    this.logger.debug(`Local time is ${local_tz_time}`);
     if (setTime < local_tz_time && !send_if_passed) {
       this.logger.info(
         `Not setting notification for ${user_id} on item ${item.id} - set time is past current`
@@ -93,6 +93,8 @@ export class NotificationManager {
     );
     await this.agenda.schedule(setTime, "Event Notification", {
       id,
+      user_id,
+      item_id: item.id,
     });
   };
 
@@ -177,6 +179,8 @@ export class NotificationManager {
     ).getContent();
     const job = this.agenda.create("Routine Notification", {
       id,
+      user_id,
+      item_id: item.id,
     });
 
     var timeArray = item.time!.split(":");

@@ -28,8 +28,6 @@ Tasks to contribute to Lyf API are defined in the [Lyf API Jira](https://lyf-pla
 
 ## Deployments
 
-Once a new version of the API is finished, it should be merged first into the `qa` branch, where it will be automatically deployed by [Railway](https://railway.app/project/f775ac44-eda0-44f0-9299-df915e4b8f20/service/ec403ab7-ec5e-4902-81ac-74f195778b7a) to our QA API server at [this endpoint](https://lyf-api-qa.up.railway.app)
-
-After successfully testing other services with QA to ensure the new API version does not introduce any breaking changes, the `qa` branch should merge into the `production` branch, which then will also be deployed by Railway and services will access the new version at [this endpoint](https://lyf-api-production.up.railway.app)
+Once a new version of the API is finished, it should be merged first into the `production` branch, where it will be automatically deployed by [Railway](https://railway.app/project/f775ac44-eda0-44f0-9299-df915e4b8f20/service/ec403ab7-ec5e-4902-81ac-74f195778b7a) to our production API server at [this endpoint](https://lyf-api-production.up.railway.app)
 
 If you intend on making a deployment or push to any of these branches, please consult @ethanhusband before doing so.

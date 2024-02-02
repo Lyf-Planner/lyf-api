@@ -13,7 +13,7 @@ export type Time = {
 
 export type Restricted = {
   permitted_users: UserAccess[];
-  invited_users?: string[];
+  invited_users?: UserAccess[];
 };
 
 export type UserAccess = {
@@ -25,4 +25,5 @@ export enum Permission {
   Owner = "Owner",
   Editor = "Editor",
   Viewer = "Viewer",
+  Invitee = "Invitee"
 }

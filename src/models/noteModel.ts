@@ -2,8 +2,7 @@ import { Permission } from "../api/abstract";
 import { Note } from "../api/notes";
 import { Logger } from "../utils/logging";
 import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
-import { TimeOperations } from "./abstract/timeOperations";
-import { NoteOperations } from "./noteOperations";
+import { updateNoteBody } from "../rest/validators/noteValidators";
 import db from "../repository/dbAccess";
 
 export class NoteModel extends RestrictedRemoteObject<Note> {
@@ -13,26 +12,22 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
     super(db.notesCollection(), note, from_db, requested_by);
   }
 
-  public async safeUpdate(proposed: Note, user_id: string) {
-    var perm = RestrictedRemoteObject.getUserPermission(
-      this.content.permitted_users,
-      user_id
-    );
+  public async safeUpdate(proposed: updateNoteBody, user_id: string) {
+    var perm = this.getUserPermission(user_id);
 
     // 1. User cannot be Viewer
     this.throwIfReadOnly(perm);
 
-    // 2. Cannot modify social fields on this endpoint
-    this.throwIfEditorModifiedPerms(proposed, perm);
-
-    // 3. No one should modify time fields
-    TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
+    // 2. Cannot modify social fields unless you are the owner
+    this.throwIfNonOwnerModifiedPerms(proposed, perm);
 
     // Checks passed!
     this.logger.debug(
       `User ${this.requested_by} safely updated note ${this.id}`
     );
-    this.content = proposed;
+
+    // Apply changeset
+    this.content = { ...this.content, ...proposed };
     await this.commit();
   }
 
@@ -43,7 +38,7 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
 
   // Helpers
   private throwIfReadOnly(perm?: Permission) {
-    if (!perm || perm === Permission.Viewer) {
+    if (!perm || perm === Permission.Viewer || perm === Permission.Invitee) {
       this.logger.error(
         `User ${this.requested_by} tried to modify as Viewer on ${this.id}`
       );
@@ -51,18 +46,20 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
     }
   }
 
-  private throwIfEditorModifiedPerms(proposed: Note, perm?: Permission) {
-    if (perm === Permission.Editor) {
+  private throwIfNonOwnerModifiedPerms(proposed: Note, perm?: Permission) {
+    if (perm !== Permission.Owner) {
       var oldPerms = JSON.stringify(
-        NoteOperations.permissionsField(this.content)
+        RestrictedRemoteObject.extractPermissionFields(this.content)
       );
-      var newPerms = JSON.stringify(NoteOperations.permissionsField(proposed));
+      var newPerms = JSON.stringify(
+        RestrictedRemoteObject.extractPermissionFields(proposed)
+      );
 
-      if (oldPerms !== newPerms) {
+      if (newPerms && oldPerms !== newPerms) {
         this.logger.error(
           `User ${this.requested_by} tried to modify permissions on ${this.id}`
         );
-        throw new Error(`Editors cannot modify permissions`);
+        throw new Error(`Non-owners cannot modify permissions`);
       }
     }
   }

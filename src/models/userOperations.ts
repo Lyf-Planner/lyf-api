@@ -4,18 +4,20 @@ import { Logger } from "../utils/logging";
 import { UserModel } from "./userModel";
 import authUtils from "../auth/authUtils";
 import db from "../repository/dbAccess";
+import { PremiumIndicator } from "../api/premium";
 
 export class UserOperations {
   // Builder method
   public static async retrieveForUser(user_id: ID, requestor_id: string) {
     var user = (await db.usersCollection().getById(user_id)) as User;
-    if (!user) {
+    const user_undiscoverable = user_id !== requestor_id && user.private;
+    if (!user || user_undiscoverable) {
       var logger = Logger.of(UserOperations);
       logger.error(`User ${user_id} does not exist`);
       throw new Error(`User ${user_id} does not exist`);
     }
 
-    return new UserModel(user, true, requestor_id !== user_id);
+    return new UserModel(user, true, requestor_id === user_id);
   }
 
   // Builder method
@@ -33,13 +35,23 @@ export class UserOperations {
     };
     user.notes = {
       items: [],
+      invited_items: [],
     };
     user.timezone = timezone || process.env.TZ;
-    user.premium = { enabled: false };
+    user.premium = {
+      enabled: true,
+      notifications: {
+        daily_notifications: true,
+        daily_notification_time: "08:00",
+        persistent_daily_notification: true,
+        event_notifications_enabled: true,
+        event_notification_minutes_before: "5",
+      },
+    };
     user.friends = [];
     user.friend_requests = [];
 
-    var model = new UserModel(user, false, false);
+    var model = new UserModel(user, false, true);
     if (commit) await model.commit(true);
 
     return model;
@@ -52,7 +64,7 @@ export class UserOperations {
     return users;
   }
 
-  public static extractUserDetails(user: User): UserDetails {
+  public static extractUserDetails(user: User): UserDetails & PremiumIndicator {
     // Needs validator
     return {
       id: user.id,
@@ -60,6 +72,7 @@ export class UserOperations {
       email: user.email,
       pfp_url: user.pfp_url,
       friends: user.friends,
+      enabled: !!user.premium?.enabled,
     };
   }
 

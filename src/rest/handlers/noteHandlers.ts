@@ -1,23 +1,19 @@
-import { Permission } from "../api/abstract";
-import { Note } from "../api/notes";
-import { NoteModel } from "../models/noteModel";
-import { NoteOperations } from "../models/noteOperations";
-import { Logger } from "../utils/logging";
+import { Permission } from "../../api/abstract";
+import { Note } from "../../api/notes";
+import { NoteModel } from "../../models/noteModel";
+import { NoteOperations } from "../../models/noteOperations";
+import { Logger } from "../../utils/logging";
 import { Request, Response } from "express";
-import { getMiddlewareVars } from "./utils";
+import { getMiddlewareVars } from "../utils";
 
 export class NoteHandlers {
   private logger = Logger.of(NoteHandlers);
 
   protected async createNote(req: Request, res: Response) {
-    // Users only type a name in a section (implying type) to create an item
-    // Should reevaluate this if we ever grant API access!
     var noteInput = req.body as Note;
     var user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Creating note ${noteInput.title} from user ${user_id}`);
-
-    // Should validate item input here!
 
     // Instantiate
     var model = await NoteOperations.createNew(noteInput, user_id, true);

@@ -1,21 +1,26 @@
 import { Request, Response } from "express";
-import { Permission } from "../api/abstract";
-import { Logger } from "../utils/logging";
-import { ListItem } from "../api/list";
-import { ItemModel } from "../models/itemModel";
-import { ItemOperations } from "../models/ItemOperations";
-import { getMiddlewareVars } from "./utils";
+import { Permission } from "../../api/abstract";
+import { Logger } from "../../utils/logging";
+import { ItemModel } from "../../models/itemModel";
+import { ItemOperations } from "../../models/ItemOperations";
+import { getMiddlewareVars } from "../utils";
+import {
+  createItemBody,
+  getItemsBody,
+  inviteUserBody,
+  joinItemBody,
+  updateItemBody,
+} from "../validators/itemValidators";
+import { UserOperations } from "../../models/userOperations";
 
 export class ItemHandlers {
   protected async createItem(req: Request, res: Response) {
     // Users only type a name in a section (implying type) to create an item
     // Should reevaluate this if we ever grant API access!
-    var itemInput = req.body as ListItem;
-    var user_id = getMiddlewareVars(res).user_id
+    var itemInput = req.body as createItemBody;
+    var user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Creating item ${itemInput.title} from user ${user_id}`);
-
-    // Should validate item input here!
 
     // Instantiate
     var model = await ItemOperations.createNew(itemInput, user_id, true);
@@ -24,7 +29,7 @@ export class ItemHandlers {
   }
 
   protected async updateItem(req: Request, res: Response) {
-    var item = req.body as ListItem;
+    var item = req.body as updateItemBody;
     var user_id = getMiddlewareVars(res).user_id;
 
     var remoteItem: ItemModel;
@@ -50,7 +55,7 @@ export class ItemHandlers {
 
   protected async deleteItem(req: Request, res: Response) {
     var { item_id } = req.query;
-    var user_id = getMiddlewareVars(res).user_id
+    var user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Deleting item ${item_id} as requested by ${user_id}`);
 
@@ -77,8 +82,8 @@ export class ItemHandlers {
   }
 
   protected async getItem(req: Request, res: Response) {
-    var { item_id } = req.body;
-    var user_id = getMiddlewareVars(res).user_id
+    var { item_id } = req.query as any;
+    var user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Retreiving item ${item_id} for user ${user_id}`);
 
@@ -97,8 +102,8 @@ export class ItemHandlers {
   }
 
   protected async getItems(req: Request, res: Response) {
-    var { item_ids } = req.body;
-    var user_id = getMiddlewareVars(res).user_id
+    var { item_ids } = req.body as getItemsBody;
+    var user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Retreiving ${item_ids.length} items for user ${user_id}`);
 
@@ -107,6 +112,50 @@ export class ItemHandlers {
     logger.debug(`Got ${items.length} items for user`);
 
     res.status(200).json(items!).end();
+  }
+
+  protected async inviteUser(req: Request, res: Response) {
+    const { item_id, user_id } = req.body as inviteUserBody;
+    var invited_by = getMiddlewareVars(res).user_id;
+
+    if (user_id === invited_by) {
+      res.status(400).end("You can't invite yourself to the item :)");
+    } else {
+      try {
+        var item = await ItemOperations.retrieveForUser(item_id, invited_by);
+        const invitee = await UserOperations.retrieveForUser(
+          user_id,
+          invited_by
+        );
+        // Update item data
+        await item.inviteUser(invitee, invited_by);
+
+        // Update user data
+        await invitee.inviteUserToItem(item_id);
+        res.status(200).end();
+      } catch (err) {
+        res.status(400).end(`${err}`);
+      }
+    }
+  }
+
+  protected async joinItem(req: Request, res: Response) {
+    const { item_id } = req.body as joinItemBody;
+    const user_id = getMiddlewareVars(res).user_id;
+
+    try {
+      // Update item data
+      let item = await ItemOperations.retrieveForUser(item_id, user_id);
+      await item.joinItem(user_id);
+
+      // Update user data
+      let user = await UserOperations.retrieveForUser(user_id, user_id);
+      await user.acceptItemInvite(item_id);
+
+      res.status(200).end();
+    } catch (err) {
+      res.status(400).end(`${err}`);
+    }
   }
 }
 
