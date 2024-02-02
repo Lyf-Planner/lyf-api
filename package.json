@@ -1,6 +1,6 @@
 {
   "name": "lyf-api",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "Lyf API Server",
   "main": "index.js",
   "scripts": {
