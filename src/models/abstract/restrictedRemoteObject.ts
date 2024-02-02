@@ -49,8 +49,8 @@ export class RestrictedRemoteObject<
     var perm = this.content.permitted_users?.find((x) => x.user_id === user_id);
     var invite = this.content.invited_users?.find((x) => x.user_id === user_id);
 
-    if (!perm || !invite) return;
+    if (!perm && !invite) return;
     else if (invite) return Permission.Invitee;
-    else return perm.permissions;
+    else if (perm) return perm.permissions;
   }
 }
