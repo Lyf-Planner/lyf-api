@@ -28,9 +28,9 @@ async function main() {
     res.send("Lyf API!");
   });
 
-  Logger.setLevel(
-    env.nodeEnv === "prod" ? LoggingLevel.INFO : LoggingLevel.DEBUG
-  );
+  // Logger.setLevel(
+  //   env.nodeEnv === "prod" ? LoggingLevel.INFO : LoggingLevel.DEBUG
+  // );
 
   new UserEndpoints(server);
   new ItemEndpoints(server);
