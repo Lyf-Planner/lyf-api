@@ -46,7 +46,8 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     this.throwIfReadOnly(perm);
 
     // 2. Should only modify metadata on this endpoint
-    this.throwIfModifiedNonMetadata(proposed);
+    // REMOVED UNTIL CLIENTS SEND CHANGESETS
+    // this.throwIfModifiedNonMetadata(proposed);
 
     // 3. Should not update anyone elses notifications (this is the only restriction within modifying metadata)
     this.throwIfModifiedOtherNotifications(user_id, proposed);
