@@ -35,8 +35,7 @@ export class UserEndpoints extends UserHandlers {
     server.post("/updateMe", validate(updateMeValidator), this.updateMe);
     server.post("/deleteMe", validate(deleteMeValidator), this.deleteMe);
 
-    // server.post("/updatePremium")
-    // server.post("/updateFriend")
-    // server.post("/addressFriendInvite")
+    server.post("/updateFriends", validate(updateFriendsValidator), this.updateFriends)
+    server.post("/requestFriend")
   }
 }

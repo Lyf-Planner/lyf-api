@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import { User } from "../../api/user";
-import { UserModel } from "../../models/userModel";
-import { UserOperations } from "../../models/userOperations";
+import { UserModel } from "../../models/users/userModel";
+import { UserOperations } from "../../models/users/userOperations";
 import { Logger } from "../../utils/logging";
 import { getMiddlewareVars } from "../utils";
 import {
+  deleteMeBody,
   getUserQuery,
   loginQuery,
   updateMeBody,
@@ -125,7 +126,7 @@ export class UserHandlers {
   }
 
   protected async deleteMe(req: Request, res: Response) {
-    var { password } = req.body;
+    var { password } = req.body as deleteMeBody;
     var user_id = getMiddlewareVars(res).user_id;
 
     logger.info(`Received self-deletion request from ${user_id}`);
@@ -151,6 +152,12 @@ export class UserHandlers {
       res.status(401).end(`${err}`);
       return;
     }
+  }
+
+  protected async updateFriends(req: Request, res: Response) {
+    var {friends} = req.body
+    var user_id = getMiddlewareVars(res).user_id;
+
   }
 }
 

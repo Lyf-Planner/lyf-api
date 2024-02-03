@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { Permission } from "../../api/abstract";
 import { Logger } from "../../utils/logging";
-import { ItemModel } from "../../models/itemModel";
-import { ItemOperations } from "../../models/ItemOperations";
+import { ItemModel } from "../../models/items/itemModel";
+import { ItemOperations } from "../../models/items/ItemOperations";
 import { getMiddlewareVars } from "../utils";
 import {
   createItemBody,
@@ -11,7 +11,7 @@ import {
   joinItemBody,
   updateItemBody,
 } from "../validators/itemValidators";
-import { UserOperations } from "../../models/userOperations";
+import { UserOperations } from "../../models/users/userOperations";
 
 export class ItemHandlers {
   protected async createItem(req: Request, res: Response) {

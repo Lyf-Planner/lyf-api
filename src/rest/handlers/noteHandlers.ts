@@ -1,7 +1,7 @@
 import { Permission } from "../../api/abstract";
 import { Note } from "../../api/notes";
-import { NoteModel } from "../../models/noteModel";
-import { NoteOperations } from "../../models/noteOperations";
+import { NoteModel } from "../../models/notes/noteModel";
+import { NoteOperations } from "../../models/notes/noteOperations";
 import { Logger } from "../../utils/logging";
 import { Request, Response } from "express";
 import { getMiddlewareVars } from "../utils";
