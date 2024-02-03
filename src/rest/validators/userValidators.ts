@@ -4,6 +4,7 @@ import { ID } from "../../api/abstract";
 import { Timetable } from "../../api/timetable";
 import { Notes } from "../../api/notes";
 import { Premium } from "../../api/premium";
+import { UserDetails } from "../../api/user";
 
 // GET
 
@@ -52,8 +53,8 @@ export type createUsersBody = {
 };
 
 export const updateMeValidator = [
-  body("name").isString().optional({ nullable: true }),
-  body("email").isString().optional({ nullable: true }),
+  body("details.name").isString().optional({ nullable: true }),
+  body("details.email").isString().optional({ nullable: true }),
   body(
     "timezone",
     "Invalid timezone provided. Must be an IANA timezone identifier (e.g. Australia/Melbourne)"
@@ -96,8 +97,7 @@ export const updateMeValidator = [
 ];
 
 export type updateMeBody = {
-  name?: string;
-  email?: string;
+  details?: UserDetails;
   expo_tokens?: string[];
   timezone?: string;
   premium?: Premium;
