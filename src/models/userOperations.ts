@@ -4,7 +4,6 @@ import { Logger } from "../utils/logging";
 import { UserModel } from "./userModel";
 import authUtils from "../auth/authUtils";
 import db from "../repository/dbAccess";
-import { PremiumIndicator } from "../api/premium";
 
 export class UserOperations {
   // Builder method
@@ -30,8 +29,10 @@ export class UserOperations {
     var user = {} as any;
     user.id = user_id;
     user.pass_hash = await authUtils.hashPass(password);
+    user.details = {};
     user.timetable = {
       items: [],
+      invited_items: []
     };
     user.notes = {
       items: [],
@@ -48,8 +49,12 @@ export class UserOperations {
         event_notification_minutes_before: "5",
       },
     };
-    user.friends = [];
-    user.friend_requests = [];
+    user.social = {
+      friends: [],
+      friend_requests: [],
+      requested: [],
+      blocked: [],
+    };
 
     var model = new UserModel(user, false, true);
     if (commit) await model.commit(true);
@@ -64,22 +69,11 @@ export class UserOperations {
     return users;
   }
 
-  public static extractUserDetails(user: User): UserDetails & PremiumIndicator {
+  public static extractUserDetails(user: User): UserDetails {
     // Needs validator
     return {
+      ...user.details,
       id: user.id,
-      name: user.name,
-      email: user.email,
-      pfp_url: user.pfp_url,
-      friends: user.friends,
-      enabled: !!user.premium?.enabled,
-    };
-  }
-
-  public static extractSensitiveFields(user: User) {
-    return {
-      friends: user.friends,
-      friend_requests: user.friend_requests,
     };
   }
 }

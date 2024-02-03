@@ -3,6 +3,7 @@ import { List } from "./list";
 
 export type Notes = {
   items: (UserNote | Note)[];
+  invited_items: ID[];
 };
 
 // Relationship
