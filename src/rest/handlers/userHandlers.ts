@@ -106,22 +106,6 @@ export class UserHandlers {
     res.status(200).json({ user: user?.export(), token }).end();
   }
 
-  // Deprecated soon!
-  protected async updateUser(req: Request, res: Response) {
-    var { user } = req.body;
-    var user_id = getMiddlewareVars(res).user_id;
-
-    try {
-      var remoteModel = await UserOperations.retrieveForUser(user_id, user_id);
-      await remoteModel.safeUpdate(user, user_id);
-    } catch (err) {
-      res.status(403).end(`${err}`);
-      return;
-    }
-
-    res.status(200).end();
-  }
-
   // Update user identified in header.
   // This endpoint should not permit Premium updates in future
   protected async updateMe(req: Request, res: Response) {

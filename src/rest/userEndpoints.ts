@@ -32,7 +32,6 @@ export class UserEndpoints extends UserHandlers {
       nSecondLimiter(20),
       this.createUser
     );
-    server.post("/updateUser", this.updateUser); // Deprecated soon
     server.post("/updateMe", validate(updateMeValidator), this.updateMe);
     server.post("/deleteMe", validate(deleteMeValidator), this.deleteMe);
 

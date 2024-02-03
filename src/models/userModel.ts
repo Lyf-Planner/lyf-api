@@ -2,7 +2,6 @@ import { ID } from "../api/abstract";
 import { User, UserDetails } from "../api/user";
 import { Logger } from "../utils/logging";
 import { RemoteObject } from "./abstract/remoteObject";
-import { TimeOperations } from "./abstract/timeOperations";
 import { UserOperations } from "./userOperations";
 import notificationManager from "../notifications/notificationManager";
 import db from "../repository/dbAccess";
@@ -67,55 +66,6 @@ export class UserModel extends RemoteObject<User> {
     this.logger.debug(`User ${this.id} safely updated their own data`);
     this.content = incomingChange;
     await this.commit();
-  }
-
-  // Soon deprecated
-  public async safeUpdate(proposed: User, user_id: ID) {
-    // SAFETY CHECKS
-    // 1. User can only update their own
-    this.throwIfUpdatingOtherUser(proposed, user_id);
-
-    // 2. Cannot modify social fields on this endpoint
-    this.throwIfModifiedSensitiveFields(proposed, user_id);
-
-    // 3. No one should modify time fields
-    TimeOperations.throwIfTimeFieldsModified(this.content, proposed, user_id);
-    // Checks passed!
-
-    // PRE-COMMIT (update other items like notifications)
-    this.checkDailyNotifications(proposed);
-    this.checkTimezoneChange(proposed);
-
-    this.logger.debug(`User ${user_id} safely updated user ${this.id}`);
-    this.content = proposed;
-    await this.commit();
-  }
-
-  private throwIfUpdatingOtherUser(proposed: User, user_id: ID) {
-    if (!(proposed.id === user_id && user_id === this.id)) {
-      this.logger.error(
-        `User ${user_id} tried to modify other user ${this.id}`
-      );
-      throw new Error(`User does not have permission to modify another user`);
-    }
-  }
-
-  private throwIfModifiedSensitiveFields(proposed: User, user_id: ID) {
-    var oldFields = JSON.stringify(
-      UserOperations.extractSensitiveFields(this.content)
-    );
-    var newFields = JSON.stringify(
-      UserOperations.extractSensitiveFields(proposed)
-    );
-
-    if (oldFields !== newFields) {
-      this.logger.error(
-        `User ${user_id} tried to modify sensitive fields on ${this.id}`
-      );
-      throw new Error(
-        `Users cannot modify sensitive fields such as friends or premium access on this endpoint`
-      );
-    }
   }
 
   private checkDailyNotifications(proposed: User) {
