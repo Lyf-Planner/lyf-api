@@ -1,9 +1,9 @@
-import { ID } from "../api/abstract";
-import { User, UserDetails } from "../api/user";
-import { Logger } from "../utils/logging";
+import { ID } from "../../api/abstract";
+import { User, UserDetails } from "../../api/user";
+import { Logger } from "../../utils/logging";
 import { UserModel } from "./userModel";
-import authUtils from "../auth/authUtils";
-import db from "../repository/dbAccess";
+import authUtils from "../../auth/authUtils";
+import db from "../../repository/dbAccess";
 
 export class UserOperations {
   // Builder method

@@ -1,13 +1,13 @@
-import { ID, Permission } from "../api/abstract";
-import { ListItem } from "../api/list";
-import { Logger } from "../utils/logging";
+import { ID, Permission } from "../../api/abstract";
+import { ListItem } from "../../api/list";
+import { Logger } from "../../utils/logging";
 import { ItemOperations } from "./ItemOperations";
-import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
-import { updateItemBody } from "../rest/validators/itemValidators";
-import { UserOperations } from "./userOperations";
-import notificationManager from "../notifications/notificationManager";
-import db from "../repository/dbAccess";
-import { UserModel } from "./userModel";
+import { RestrictedRemoteObject } from "../abstract/restrictedRemoteObject";
+import { updateItemBody } from "../../rest/validators/itemValidators";
+import { UserModel } from "../users/userModel";
+import notificationManager from "../../notifications/notificationManager";
+import db from "../../repository/dbAccess";
+
 
 export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private logger = Logger.of(ItemModel);
