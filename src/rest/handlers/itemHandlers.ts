@@ -8,7 +8,7 @@ import {
   createItemBody,
   getItemsBody,
   inviteUserBody,
-  joinItemBody,
+  addressItemInviteBody,
   updateItemBody,
 } from "../validators/itemValidators";
 import { UserOperations } from "../../models/users/userOperations";
@@ -140,37 +140,47 @@ export class ItemHandlers {
       )) as SocialUser;
 
       // Update item data
-      await item.inviteUser(invitee, invited_by);
+      item.inviteUser(invitee, invited_by);
 
       // Update user data
-      await invitee.receiveItemInvite(item_id, invited_by);
+      invitee.receiveItemInvite(item_id, invited_by);
+
+      // Publish changes if no errors
+      await item.approveSocialChanges();
+      await invitee.approveSocialChanges();
+
       res.status(200).end();
     } catch (err) {
       res.status(400).end(`${err}`);
     }
   }
 
-  protected async joinItem(req: Request, res: Response) {
-    const { item_id } = req.body as joinItemBody;
+  protected async addressItemInvite(req: Request, res: Response) {
+    const { item_id, accepted_invite } = req.body as addressItemInviteBody;
     const user_id = getMiddlewareVars(res).user_id;
 
     try {
-      // Update item data
       let item = (await ItemOperations.retrieveForUser(
         item_id,
         user_id,
         true,
         true
       )) as SocialItem;
-      await item.joinItem(user_id);
-
-      // Update user data
       let user = (await UserOperations.retrieveForUser(
         user_id,
         user_id,
         true
       )) as SocialUser;
-      await user.acceptItemInvite(item_id);
+
+      // Update item data
+      item.addressInvite(user_id, accepted_invite);
+
+      // Update user data
+      user.addressItemInvite(item_id, accepted_invite);
+
+      // Publish changes if no errors
+      await item.approveSocialChanges();
+      await user.approveSocialChanges();
 
       res.status(200).end();
     } catch (err) {

@@ -114,6 +114,12 @@ export const inviteUserValidator = [
 
 export type inviteUserBody = { item_id: string; user_id: string };
 
-export const joinItemValidator = [body("item_id").isString()];
+export const addressItemInviteValidator = [
+  body("item_id").isString(),
+  body("accepted_invite").isBoolean(),
+];
 
-export type joinItemBody = { item_id: string };
+export type addressItemInviteBody = {
+  item_id: string;
+  accepted_invite: boolean;
+};

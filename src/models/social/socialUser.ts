@@ -153,22 +153,21 @@ export class SocialUser extends UserModel {
     this.content.timetable.invited_items
       ? this.content.timetable.invited_items.push(item_id)
       : (this.content.timetable.invited_items = [item_id]);
-
-    await this.commit();
   }
 
-  public async acceptItemInvite(item_id: ID) {
+  public addressItemInvite(item_id: ID, accepted: boolean) {
     this.enforceRequestedBySelf("Cannot accept someone elses item invite!");
+
+    if (accepted) {
+      // Add to items
+      this.content.timetable.items.push({ id: item_id });
+    }
 
     // Remove from invites
     const i = this.content.timetable.invited_items?.findIndex(
       (x) => x === item_id
     )!;
     this.content.timetable.invited_items?.splice(i, 1);
-
-    // Add to items
-    this.content.timetable.items.push({ id: item_id });
-    await this.commit();
   }
 
   // Helpers

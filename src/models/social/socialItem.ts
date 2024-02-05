@@ -10,6 +10,10 @@ export class SocialItem extends ItemModel {
     super(item, from_db, requested_by);
   }
 
+  public async approveSocialChanges() {
+    await this.commit();
+  }
+
   public async inviteUser(invitee: UserModel, invited_by: ID) {
     const inviter = this.content.permitted_users.find(
       (x) => x.user_id === invited_by
@@ -27,11 +31,11 @@ export class SocialItem extends ItemModel {
       invited_by,
       invited_by
     );
-    
-    let inviterFriend = inviterData
+
+    let inviterFriendship = inviterData
       .getContent()
       .social.friends?.find((x) => x === invitee.getContent().id);
-    if (!inviterFriend) {
+    if (!inviterFriendship) {
       throw new Error("You can only invite friends to your items!");
     }
 
@@ -43,11 +47,9 @@ export class SocialItem extends ItemModel {
     this.content.invited_users
       ? this.content.invited_users.push(newUserAccess)
       : (this.content.invited_users = [newUserAccess]);
-
-    await this.commit();
   }
 
-  public async joinItem(user_id: ID) {
+  public addressInvite(user_id: ID, accepted: boolean) {
     const invite =
       this.content.invited_users &&
       this.content.invited_users.find((x) => (x.user_id = user_id));
@@ -57,16 +59,16 @@ export class SocialItem extends ItemModel {
       throw new Error("You have not been invited to this item");
     }
 
+    if (accepted) {
+      // Add user to permitted_users list
+      if (invite.permissions === Permission.Invitee) {
+        invite.permissions = Permission.Editor;
+      }
+      this.content.permitted_users.push(invite);
+    }
+
     // Remove user from invite list
     const i = this.content.invited_users?.findIndex((x) => x === invite)!;
     this.content.invited_users?.splice(i, 1);
-
-    // Add user to permitted_users list
-    if (invite.permissions === Permission.Invitee) {
-      invite.permissions = Permission.Editor;
-    }
-    this.content.permitted_users.push(invite);
-
-    await this.commit();
   }
 }
