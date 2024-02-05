@@ -5,6 +5,8 @@ import env from "../envManager";
 // Migrate users to include new fields for friends and social items
 
 export const migrate = async () => {
+  return;
+  console.log("Running migration LYFAPI-168");
   const client = new MongoClient(env.mongoUrl as string, {
     serverApi: {
       version: ServerApiVersion.v1,
@@ -18,6 +20,7 @@ export const migrate = async () => {
   const allUsers = await lyf_db.collection("users").find().toArray();
   console.log("\nMigrating users");
   for (let user of allUsers) {
+    console.log(`\tMigrating ${user._id}`);
     await lyf_db.collection("users").updateOne(
       { _id: user._id },
       {
@@ -25,6 +28,12 @@ export const migrate = async () => {
           social: { friends: [], requests: [], requested: [], blocked: [] },
           timetable: { ...user.timetable, invited_items: [] },
           notes: { ...user.notes, invited_items: [] },
+          details: {},
+        },
+        $unset: {
+          friends: "",
+          friend_requests: "",
+          email: "",
         },
       }
     );

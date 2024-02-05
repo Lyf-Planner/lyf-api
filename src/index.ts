@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { UserEndpoints } from "./rest/userEndpoints";
 import { ItemEndpoints } from "./rest/itemEndpoints";
 import { NoteEndpoints } from "./rest/noteEndpoints";
-import { Logger, LoggingLevel } from "./utils/logging";
 import { authoriseHeader } from "./rest/authMiddleware";
 import express from "express";
 import dotenv from "dotenv";
