@@ -1,4 +1,5 @@
-import { ID, Identifiable, Restricted, Time } from "./abstract";
+import { ID, Identifiable, Time } from "./abstract";
+import { Restricted } from "./social";
 import { List } from "./list";
 
 export type Notes = {

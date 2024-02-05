@@ -1,4 +1,4 @@
-import { Permission } from "../../api/abstract";
+import { Permission } from "../../api/social";
 import { Note } from "../../api/notes";
 import { NoteModel } from "../../models/notes/noteModel";
 import { NoteOperations } from "../../models/notes/noteOperations";

@@ -1,9 +1,5 @@
-import {
-  DBObject,
-  Permission,
-  Restricted,
-  UserAccess,
-} from "../../api/abstract";
+import { DBObject } from "../../api/abstract";
+import { Permission, Restricted } from "../../api/social";
 import { Collection } from "../../repository/abstractCollection";
 import { RemoteObject } from "./remoteObject";
 

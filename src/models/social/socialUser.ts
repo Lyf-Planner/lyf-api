@@ -138,6 +138,39 @@ export class SocialUser extends UserModel {
     this.removeIncomingAndOutgoingRequests(toRemove);
   }
 
+  // Item Social:
+
+  public async receiveItemInvite(item_id: ID, invited_by: ID) {
+    // Must be invited by a friend
+    let inviter = this.content.social.friends?.find((x) => x === invited_by);
+    if (!inviter)
+      throw new Error("Users must be invited to an item by a friend");
+
+    var invited_items = this.content.timetable.invited_items;
+    // Ensure user does not get multiple invites
+    if (invited_items && invited_items.includes(item_id)) return;
+
+    this.content.timetable.invited_items
+      ? this.content.timetable.invited_items.push(item_id)
+      : (this.content.timetable.invited_items = [item_id]);
+
+    await this.commit();
+  }
+
+  public async acceptItemInvite(item_id: ID) {
+    this.enforceRequestedBySelf("Cannot accept someone elses item invite!");
+
+    // Remove from invites
+    const i = this.content.timetable.invited_items?.findIndex(
+      (x) => x === item_id
+    )!;
+    this.content.timetable.invited_items?.splice(i, 1);
+
+    // Add to items
+    this.content.timetable.items.push({ id: item_id });
+    await this.commit();
+  }
+
   // Helpers
 
   private isBlocked(other_user: ID) {

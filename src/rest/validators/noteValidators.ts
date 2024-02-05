@@ -1,6 +1,6 @@
 import { body, query } from "express-validator";
-import { ID, Permission } from "../../api/abstract";
-import { DaysOfWeek } from "../../api/timetable";
+import { ID } from "../../api/abstract";
+import { Permission } from "../../api/social";
 import { Note, NoteType } from "../../api/notes";
 
 // GET

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Permission } from "../../api/abstract";
+import { Permission } from "../../api/social";
 import { Logger } from "../../utils/logging";
 import { ItemModel } from "../../models/items/itemModel";
 import { ItemOperations } from "../../models/items/ItemOperations";
@@ -12,6 +12,8 @@ import {
   updateItemBody,
 } from "../validators/itemValidators";
 import { UserOperations } from "../../models/users/userOperations";
+import { SocialItem } from "../../models/social/socialItem";
+import { SocialUser } from "../../models/social/socialUser";
 
 export class ItemHandlers {
   protected async createItem(req: Request, res: Response) {
@@ -120,22 +122,31 @@ export class ItemHandlers {
 
     if (user_id === invited_by) {
       res.status(400).end("You can't invite yourself to the item :)");
-    } else {
-      try {
-        var item = await ItemOperations.retrieveForUser(item_id, invited_by);
-        const invitee = await UserOperations.retrieveForUser(
-          user_id,
-          invited_by
-        );
-        // Update item data
-        await item.inviteUser(invitee, invited_by);
+      return;
+    }
 
-        // Update user data
-        await invitee.inviteUserToItem(item_id);
-        res.status(200).end();
-      } catch (err) {
-        res.status(400).end(`${err}`);
-      }
+    try {
+      var item = (await ItemOperations.retrieveForUser(
+        item_id,
+        invited_by,
+        true,
+        true
+      )) as SocialItem;
+
+      const invitee = (await UserOperations.retrieveForUser(
+        user_id,
+        invited_by,
+        true
+      )) as SocialUser;
+
+      // Update item data
+      await item.inviteUser(invitee, invited_by);
+
+      // Update user data
+      await invitee.receiveItemInvite(item_id, invited_by);
+      res.status(200).end();
+    } catch (err) {
+      res.status(400).end(`${err}`);
     }
   }
 
@@ -145,11 +156,20 @@ export class ItemHandlers {
 
     try {
       // Update item data
-      let item = await ItemOperations.retrieveForUser(item_id, user_id);
+      let item = (await ItemOperations.retrieveForUser(
+        item_id,
+        user_id,
+        true,
+        true
+      )) as SocialItem;
       await item.joinItem(user_id);
 
       // Update user data
-      let user = await UserOperations.retrieveForUser(user_id, user_id);
+      let user = (await UserOperations.retrieveForUser(
+        user_id,
+        user_id,
+        true
+      )) as SocialUser;
       await user.acceptItemInvite(item_id);
 
       res.status(200).end();

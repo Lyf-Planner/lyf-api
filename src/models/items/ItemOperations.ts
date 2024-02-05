@@ -3,16 +3,20 @@ import { ItemSettings, ListItem } from "../../api/list";
 import { ItemModel } from "./itemModel";
 import { Logger } from "../../utils/logging";
 import db from "../../repository/dbAccess";
+import { SocialItem } from "../social/socialItem";
 
 export class ItemOperations {
   // Builder method
   static async retrieveForUser(
     id: ID,
     user_id: string,
-    checkPermissions = true
+    checkPermissions = true,
+    social = false
   ): Promise<ItemModel> {
     var result = await db.itemsCollection().getById(id);
-    var item = new ItemModel(result as ListItem, true, user_id);
+    var item = social
+      ? new SocialItem(result as ListItem, true, user_id)
+      : new ItemModel(result as ListItem, true, user_id);
 
     var permitted = !checkPermissions || !!item.getUserPermission(user_id);
     if (!permitted)

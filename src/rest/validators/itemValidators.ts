@@ -1,5 +1,6 @@
 import { body, query } from "express-validator";
-import { ID, Permission } from "../../api/abstract";
+import { ID } from "../../api/abstract";
+import { Permission } from "../../api/social";
 import { ItemStatus, ListItem, ListItemTypes } from "../../api/list";
 import { DaysOfWeek } from "../../api/timetable";
 

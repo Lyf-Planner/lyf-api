@@ -1,4 +1,4 @@
-import { Permission } from "../../api/abstract";
+import { Permission } from "../../api/social";
 import { Note } from "../../api/notes";
 import { Logger } from "../../utils/logging";
 import { RestrictedRemoteObject } from "../abstract/restrictedRemoteObject";
