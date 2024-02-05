@@ -5,6 +5,7 @@ import { Timetable } from "../../api/timetable";
 import { Notes } from "../../api/notes";
 import { Premium } from "../../api/premium";
 import { UserDetails } from "../../api/user";
+import { FriendshipAction, FriendshipUpdate } from "../../api/social";
 
 // GET
 
@@ -112,3 +113,12 @@ export const deleteMeValidator = [
 export type deleteMeBody = {
   password: string;
 };
+
+export const updateFriendshipValidator = [
+  body("user_id").isString(),
+  body("action").custom((perm) =>
+    Object.values(FriendshipAction).includes(perm)
+  ),
+];
+
+export type updateFriendshipBody = FriendshipUpdate;

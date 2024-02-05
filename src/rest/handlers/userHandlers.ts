@@ -8,9 +8,11 @@ import {
   deleteMeBody,
   getUserQuery,
   loginQuery,
+  updateFriendshipBody,
   updateMeBody,
 } from "../validators/userValidators";
 import authUtils from "../../auth/authUtils";
+import { FriendshipController } from "../../models/social/friendshipController";
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
@@ -135,7 +137,10 @@ export class UserHandlers {
     var user: UserModel;
 
     try {
-      var user = await UserOperations.retrieveForUser(user_id, user_id);
+      var user = (await UserOperations.retrieveForUser(
+        user_id,
+        user_id
+      )) as UserModel;
       var token = await authUtils.authenticate(
         user.getUser() as User,
         password as string
@@ -154,10 +159,17 @@ export class UserHandlers {
     }
   }
 
-  protected async updateFriends(req: Request, res: Response) {
-    var {friends} = req.body
-    var user_id = getMiddlewareVars(res).user_id;
+  protected async updateFriendship(req: Request, res: Response) {
+    var update = req.body as updateFriendshipBody;
+    var from_id = getMiddlewareVars(res).user_id;
 
+    try {
+      await FriendshipController.processUpdate(from_id, update);
+      res.status(200).end();
+    } catch (err) {
+      logger.error(`Returning 400 with message: ${err}`);
+      res.status(400).end(`${err}`);
+    }
   }
 }
 

@@ -3,15 +3,13 @@ import { User, UserDetails } from "../../api/user";
 import { Logger } from "../../utils/logging";
 import { RemoteObject } from "../abstract/remoteObject";
 import { UserOperations } from "./userOperations";
-import { updateMeBody } from "../../rest/validators/userValidators";
 import notificationManager from "../../notifications/notificationManager";
 import db from "../../repository/dbAccess";
 
-
 export class UserModel extends RemoteObject<User> {
   // If user is accessed by another, should only be able to view details!
-  private requestedBySelf: boolean;
-  private logger = Logger.of(UserModel);
+  protected requestedBySelf: boolean;
+  protected logger = Logger.of(UserModel);
 
   constructor(user: User, from_db: boolean, requestedBySelf: boolean) {
     super(db.usersCollection(), user, from_db);
@@ -24,7 +22,13 @@ export class UserModel extends RemoteObject<User> {
     else return this.content;
   }
 
+  // Item Social
+
   public async inviteUserToItem(item_id: ID) {
+    var invited_items = this.content.timetable.invited_items;
+    // Ensure user does not get multiple invites
+    if (invited_items && invited_items.includes(item_id)) return;
+
     this.content.timetable.invited_items
       ? this.content.timetable.invited_items.push(item_id)
       : (this.content.timetable.invited_items = [item_id]);
@@ -54,7 +58,7 @@ export class UserModel extends RemoteObject<User> {
     }
   }
 
-  public async updateSelf(proposed: updateMeBody) {
+  public async updateSelf(proposed: any) {
     if (!this.requestedBySelf) {
       throw new Error("Cannot update someone elses details!");
     }
@@ -88,6 +92,16 @@ export class UserModel extends RemoteObject<User> {
   private checkTimezoneChange(proposed: User) {
     if (this.content.timezone && proposed.timezone !== this.content.timezone) {
       notificationManager.handleUserTzChange(proposed);
+    }
+  }
+
+  protected enforceRequestedBySelf(
+    error_message: string,
+    logger_message?: string
+  ) {
+    if (!this.requestedBySelf) {
+      this.logger.error(logger_message || error_message);
+      throw new Error(error_message);
     }
   }
 }

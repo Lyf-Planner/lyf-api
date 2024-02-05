@@ -10,7 +10,7 @@ export type User = Time &
     details: UserDetails;
     timetable: Timetable;
     notes: Notes;
-    social?: UserSocial;
+    social: UserSocial;
     private?: boolean;
     premium?: Premium; // Need to change this to settings
     timezone?: string;
@@ -28,4 +28,8 @@ export type UserSocial = {
   friend_requests?: ID[];
   requested?: ID[];
   blocked?: ID[];
+};
+
+export type Friendship = {
+  id: ID;
 };

@@ -2,12 +2,17 @@ import { ID } from "../../api/abstract";
 import { User, UserDetails } from "../../api/user";
 import { Logger } from "../../utils/logging";
 import { UserModel } from "./userModel";
+import { SocialUser } from "../social/socialUser";
 import authUtils from "../../auth/authUtils";
 import db from "../../repository/dbAccess";
 
 export class UserOperations {
   // Builder method
-  public static async retrieveForUser(user_id: ID, requestor_id: string) {
+  public static async retrieveForUser(
+    user_id: ID,
+    requestor_id: string,
+    social: boolean = false
+  ): Promise<UserModel | SocialUser> {
     var user = (await db.usersCollection().getById(user_id)) as User;
     const user_undiscoverable = user_id !== requestor_id && user.private;
     if (!user || user_undiscoverable) {
@@ -16,7 +21,11 @@ export class UserOperations {
       throw new Error(`User ${user_id} does not exist`);
     }
 
-    return new UserModel(user, true, requestor_id === user_id);
+    if (social) {
+      return new SocialUser(user, true, requestor_id === user_id);
+    } else {
+      return new UserModel(user, true, requestor_id === user_id);
+    }
   }
 
   // Builder method
@@ -32,7 +41,7 @@ export class UserOperations {
     user.details = {};
     user.timetable = {
       items: [],
-      invited_items: []
+      invited_items: [],
     };
     user.notes = {
       items: [],
