@@ -13,6 +13,9 @@ export class FriendshipController {
   }
 
   static async processUpdate(from: ID, update: FriendshipUpdate) {
+    // Can't address yourself
+    if (from === update.user_id) throw new Error("You cannot friend yourself");
+
     let fromUser = (await UserOperations.retrieveForUser(
       from,
       from,
