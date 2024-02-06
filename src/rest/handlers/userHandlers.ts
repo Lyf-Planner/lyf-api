@@ -67,11 +67,15 @@ export class UserHandlers {
 
     logger.debug(`Received request for user ${user_id} from "${requestor_id}"`);
 
-    var userModel = await UserOperations.retrieveForUser(
-      user_id as string,
-      requestor_id
-    );
-    res.status(200).json(userModel.export()).end();
+    try {
+      var userModel = await UserOperations.retrieveForUser(
+        user_id as string,
+        requestor_id
+      );
+      res.status(200).json(userModel.export()).end();
+    } catch (err) {
+      res.status(400).end("User not found");
+    }
   }
 
   protected async getUsers(req: Request, res: Response) {
