@@ -168,8 +168,8 @@ export class UserHandlers {
     var from_id = getMiddlewareVars(res).user_id;
 
     try {
-      await FriendshipController.processUpdate(from_id, update);
-      res.status(200).end();
+      let social = await FriendshipController.processUpdate(from_id, update);
+      res.status(200).json(social).end();
     } catch (err) {
       logger.error(`Returning 400 with message: ${err}`);
       res.status(400).end(`${err}`);

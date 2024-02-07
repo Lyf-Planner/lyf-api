@@ -46,6 +46,9 @@ export class FriendshipController {
         await controller.deleteFriendship();
         break;
     }
+
+    // Return users' new social field
+    return fromUser.getContent().social;
   }
 
   private async requestFriendship() {
