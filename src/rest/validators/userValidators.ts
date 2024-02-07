@@ -26,11 +26,7 @@ export type getUserQuery = { user_id: string };
 
 // POST
 
-export const getUsersValidator = [
-  body("user_ids", "User IDs field must be a non-empty array!").isArray({
-    min: 1,
-  }),
-];
+export const getUsersValidator = [body("user_ids").isArray()];
 
 export type getUsersBody = {
   user_ids: ID[];
