@@ -133,7 +133,7 @@ export class ItemHandlers {
         true
       )) as SocialItem;
 
-      const invitee = (await UserOperations.retrieveForUser(
+      var invitee = (await UserOperations.retrieveForUser(
         user_id,
         invited_by,
         true
@@ -149,7 +149,7 @@ export class ItemHandlers {
       await item.approveSocialChanges();
       await invitee.approveSocialChanges();
 
-      res.status(200).end();
+      res.status(200).json(item.getContent().invited_users).end();
     } catch (err) {
       res.status(400).end(`${err}`);
     }
@@ -182,7 +182,7 @@ export class ItemHandlers {
       await item.approveSocialChanges();
       await user.approveSocialChanges();
 
-      res.status(200).json(item.getContent().invited_users).end();
+      res.status(200).end();
     } catch (err) {
       res.status(400).end(`${err}`);
     }
