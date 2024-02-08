@@ -45,18 +45,7 @@ export const updateNoteValidator = [
   // Essentials
   body("id").isString(),
   body("title").isString().optional(),
-  body("type")
-    .custom((perm) => Object.values(NoteType).includes(perm))
-    .optional(),
   body("content").exists().optional(),
-  // Social stuff
-  body("permitted_users").isArray().optional(),
-  body("permitted_users.*.user_id").isString(),
-  body("permitted_users.*.permissions").custom((perm) =>
-    Object.values(Permission).includes(perm)
-  ),
-  body("invited_users").isArray().optional({ nullable: true }),
-  body("invited_users.*").isString(),
   //   body("suggestions_only").optional({ nullable: true }).isBoolean(),
   //   body("suggested_changes").optional({ nullable: true }).isObject(), // This should be of Note type - hard to validate
   //   body("suggested_changes.*.user_id").isString(),
