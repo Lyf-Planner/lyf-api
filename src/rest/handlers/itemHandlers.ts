@@ -44,15 +44,13 @@ export class ItemHandlers {
       // These fns will check user is permitted on the item and has Permission > Viewer
       remoteItem = await ItemOperations.retrieveForUser(item.id, user_id);
       await remoteItem.safeUpdate(item, user_id);
+      res.status(200).end();
     } catch (err) {
       logger.error(
         `User ${user_id} did not safely update item ${item.id}: ${err}`
       );
       res.status(403).end(`${err}`);
-      return;
     }
-
-    res.status(200).end();
   }
 
   protected async deleteItem(req: Request, res: Response) {
@@ -94,14 +92,13 @@ export class ItemHandlers {
     var item: ItemModel;
     try {
       item = await ItemOperations.retrieveForUser(item_id, user_id);
+      res.status(200).json(item!.export()).end();
     } catch (err) {
       logger.error(
         `User ${user_id} requested item ${item_id} to which they don't have access`
       );
       res.status(403).end(`${err}`);
     }
-
-    res.status(200).json(item!.export()).end();
   }
 
   protected async getItems(req: Request, res: Response) {

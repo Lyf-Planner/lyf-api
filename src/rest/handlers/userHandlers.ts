@@ -39,6 +39,7 @@ export class UserHandlers {
       res.status(401).end("Incorrect password");
       return;
     }
+
     var exportedData = userModel.export();
     var payload = { user: exportedData, token };
 
@@ -104,13 +105,12 @@ export class UserHandlers {
         user.getUser() as User,
         password as string
       );
+      res.status(200).json({ user: user?.export(), token }).end();
     } catch (err) {
       logger.error(err);
       res.status(400).end(`Username ${user_id} is already taken`);
       return;
     }
-
-    res.status(200).json({ user: user?.export(), token }).end();
   }
 
   // Update user identified in header.
@@ -123,12 +123,11 @@ export class UserHandlers {
       // The work in terms of data safety is done by the validators
       var remoteModel = await UserOperations.retrieveForUser(user_id, user_id);
       await remoteModel.updateSelf(user);
+      res.status(200).end();
     } catch (err) {
       res.status(500).end(`${err}`);
       return;
     }
-
-    res.status(200).end();
   }
 
   protected async deleteMe(req: Request, res: Response) {
