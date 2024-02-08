@@ -7,13 +7,13 @@ import { getMiddlewareVars } from "../utils";
 import {
   createItemBody,
   getItemsBody,
-  inviteUserBody,
-  addressItemInviteBody,
   updateItemBody,
+  updateItemSocialBody,
 } from "../validators/itemValidators";
 import { UserOperations } from "../../models/users/userOperations";
 import { SocialItem } from "../../models/social/socialItem";
 import { SocialUser } from "../../models/social/socialUser";
+import { SocialItemController } from "../../models/social/socialItemController";
 
 export class ItemHandlers {
   protected async createItem(req: Request, res: Response) {
@@ -114,76 +114,15 @@ export class ItemHandlers {
     res.status(200).json(items!).end();
   }
 
-  protected async inviteUser(req: Request, res: Response) {
-    const { item_id, user_id } = req.body as inviteUserBody;
-    var invited_by = getMiddlewareVars(res).user_id;
-
-    logger.info(`Inviting user ${user_id} to item ${item_id}`);
-
-    if (user_id === invited_by) {
-      res.status(400).end("You can't invite yourself to the item :)");
-      return;
-    }
+  protected async updateItemSocial(req: Request, res: Response) {
+    var update = req.body as updateItemSocialBody;
+    var from_id = getMiddlewareVars(res).user_id;
 
     try {
-      var item = (await ItemOperations.retrieveForUser(
-        item_id,
-        invited_by,
-        true,
-        true
-      )) as SocialItem;
-
-      var invitee = (await UserOperations.retrieveForUser(
-        user_id,
-        invited_by,
-        true
-      )) as SocialUser;
-
-      // Update item data
-      await item.inviteUser(invitee, invited_by);
-
-      // Update user data
-      invitee.receiveItemInvite(item_id, invited_by);
-
-      // Publish changes if no errors
-      await item.approveSocialChanges();
-      await invitee.approveSocialChanges();
-
-      res.status(200).json(item.getContent().invited_users).end();
+      let social = await SocialItemController.processUpdate(from_id, update);
+      res.status(200).json(social).end();
     } catch (err) {
-      res.status(400).end(`${err}`);
-    }
-  }
-
-  protected async addressItemInvite(req: Request, res: Response) {
-    const { item_id, accepted_invite } = req.body as addressItemInviteBody;
-    const user_id = getMiddlewareVars(res).user_id;
-
-    try {
-      let item = (await ItemOperations.retrieveForUser(
-        item_id,
-        user_id,
-        true,
-        true
-      )) as SocialItem;
-      let user = (await UserOperations.retrieveForUser(
-        user_id,
-        user_id,
-        true
-      )) as SocialUser;
-
-      // Update item data
-      item.addressInvite(user_id, accepted_invite);
-
-      // Update user data
-      user.addressItemInvite(item_id, accepted_invite);
-
-      // Publish changes if no errors
-      await item.approveSocialChanges();
-      await user.approveSocialChanges();
-
-      res.status(200).end();
-    } catch (err) {
+      logger.error(`Returning 400 with message: ${err}`);
       res.status(400).end(`${err}`);
     }
   }

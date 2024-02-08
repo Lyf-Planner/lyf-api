@@ -75,22 +75,6 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     }
   }
 
-  private throwIfModifiedNonMetadata(proposed: ListItem) {
-    var oldNonMetadataFields = JSON.stringify(
-      ItemOperations.excludeMetadataFields(this.content)
-    );
-    var newNonMetadataFields = JSON.stringify(
-      ItemOperations.excludeMetadataFields(proposed)
-    );
-
-    if (oldNonMetadataFields !== newNonMetadataFields) {
-      this.logger.error(
-        `User ${this.requested_by} tried to modify non-metadata on ${this.id}`
-      );
-      throw new Error(`Editors can only modify metadata`);
-    }
-  }
-
   private throwIfModifiedOtherNotifications(
     user_id: string,
     proposed: ListItem

@@ -5,7 +5,7 @@ import { ID } from "./abstract";
 export enum FriendshipAction {
   Remove = "Remove",
   Accept = "Accept",
-  Deny = "Deny",
+  Decline = "Decline",
   Request = "Request",
   Cancel = "Cancel",
 }
@@ -26,6 +26,14 @@ export type UserAccess = {
   user_id: string;
   permissions: Permission;
 };
+
+export enum SocialAction {
+  Invite = "Invite",
+  Cancel = "Cancel",
+  Accept = "Accept",
+  Decline = "Decline",
+  Remove = "Remove",
+}
 
 export enum Permission {
   Owner = "Owner",

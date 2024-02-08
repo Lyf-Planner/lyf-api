@@ -1,6 +1,7 @@
 import { ID } from "../../api/abstract";
 import { User } from "../../api/user";
 import { UserModel } from "../users/userModel";
+import { SocialItem } from "./socialItem";
 
 export class SocialUser extends UserModel {
   constructor(user: User, from_db: boolean, requestedBySelf: boolean) {
@@ -140,9 +141,12 @@ export class SocialUser extends UserModel {
 
   // Item Social:
 
-  public async receiveItemInvite(item_id: ID, invited_by: ID) {
+  public async receiveItemInvite(item: SocialItem, invited_by: SocialUser) {
+    const item_id = item.getContent().id;
+    const invited_by_id = invited_by.getContent().id;
+
     // Must be invited by a friend
-    let inviter = this.content.social.friends?.find((x) => x === invited_by);
+    let inviter = this.content.social.friends?.find((x) => x === invited_by_id);
     if (!inviter)
       throw new Error("Users must be invited to an item by a friend");
 
@@ -155,8 +159,9 @@ export class SocialUser extends UserModel {
       : (this.content.timetable.invited_items = [item_id]);
   }
 
-  public addressItemInvite(item_id: ID, accepted: boolean) {
+  public addressItemInvite(item: SocialItem, accepted: boolean) {
     this.enforceRequestedBySelf("Cannot accept someone elses item invite!");
+    const item_id = item.getContent().id;
 
     if (accepted) {
       // Add to items
@@ -168,6 +173,20 @@ export class SocialUser extends UserModel {
       (x) => x === item_id
     )!;
     this.content.timetable.invited_items?.splice(i, 1);
+  }
+
+  public leaveItem(item: SocialItem) {
+    const item_id = item.getContent().id;
+
+    const i = this.content.timetable.items.findIndex((x) => x.id === item_id);
+    this.content.timetable.items.splice(i, 1);
+  }
+
+  public removeInvite(item: SocialItem) {
+    const item_id = item.getContent().id;
+
+    const i = this.content.timetable.items.findIndex((x) => x.id === item_id);
+    this.content.timetable.items.splice(i, 1);
   }
 
   // Helpers

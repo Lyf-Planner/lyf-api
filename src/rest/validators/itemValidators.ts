@@ -1,6 +1,6 @@
 import { body, query } from "express-validator";
 import { ID } from "../../api/abstract";
-import { Permission } from "../../api/social";
+import { Permission, SocialAction } from "../../api/social";
 import { ItemStatus, ListItem, ListItemTypes } from "../../api/list";
 import { DaysOfWeek } from "../../api/timetable";
 
@@ -98,19 +98,16 @@ export const getItemsValidator = [
 
 export type getItemsBody = { item_ids: ID[] };
 
-export const inviteUserValidator = [
+export const updateItemSocialValidator = [
   body("item_id").isString(),
   body("user_id").isString(),
+  body("action").custom((action) =>
+    Object.values(SocialAction).includes(action)
+  ),
 ];
 
-export type inviteUserBody = { item_id: string; user_id: string };
-
-export const addressItemInviteValidator = [
-  body("item_id").isString(),
-  body("accepted_invite").isBoolean(),
-];
-
-export type addressItemInviteBody = {
+export type updateItemSocialBody = {
   item_id: string;
-  accepted_invite: boolean;
+  user_id: string;
+  action: SocialAction;
 };

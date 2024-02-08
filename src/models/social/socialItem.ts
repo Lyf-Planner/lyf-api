@@ -2,8 +2,7 @@ import { ID } from "../../api/abstract";
 import { ListItem } from "../../api/list";
 import { Permission } from "../../api/social";
 import { ItemModel } from "../items/itemModel";
-import { UserModel } from "../users/userModel";
-import { UserOperations } from "../users/userOperations";
+import { SocialUser } from "./socialUser";
 
 export class SocialItem extends ItemModel {
   constructor(item: ListItem, from_db: boolean = false, requested_by: string) {
@@ -14,9 +13,9 @@ export class SocialItem extends ItemModel {
     await this.commit();
   }
 
-  public async inviteUser(invitee: UserModel, invited_by: ID) {
+  public inviteUser(invitee: SocialUser, invited_by: SocialUser) {
     const inviter = this.content.permitted_users.find(
-      (x) => x.user_id === invited_by
+      (x) => x.user_id === invited_by.getContent().id
     );
 
     // User must be the owner to do this! (currently)
@@ -26,13 +25,7 @@ export class SocialItem extends ItemModel {
       );
     }
 
-    // Invited user must be a friend
-    let inviterData = await UserOperations.retrieveForUser(
-      invited_by,
-      invited_by
-    );
-
-    let inviterFriendship = inviterData
+    let inviterFriendship = invited_by
       .getContent()
       .social.friends?.find((x) => x === invitee.getContent().id);
     if (!inviterFriendship) {
@@ -49,7 +42,9 @@ export class SocialItem extends ItemModel {
       : (this.content.invited_users = [newUserAccess]);
   }
 
-  public addressInvite(user_id: ID, accepted: boolean) {
+  public handleInviteAddressed(user: SocialUser, accepted: boolean) {
+    const user_id = user.getContent().id;
+
     const invite =
       this.content.invited_users &&
       this.content.invited_users.find((x) => (x.user_id = user_id));
@@ -70,5 +65,34 @@ export class SocialItem extends ItemModel {
     // Remove user from invite list
     const i = this.content.invited_users?.findIndex((x) => x === invite)!;
     this.content.invited_users?.splice(i, 1);
+  }
+
+  public removeUser(user: SocialUser) {
+    const user_id = user.getContent().id;
+
+    // Requested_by must match user or have owner permission
+    let requestor_perm = this.getUserPermission(this.requested_by);
+    if (requestor_perm !== Permission.Owner && this.requested_by !== user_id) {
+      throw new Error("You must be the Owner to kick another user!");
+    }
+
+    const i = this.content.permitted_users.findIndex(
+      (x) => x.user_id === user_id
+    );
+    this.content.permitted_users.splice(i, 1);
+  }
+
+  public removeInvite(user: SocialUser) {
+    let requestor_perm = this.getUserPermission(this.requested_by);
+    if (requestor_perm !== Permission.Owner) {
+      throw new Error("You must be the Owner to cancel an invite!");
+    }
+
+    const user_id = user.getContent().id;
+    if (!this.content.invited_users) return;
+    const i = this.content.invited_users.findIndex(
+      (x) => x.user_id === user_id
+    );
+    this.content.invited_users.splice(i, 1);
   }
 }

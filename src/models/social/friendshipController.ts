@@ -1,11 +1,13 @@
 import { ID } from "../../api/abstract";
 import { FriendshipAction, FriendshipUpdate } from "../../api/social";
+import { Logger } from "../../utils/logging";
 import { UserOperations } from "../users/userOperations";
 import { SocialUser } from "./socialUser";
 
 export class FriendshipController {
   private from: SocialUser;
   private target: SocialUser;
+  public logger = Logger.of(FriendshipController);
 
   constructor(from: SocialUser, target: SocialUser) {
     this.from = from;
@@ -31,18 +33,33 @@ export class FriendshipController {
 
     switch (update.action) {
       case FriendshipAction.Request:
+        controller.logger.info(
+          `User ${from} sending friend request to ${update.user_id}`
+        );
         await controller.requestFriendship();
         break;
       case FriendshipAction.Cancel:
+        controller.logger.info(
+          `User ${from} cancelling friend request to ${update.user_id}`
+        );
         await controller.cancelFriendRequest();
         break;
       case FriendshipAction.Accept:
-      case FriendshipAction.Deny:
-        await controller.addressIncomingRequest(
-          update.action === FriendshipAction.Accept
+        controller.logger.info(
+          `User ${from} accepting friend request from ${update.user_id}`
         );
+        await controller.addressIncomingRequest(true);
+        break;
+      case FriendshipAction.Decline:
+        controller.logger.info(
+          `User ${from} declining friend request from ${update.user_id}`
+        );
+        await controller.addressIncomingRequest(false);
         break;
       case FriendshipAction.Remove:
+        controller.logger.info(
+          `User ${from} deleting friendship with ${update.user_id}`
+        );
         await controller.deleteFriendship();
         break;
     }
