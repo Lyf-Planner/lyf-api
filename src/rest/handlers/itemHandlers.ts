@@ -182,7 +182,7 @@ export class ItemHandlers {
       await item.approveSocialChanges();
       await user.approveSocialChanges();
 
-      res.status(200).end();
+      res.status(200).json(item.getContent().invited_users).end();
     } catch (err) {
       res.status(400).end(`${err}`);
     }
