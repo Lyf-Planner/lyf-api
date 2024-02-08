@@ -142,7 +142,7 @@ export class ItemHandlers {
       )) as SocialUser;
 
       // Update item data
-      item.inviteUser(invitee, invited_by);
+      await item.inviteUser(invitee, invited_by);
 
       // Update user data
       invitee.receiveItemInvite(item_id, invited_by);
