@@ -170,10 +170,6 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
           );
         }
       }
-
-      if (proposed.permitted_users.length > 1) {
-        // Notify other users of a time change
-      }
     }
   }
 
