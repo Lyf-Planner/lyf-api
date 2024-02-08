@@ -120,6 +120,8 @@ export class ItemHandlers {
     const { item_id, user_id } = req.body as inviteUserBody;
     var invited_by = getMiddlewareVars(res).user_id;
 
+    logger.info(`Inviting user ${user_id} to item ${item_id}`);
+
     if (user_id === invited_by) {
       res.status(400).end("You can't invite yourself to the item :)");
       return;
