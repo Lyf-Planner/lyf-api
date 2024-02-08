@@ -76,6 +76,7 @@ export class ItemHandlers {
         `User ${user_id} tried to delete ${item_id} without valid permissions`
       );
       res.status(403).end(`${err}`);
+      return;
     }
 
     // Perform delete
