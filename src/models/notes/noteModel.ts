@@ -18,9 +18,6 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
     // 1. User cannot be Viewer
     this.throwIfReadOnly(perm);
 
-    // 2. Cannot modify social fields unless you are the owner
-    this.throwIfNonOwnerModifiedPerms(proposed, perm);
-
     // Checks passed!
     this.logger.debug(
       `User ${this.requested_by} safely updated note ${this.id}`
