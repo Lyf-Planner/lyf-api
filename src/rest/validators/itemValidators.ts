@@ -76,14 +76,6 @@ export const updateItemValidator = [
   body("notifications").isArray().optional({ nullable: true }),
   body("notifications.*.user_id").isString(),
   body("notifications.*.minutes_before").isString(),
-  // Social stuff
-  body("permitted_users").isArray(),
-  body("permitted_users.*.user_id").isString(),
-  body("permitted_users.*.permissions").custom((perm) =>
-    Object.values(Permission).includes(perm)
-  ),
-  body("invited_users").isArray().optional({ nullable: true }),
-  body("invited_users.*").isString(),
   //   body("suggestions_only").optional({ nullable: true }).isBoolean(),
   //   body("suggested_changes").optional({ nullable: true }).isObject(), // This should be of Item type - hard to validate
   //   body("suggested_changes.*.user_id").isString(),
