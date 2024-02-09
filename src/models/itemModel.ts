@@ -145,6 +145,8 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     user_id: string,
     proposed: ListItem
   ) {
+    if (!proposed.notifications) return;
+
     var success = true;
     if (!this.content.notifications) {
       success = !proposed.notifications || proposed.notifications.length <= 1;
@@ -219,10 +221,6 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
             notification.user_id
           );
         }
-      }
-
-      if (proposed.permitted_users.length > 1) {
-        // Notify other users of a time change
       }
     }
   }
