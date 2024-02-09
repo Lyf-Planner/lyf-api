@@ -51,7 +51,7 @@ export type createUsersBody = {
 
 export const updateMeValidator = [
   body("details.name").isString().optional({ nullable: true }),
-  body("details.email").isString().optional({ nullable: true }),
+  body("details.email").isEmail().optional({ nullable: true }),
   body(
     "timezone",
     "Invalid timezone provided. Must be an IANA timezone identifier (e.g. Australia/Melbourne)"
