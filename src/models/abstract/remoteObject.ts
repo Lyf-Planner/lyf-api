@@ -17,7 +17,7 @@ export class RemoteObject<T extends DBObject> {
   public async commit(create: boolean = false): Promise<void> {
     if (create) {
       // Will add Time fields to content
-      this.content = await this.collectionRef.create(this.content, true);
+      this.content = await this.collectionRef.update(this.content, true);
     } else await this.collectionRef.update(this.content, false);
   }
 
