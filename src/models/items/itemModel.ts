@@ -7,7 +7,6 @@ import { updateItemBody } from "../../rest/validators/itemValidators";
 import notificationManager from "../../notifications/notificationManager";
 import db from "../../repository/dbAccess";
 
-
 export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private logger = Logger.of(ItemModel);
 
@@ -79,6 +78,8 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     user_id: string,
     proposed: ListItem
   ) {
+    if (!proposed.notifications) return;
+
     var success = true;
     if (!this.content.notifications && proposed.notifications) {
       success = !proposed.notifications || proposed.notifications?.length <= 1;
