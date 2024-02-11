@@ -35,7 +35,7 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
 
   // Helpers
   private throwIfReadOnly(perm?: Permission) {
-    if (!perm || perm === Permission.Viewer || perm === Permission.Invitee) {
+    if (!perm || perm === Permission.Viewer || perm === Permission.Invited) {
       this.logger.error(
         `User ${this.requested_by} tried to modify as Viewer on ${this.id}`
       );

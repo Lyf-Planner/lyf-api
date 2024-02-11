@@ -39,5 +39,5 @@ export enum Permission {
   Owner = "Owner",
   Editor = "Editor",
   Viewer = "Viewer",
-  Invitee = "Invitee",
+  Invited = "Invited",
 }

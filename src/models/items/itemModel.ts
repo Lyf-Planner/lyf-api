@@ -40,7 +40,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     var perm = this.getUserPermission(user_id);
 
     // SAFETY CHECKS
-    // 1. Cannot update as a Viewer or Invitee
+    // 1. Cannot update as a Viewer or Invited
     this.throwIfReadOnly(perm);
 
     // 2. Should not update anyone elses notifications (this is the only restriction within modifying metadata)
@@ -48,25 +48,26 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
 
     // Checks passed
 
+    const newItem = { ...this.content, ...proposed };
     // PRE-COMMIT TASKS
     // 1. Action any notification updates
-    this.handleNotificationChanges({ ...proposed });
+    this.handleNotificationChanges(newItem);
 
     // 2. Handle any time changes
-    this.handleTimeChanges({ ...proposed });
+    this.handleTimeChanges(newItem);
 
     this.logger.debug(
       `User ${this.requested_by} safely updated item ${this.id}`
     );
 
     // Apply changeset
-    await this.processUpdate({ ...this.content, ...proposed });
+    await this.processUpdate(newItem);
     return true;
   }
 
   // Helpers
   private throwIfReadOnly(perm?: Permission) {
-    if (!perm || perm === Permission.Viewer || perm === Permission.Invitee) {
+    if (!perm || perm === Permission.Viewer || perm === Permission.Invited) {
       this.logger.error(
         `User ${this.requested_by} tried to modify as Viewer on ${this.id}`
       );
@@ -126,10 +127,14 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   }
 
   private handleTimeChanges(proposed: ListItem) {
-    if (proposed.time !== this.content.time && proposed.notifications) {
-      for (let notification of proposed.notifications) {
-        // Case: time was deleted
-        if (!proposed.time) {
+    const timeChanged =
+      proposed.time !== this.content.time ||
+      proposed.date !== this.content.date;
+
+    if (timeChanged) {
+      for (let notification of this.content.notifications) {
+        // Case: date or time was deleted
+        if (!proposed.time || !proposed.date) {
           notificationManager.removeEventNotification(
             proposed,
             notification.user_id
