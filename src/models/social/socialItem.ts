@@ -13,7 +13,7 @@ export class SocialItem extends ItemModel {
     await this.commit();
   }
 
-  public inviteUser(Invited: SocialUser, invited_by: SocialUser) {
+  public inviteUser(invited_user: SocialUser, invited_by: SocialUser) {
     const inviter = this.content.permitted_users.find(
       (x) => x.user_id === invited_by.getContent().id
     );
@@ -27,14 +27,14 @@ export class SocialItem extends ItemModel {
 
     let inviterFriendship = invited_by
       .getContent()
-      .social.friends?.find((x) => x === Invited.getContent().id);
+      .social.friends?.find((x) => x === invited_user.getContent().id);
     if (!inviterFriendship) {
       throw new Error("You can only invite friends to your items!");
     }
 
     // Add the user to the invite list
     const newUserAccess = {
-      user_id: Invited.getContent().id,
+      user_id: invited_user.getContent().id,
       permissions: Permission.Invited,
     };
     this.content.invited_users
