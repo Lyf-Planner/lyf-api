@@ -91,9 +91,6 @@ export class Collection<T extends DBObject> {
     );
     assert(result.acknowledged);
 
-    result.upsertedCount &&
-      this.logger.warn(`Updated document ${object.id} was upserted!`);
-
     result.modifiedCount === 0 &&
       !upsert &&
       this.handleDidNotUpdate(object.id, false);

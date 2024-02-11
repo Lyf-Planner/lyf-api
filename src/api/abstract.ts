@@ -10,20 +10,3 @@ export type Time = {
   created: Date;
   last_updated: Date;
 };
-
-export type Restricted = {
-  permitted_users: UserAccess[];
-  invited_users?: UserAccess[];
-};
-
-export type UserAccess = {
-  user_id: string;
-  permissions: Permission;
-};
-
-export enum Permission {
-  Owner = "Owner",
-  Editor = "Editor",
-  Viewer = "Viewer",
-  Invitee = "Invitee"
-}

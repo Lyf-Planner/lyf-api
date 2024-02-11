@@ -1,14 +1,18 @@
-import { ID } from "../api/abstract";
-import { User, UserDetails } from "../api/user";
-import { Logger } from "../utils/logging";
+import { ID } from "../../api/abstract";
+import { User, UserDetails } from "../../api/user";
+import { Logger } from "../../utils/logging";
 import { UserModel } from "./userModel";
-import authUtils from "../auth/authUtils";
-import db from "../repository/dbAccess";
-import { PremiumIndicator } from "../api/premium";
+import { SocialUser } from "../social/socialUser";
+import authUtils from "../../auth/authUtils";
+import db from "../../repository/dbAccess";
 
 export class UserOperations {
   // Builder method
-  public static async retrieveForUser(user_id: ID, requestor_id: string) {
+  public static async retrieveForUser(
+    user_id: ID,
+    requestor_id: string,
+    social: boolean = false
+  ): Promise<UserModel | SocialUser> {
     var user = (await db.usersCollection().getById(user_id)) as User;
     const user_undiscoverable = user_id !== requestor_id && user.private;
     if (!user || user_undiscoverable) {
@@ -17,7 +21,11 @@ export class UserOperations {
       throw new Error(`User ${user_id} does not exist`);
     }
 
-    return new UserModel(user, true, requestor_id === user_id);
+    if (social) {
+      return new SocialUser(user, true, requestor_id === user_id);
+    } else {
+      return new UserModel(user, true, requestor_id === user_id);
+    }
   }
 
   // Builder method
@@ -30,8 +38,10 @@ export class UserOperations {
     var user = {} as any;
     user.id = user_id;
     user.pass_hash = await authUtils.hashPass(password);
+    user.details = {};
     user.timetable = {
       items: [],
+      invited_items: [],
     };
     user.notes = {
       items: [],
@@ -43,13 +53,17 @@ export class UserOperations {
       notifications: {
         daily_notifications: true,
         daily_notification_time: "08:00",
-        persistent_daily_notification: true,
+        persistent_daily_notification: false,
         event_notifications_enabled: true,
         event_notification_minutes_before: "5",
       },
     };
-    user.friends = [];
-    user.friend_requests = [];
+    user.social = {
+      friends: [],
+      friend_requests: [],
+      requested: [],
+      blocked: [],
+    };
 
     var model = new UserModel(user, false, true);
     if (commit) await model.commit(true);
@@ -58,28 +72,17 @@ export class UserOperations {
   }
 
   public static async retrieveManyUsers(user_ids: ID[]) {
-    var users = (await db.usersCollection().getManyById(user_ids)) as any[];
+    var users = (await db.usersCollection().getManyById(user_ids, false)) as any[];
     users = users.map((x) => UserOperations.extractUserDetails(x));
 
     return users;
   }
 
-  public static extractUserDetails(user: User): UserDetails & PremiumIndicator {
+  public static extractUserDetails(user: User): UserDetails {
     // Needs validator
     return {
+      ...user.details,
       id: user.id,
-      name: user.name,
-      email: user.email,
-      pfp_url: user.pfp_url,
-      friends: user.friends,
-      enabled: !!user.premium?.enabled,
-    };
-  }
-
-  public static extractSensitiveFields(user: User) {
-    return {
-      friends: user.friends,
-      friend_requests: user.friend_requests,
     };
   }
 }

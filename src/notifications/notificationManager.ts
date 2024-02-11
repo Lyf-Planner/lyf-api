@@ -1,10 +1,10 @@
 import { ItemStatus, ListItem, ListItemTypes } from "../api/list";
-import { UserOperations } from "../models/userOperations";
-import { UserModel } from "../models/userModel";
+import { UserOperations } from "../models/users/userOperations";
+import { UserModel } from "../models/users/userModel";
 import { ExpoPushMessage } from "expo-server-sdk";
 import { Logger } from "../utils/logging";
 import { TwentyFourHourToAMPM, formatDateData } from "../utils/dates";
-import { ItemOperations } from "../models/ItemOperations";
+import { ItemOperations } from "../models/items/ItemOperations";
 import { User } from "../api/user";
 import { DaysOfWeek } from "../api/timetable";
 import { pluralisedQuantity } from "../utils/text";

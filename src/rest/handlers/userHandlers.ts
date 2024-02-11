@@ -1,15 +1,18 @@
 import { Request, Response } from "express";
 import { User } from "../../api/user";
-import { UserModel } from "../../models/userModel";
-import { UserOperations } from "../../models/userOperations";
+import { UserModel } from "../../models/users/userModel";
+import { UserOperations } from "../../models/users/userOperations";
 import { Logger } from "../../utils/logging";
 import { getMiddlewareVars } from "../utils";
 import {
+  deleteMeBody,
   getUserQuery,
   loginQuery,
+  updateFriendshipBody,
   updateMeBody,
 } from "../validators/userValidators";
 import authUtils from "../../auth/authUtils";
+import { FriendshipController } from "../../models/social/friendshipController";
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
@@ -36,6 +39,7 @@ export class UserHandlers {
       res.status(401).end("Incorrect password");
       return;
     }
+
     var exportedData = userModel.export();
     var payload = { user: exportedData, token };
 
@@ -64,11 +68,15 @@ export class UserHandlers {
 
     logger.debug(`Received request for user ${user_id} from "${requestor_id}"`);
 
-    var userModel = await UserOperations.retrieveForUser(
-      user_id as string,
-      requestor_id
-    );
-    res.status(200).json(userModel.export()).end();
+    try {
+      var userModel = await UserOperations.retrieveForUser(
+        user_id as string,
+        requestor_id
+      );
+      res.status(200).json(userModel.export()).end();
+    } catch (err) {
+      res.status(400).end("User not found");
+    }
   }
 
   protected async getUsers(req: Request, res: Response) {
@@ -97,29 +105,12 @@ export class UserHandlers {
         user.getUser() as User,
         password as string
       );
+      res.status(200).json({ user: user?.export(), token }).end();
     } catch (err) {
       logger.error(err);
       res.status(400).end(`Username ${user_id} is already taken`);
       return;
     }
-
-    res.status(200).json({ user: user?.export(), token }).end();
-  }
-
-  // Deprecated soon!
-  protected async updateUser(req: Request, res: Response) {
-    var { user } = req.body;
-    var user_id = getMiddlewareVars(res).user_id;
-
-    try {
-      var remoteModel = await UserOperations.retrieveForUser(user_id, user_id);
-      await remoteModel.safeUpdate(user, user_id);
-    } catch (err) {
-      res.status(403).end(`${err}`);
-      return;
-    }
-
-    res.status(200).end();
   }
 
   // Update user identified in header.
@@ -132,16 +123,15 @@ export class UserHandlers {
       // The work in terms of data safety is done by the validators
       var remoteModel = await UserOperations.retrieveForUser(user_id, user_id);
       await remoteModel.updateSelf(user);
+      res.status(200).end();
     } catch (err) {
       res.status(500).end(`${err}`);
       return;
     }
-
-    res.status(200).end();
   }
 
   protected async deleteMe(req: Request, res: Response) {
-    var { password } = req.body;
+    var { password } = req.body as deleteMeBody;
     var user_id = getMiddlewareVars(res).user_id;
 
     logger.info(`Received self-deletion request from ${user_id}`);
@@ -150,7 +140,10 @@ export class UserHandlers {
     var user: UserModel;
 
     try {
-      var user = await UserOperations.retrieveForUser(user_id, user_id);
+      var user = (await UserOperations.retrieveForUser(
+        user_id,
+        user_id
+      )) as UserModel;
       var token = await authUtils.authenticate(
         user.getUser() as User,
         password as string
@@ -166,6 +159,19 @@ export class UserHandlers {
       );
       res.status(401).end(`${err}`);
       return;
+    }
+  }
+
+  protected async updateFriendship(req: Request, res: Response) {
+    var update = req.body as updateFriendshipBody;
+    var from_id = getMiddlewareVars(res).user_id;
+
+    try {
+      let social = await FriendshipController.processUpdate(from_id, update);
+      res.status(200).json(social).end();
+    } catch (err) {
+      logger.error(`Returning 400 with message: ${err}`);
+      res.status(400).end(`${err}`);
     }
   }
 }
