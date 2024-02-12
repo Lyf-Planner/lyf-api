@@ -131,7 +131,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       proposed.time !== this.content.time ||
       proposed.date !== this.content.date;
 
-    if (timeChanged) {
+    if (timeChanged && this.content.notifications) {
       for (let notification of this.content.notifications) {
         // Case: date or time was deleted
         if (!proposed.time || !proposed.date) {
