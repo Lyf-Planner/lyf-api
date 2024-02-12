@@ -4,6 +4,8 @@ import { ID } from "../../api/abstract";
 import { Timetable } from "../../api/timetable";
 import { Notes } from "../../api/notes";
 import { Premium } from "../../api/premium";
+import { UserDetails } from "../../api/user";
+import { FriendshipAction, FriendshipUpdate } from "../../api/social";
 
 // GET
 
@@ -24,11 +26,7 @@ export type getUserQuery = { user_id: string };
 
 // POST
 
-export const getUsersValidator = [
-  body("user_ids", "User IDs field must be a non-empty array!").isArray({
-    min: 1,
-  }),
-];
+export const getUsersValidator = [body("user_ids").isArray()];
 
 export type getUsersBody = {
   user_ids: ID[];
@@ -52,10 +50,8 @@ export type createUsersBody = {
 };
 
 export const updateMeValidator = [
-  body("name").isString().optional({ nullable: true }),
-  body("email").isString().optional({ nullable: true }),
   body("details.name").isString().optional({ nullable: true }),
-  body("details.email").isString().optional({ nullable: true }),
+  body("details.email").isEmail().optional({ nullable: true }),
   body(
     "timezone",
     "Invalid timezone provided. Must be an IANA timezone identifier (e.g. Australia/Melbourne)"
@@ -98,8 +94,7 @@ export const updateMeValidator = [
 ];
 
 export type updateMeBody = {
-  name?: string;
-  email?: string;
+  details?: UserDetails;
   expo_tokens?: string[];
   timezone?: string;
   premium?: Premium;
@@ -114,3 +109,12 @@ export const deleteMeValidator = [
 export type deleteMeBody = {
   password: string;
 };
+
+export const updateFriendshipValidator = [
+  body("user_id").isString(),
+  body("action").custom((perm) =>
+    Object.values(FriendshipAction).includes(perm)
+  ),
+];
+
+export type updateFriendshipBody = FriendshipUpdate;

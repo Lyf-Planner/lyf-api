@@ -1,4 +1,5 @@
-import { ID, Identifiable, Restricted, Time } from "./abstract";
+import { ID, Identifiable, Time } from "./abstract";
+import { Restricted } from "./social";
 import { UserListItem } from "./timetable";
 
 export type List = (UserListItem | ListItem)[];

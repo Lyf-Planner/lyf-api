@@ -1,9 +1,9 @@
-import { Permission } from "../api/abstract";
-import { Note } from "../api/notes";
-import { Logger } from "../utils/logging";
-import { RestrictedRemoteObject } from "./abstract/restrictedRemoteObject";
-import { updateNoteBody } from "../rest/validators/noteValidators";
-import db from "../repository/dbAccess";
+import { Permission } from "../../api/social";
+import { Note } from "../../api/notes";
+import { Logger } from "../../utils/logging";
+import { RestrictedRemoteObject } from "../abstract/restrictedRemoteObject";
+import { updateNoteBody } from "../../rest/validators/noteValidators";
+import db from "../../repository/dbAccess";
 
 export class NoteModel extends RestrictedRemoteObject<Note> {
   private logger = Logger.of(NoteModel);
@@ -17,9 +17,6 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
 
     // 1. User cannot be Viewer
     this.throwIfReadOnly(perm);
-
-    // 2. Cannot modify social fields unless you are the owner
-    this.throwIfNonOwnerModifiedPerms(proposed, perm);
 
     // Checks passed!
     this.logger.debug(
@@ -38,7 +35,7 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
 
   // Helpers
   private throwIfReadOnly(perm?: Permission) {
-    if (!perm || perm === Permission.Viewer || perm === Permission.Invitee) {
+    if (!perm || perm === Permission.Viewer || perm === Permission.Invited) {
       this.logger.error(
         `User ${this.requested_by} tried to modify as Viewer on ${this.id}`
       );

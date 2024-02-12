@@ -1,5 +1,6 @@
 import { body, query } from "express-validator";
-import { ID, Permission } from "../../api/abstract";
+import { ID } from "../../api/abstract";
+import { Permission, SocialAction } from "../../api/social";
 import { ItemStatus, ListItem, ListItemTypes } from "../../api/list";
 import { DaysOfWeek } from "../../api/timetable";
 
@@ -56,7 +57,6 @@ export type createItemBody = ListItem;
 export const updateItemValidator = [
   // Essentials
   body("id").isString(),
-  body("template_id").isString().optional(),
   body("title").isString().optional(),
   body("type")
     .custom((perm) => Object.values(ListItemTypes).includes(perm))
@@ -75,14 +75,6 @@ export const updateItemValidator = [
   body("notifications").isArray().optional({ nullable: true }),
   body("notifications.*.user_id").isString(),
   body("notifications.*.minutes_before").isString(),
-  // Social stuff
-  body("permitted_users").isArray().optional(),
-  body("permitted_users.*.user_id").isString(),
-  body("permitted_users.*.permissions").custom((perm) =>
-    Object.values(Permission).includes(perm)
-  ),
-  body("invited_users").isArray().optional({ nullable: true }),
-  body("invited_users.*").isString(),
   //   body("suggestions_only").optional({ nullable: true }).isBoolean(),
   //   body("suggested_changes").optional({ nullable: true }).isObject(), // This should be of Item type - hard to validate
   //   body("suggested_changes.*.user_id").isString(),
@@ -106,13 +98,16 @@ export const getItemsValidator = [
 
 export type getItemsBody = { item_ids: ID[] };
 
-export const inviteUserValidator = [
+export const updateItemSocialValidator = [
   body("item_id").isString(),
   body("user_id").isString(),
+  body("action").custom((action) =>
+    Object.values(SocialAction).includes(action)
+  ),
 ];
 
-export type inviteUserBody = { item_id: string; user_id: string };
-
-export const joinItemValidator = [body("item_id").isString()];
-
-export type joinItemBody = { item_id: string };
+export type updateItemSocialBody = {
+  item_id: string;
+  user_id: string;
+  action: SocialAction;
+};

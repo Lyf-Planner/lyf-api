@@ -1,17 +1,19 @@
 import { Request, Response } from "express";
-import { Permission } from "../../api/abstract";
+import { Permission } from "../../api/social";
 import { Logger } from "../../utils/logging";
-import { ItemModel } from "../../models/itemModel";
-import { ItemOperations } from "../../models/ItemOperations";
+import { ItemModel } from "../../models/items/itemModel";
+import { ItemOperations } from "../../models/items/ItemOperations";
 import { getMiddlewareVars } from "../utils";
 import {
   createItemBody,
   getItemsBody,
-  inviteUserBody,
-  joinItemBody,
   updateItemBody,
+  updateItemSocialBody,
 } from "../validators/itemValidators";
-import { UserOperations } from "../../models/userOperations";
+import { UserOperations } from "../../models/users/userOperations";
+import { SocialItem } from "../../models/social/socialItem";
+import { SocialUser } from "../../models/social/socialUser";
+import { SocialItemController } from "../../models/social/socialItemController";
 
 export class ItemHandlers {
   protected async createItem(req: Request, res: Response) {
@@ -42,15 +44,13 @@ export class ItemHandlers {
       // These fns will check user is permitted on the item and has Permission > Viewer
       remoteItem = await ItemOperations.retrieveForUser(item.id, user_id);
       await remoteItem.safeUpdate(item, user_id);
+      res.status(200).end();
     } catch (err) {
       logger.error(
         `User ${user_id} did not safely update item ${item.id}: ${err}`
       );
       res.status(403).end(`${err}`);
-      return;
     }
-
-    res.status(200).end();
   }
 
   protected async deleteItem(req: Request, res: Response) {
@@ -74,6 +74,7 @@ export class ItemHandlers {
         `User ${user_id} tried to delete ${item_id} without valid permissions`
       );
       res.status(403).end(`${err}`);
+      return;
     }
 
     // Perform delete
@@ -91,14 +92,13 @@ export class ItemHandlers {
     var item: ItemModel;
     try {
       item = await ItemOperations.retrieveForUser(item_id, user_id);
+      res.status(200).json(item!.export()).end();
     } catch (err) {
       logger.error(
         `User ${user_id} requested item ${item_id} to which they don't have access`
       );
       res.status(403).end(`${err}`);
     }
-
-    res.status(200).json(item!.export()).end();
   }
 
   protected async getItems(req: Request, res: Response) {
@@ -114,46 +114,15 @@ export class ItemHandlers {
     res.status(200).json(items!).end();
   }
 
-  protected async inviteUser(req: Request, res: Response) {
-    const { item_id, user_id } = req.body as inviteUserBody;
-    var invited_by = getMiddlewareVars(res).user_id;
-
-    if (user_id === invited_by) {
-      res.status(400).end("You can't invite yourself to the item :)");
-    } else {
-      try {
-        var item = await ItemOperations.retrieveForUser(item_id, invited_by);
-        const invitee = await UserOperations.retrieveForUser(
-          user_id,
-          invited_by
-        );
-        // Update item data
-        await item.inviteUser(invitee, invited_by);
-
-        // Update user data
-        await invitee.inviteUserToItem(item_id);
-        res.status(200).end();
-      } catch (err) {
-        res.status(400).end(`${err}`);
-      }
-    }
-  }
-
-  protected async joinItem(req: Request, res: Response) {
-    const { item_id } = req.body as joinItemBody;
-    const user_id = getMiddlewareVars(res).user_id;
+  protected async updateItemSocial(req: Request, res: Response) {
+    var update = req.body as updateItemSocialBody;
+    var from_id = getMiddlewareVars(res).user_id;
 
     try {
-      // Update item data
-      let item = await ItemOperations.retrieveForUser(item_id, user_id);
-      await item.joinItem(user_id);
-
-      // Update user data
-      let user = await UserOperations.retrieveForUser(user_id, user_id);
-      await user.acceptItemInvite(item_id);
-
-      res.status(200).end();
+      let social = await SocialItemController.processUpdate(from_id, update);
+      res.status(200).json(social).end();
     } catch (err) {
+      logger.error(`Returning 400 with message: ${err}`);
       res.status(400).end(`${err}`);
     }
   }

@@ -8,10 +8,10 @@ import {
   creationValidator,
   updateMeValidator,
   deleteMeValidator,
+  updateFriendshipValidator,
 } from "./validators/userValidators";
 import { validate } from "./validationMiddleware";
 import express from "express";
-
 
 export class UserEndpoints extends UserHandlers {
   constructor(server: express.Application) {
@@ -32,12 +32,13 @@ export class UserEndpoints extends UserHandlers {
       nSecondLimiter(20),
       this.createUser
     );
-    server.post("/updateUser", this.updateUser); // Deprecated soon
     server.post("/updateMe", validate(updateMeValidator), this.updateMe);
     server.post("/deleteMe", validate(deleteMeValidator), this.deleteMe);
 
-    // server.post("/updatePremium")
-    // server.post("/updateFriend")
-    // server.post("/addressFriendInvite")
+    server.post(
+      "/updateFriendship",
+      validate(updateFriendshipValidator),
+      this.updateFriendship
+    );
   }
 }
