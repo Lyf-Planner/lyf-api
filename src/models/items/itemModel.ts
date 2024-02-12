@@ -51,10 +51,10 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     const newItem = { ...this.content, ...proposed };
     // PRE-COMMIT TASKS
     // 1. Action any notification updates
-    this.handleNotificationChanges(newItem);
+    this.handleNotificationChanges({ ...newItem });
 
     // 2. Handle any time changes
-    this.handleTimeChanges(newItem);
+    this.handleTimeChanges({ ...newItem });
 
     this.logger.debug(
       `User ${this.requested_by} safely updated item ${this.id}`
