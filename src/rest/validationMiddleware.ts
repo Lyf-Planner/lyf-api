@@ -7,7 +7,6 @@ const logger = new Logger("ValidationMiddleware");
 
 export const validate = (validations: ValidationChain[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    logger.debug("Running validation middleware");
     await checkExact(validations).run(req);
 
     const errors = validationResult(req);
