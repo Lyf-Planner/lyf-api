@@ -71,8 +71,15 @@ export class UserOperations {
     return model;
   }
 
+  public static async getUserPushTokens(user_id: ID) {
+    var user = (await db.usersCollection().getById(user_id)) as User;
+    return user.expo_tokens || [];
+  }
+
   public static async retrieveManyUsers(user_ids: ID[]) {
-    var users = (await db.usersCollection().getManyById(user_ids, false)) as any[];
+    var users = (await db
+      .usersCollection()
+      .getManyById(user_ids, false)) as any[];
     users = users.map((x) => UserOperations.extractUserDetails(x));
 
     return users;
