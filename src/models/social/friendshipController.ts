@@ -2,6 +2,7 @@ import { ID } from "../../api/abstract";
 import { FriendshipAction, FriendshipUpdate } from "../../api/social";
 import { Logger } from "../../utils/logging";
 import { UserOperations } from "../users/userOperations";
+import { FriendNotifications } from "./friendNotifications";
 import { SocialUser } from "./socialUser";
 
 export class FriendshipController {
@@ -36,6 +37,7 @@ export class FriendshipController {
         controller.logger.info(
           `User ${from} sending friend request to ${update.user_id}`
         );
+        await FriendNotifications.newFriendRequest(targetUser, fromUser);
         await controller.requestFriendship();
         break;
       case FriendshipAction.Cancel:
@@ -49,6 +51,7 @@ export class FriendshipController {
           `User ${from} accepting friend request from ${update.user_id}`
         );
         await controller.addressIncomingRequest(true);
+        await FriendNotifications.newFriend(targetUser, fromUser);
         break;
       case FriendshipAction.Decline:
         controller.logger.info(
