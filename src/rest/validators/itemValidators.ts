@@ -27,7 +27,7 @@ export const createItemValidator = [
   body("time").isTime({ hourFormat: "hour24" }).optional({ nullable: true }),
   body("desc").isString().optional({ nullable: true }),
   // Notifications
-  body("notifications").isArray().optional({ nullable: true }),
+  body("notifications").isArray(),
   body("notifications.*.user_id").isString(),
   body("notifications.*.minutes_before").isString(),
   // Social stuff
