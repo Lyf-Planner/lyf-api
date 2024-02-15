@@ -12,7 +12,8 @@ export class FriendNotifications {
 
     let message = {
       to: to.getContent().expo_tokens || [],
-      title: `${from.getContent().id} sent you a friend request`,
+      title: "New Friend Request",
+      body: `${from.getContent().id} sent you a friend request`,
     };
     await expoPushService.pushNotificationToExpo([message]);
   }
@@ -26,7 +27,8 @@ export class FriendNotifications {
 
     let message = {
       to: to.getContent().expo_tokens || [],
-      title: `${from.getContent().id} added you as a friend`,
+      title: "Friend Request Accepted",
+      body: `${from.getContent().id} added you as a friend`,
     };
     await expoPushService.pushNotificationToExpo([message]);
   }
