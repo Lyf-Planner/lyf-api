@@ -60,7 +60,7 @@ export class UserOperations {
     };
     user.social = {
       friends: [],
-      friend_requests: [],
+      requests: [],
       requested: [],
       blocked: [],
     };

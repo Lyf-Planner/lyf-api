@@ -16,7 +16,7 @@ export class SocialUser extends UserModel {
   // Sending Friend Requests:
 
   public receiveFriendRequest(from: ID) {
-    var requests = this.content.social.friend_requests || [];
+    var requests = this.content.social.requests || [];
     var friends = this.content.social.friends || [];
 
     // Ensure the user has not already requested
@@ -30,7 +30,7 @@ export class SocialUser extends UserModel {
 
     // Add "from" user to this users requests
     requests.push(from);
-    this.content.social.friend_requests = requests;
+    this.content.social.requests = requests;
   }
 
   public noteRequestToSelf(to: ID) {
@@ -64,8 +64,8 @@ export class SocialUser extends UserModel {
       `User ${this.id} nearly had their friend requests modified by another user`
     );
 
-    // Ensure they have 'friend_requests' field
-    var requests = this.content.social.friend_requests || [];
+    // Ensure they have 'requests' field
+    var requests = this.content.social.requests || [];
     if (!requests) {
       let message = `User ${this.id} has no friend requests to accept/deny`;
       this.logger.warn(message);
@@ -222,11 +222,11 @@ export class SocialUser extends UserModel {
       this.content.social.requested = requested;
     }
 
-    let friend_requests = this.content.social.friend_requests || [];
-    let requestIndex = friend_requests.findIndex((x) => x === other);
+    let requests = this.content.social.requests || [];
+    let requestIndex = requests.findIndex((x) => x === other);
     if (requestIndex !== -1) {
-      friend_requests.splice(requestIndex, 1);
-      this.content.social.friend_requests = friend_requests;
+      requests.splice(requestIndex, 1);
+      this.content.social.requests = requests;
     }
   }
 }
