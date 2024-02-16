@@ -5,7 +5,6 @@ import { TwentyFourHourToAMPM, formatDate } from "../../utils/dates";
 import { UserOperations } from "../users/userOperations";
 import expoPushService from "../../notifications/expoPushService";
 import { ID } from "../../api/abstract";
-import { ItemModel } from "../items/itemModel";
 import { UserAccess } from "../../api/social";
 import { ListItem } from "../../api/list";
 import { Logger } from "../../utils/logging";
@@ -26,16 +25,17 @@ export class SocialItemNotifications {
     // Format the message
     let message = {
       to: to.getContent().expo_tokens || [],
-      title: `${from.getContent().id} invited you to ${itemContent.title}`,
+      title: `New ${item.getContent().type} Invite`,
+      body: `${from.getContent().id} invited you to ${itemContent.title}`,
     } as ExpoPushMessage;
 
     // Include dates and times if they are set
     if (itemContent.date && itemContent.time)
-      message.body = `At ${TwentyFourHourToAMPM(
+      message.body += `at ${TwentyFourHourToAMPM(
         itemContent.time
       )} on ${formatDate(itemContent.date)}`;
     else if (itemContent.date)
-      message.body = `On ${formatDate(itemContent.date)}`;
+      message.body += `on ${formatDate(itemContent.date)}`;
 
     // Send
     await expoPushService.pushNotificationToExpo([message]);
@@ -61,7 +61,8 @@ export class SocialItemNotifications {
     // Format the message
     let message = {
       to: tokens,
-      title: `${from.getContent().id} joined ${itemContent.title}`,
+      title: `New ${item.getContent().type} Attendee`,
+      body: `${from.getContent().id} joined ${itemContent.title}`,
     } as ExpoPushMessage;
 
     // Send
@@ -84,7 +85,8 @@ export class SocialItemNotifications {
     // Format the message
     let message = {
       to: tokens,
-      title: `${from} updated the date of ${
+      title: `${item.type} date updated`,
+      body: `${from} updated the date of ${
         item.title
       } to ${TwentyFourHourToAMPM(newDate)}`,
     } as ExpoPushMessage;
@@ -108,7 +110,8 @@ export class SocialItemNotifications {
     // Format the message
     let message = {
       to: tokens,
-      title: `${from} updated the time of ${
+      title: `${item.type} time updated`,
+      body: `${from} updated the time of ${
         item.title
       } to ${TwentyFourHourToAMPM(newTime)}`,
     } as ExpoPushMessage;
