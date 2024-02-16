@@ -25,7 +25,7 @@ export type UserDetails = Identifiable & {
 
 export type UserSocial = {
   friends?: ID[];
-  friend_requests?: ID[];
+  requests?: ID[];
   requested?: ID[];
   blocked?: ID[];
 };

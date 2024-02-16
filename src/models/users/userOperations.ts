@@ -60,7 +60,7 @@ export class UserOperations {
     };
     user.social = {
       friends: [],
-      friend_requests: [],
+      requests: [],
       requested: [],
       blocked: [],
     };
@@ -72,7 +72,9 @@ export class UserOperations {
   }
 
   public static async retrieveManyUsers(user_ids: ID[]) {
-    var users = (await db.usersCollection().getManyById(user_ids, false)) as any[];
+    var users = (await db
+      .usersCollection()
+      .getManyById(user_ids, false)) as any[];
     users = users.map((x) => UserOperations.extractUserDetails(x));
 
     return users;
