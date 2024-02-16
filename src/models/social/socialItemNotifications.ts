@@ -31,11 +31,11 @@ export class SocialItemNotifications {
 
     // Include dates and times if they are set
     if (itemContent.date && itemContent.time)
-      message.body += `at ${TwentyFourHourToAMPM(
+      message.body += ` at ${TwentyFourHourToAMPM(
         itemContent.time
       )} on ${formatDate(itemContent.date)}`;
     else if (itemContent.date)
-      message.body += `on ${formatDate(itemContent.date)}`;
+      message.body += ` on ${formatDate(itemContent.date)}`;
 
     // Send
     await expoPushService.pushNotificationToExpo([message]);
