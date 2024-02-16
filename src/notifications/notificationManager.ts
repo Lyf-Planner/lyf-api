@@ -122,7 +122,10 @@ export class NotificationManager {
 
       this.logger.info(`Sending daily notification to ${user_id}`);
       var subtext = await this.getUserDaily(user);
-      if (!subtext) return;
+      if (!subtext) {
+        done();
+        return;
+      }
 
       var message = this.formatExpoPushMessage(
         user.getContent().expo_tokens || [],
