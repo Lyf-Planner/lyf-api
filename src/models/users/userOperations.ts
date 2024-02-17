@@ -71,6 +71,11 @@ export class UserOperations {
     return model;
   }
 
+  public static async getUserPushTokens(user_id: ID) {
+    var user = (await db.usersCollection().getById(user_id)) as User;
+    return user.expo_tokens || [];
+  }
+
   public static async retrieveManyUsers(user_ids: ID[]) {
     var users = (await db
       .usersCollection()
@@ -85,6 +90,8 @@ export class UserOperations {
     return {
       ...user.details,
       id: user.id,
+      items: user.timetable.items.length,
+      notes: user.notes.items.length,
     };
   }
 }

@@ -28,7 +28,7 @@ export class ExpoNotificationService {
       for (let chunk of chunks) {
         try {
           let ticketChunk = await this.expo.sendPushNotificationsAsync(chunk);
-          this.logger.info(`Sent message and received ticket ${ticketChunk}`);
+          this.logger.info(`Sent message and received ticket ${JSON.stringify(ticketChunk)}`);
           tickets.push(...ticketChunk);
           // NOTE: If a ticket contains an error code in ticket.details.error, you
           // must handle it appropriately. The error codes are listed in the Expo

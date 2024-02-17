@@ -6,6 +6,8 @@ import { RestrictedRemoteObject } from "../abstract/restrictedRemoteObject";
 import { updateItemBody } from "../../rest/validators/itemValidators";
 import notificationManager from "../../notifications/notificationManager";
 import db from "../../repository/dbAccess";
+import { SocialItemNotifications } from "../social/socialItemNotifications";
+import { ID } from "../../api/abstract";
 
 export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private logger = Logger.of(ItemModel);
@@ -54,7 +56,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     this.handleNotificationChanges({ ...newItem });
 
     // 2. Handle any time changes
-    this.handleTimeChanges({ ...newItem });
+    this.handleTimeChanges({ ...newItem }, user_id);
 
     this.logger.debug(
       `User ${this.requested_by} safely updated item ${this.id}`
@@ -126,12 +128,13 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     }
   }
 
-  private handleTimeChanges(proposed: ListItem) {
-    const timeChanged =
-      proposed.time !== this.content.time ||
-      proposed.date !== this.content.date;
+  private handleTimeChanges(proposed: ListItem, from: ID) {
+    const timeChanged = proposed.time !== this.content.time;
+    const dateChanged = proposed.date !== this.content.date;
+    const changes = timeChanged || dateChanged;
 
-    if (timeChanged && this.content.notifications) {
+    // Update when notifications should send
+    if (changes && this.content.notifications) {
       for (let notification of this.content.notifications) {
         // Case: date or time was deleted
         if (!proposed.time || !proposed.date) {
@@ -160,6 +163,10 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
           );
         }
       }
+
+      // Notify any other users of a change!
+      if (timeChanged) SocialItemNotifications.timeChanged(from, proposed);
+      if (dateChanged) SocialItemNotifications.dateChanged(from, proposed);
     }
   }
 
@@ -194,5 +201,9 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       approved_by: [],
       dismissed_by: [],
     });
+  }
+
+  public displayName() {
+    return `${this.content.title} (${this.content.id})`;
   }
 }

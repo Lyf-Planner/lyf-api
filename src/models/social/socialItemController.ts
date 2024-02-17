@@ -5,6 +5,7 @@ import { Logger } from "../../utils/logging";
 import { ItemOperations } from "../items/ItemOperations";
 import { UserOperations } from "../users/userOperations";
 import { SocialItem } from "./socialItem";
+import { SocialItemNotifications } from "./socialItemNotifications";
 import { SocialUser } from "./socialUser";
 
 export class SocialItemController {
@@ -45,12 +46,14 @@ export class SocialItemController {
           `User ${from} invited user ${update.user_id} to item ${update.item_id}`
         );
         await controller.inviteUser();
+        await SocialItemNotifications.newItemInvite(targetUser, fromUser, item);
         break;
       case SocialAction.Accept:
         controller.logger.info(
           `User ${from} accepted invitation to item ${update.item_id}`
         );
         await controller.addressItemInvite(true);
+        await SocialItemNotifications.newItemUser(fromUser, item);
         break;
       case SocialAction.Decline:
         controller.logger.info(
