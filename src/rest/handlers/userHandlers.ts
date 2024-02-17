@@ -73,7 +73,7 @@ export class UserHandlers {
         user_id as string,
         requestor_id
       );
-      res.status(200).json(userModel.export()).end();
+      res.status(200).json(userModel.getUser(false)).end();
     } catch (err) {
       res.status(400).end("User not found");
     }

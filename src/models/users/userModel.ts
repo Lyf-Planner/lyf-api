@@ -16,8 +16,8 @@ export class UserModel extends RemoteObject<User> {
     this.requestedBySelf = requestedBySelf;
   }
 
-  public getUser(): UserDetails | User {
-    if (!this.requestedBySelf)
+  public getUser(asSelf = true): UserDetails | User {
+    if (!this.requestedBySelf || !asSelf)
       return UserOperations.extractUserDetails(this.content);
     else return this.content;
   }
