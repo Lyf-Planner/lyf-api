@@ -1,9 +1,17 @@
 import { ID } from "../../api/abstract";
-import { ItemSettings, ListItem } from "../../api/list";
+import {
+  ItemSettings,
+  ItemStatus,
+  ListItem,
+  ListItemTypes,
+} from "../../api/list";
 import { ItemModel } from "./itemModel";
 import { Logger } from "../../utils/logging";
-import db from "../../repository/dbAccess";
 import { SocialItem } from "../social/socialItem";
+import { formatDateData } from "../../utils/dates";
+import { Permission } from "../../api/social";
+import { v4 as uuid } from "uuid";
+import db from "../../repository/dbAccess";
 
 export class ItemOperations {
   // Builder method
@@ -33,7 +41,7 @@ export class ItemOperations {
     commit = false // Also create in db
   ): Promise<ItemModel> {
     var model = new ItemModel(itemInput, false, user_id);
-    if (commit) await model.commit(true);
+    if (commit) await model.commit();
 
     return model;
   }
@@ -87,5 +95,24 @@ export class ItemOperations {
     } = item;
     // Need to validate the excluded items are of type ItemMetadata, so this function will error if that type is changed!
     return remaining;
+  }
+
+  static async createUserIntroItem(user_id: string) {
+    let userIntroItem = {
+      id: uuid(),
+      title: "Swipe Me Right!",
+      type: ListItemTypes.Event,
+      status: ItemStatus.Upcoming,
+      date: formatDateData(new Date()),
+      day: null,
+      desc: "This is your first item!\nTo create another like it, type it into the desired day\nTo delete this, hold it down",
+
+      permitted_users: [{ user_id, permissions: Permission.Owner }],
+      notifications: [],
+    } as any;
+    let firstItem = new ItemModel(userIntroItem, false, user_id);
+    await firstItem.commit();
+
+    return firstItem.getContent().id;
   }
 }

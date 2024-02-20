@@ -2,6 +2,7 @@ import { ID } from "../../api/abstract";
 import { User, UserDetails } from "../../api/user";
 import { Logger } from "../../utils/logging";
 import { UserModel } from "./userModel";
+import { ItemOperations } from "../items/ItemOperations";
 import { SocialUser } from "../social/socialUser";
 import authUtils from "../../auth/authUtils";
 import db from "../../repository/dbAccess";
@@ -35,12 +36,14 @@ export class UserOperations {
     commit = true, // Also create in db
     timezone?: string
   ): Promise<UserModel> {
+    let intro_item_id = await ItemOperations.createUserIntroItem(user_id);
+
     var user = {} as any;
     user.id = user_id;
     user.pass_hash = await authUtils.hashPass(password);
     user.details = {};
     user.timetable = {
-      items: [],
+      items: [{ id: intro_item_id }],
       invited_items: [],
     };
     user.notes = {
@@ -66,7 +69,7 @@ export class UserOperations {
     };
 
     var model = new UserModel(user, false, true);
-    if (commit) await model.commit(true);
+    if (commit) await model.commit();
 
     return model;
   }
