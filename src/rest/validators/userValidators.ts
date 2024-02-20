@@ -6,6 +6,7 @@ import { Notes } from "../../api/notes";
 import { Premium } from "../../api/premium";
 import { UserDetails } from "../../api/user";
 import { FriendshipAction, FriendshipUpdate } from "../../api/social";
+import Expo from "expo-server-sdk";
 
 // GET
 
@@ -58,6 +59,8 @@ export const updateMeValidator = [
   )
     .custom((tz) => tz && isValidTimeZone(tz))
     .optional({ nullable: true }),
+  body("expo_tokens").isArray().optional(),
+  body("expo_tokens.*").custom((token) => Expo.isExpoPushToken(token)),
   // Premium stuff
   body("premium").isObject().optional({ nullable: true }),
   body("premium.enabled").isBoolean().optional({ nullable: true }),
