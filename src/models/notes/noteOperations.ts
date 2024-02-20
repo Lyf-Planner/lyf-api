@@ -30,7 +30,7 @@ export class NoteOperations {
     commit = false // Also create in db
   ): Promise<NoteModel> {
     var model = new NoteModel(noteInput, false, user_id);
-    if (commit) await model.commit(true);
+    if (commit) await model.commit();
 
     return model;
   }
