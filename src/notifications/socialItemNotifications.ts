@@ -1,13 +1,14 @@
 import { ExpoPushMessage } from "expo-server-sdk";
-import { SocialItem } from "./socialItem";
-import { SocialUser } from "./socialUser";
-import { TwentyFourHourToAMPM, formatDate } from "../../utils/dates";
-import { UserOperations } from "../users/userOperations";
-import expoPushService from "../../notifications/expoPushService";
-import { ID } from "../../api/abstract";
-import { UserAccess } from "../../api/social";
-import { ListItem } from "../../api/list";
-import { Logger } from "../../utils/logging";
+import { SocialItem } from "../models/social/socialItem";
+import { SocialUser } from "../models/social/socialUser";
+import { TwentyFourHourToAMPM, formatDate } from "../utils/dates";
+import { UserOperations } from "../models/users/userOperations";
+import expoPushService from "./expoPushService";
+import { ID } from "../api/abstract";
+import { UserAccess } from "../api/social";
+import { ListItem } from "../api/list";
+import { Logger } from "../utils/logging";
+import { UserModel } from "../models/users/userModel";
 
 export class SocialItemNotifications {
   public static async newItemInvite(
@@ -26,7 +27,7 @@ export class SocialItemNotifications {
     let message = {
       to: to.getContent().expo_tokens || [],
       title: `New ${item.getContent().type} Invite`,
-      body: `${from.getContent().id} invited you to ${itemContent.title}`,
+      body: `${from.name()} invited you to ${itemContent.title}`,
     } as ExpoPushMessage;
 
     // Include dates and times if they are set
@@ -62,14 +63,14 @@ export class SocialItemNotifications {
     let message = {
       to: tokens,
       title: `New ${item.getContent().type} Attendee`,
-      body: `${from.getContent().id} joined ${itemContent.title}`,
+      body: `${from.name()} joined ${itemContent.title}`,
     } as ExpoPushMessage;
 
     // Send
     await expoPushService.pushNotificationToExpo([message]);
   }
 
-  public static async dateChanged(from: ID, item: ListItem) {
+  public static async dateChanged(from: UserModel, item: ListItem) {
     const newDate = item.date;
     if (!newDate) return;
 
@@ -77,7 +78,10 @@ export class SocialItemNotifications {
       `Notifying users on item ${item.title} (${item.id}) of date change to ${newDate} from ${from}`
     );
 
-    let usersToNotify = this.usersExceptFrom(from, item.permitted_users);
+    let usersToNotify = this.usersExceptFrom(
+      from.getId(),
+      item.permitted_users
+    );
 
     // Get tokens
     let tokens = await this.groupUserTokens(usersToNotify);
@@ -86,7 +90,7 @@ export class SocialItemNotifications {
     let message = {
       to: tokens,
       title: `${item.type} date updated`,
-      body: `${from} updated the date of ${
+      body: `${from.name()} updated the date of ${
         item.title
       } to ${TwentyFourHourToAMPM(newDate)}`,
     } as ExpoPushMessage;
@@ -95,14 +99,17 @@ export class SocialItemNotifications {
     await expoPushService.pushNotificationToExpo([message]);
   }
 
-  public static async timeChanged(from: ID, item: ListItem) {
+  public static async timeChanged(from: UserModel, item: ListItem) {
     const newTime = item.time;
     if (!newTime) return;
     logger.info(
       `Notifying users on item ${item.title} (${item.id}) of time change to ${newTime} from ${from}`
     );
 
-    let usersToNotify = this.usersExceptFrom(from, item.permitted_users);
+    let usersToNotify = this.usersExceptFrom(
+      from.getId(),
+      item.permitted_users
+    );
 
     // Get tokens
     let tokens = await this.groupUserTokens(usersToNotify);
@@ -111,7 +118,7 @@ export class SocialItemNotifications {
     let message = {
       to: tokens,
       title: `${item.type} time updated`,
-      body: `${from} updated the time of ${
+      body: `${from.name()} updated the time of ${
         item.title
       } to ${TwentyFourHourToAMPM(newTime)}`,
     } as ExpoPushMessage;

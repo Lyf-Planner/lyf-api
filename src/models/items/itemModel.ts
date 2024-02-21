@@ -1,13 +1,13 @@
 import { Permission } from "../../api/social";
 import { ListItem } from "../../api/list";
 import { Logger } from "../../utils/logging";
-import { ItemOperations } from "./ItemOperations";
 import { RestrictedRemoteObject } from "../abstract/restrictedRemoteObject";
 import { updateItemBody } from "../../rest/validators/itemValidators";
 import notificationManager from "../../notifications/notificationManager";
+import { SocialItemNotifications } from "../../notifications/socialItemNotifications";
+import { UserOperations } from "../users/userOperations";
+import { UserModel } from "../users/userModel";
 import db from "../../repository/dbAccess";
-import { SocialItemNotifications } from "../social/socialItemNotifications";
-import { ID } from "../../api/abstract";
 
 export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private logger = Logger.of(ItemModel);
@@ -40,13 +40,14 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   ): Promise<boolean> {
     // Run through permissions checks for updates
     var perm = this.getUserPermission(user_id);
+    var fromUser = await UserOperations.retrieveForUser(user_id, user_id);
 
     // SAFETY CHECKS
     // 1. Cannot update as a Viewer or Invited
     this.throwIfReadOnly(perm);
 
     // 2. Should not update anyone elses notifications (this is the only restriction within modifying metadata)
-    this.throwIfModifiedOtherNotifications(user_id, proposed);
+    this.throwIfModifiedOtherNotifications(fromUser, proposed);
 
     // Checks passed
 
@@ -56,7 +57,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     this.handleNotificationChanges({ ...newItem });
 
     // 2. Handle any time changes
-    this.handleTimeChanges({ ...newItem }, user_id);
+    this.handleTimeChanges({ ...newItem }, fromUser);
 
     this.logger.debug(
       `User ${this.requested_by} safely updated item ${this.id}`
@@ -78,7 +79,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   }
 
   private throwIfModifiedOtherNotifications(
-    user_id: string,
+    fromUser: UserModel,
     proposed: ListItem
   ) {
     if (!proposed.notifications) return;
@@ -88,10 +89,10 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       success = !proposed.notifications || proposed.notifications?.length <= 1;
     } else {
       var old = JSON.stringify(
-        this.content.notifications.filter((x) => x.user_id !== user_id)
+        this.content.notifications.filter((x) => x.user_id !== fromUser.getId())
       );
       var recent = JSON.stringify(
-        proposed.notifications.filter((x) => x.user_id !== user_id)
+        proposed.notifications.filter((x) => x.user_id !== fromUser.getId())
       );
       success = old === recent;
     }
@@ -128,7 +129,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     }
   }
 
-  private handleTimeChanges(proposed: ListItem, from: ID) {
+  private handleTimeChanges(proposed: ListItem, from: UserModel) {
     const timeChanged = proposed.time !== this.content.time;
     const dateChanged = proposed.date !== this.content.date;
     const changes = timeChanged || dateChanged;

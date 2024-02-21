@@ -22,6 +22,14 @@ export class UserModel extends RemoteObject<User> {
     else return this.content;
   }
 
+  public name() {
+    return this.content.details?.name || this.content.id;
+  }
+
+  public getId() {
+    return this.content.id;
+  }
+
   // Get the user, but hide sensitive fields
   public export() {
     // Needs validator
