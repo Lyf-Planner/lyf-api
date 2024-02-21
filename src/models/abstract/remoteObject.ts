@@ -14,6 +14,11 @@ export class RemoteObject<T extends DBObject> {
     this.from_db = from_db;
   }
 
+  public getId() {
+    return this.content.id;
+  }
+
+
   public async commit(): Promise<void> {
     this.content = await this.collectionRef.update(this.content, true);
   }

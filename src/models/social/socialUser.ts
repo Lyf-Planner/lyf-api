@@ -142,8 +142,8 @@ export class SocialUser extends UserModel {
   // Item Social:
 
   public async receiveItemInvite(item: SocialItem, invited_by: SocialUser) {
-    const item_id = item.getContent().id;
-    const invited_by_id = invited_by.getContent().id;
+    const item_id = item.getId();
+    const invited_by_id = invited_by.getId();
 
     // Must be invited by a friend
     let inviter = this.content.social.friends?.find((x) => x === invited_by_id);
@@ -161,7 +161,7 @@ export class SocialUser extends UserModel {
 
   public addressItemInvite(item: SocialItem, accepted: boolean) {
     this.enforceRequestedBySelf("Cannot accept someone elses item invite!");
-    const item_id = item.getContent().id;
+    const item_id = item.getId();
 
     if (accepted) {
       // Add to items
@@ -176,14 +176,14 @@ export class SocialUser extends UserModel {
   }
 
   public leaveItem(item: SocialItem) {
-    const item_id = item.getContent().id;
+    const item_id = item.getId();
 
     const i = this.content.timetable.items.findIndex((x) => x.id === item_id);
     this.content.timetable.items.splice(i, 1);
   }
 
   public removeInvite(item: SocialItem) {
-    const item_id = item.getContent().id;
+    const item_id = item.getId();
 
     const i = this.content.timetable.items.findIndex((x) => x.id === item_id);
     this.content.timetable.items.splice(i, 1);

@@ -5,9 +5,7 @@ import { Logger } from "../utils/logging";
 export class FriendNotifications {
   public static async newFriendRequest(to: SocialUser, from: SocialUser) {
     logger.info(
-      `Notifying ${to.getContent().id} of friend request from ${
-        from.getContent().id
-      }`
+      `Notifying ${to.getId()} of friend request from ${from.getId()}`
     );
 
     let message = {
@@ -20,9 +18,7 @@ export class FriendNotifications {
 
   public static async newFriend(to: SocialUser, from: SocialUser) {
     logger.info(
-      `Notifying ${to.getContent().id} of accepted friend request from ${
-        from.getContent().id
-      }`
+      `Notifying ${to.getId()} of accepted friend request from ${from.getId()}`
     );
 
     let message = {

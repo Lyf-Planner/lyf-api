@@ -113,6 +113,6 @@ export class ItemOperations {
     let firstItem = new ItemModel(userIntroItem, false, user_id);
     await firstItem.commit();
 
-    return firstItem.getContent().id;
+    return firstItem.getId();
   }
 }

@@ -15,7 +15,7 @@ export class SocialItem extends ItemModel {
 
   public inviteUser(invited_user: SocialUser, invited_by: SocialUser) {
     const inviter = this.content.permitted_users.find(
-      (x) => x.user_id === invited_by.getContent().id
+      (x) => x.user_id === invited_by.getId()
     );
 
     // User must be the owner to do this! (currently)
@@ -27,14 +27,14 @@ export class SocialItem extends ItemModel {
 
     let inviterFriendship = invited_by
       .getContent()
-      .social.friends?.find((x) => x === invited_user.getContent().id);
+      .social.friends?.find((x) => x === invited_user.getId());
     if (!inviterFriendship) {
       throw new Error("You can only invite friends to your items!");
     }
 
     // Add the user to the invite list
     const newUserAccess = {
-      user_id: invited_user.getContent().id,
+      user_id: invited_user.getId(),
       permissions: Permission.Invited,
     };
     this.content.invited_users
@@ -43,7 +43,7 @@ export class SocialItem extends ItemModel {
   }
 
   public handleInviteAddressed(user: SocialUser, accepted: boolean) {
-    const user_id = user.getContent().id;
+    const user_id = user.getId();
 
     const invite =
       this.content.invited_users &&
@@ -68,7 +68,7 @@ export class SocialItem extends ItemModel {
   }
 
   public removeUser(user: SocialUser) {
-    const user_id = user.getContent().id;
+    const user_id = user.getId();
 
     // Requested_by must match user or have owner permission
     let requestor_perm = this.getUserPermission(this.requested_by);
@@ -88,7 +88,7 @@ export class SocialItem extends ItemModel {
       throw new Error("You must be the Owner to cancel an invite!");
     }
 
-    const user_id = user.getContent().id;
+    const user_id = user.getId();
     if (!this.content.invited_users) return;
     const i = this.content.invited_users.findIndex(
       (x) => x.user_id === user_id

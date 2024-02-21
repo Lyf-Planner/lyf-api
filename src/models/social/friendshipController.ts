@@ -73,10 +73,10 @@ export class FriendshipController {
 
   private async requestFriendship() {
     // Add to from
-    this.from.noteRequestToSelf(this.target.getContent().id);
+    this.from.noteRequestToSelf(this.target.getId());
 
     // Add to target
-    this.target.receiveFriendRequest(this.from.getContent().id);
+    this.target.receiveFriendRequest(this.from.getId());
 
     // No errors were triggered, commit changes to both
     await this.commitToBoth();
@@ -87,16 +87,10 @@ export class FriendshipController {
     // The from user is the one who calls the endpoint and is addressing the request, not the one who sent the friend request
 
     // Update on from
-    this.from.addressIncomingFriendRequest(
-      this.target.getContent().id,
-      accepted
-    );
+    this.from.addressIncomingFriendRequest(this.target.getId(), accepted);
 
     // Update on target
-    this.target.updateOutgoingFriendRequest(
-      this.from.getContent().id,
-      accepted
-    );
+    this.target.updateOutgoingFriendRequest(this.from.getId(), accepted);
 
     // No errors were triggered, commit changes to both
     await this.commitToBoth();
@@ -104,10 +98,10 @@ export class FriendshipController {
 
   private async deleteFriendship() {
     // Update on from
-    this.from.deleteFriendship(this.target.getContent().id);
+    this.from.deleteFriendship(this.target.getId());
 
     // Update on target
-    this.target.deleteFriendship(this.from.getContent().id);
+    this.target.deleteFriendship(this.from.getId());
 
     // No errors were triggered, commit changes to both
     await this.commitToBoth();
@@ -115,10 +109,10 @@ export class FriendshipController {
 
   public async cancelFriendRequest() {
     // Update on from
-    this.from.cancelRequest(this.target.getContent().id);
+    this.from.cancelRequest(this.target.getId());
 
     // Update on target
-    this.target.cancelRequest(this.from.getContent().id);
+    this.target.cancelRequest(this.from.getId());
 
     // No errors were triggered, commit changes to both
     await this.commitToBoth();

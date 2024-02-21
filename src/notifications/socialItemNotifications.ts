@@ -6,7 +6,7 @@ import { UserOperations } from "../models/users/userOperations";
 import expoPushService from "./expoPushService";
 import { ID } from "../api/abstract";
 import { UserAccess } from "../api/social";
-import { ListItem } from "../api/list";
+import { ItemStatus, ListItem } from "../api/list";
 import { Logger } from "../utils/logging";
 import { UserModel } from "../models/users/userModel";
 
@@ -17,9 +17,7 @@ export class SocialItemNotifications {
     item: SocialItem
   ) {
     logger.info(
-      `Notifying user ${
-        to.getContent().id
-      } of invite to item ${item.displayName()}`
+      `Notifying user ${to.getId()} of invite to item ${item.displayName()}`
     );
     const itemContent = item.getContent();
 
@@ -44,15 +42,13 @@ export class SocialItemNotifications {
 
   public static async newItemUser(from: SocialUser, item: SocialItem) {
     logger.info(
-      `Notifying users on item ${item.displayName()} of new user ${
-        from.getContent().id
-      }`
+      `Notifying users on item ${item.displayName()} of new user ${from.getId()}`
     );
 
     // Notify all users (except the one who joined)
     const itemContent = item.getContent();
     let usersToNotify = this.usersExceptFrom(
-      from.getContent().id,
+      from.getId(),
       itemContent.permitted_users
     );
 
@@ -75,7 +71,9 @@ export class SocialItemNotifications {
     if (!newDate) return;
 
     logger.info(
-      `Notifying users on item ${item.title} (${item.id}) of date change to ${newDate} from ${from}`
+      `Notifying users on item ${item.title} (${
+        item.id
+      }) of date change to ${newDate} from ${from.getId()}`
     );
 
     let usersToNotify = this.usersExceptFrom(
@@ -103,7 +101,9 @@ export class SocialItemNotifications {
     const newTime = item.time;
     if (!newTime) return;
     logger.info(
-      `Notifying users on item ${item.title} (${item.id}) of time change to ${newTime} from ${from}`
+      `Notifying users on item ${item.title} (${
+        item.id
+      }) of time change to ${newTime} from ${from.getId()}`
     );
 
     let usersToNotify = this.usersExceptFrom(
@@ -127,6 +127,38 @@ export class SocialItemNotifications {
     await expoPushService.pushNotificationToExpo([message]);
   }
 
+  public static async statusChanged(from: UserModel, item: ListItem) {
+    const newStatus = item.status;
+    if (!newStatus) return;
+
+    let usersToNotify = this.usersExceptFrom(
+      from.getId(),
+      item.permitted_users
+    );
+    if (usersToNotify.length === 0) return;
+
+    logger.info(
+      `Notifying ${usersToNotify.length} other users on item ${item.title} (${
+        item.id
+      }) of status change to ${newStatus} from ${from.getId()}`
+    );
+
+    // Get tokens
+    let tokens = await this.groupUserTokens(usersToNotify);
+
+    // Format the message
+    let message = {
+      to: tokens,
+      title: `${item.type} ${
+        item.status === ItemStatus.Done ? "Completed!" : item.status
+      }`,
+      body: `${from.name()} marked ${item.title} as ${newStatus}`,
+    } as ExpoPushMessage;
+
+    // Send
+    await expoPushService.pushNotificationToExpo([message]);
+  }
+
   // Helpers
   public static usersExceptFrom(from_id: ID, permitted_users: UserAccess[]) {
     return permitted_users.map((x) => x.user_id).filter((x) => x !== from_id);
@@ -137,7 +169,7 @@ export class SocialItemNotifications {
     let tokens = [] as string[];
     for (let user_id of usersToNotify) {
       let user_tokens = await UserOperations.getUserPushTokens(user_id);
-      tokens.concat(user_tokens);
+      tokens = tokens.concat(user_tokens);
     }
 
     return tokens;

@@ -327,10 +327,7 @@ export class NotificationManager {
     var userItemIds = user
       .getContent()
       .timetable?.items.map((x) => x.id) as any;
-    var items = await ItemOperations.getRawUserItems(
-      userItemIds,
-      user.getContent().id
-    );
+    var items = await ItemOperations.getRawUserItems(userItemIds, user.getId());
     const curDay = moment().format("dddd");
     const curDate = formatDateData(new Date());
     items = items.filter(

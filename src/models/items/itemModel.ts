@@ -1,5 +1,5 @@
 import { Permission } from "../../api/social";
-import { ListItem } from "../../api/list";
+import { ItemStatus, ListItem } from "../../api/list";
 import { Logger } from "../../utils/logging";
 import { RestrictedRemoteObject } from "../abstract/restrictedRemoteObject";
 import { updateItemBody } from "../../rest/validators/itemValidators";
@@ -58,6 +58,9 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
 
     // 2. Handle any time changes
     this.handleTimeChanges({ ...newItem }, fromUser);
+
+    // 3. Handle any status changes
+    this.handleStatusChanges({ ...newItem }, fromUser);
 
     this.logger.debug(
       `User ${this.requested_by} safely updated item ${this.id}`
@@ -169,6 +172,17 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       if (timeChanged) SocialItemNotifications.timeChanged(from, proposed);
       if (dateChanged) SocialItemNotifications.dateChanged(from, proposed);
     }
+  }
+
+  private handleStatusChanges(proposed: ListItem, from: UserModel) {
+    const statusChanged = proposed.status !== this.content.status;
+    const statusChangeRelevant =
+      proposed.status === ItemStatus.Done ||
+      proposed.status === ItemStatus.Cancelled;
+
+    // Notify any other users of a change!
+    if (statusChanged && statusChangeRelevant)
+      SocialItemNotifications.statusChanged(from, proposed);
   }
 
   public async clearNotification(user_id: string) {
