@@ -130,7 +130,7 @@ export class NotificationManager {
       var message = this.formatExpoPushMessage(
         user.getContent().expo_tokens || [],
         "Check Your Schedule!",
-        subtext
+        "(Daily Reminder) " + subtext
       );
       await expoPushService.pushNotificationToExpo([message]);
       done();
