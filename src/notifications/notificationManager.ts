@@ -129,7 +129,7 @@ export class NotificationManager {
 
       var message = this.formatExpoPushMessage(
         user.getContent().expo_tokens || [],
-        "Today's Schedule",
+        "Check Your Schedule",
         subtext
       );
       await expoPushService.pushNotificationToExpo([message]);
@@ -347,14 +347,14 @@ export class NotificationManager {
         ? "Nothing planned for today :)"
         : "";
     } else if (eventCount === 0) {
-      return `You have ${pluralisedQuantity(taskCount, "task")} on today :)`;
+      return `You have ${pluralisedQuantity(taskCount, "task")} on today`;
     } else if (taskCount === 0) {
-      return `You have ${pluralisedQuantity(eventCount, "event")} on today :)`;
+      return `You have ${pluralisedQuantity(eventCount, "event")} on today`;
     } else {
       return `You have ${pluralisedQuantity(
         eventCount,
         "event"
-      )} and ${pluralisedQuantity(taskCount, "task")} on today :)`;
+      )} and ${pluralisedQuantity(taskCount, "task")} on today`;
     }
   }
 
