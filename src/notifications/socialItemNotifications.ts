@@ -26,6 +26,7 @@ export class SocialItemNotifications {
       to: to.getContent().expo_tokens || [],
       title: `New ${item.getContent().type} Invite`,
       body: `${from.name()} invited you to ${itemContent.title}`,
+      sound: { critical: true, volume: 1, name: "default" },
     } as ExpoPushMessage;
 
     // Include dates and times if they are set
@@ -91,6 +92,7 @@ export class SocialItemNotifications {
       body: `${from.name()} updated the date of ${
         item.title
       } to ${TwentyFourHourToAMPM(newDate)}`,
+      sound: { critical: true, volume: 1, name: "default" },
     } as ExpoPushMessage;
 
     // Send
@@ -121,6 +123,7 @@ export class SocialItemNotifications {
       body: `${from.name()} updated the time of ${
         item.title
       } to ${TwentyFourHourToAMPM(newTime)}`,
+      sound: { critical: true, volume: 1, name: "default" },
     } as ExpoPushMessage;
 
     // Send
@@ -153,6 +156,11 @@ export class SocialItemNotifications {
         item.status === ItemStatus.Done ? "Completed!" : item.status
       }`,
       body: `${from.name()} marked ${item.title} as ${newStatus}`,
+      sound: {
+        critical: item.status === ItemStatus.Cancelled,
+        volume: 1,
+        name: "default",
+      },
     } as ExpoPushMessage;
 
     // Send

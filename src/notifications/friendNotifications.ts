@@ -1,6 +1,7 @@
 import { SocialUser } from "../models/social/socialUser";
 import expoPushService from "./expoPushService";
 import { Logger } from "../utils/logging";
+import { ExpoPushMessage } from "expo-server-sdk";
 
 export class FriendNotifications {
   public static async newFriendRequest(to: SocialUser, from: SocialUser) {
@@ -12,7 +13,8 @@ export class FriendNotifications {
       to: to.getContent().expo_tokens || [],
       title: "New Friend Request",
       body: `${from.name()} sent you a friend request`,
-    };
+      sound: { critical: true, volume: 1, name: "default" },
+    } as ExpoPushMessage;
     await expoPushService.pushNotificationToExpo([message]);
   }
 

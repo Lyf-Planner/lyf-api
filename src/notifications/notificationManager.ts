@@ -297,6 +297,7 @@ export class NotificationManager {
       to,
       title,
       body,
+      sound: { critical: true, volume: 1, name: "default" },
     } as ExpoPushMessage;
   }
 
