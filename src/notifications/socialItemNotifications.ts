@@ -9,6 +9,7 @@ import { UserAccess } from "../api/social";
 import { ItemStatus, ListItem } from "../api/list";
 import { Logger } from "../utils/logging";
 import { UserModel } from "../models/users/userModel";
+import { ItemOperations } from "../models/items/ItemOperations";
 
 export class SocialItemNotifications {
   public static async newItemInvite(
@@ -48,9 +49,9 @@ export class SocialItemNotifications {
 
     // Notify all users (except the one who joined)
     const itemContent = item.getContent();
-    let usersToNotify = this.usersExceptFrom(
+    let usersToNotify = ItemOperations.usersExceptFrom(
       from.getId(),
-      itemContent.permitted_users
+      itemContent
     );
 
     // Get tokens
@@ -59,7 +60,7 @@ export class SocialItemNotifications {
     // Format the message
     let message = {
       to: tokens,
-      title: `New ${item.getContent().type} Attendee`,
+      title: `User Joined your ${item.getContent().type}`,
       body: `${from.name()} joined ${itemContent.title}`,
     } as ExpoPushMessage;
 
@@ -77,10 +78,7 @@ export class SocialItemNotifications {
       }) of date change to ${newDate} from ${from.getId()}`
     );
 
-    let usersToNotify = this.usersExceptFrom(
-      from.getId(),
-      item.permitted_users
-    );
+    let usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
 
     // Get tokens
     let tokens = await this.groupUserTokens(usersToNotify);
@@ -108,10 +106,7 @@ export class SocialItemNotifications {
       }) of time change to ${newTime} from ${from.getId()}`
     );
 
-    let usersToNotify = this.usersExceptFrom(
-      from.getId(),
-      item.permitted_users
-    );
+    let usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
 
     // Get tokens
     let tokens = await this.groupUserTokens(usersToNotify);
@@ -134,10 +129,7 @@ export class SocialItemNotifications {
     const newStatus = item.status;
     if (!newStatus) return;
 
-    let usersToNotify = this.usersExceptFrom(
-      from.getId(),
-      item.permitted_users
-    );
+    let usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
     if (usersToNotify.length === 0) return;
 
     logger.info(
@@ -168,10 +160,6 @@ export class SocialItemNotifications {
   }
 
   // Helpers
-  public static usersExceptFrom(from_id: ID, permitted_users: UserAccess[]) {
-    return permitted_users.map((x) => x.user_id).filter((x) => x !== from_id);
-  }
-
   public static async groupUserTokens(usersToNotify: string[]) {
     // Get all notified user push tokens
     let tokens = [] as string[];

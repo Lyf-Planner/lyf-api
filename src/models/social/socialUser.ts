@@ -1,4 +1,5 @@
 import { ID } from "../../api/abstract";
+import { ListItem } from "../../api/list";
 import { User } from "../../api/user";
 import { UserModel } from "../users/userModel";
 import { SocialItem } from "./socialItem";
@@ -187,6 +188,21 @@ export class SocialUser extends UserModel {
 
     const i = this.content.timetable.items.findIndex((x) => x.id === item_id);
     this.content.timetable.items.splice(i, 1);
+  }
+
+  public async addRoutineInstantiation(item: ListItem) {
+    // Check the user is still on the routine
+    if (!item.template_id) return;
+    const myItemIds = this.content.timetable.items.map((x) => x.id);
+    const onRoutine = myItemIds.includes(item.template_id);
+    if (!onRoutine) return;
+    else {
+      this.logger.info(
+        `Adding instantiation of routine ${item.title} (${item.template_id}) to user ${this.id}`
+      );
+      this.content.timetable.items.push({ id: item.id });
+      await this.commit();
+    }
   }
 
   // Helpers

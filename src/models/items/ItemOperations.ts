@@ -12,6 +12,8 @@ import { formatDateData } from "../../utils/dates";
 import { Permission } from "../../api/social";
 import { v4 as uuid } from "uuid";
 import db from "../../repository/dbAccess";
+import { UserOperations } from "../users/userOperations";
+import { SocialUser } from "../social/socialUser";
 
 export class ItemOperations {
   // Builder method
@@ -41,6 +43,21 @@ export class ItemOperations {
     commit = false // Also create in db
   ): Promise<ItemModel> {
     var model = new ItemModel(itemInput, false, user_id);
+    const item = model.getContent();
+
+    // Need to ensure we include routine users if it has a template_id!
+    if (item.template_id && item.permitted_users?.length > 1) {
+      let otherUsers = this.usersExceptFrom(user_id, item);
+      for (let user of otherUsers) {
+        let socialUser = (await UserOperations.retrieveForUser(
+          user,
+          user_id,
+          true
+        )) as SocialUser;
+        await socialUser.addRoutineInstantiation(item);
+      }
+    }
+
     if (commit) await model.commit();
 
     return model;
@@ -114,5 +131,11 @@ export class ItemOperations {
     await firstItem.commit();
 
     return firstItem.getId();
+  }
+
+  public static usersExceptFrom(from_id: ID, item: ListItem) {
+    return item.permitted_users
+      .map((x) => x.user_id)
+      .filter((x) => x !== from_id);
   }
 }
