@@ -1,0 +1,175 @@
+import { ExpoPushMessage } from "expo-server-sdk";
+import { SocialItem } from "../models/social/socialItem";
+import { SocialUser } from "../models/social/socialUser";
+import { TwentyFourHourToAMPM, formatDate } from "../utils/dates";
+import { UserOperations } from "../models/users/userOperations";
+import expoPushService from "./expoPushService";
+import { ID } from "../api/abstract";
+import { UserAccess } from "../api/social";
+import { ItemStatus, ListItem } from "../api/list";
+import { Logger } from "../utils/logging";
+import { UserModel } from "../models/users/userModel";
+import { ItemOperations } from "../models/items/ItemOperations";
+
+export class SocialItemNotifications {
+  public static async newItemInvite(
+    to: SocialUser,
+    from: SocialUser,
+    item: SocialItem
+  ) {
+    logger.info(
+      `Notifying user ${to.getId()} of invite to item ${item.displayName()}`
+    );
+    const itemContent = item.getContent();
+
+    // Format the message
+    let message = {
+      to: to.getContent().expo_tokens || [],
+      title: `New ${item.getContent().type} Invite`,
+      body: `${from.name()} invited you to ${itemContent.title}`,
+      sound: { critical: true, volume: 1, name: "default" },
+    } as ExpoPushMessage;
+
+    // Include dates and times if they are set
+    if (itemContent.date && itemContent.time)
+      message.body += ` at ${TwentyFourHourToAMPM(
+        itemContent.time
+      )} on ${formatDate(itemContent.date)}`;
+    else if (itemContent.date)
+      message.body += ` on ${formatDate(itemContent.date)}`;
+
+    // Send
+    await expoPushService.pushNotificationToExpo([message]);
+  }
+
+  public static async newItemUser(from: SocialUser, item: SocialItem) {
+    logger.info(
+      `Notifying users on item ${item.displayName()} of new user ${from.getId()}`
+    );
+
+    // Notify all users (except the one who joined)
+    const itemContent = item.getContent();
+    let usersToNotify = ItemOperations.usersExceptFrom(
+      from.getId(),
+      itemContent
+    );
+
+    // Get tokens
+    let tokens = await this.groupUserTokens(usersToNotify);
+
+    // Format the message
+    let message = {
+      to: tokens,
+      title: `User Joined your ${item.getContent().type}`,
+      body: `${from.name()} joined ${itemContent.title}`,
+    } as ExpoPushMessage;
+
+    // Send
+    await expoPushService.pushNotificationToExpo([message]);
+  }
+
+  public static async dateChanged(from: UserModel, item: ListItem) {
+    const newDate = item.date;
+    if (!newDate) return;
+
+    logger.info(
+      `Notifying users on item ${item.title} (${
+        item.id
+      }) of date change to ${newDate} from ${from.getId()}`
+    );
+
+    let usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
+
+    // Get tokens
+    let tokens = await this.groupUserTokens(usersToNotify);
+
+    // Format the message
+    let message = {
+      to: tokens,
+      title: `${item.type} date updated`,
+      body: `${from.name()} updated the date of ${
+        item.title
+      } to ${TwentyFourHourToAMPM(newDate)}`,
+      sound: { critical: true, volume: 1, name: "default" },
+    } as ExpoPushMessage;
+
+    // Send
+    await expoPushService.pushNotificationToExpo([message]);
+  }
+
+  public static async timeChanged(from: UserModel, item: ListItem) {
+    const newTime = item.time;
+    if (!newTime) return;
+    logger.info(
+      `Notifying users on item ${item.title} (${
+        item.id
+      }) of time change to ${newTime} from ${from.getId()}`
+    );
+
+    let usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
+
+    // Get tokens
+    let tokens = await this.groupUserTokens(usersToNotify);
+
+    // Format the message
+    let message = {
+      to: tokens,
+      title: `${item.type} time updated`,
+      body: `${from.name()} updated the time of ${
+        item.title
+      } to ${TwentyFourHourToAMPM(newTime)}`,
+      sound: { critical: true, volume: 1, name: "default" },
+    } as ExpoPushMessage;
+
+    // Send
+    await expoPushService.pushNotificationToExpo([message]);
+  }
+
+  public static async statusChanged(from: UserModel, item: ListItem) {
+    const newStatus = item.status;
+    if (!newStatus) return;
+
+    let usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
+    if (usersToNotify.length === 0) return;
+
+    logger.info(
+      `Notifying ${usersToNotify.length} other users on item ${item.title} (${
+        item.id
+      }) of status change to ${newStatus} from ${from.getId()}`
+    );
+
+    // Get tokens
+    let tokens = await this.groupUserTokens(usersToNotify);
+
+    // Format the message
+    let message = {
+      to: tokens,
+      title: `${item.type} ${
+        item.status === ItemStatus.Done ? "Completed!" : item.status
+      }`,
+      body: `${from.name()} marked ${item.title} as ${newStatus}`,
+      sound: {
+        critical: item.status === ItemStatus.Cancelled,
+        volume: 1,
+        name: "default",
+      },
+    } as ExpoPushMessage;
+
+    // Send
+    await expoPushService.pushNotificationToExpo([message]);
+  }
+
+  // Helpers
+  public static async groupUserTokens(usersToNotify: string[]) {
+    // Get all notified user push tokens
+    let tokens = [] as string[];
+    for (let user_id of usersToNotify) {
+      let user_tokens = await UserOperations.getUserPushTokens(user_id);
+      tokens = tokens.concat(user_tokens);
+    }
+
+    return tokens;
+  }
+}
+
+const logger = Logger.of(SocialItemNotifications);

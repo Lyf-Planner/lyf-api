@@ -24,6 +24,7 @@ export type Restricted = {
 
 export type UserAccess = {
   user_id: string;
+  displayed_as: string;
   permissions: Permission;
 };
 

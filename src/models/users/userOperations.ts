@@ -54,7 +54,7 @@ export class UserOperations {
     user.premium = {
       enabled: true,
       notifications: {
-        daily_notifications: true,
+        daily_notifications: false,
         daily_notification_time: "08:00",
         persistent_daily_notification: false,
         event_notifications_enabled: true,

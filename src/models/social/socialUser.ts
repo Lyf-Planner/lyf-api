@@ -1,4 +1,5 @@
 import { ID } from "../../api/abstract";
+import { ListItem } from "../../api/list";
 import { User } from "../../api/user";
 import { UserModel } from "../users/userModel";
 import { SocialItem } from "./socialItem";
@@ -142,8 +143,8 @@ export class SocialUser extends UserModel {
   // Item Social:
 
   public async receiveItemInvite(item: SocialItem, invited_by: SocialUser) {
-    const item_id = item.getContent().id;
-    const invited_by_id = invited_by.getContent().id;
+    const item_id = item.getId();
+    const invited_by_id = invited_by.getId();
 
     // Must be invited by a friend
     let inviter = this.content.social.friends?.find((x) => x === invited_by_id);
@@ -161,7 +162,7 @@ export class SocialUser extends UserModel {
 
   public addressItemInvite(item: SocialItem, accepted: boolean) {
     this.enforceRequestedBySelf("Cannot accept someone elses item invite!");
-    const item_id = item.getContent().id;
+    const item_id = item.getId();
 
     if (accepted) {
       // Add to items
@@ -176,17 +177,32 @@ export class SocialUser extends UserModel {
   }
 
   public leaveItem(item: SocialItem) {
-    const item_id = item.getContent().id;
+    const item_id = item.getId();
 
     const i = this.content.timetable.items.findIndex((x) => x.id === item_id);
     this.content.timetable.items.splice(i, 1);
   }
 
   public removeInvite(item: SocialItem) {
-    const item_id = item.getContent().id;
+    const item_id = item.getId();
 
     const i = this.content.timetable.items.findIndex((x) => x.id === item_id);
     this.content.timetable.items.splice(i, 1);
+  }
+
+  public async addRoutineInstantiation(item: ListItem) {
+    // Check the user is still on the routine
+    if (!item.template_id) return;
+    const myItemIds = this.content.timetable.items.map((x) => x.id);
+    const onRoutine = myItemIds.includes(item.template_id);
+    if (!onRoutine) return;
+    else {
+      this.logger.info(
+        `Adding instantiation of routine ${item.title} (${item.template_id}) to user ${this.id}`
+      );
+      this.content.timetable.items.push({ id: item.id });
+      await this.commit();
+    }
   }
 
   // Helpers

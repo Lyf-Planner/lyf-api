@@ -129,8 +129,8 @@ export class NotificationManager {
 
       var message = this.formatExpoPushMessage(
         user.getContent().expo_tokens || [],
-        "Today's Schedule",
-        subtext
+        "Check Your Schedule!",
+        "(Daily Reminder) " + subtext
       );
       await expoPushService.pushNotificationToExpo([message]);
       done();
@@ -209,36 +209,50 @@ export class NotificationManager {
 
   // TIMEZONE CHANGE HANDLER
 
-  public async handleUserTzChange(user: User) {
+  public async handleUserTzChange(user: User, old_tz: string) {
+    // Don't run if the offset is the same
+    const newOffset = moment()
+      .tz(user.timezone || (process.env.TZ as string))
+      .utcOffset();
+    const oldOffset = moment().tz(old_tz).utcOffset();
+    if (oldOffset === newOffset) {
+      this.logger.info(
+        `User ${user.id} changed timezone but offset is equivalent - won't update notifications`
+      );
+      return;
+    }
+
     this.logger.info(
       `Adjusting notification timezones for user ${user.id} to ${user.timezone}`
     );
-    const userItems = user.timetable.items;
 
-    for (let item of userItems) {
-      let id = this.getUniqueJobId(item.id, user.id);
-      const job = await db
-        .getDb()
-        .collection("cron-jobs")
-        .findOne({ "data.id": id });
+    const jobs = await db
+      .getDb()
+      .collection("cron-jobs")
+      .find({ "data.user_id": user.id })
+      .toArray();
 
-      if (job) {
-        const itemObj = (
-          await ItemOperations.retrieveForUser(item.id, user.id)
-        ).getContent();
+    for (let job of jobs) {
+      let itemObj;
+      switch (job.name) {
+        case "Event Notification":
+          itemObj = (
+            await ItemOperations.retrieveForUser(job.data.item_id, user.id)
+          ).getContent();
+          await this.removeEventNotification({ ...itemObj }, user.id);
+          await this.setEventNotification({ ...itemObj }, user.id, true);
+          break;
 
-        switch (job.name) {
-          case "Event Notification":
-            await this.removeEventNotification({ ...itemObj }, user.id);
-            await this.setEventNotification({ ...itemObj }, user.id, true);
-            break;
-          case "Daily Notification":
-            await this.updateDailyNotifications(user);
-            break;
-          case "Routine Notification":
-            await this.updateRoutineNotification({ ...itemObj }, user.id);
-            break;
-        }
+        case "Daily Notification":
+          await this.updateDailyNotifications(user);
+          break;
+
+        case "Routine Notification":
+          itemObj = (
+            await ItemOperations.retrieveForUser(job.data.item_id, user.id)
+          ).getContent();
+          await this.updateRoutineNotification({ ...itemObj }, user.id);
+          break;
       }
     }
   }
@@ -297,6 +311,7 @@ export class NotificationManager {
       to,
       title,
       body,
+      sound: { critical: true, volume: 1, name: "default" },
     } as ExpoPushMessage;
   }
 
@@ -327,10 +342,7 @@ export class NotificationManager {
     var userItemIds = user
       .getContent()
       .timetable?.items.map((x) => x.id) as any;
-    var items = await ItemOperations.getRawUserItems(
-      userItemIds,
-      user.getContent().id
-    );
+    var items = await ItemOperations.getRawUserItems(userItemIds, user.getId());
     const curDay = moment().format("dddd");
     const curDate = formatDateData(new Date());
     items = items.filter(
@@ -349,14 +361,14 @@ export class NotificationManager {
         ? "Nothing planned for today :)"
         : "";
     } else if (eventCount === 0) {
-      return `You have ${pluralisedQuantity(taskCount, "task")} on today :)`;
+      return `You have ${pluralisedQuantity(taskCount, "task")} today`;
     } else if (taskCount === 0) {
-      return `You have ${pluralisedQuantity(eventCount, "event")} on today :)`;
+      return `You have ${pluralisedQuantity(eventCount, "event")} today`;
     } else {
       return `You have ${pluralisedQuantity(
         eventCount,
         "event"
-      )} and ${pluralisedQuantity(taskCount, "task")} on today :)`;
+      )} and ${pluralisedQuantity(taskCount, "task")} today`;
     }
   }
 
