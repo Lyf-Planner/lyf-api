@@ -35,6 +35,7 @@ export class SocialItem extends ItemModel {
     // Add the user to the invite list
     const newUserAccess = {
       user_id: invited_user.getId(),
+      displayed_as: invited_user.name(),
       permissions: Permission.Invited,
     };
     this.content.invited_users

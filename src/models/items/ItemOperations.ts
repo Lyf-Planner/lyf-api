@@ -124,7 +124,9 @@ export class ItemOperations {
       day: null,
       desc: "This is your first item!\nTo create another like it, type it into the desired day\nTo delete this, hold it down",
 
-      permitted_users: [{ user_id, permissions: Permission.Owner }],
+      permitted_users: [
+        { user_id, display_as: user_id, permissions: Permission.Owner },
+      ],
       notifications: [],
     } as any;
     let firstItem = new ItemModel(userIntroItem, false, user_id);
