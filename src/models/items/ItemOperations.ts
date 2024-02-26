@@ -117,7 +117,7 @@ export class ItemOperations {
   static async createUserIntroItem(user_id: string) {
     let userIntroItem = {
       id: uuid(),
-      title: "Swipe Me Right!",
+      title: "Swipe Me Left!",
       type: ListItemTypes.Event,
       status: ItemStatus.Upcoming,
       date: formatDateData(new Date()),
