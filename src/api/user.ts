@@ -17,12 +17,10 @@ export type User = Time &
     expo_tokens?: string[];
   };
 
-export type UserDetails = Identifiable & {
+export type UserDetails = Time & Identifiable & {
   name?: string;
   email?: string;
   pfp_url?: string;
-  items?: number;
-  notes?: number;
 };
 
 export type UserSocial = {

@@ -93,8 +93,8 @@ export class UserOperations {
     return {
       ...user.details,
       id: user.id,
-      items: user.timetable.items.length,
-      notes: user.notes.items.length,
+      last_updated: user.last_updated,
+      created: user.created,
     };
   }
 }
