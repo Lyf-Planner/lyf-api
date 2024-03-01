@@ -1,4 +1,4 @@
-import { ID } from "../../api/abstract";
+import { ID, Time } from "../../api/abstract";
 import { User, UserDetails } from "../../api/user";
 import { Logger } from "../../utils/logging";
 import { RemoteObject } from "../abstract/remoteObject";
@@ -16,7 +16,7 @@ export class UserModel extends RemoteObject<User> {
     this.requestedBySelf = requestedBySelf;
   }
 
-  public getUser(asSelf = true): UserDetails | User {
+  public getUser(asSelf = true): (UserDetails & Time) | User {
     if (!this.requestedBySelf || !asSelf)
       return UserOperations.extractUserDetails(this.content);
     else return this.content;
