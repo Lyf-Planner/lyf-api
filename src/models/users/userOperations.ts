@@ -1,4 +1,4 @@
-import { ID } from "../../api/abstract";
+import { ID, Time } from "../../api/abstract";
 import { User, UserDetails } from "../../api/user";
 import { Logger } from "../../utils/logging";
 import { UserModel } from "./userModel";
@@ -88,7 +88,7 @@ export class UserOperations {
     return users;
   }
 
-  public static extractUserDetails(user: User): UserDetails {
+  public static extractUserDetails(user: User): UserDetails & Time {
     // Needs validator
     return {
       ...user.details,

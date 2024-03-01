@@ -17,7 +17,7 @@ export type User = Time &
     expo_tokens?: string[];
   };
 
-export type UserDetails = Time & Identifiable & {
+export type UserDetails = Identifiable & {
   name?: string;
   email?: string;
   pfp_url?: string;
