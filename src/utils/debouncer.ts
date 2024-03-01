@@ -1,3 +1,5 @@
+import { Logger } from "./logging";
+
 type UniqueFunctionRun = {
   unique_data: any;
   timeout: NodeJS.Timeout;
@@ -5,6 +7,7 @@ type UniqueFunctionRun = {
 
 export class Debouncer {
   private uniqueRuns: UniqueFunctionRun[] = [];
+  private logger = Logger.of(Debouncer);
 
   public runFunc(func: () => any, unique_data: any, duration = 1000) {
     const currentData = this.uniqueRuns.map((x) => x.unique_data);
@@ -25,6 +28,9 @@ export class Debouncer {
       });
       // Else reset function timer
     } else {
+      this.logger.debug(
+        `Debouncing function with data ${currentData[i].unique_data}`
+      );
       clearTimeout(currentData[i].timeout);
       currentData[i].timeout = setTimeout(() => {
         func();
