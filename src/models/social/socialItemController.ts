@@ -75,6 +75,10 @@ export class SocialItemController {
         break;
     }
 
+    Logger.of(SocialItemController).debug("Item Social is::");
+    Logger.of(SocialItemController).debug(`Permitted Users: ${item.getContent().permitted_users}`);
+    Logger.of(SocialItemController).debug(`Invited Users: ${item.getContent().invited_users}`);
+
     // Return users' new social field
     return {
       permitted_users: item.getContent().permitted_users,

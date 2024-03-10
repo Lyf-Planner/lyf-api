@@ -19,7 +19,7 @@ export type FriendshipUpdate = {
 
 export type Restricted = {
   permitted_users: UserAccess[];
-  invited_users?: UserAccess[];
+  invited_users: UserAccess[];
 };
 
 export type UserAccess = {

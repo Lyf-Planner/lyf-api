@@ -46,13 +46,21 @@ export class SocialItem extends ItemModel {
   public handleInviteAddressed(user: SocialUser, accepted: boolean) {
     const user_id = user.getId();
 
+    if (this.getUserPermission(user_id) !== Permission.Invited) {
+      throw new Error(
+        "You either accepted or no longer have an invite for this item. Please refresh!"
+      );
+    }
+
     const invite =
       this.content.invited_users &&
-      this.content.invited_users.find((x) => (x.user_id = user_id));
+      this.content.invited_users.find((x) => x.user_id === user_id);
 
     // Ensure user is invited
     if (!invite) {
-      throw new Error("You have not been invited to this item");
+      throw new Error(
+        "Server Error: User had Invited permission but could not find invite"
+      );
     }
 
     if (accepted) {
@@ -64,7 +72,9 @@ export class SocialItem extends ItemModel {
     }
 
     // Remove user from invite list
-    const i = this.content.invited_users?.findIndex((x) => x === invite)!;
+    const i = this.content.invited_users?.findIndex(
+      (x) => x.user_id === invite.user_id
+    )!;
     this.content.invited_users?.splice(i, 1);
   }
 
