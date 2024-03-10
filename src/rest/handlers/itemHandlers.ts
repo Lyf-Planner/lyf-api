@@ -10,10 +10,10 @@ import {
   updateItemBody,
   updateItemSocialBody,
 } from "../validators/itemValidators";
-import { UserOperations } from "../../models/users/userOperations";
-import { SocialItem } from "../../models/social/socialItem";
-import { SocialUser } from "../../models/social/socialUser";
 import { SocialItemController } from "../../models/social/socialItemController";
+import PQueue from 'p-queue';
+
+const itemUpdateQueue = new PQueue({concurrency: 1});
 
 export class ItemHandlers {
   protected async createItem(req: Request, res: Response) {
@@ -28,29 +28,6 @@ export class ItemHandlers {
     var model = await ItemOperations.createNew(itemInput, user_id, true);
 
     res.status(200).json(model.export()).end();
-  }
-
-  protected async updateItem(req: Request, res: Response) {
-    var item = req.body as updateItemBody;
-    var user_id = getMiddlewareVars(res).user_id;
-
-    var remoteItem: ItemModel;
-    logger.debug(
-      `Updating item ${item.title} (${item.id}) from user ${user_id}`
-    );
-
-    // Authorisation checks
-    try {
-      // These fns will check user is permitted on the item and has Permission > Viewer
-      remoteItem = await ItemOperations.retrieveForUser(item.id, user_id);
-      await remoteItem.safeUpdate(item, user_id);
-      res.status(200).end();
-    } catch (err) {
-      logger.error(
-        `User ${user_id} did not safely update item ${item.id}: ${err}`
-      );
-      res.status(403).end(`${err}`);
-    }
   }
 
   protected async deleteItem(req: Request, res: Response) {
@@ -114,7 +91,38 @@ export class ItemHandlers {
     res.status(200).json(items!).end();
   }
 
+  protected async updateItem(req: Request, res: Response) {
+    itemUpdateQueue.add(async () => await ItemHandlers._queuedUpdateItem(req, res))
+  }
+
+  static async _queuedUpdateItem(req: Request, res: Response) {
+    var item = req.body as updateItemBody;
+    var user_id = getMiddlewareVars(res).user_id;
+
+    var remoteItem: ItemModel;
+    logger.debug(
+      `Updating item ${item.title} (${item.id}) from user ${user_id}`
+    );
+
+    // Authorisation checks
+    try {
+      // These fns will check user is permitted on the item and has Permission > Viewer
+      remoteItem = await ItemOperations.retrieveForUser(item.id, user_id);
+      await remoteItem.safeUpdate(item, user_id);
+      res.status(200).end();
+    } catch (err) {
+      logger.error(
+        `User ${user_id} did not safely update item ${item.id}: ${err}`
+      );
+      res.status(403).end(`${err}`);
+    }
+  }
+
   protected async updateItemSocial(req: Request, res: Response) {
+    itemUpdateQueue.add(async () => await ItemHandlers._queuedUpdateItemSocial(req, res))
+  }
+
+  static async _queuedUpdateItemSocial(req: Request, res: Response) {
     var update = req.body as updateItemSocialBody;
     var from_id = getMiddlewareVars(res).user_id;
 
