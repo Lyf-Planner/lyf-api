@@ -2260,6 +2260,11 @@ signal-exit@^3.0.0:
   resolved "https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.7.tgz"
   integrity sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==
 
+signature-debouncer@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/signature-debouncer/-/signature-debouncer-1.0.1.tgz#579529effa8be9b6aab782da9fb87534ba9289e3"
+  integrity sha512-FrrBn5jWtUaxO/zvSTOQC7h+18r3dABV20ODXOmgmbEqTPfwXRguVJuBw/4f9n6iCaqYvSn2QBiNtQ/GtdgqHA==
+
 simple-update-notifier@^1.0.7:
   version "1.1.0"
   resolved "https://registry.npmjs.org/simple-update-notifier/-/simple-update-notifier-1.1.0.tgz"

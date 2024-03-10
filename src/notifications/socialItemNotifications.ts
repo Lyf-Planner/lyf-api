@@ -8,7 +8,7 @@ import { Logger } from "../utils/logging";
 import { UserModel } from "../models/users/userModel";
 import { ItemOperations } from "../models/items/ItemOperations";
 
-import debouncer from "../utils/debouncer";
+import debouncer from "signature-debouncer";
 import expoPushService from "./expoPushService";
 
 export enum DebounceCategories {
@@ -198,7 +198,7 @@ export class SocialItemNotifications {
     user_id: string,
     category: DebounceCategories
   ) {
-    debouncer.runFunc(
+    debouncer.run(
       async () => await expoPushService.pushNotificationToExpo([message]),
       {
         item_id,
