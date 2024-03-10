@@ -3,13 +3,19 @@ import { SocialItem } from "../models/social/socialItem";
 import { SocialUser } from "../models/social/socialUser";
 import { TwentyFourHourToAMPM, formatDate } from "../utils/dates";
 import { UserOperations } from "../models/users/userOperations";
-import expoPushService from "./expoPushService";
-import { ID } from "../api/abstract";
-import { UserAccess } from "../api/social";
 import { ItemStatus, ListItem } from "../api/list";
 import { Logger } from "../utils/logging";
 import { UserModel } from "../models/users/userModel";
 import { ItemOperations } from "../models/items/ItemOperations";
+
+import debouncer from "../utils/debouncer";
+import expoPushService from "./expoPushService";
+
+export enum DebounceCategories {
+  "DateChange" = "DateChange",
+  "TimeChange" = "TimeChange",
+  "StatusChange" = "StatusChange",
+}
 
 export class SocialItemNotifications {
   public static async newItemInvite(
@@ -87,14 +93,19 @@ export class SocialItemNotifications {
     let message = {
       to: tokens,
       title: `${item.type} date updated`,
-      body: `${from.name()} updated the date of ${
-        item.title
-      } to ${TwentyFourHourToAMPM(newDate)}`,
+      body: `${from.name()} updated the date of ${item.title} to ${formatDate(
+        item.date!
+      )}`,
       sound: { critical: true, volume: 1, name: "default" },
     } as ExpoPushMessage;
 
     // Send
-    await expoPushService.pushNotificationToExpo([message]);
+    SocialItemNotifications.debounceItemMessage(
+      message,
+      item.id,
+      from.getId(),
+      DebounceCategories.DateChange
+    );
   }
 
   public static async timeChanged(from: UserModel, item: ListItem) {
@@ -122,7 +133,12 @@ export class SocialItemNotifications {
     } as ExpoPushMessage;
 
     // Send
-    await expoPushService.pushNotificationToExpo([message]);
+    SocialItemNotifications.debounceItemMessage(
+      message,
+      item.id,
+      from.getId(),
+      DebounceCategories.TimeChange
+    );
   }
 
   public static async statusChanged(from: UserModel, item: ListItem) {
@@ -156,7 +172,12 @@ export class SocialItemNotifications {
     } as ExpoPushMessage;
 
     // Send
-    await expoPushService.pushNotificationToExpo([message]);
+    SocialItemNotifications.debounceItemMessage(
+      message,
+      item.id,
+      from.getId(),
+      DebounceCategories.StatusChange
+    );
   }
 
   // Helpers
@@ -169,6 +190,23 @@ export class SocialItemNotifications {
     }
 
     return tokens;
+  }
+
+  public static debounceItemMessage(
+    message: ExpoPushMessage,
+    item_id: string,
+    user_id: string,
+    category: DebounceCategories
+  ) {
+    debouncer.runFunc(
+      async () => await expoPushService.pushNotificationToExpo([message]),
+      {
+        item_id,
+        user_id,
+        type: category,
+      },
+      10000
+    );
   }
 }
 

@@ -1,7 +1,7 @@
 import { Logger } from "./logging";
 
 type UniqueFunctionRun = {
-  unique_data: any;
+  signature: any;
   timeout: NodeJS.Timeout;
 };
 
@@ -9,39 +9,38 @@ export class Debouncer {
   private uniqueRuns: UniqueFunctionRun[] = [];
   private logger = Logger.of(Debouncer);
 
-  public runFunc(func: () => any, unique_data: any, duration = 1000) {
-    const currentData = this.uniqueRuns.map((x) => x.unique_data);
-    let i = currentData.findIndex(
-      (x) => JSON.stringify(x) === JSON.stringify(unique_data)
+  public runFunc(func: () => any, signature: any, duration = 1000) {
+    let i = this.uniqueRuns.findIndex(
+      (x) => JSON.stringify(x.signature) === JSON.stringify(signature)
     );
 
     // Function is not currently queued
     if (i === -1) {
       const timeout = setTimeout(() => {
         func();
-        this.cleanupRun(unique_data);
+        this.cleanupRun(signature);
       }, duration);
 
       this.uniqueRuns.push({
-        unique_data,
+        signature,
         timeout,
       });
       // Else reset function timer
     } else {
       this.logger.debug(
-        `Debouncing function with data ${currentData[i].unique_data}`
+        `Debouncing function with data ${JSON.stringify(this.uniqueRuns[i].signature)}`
       );
-      clearTimeout(currentData[i].timeout);
-      currentData[i].timeout = setTimeout(() => {
+      clearTimeout(this.uniqueRuns[i].timeout);
+      this.uniqueRuns[i].timeout = setTimeout(() => {
         func();
-        this.cleanupRun(unique_data);
+        this.cleanupRun(signature);
       }, duration);
     }
   }
 
-  private cleanupRun(unique_data: any) {
+  private cleanupRun(signature: any) {
     let i = this.uniqueRuns.findIndex(
-      (x) => JSON.stringify(x.unique_data) === JSON.stringify(unique_data)
+      (x) => JSON.stringify(x.signature) === JSON.stringify(signature)
     );
     if (i === -1) return;
 
@@ -50,4 +49,5 @@ export class Debouncer {
 }
 
 const debouncer = new Debouncer();
+
 export default debouncer;
