@@ -117,7 +117,7 @@ export class ItemOperations {
   static async createUserIntroItem(user_id: string) {
     let userIntroItem = {
       id: uuid(),
-      title: "Swipe Me Right!",
+      title: "Swipe Me Left!",
       type: ListItemTypes.Event,
       status: ItemStatus.Upcoming,
       date: formatDateData(new Date()),
@@ -125,7 +125,7 @@ export class ItemOperations {
       desc: "This is your first item!\nTo create another like it, type it into the desired day\nTo delete this, hold it down",
 
       permitted_users: [
-        { user_id, display_as: user_id, permissions: Permission.Owner },
+        { user_id, displayed_as: user_id, permissions: Permission.Owner },
       ],
       notifications: [],
     } as any;

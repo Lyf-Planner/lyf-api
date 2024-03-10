@@ -21,8 +21,6 @@ export type UserDetails = Identifiable & {
   name?: string;
   email?: string;
   pfp_url?: string;
-  items?: number;
-  notes?: number;
 };
 
 export type UserSocial = {
