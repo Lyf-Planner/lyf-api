@@ -22,6 +22,8 @@ export type ItemMetadata = {
   desc?: string;
   time?: string;
   template_id?: string;
+  url?: string;
+  location?: string;
 };
 
 // Only modifiable by owners

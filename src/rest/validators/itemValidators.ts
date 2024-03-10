@@ -26,6 +26,8 @@ export const createItemValidator = [
     .optional({ nullable: true }),
   body("time").isTime({ hourFormat: "hour24" }).optional({ nullable: true }),
   body("desc").isString().optional({ nullable: true }),
+  body("url").isString().optional({ nullable: true }),
+  body("location").isString().optional({ nullable: true }),
   // Notifications
   body("notifications").isArray(),
   body("notifications.*.user_id").isString(),
@@ -71,6 +73,8 @@ export const updateItemValidator = [
     .optional({ nullable: true }),
   body("time").isTime({ hourFormat: "hour24" }).optional({ nullable: true }),
   body("desc").isString().optional({ nullable: true }),
+  body("url").isString().optional({ nullable: true }),
+  body("location").isString().optional({ nullable: true }),
   // Notifications
   body("notifications").isArray().optional({ nullable: true }),
   body("notifications.*.user_id").isString(),
