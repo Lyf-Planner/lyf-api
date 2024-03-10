@@ -21,6 +21,7 @@ export type ItemMetadata = {
   day?: string; // For templates
   desc?: string;
   time?: string;
+  tz?: string;
   template_id?: string;
   url?: string;
   location?: string;

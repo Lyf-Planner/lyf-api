@@ -3,6 +3,7 @@ import { ID } from "../../api/abstract";
 import { Permission, SocialAction } from "../../api/social";
 import { ItemStatus, ListItem, ListItemTypes } from "../../api/list";
 import { DaysOfWeek } from "../../api/timetable";
+import { isValidTimeZone } from "./utils";
 
 // GET
 
@@ -25,6 +26,7 @@ export const createItemValidator = [
     .custom((status) => Object.values(DaysOfWeek).includes(status))
     .optional({ nullable: true }),
   body("time").isTime({ hourFormat: "hour24" }).optional({ nullable: true }),
+  body("tz").custom((tz) => tz && isValidTimeZone(tz)).optional({ nullable: true }),
   body("desc").isString().optional({ nullable: true }),
   body("url").isString().optional({ nullable: true }),
   body("location").isString().optional({ nullable: true }),
@@ -72,6 +74,7 @@ export const updateItemValidator = [
     .custom((status) => Object.values(DaysOfWeek).includes(status))
     .optional({ nullable: true }),
   body("time").isTime({ hourFormat: "hour24" }).optional({ nullable: true }),
+  body("tz").custom((tz) => tz && isValidTimeZone(tz)).optional({ nullable: true }),
   body("desc").isString().optional({ nullable: true }),
   body("url").isString().optional({ nullable: true }),
   body("location").isString().optional({ nullable: true }),
