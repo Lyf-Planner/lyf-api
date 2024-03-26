@@ -1,9 +1,9 @@
 import { Expo, ExpoPushMessage } from "expo-server-sdk";
 import { Logger } from "../../utils/logging";
 
-export class ExpoNotificationService {
+export class ExpoPushService {
   private expo: Expo;
-  private logger = Logger.of(ExpoNotificationService);
+  private logger = Logger.of(ExpoPushService);
 
   constructor(expo: Expo) {
     this.expo = expo;
@@ -47,6 +47,6 @@ export class ExpoNotificationService {
 }
 
 var expo = new Expo();
-const expoPushService = new ExpoNotificationService(expo);
+const expoPushService = new ExpoPushService(expo);
 
 export default expoPushService;

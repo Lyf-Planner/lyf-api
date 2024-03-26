@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { Logger } from "../utils/logging";
-import authUtils from "../auth/authUtils";
+import authUtils from "../utils/authUtils";
 import assert from "assert";
 
 const logger = new Logger("AuthMiddleware");

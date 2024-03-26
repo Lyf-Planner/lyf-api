@@ -4,7 +4,7 @@ import { Logger } from "../../utils/logging";
 import { RestrictedRemoteObject } from "../abstract/restrictedRemoteObject";
 import { updateItemBody } from "../../controller/validators/itemValidators";
 import notificationManager from "../notifications/notificationManager";
-import { SocialItemNotifications } from "../notifications/socialItemNotifications";
+import { SocialItemNotifications } from "../notifications/socialItemNotificationService";
 import { UserOperations } from "../users/userOperations";
 import { UserModel } from "../users/userModel";
 import db from "../../repository/dbAccess";

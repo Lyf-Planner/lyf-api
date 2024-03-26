@@ -2,13 +2,13 @@ import { ID } from "../../api/abstract";
 import { FriendshipAction, FriendshipUpdate } from "../../api/social";
 import { Logger } from "../../utils/logging";
 import { UserOperations } from "../users/userOperations";
-import { FriendNotifications } from "../notifications/friendNotifications";
+import { FriendNotifications } from "../notifications/friendNotificationService";
 import { SocialUser } from "./socialUser";
 
-export class FriendshipController {
+export class FriendshipManager {
   private from: SocialUser;
   private target: SocialUser;
-  public logger = Logger.of(FriendshipController);
+  public logger = Logger.of(FriendshipManager);
 
   constructor(from: SocialUser, target: SocialUser) {
     this.from = from;
@@ -30,7 +30,7 @@ export class FriendshipController {
       true
     )) as SocialUser;
 
-    let controller = new FriendshipController(fromUser, targetUser);
+    let controller = new FriendshipManager(fromUser, targetUser);
 
     switch (update.action) {
       case FriendshipAction.Request:

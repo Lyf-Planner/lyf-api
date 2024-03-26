@@ -4,7 +4,7 @@ import { Logger } from "../../utils/logging";
 import { UserModel } from "./userModel";
 import { ItemOperations } from "../items/ItemOperations";
 import { SocialUser } from "../social/socialUser";
-import authUtils from "../../auth/authUtils";
+import authUtils from "../../utils/authUtils";
 import db from "../../repository/dbAccess";
 
 export class UserOperations {

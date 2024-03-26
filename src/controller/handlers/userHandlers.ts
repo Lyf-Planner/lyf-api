@@ -12,7 +12,7 @@ import {
   updateMeBody,
 } from "../validators/userValidators";
 import authUtils from "../../utils/authUtils";
-import { FriendshipController } from "../../models/social/friendshipController";
+import { FriendshipManager } from "../../models/social/friendshipManager";
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
@@ -167,7 +167,7 @@ export class UserHandlers {
     var from_id = getMiddlewareVars(res).user_id;
 
     try {
-      let social = await FriendshipController.processUpdate(from_id, update);
+      let social = await FriendshipManager.processUpdate(from_id, update);
       res.status(200).json(social).end();
     } catch (err) {
       logger.error(`Returning 400 with message: ${err}`);

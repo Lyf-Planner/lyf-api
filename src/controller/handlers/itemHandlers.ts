@@ -10,7 +10,7 @@ import {
   updateItemBody,
   updateItemSocialBody,
 } from "../validators/itemValidators";
-import { SocialItemController } from "../../models/social/socialItemController";
+import { SocialItemManager } from "../../models/social/socialItemManager";
 import PQueue from 'p-queue';
 
 const itemUpdateQueue = new PQueue({concurrency: 1});
@@ -127,7 +127,7 @@ export class ItemHandlers {
     var from_id = getMiddlewareVars(res).user_id;
 
     try {
-      let social = await SocialItemController.processUpdate(from_id, update);
+      let social = await SocialItemManager.processUpdate(from_id, update);
       res.status(200).json(social).end();
     } catch (err) {
       logger.error(`Returning 400 with message: ${err}`);

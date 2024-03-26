@@ -5,14 +5,14 @@ import { Logger } from "../../utils/logging";
 import { ItemOperations } from "../items/ItemOperations";
 import { UserOperations } from "../users/userOperations";
 import { SocialItem } from "./socialItem";
-import { SocialItemNotifications } from "../notifications/socialItemNotifications";
+import { SocialItemNotifications } from "../notifications/socialItemNotificationService";
 import { SocialUser } from "./socialUser";
 
-export class SocialItemController {
+export class SocialItemManager {
   private from: SocialUser;
   private target: SocialUser;
   private item: SocialItem;
-  public logger = Logger.of(SocialItemController);
+  public logger = Logger.of(SocialItemManager);
 
   constructor(from: SocialUser, target: SocialUser, item: SocialItem) {
     this.from = from;
@@ -38,7 +38,7 @@ export class SocialItemController {
       true
     )) as SocialItem;
 
-    let controller = new SocialItemController(fromUser, targetUser, item);
+    let controller = new SocialItemManager(fromUser, targetUser, item);
 
     switch (update.action) {
       case SocialAction.Invite:
@@ -75,11 +75,11 @@ export class SocialItemController {
         break;
     }
 
-    Logger.of(SocialItemController).debug("Item Social is::");
-    Logger.of(SocialItemController).debug(
+    Logger.of(SocialItemManager).debug("Item Social is::");
+    Logger.of(SocialItemManager).debug(
       `Permitted Users: ${item.getContent().permitted_users}`
     );
-    Logger.of(SocialItemController).debug(
+    Logger.of(SocialItemManager).debug(
       `Invited Users: ${item.getContent().invited_users}`
     );
 
