@@ -2,7 +2,7 @@ import { ID } from "../../api/abstract";
 import { FriendshipAction, FriendshipUpdate } from "../../api/social";
 import { Logger } from "../../utils/logging";
 import { UserOperations } from "../users/userOperations";
-import { FriendNotifications } from "../../notifications/friendNotifications";
+import { FriendNotifications } from "../notifications/friendNotifications";
 import { SocialUser } from "./socialUser";
 
 export class FriendshipController {

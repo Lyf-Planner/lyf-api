@@ -11,7 +11,7 @@ import {
   updateFriendshipBody,
   updateMeBody,
 } from "../validators/userValidators";
-import authUtils from "../../auth/authUtils";
+import authUtils from "../../utils/authUtils";
 import { FriendshipController } from "../../models/social/friendshipController";
 
 export class UserHandlers {

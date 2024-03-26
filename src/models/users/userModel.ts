@@ -3,7 +3,7 @@ import { User, UserDetails } from "../../api/user";
 import { Logger } from "../../utils/logging";
 import { RemoteObject } from "../abstract/remoteObject";
 import { UserOperations } from "./userOperations";
-import notificationManager from "../../notifications/notificationManager";
+import notificationManager from "../notifications/notificationManager";
 import db from "../../repository/dbAccess";
 
 export class UserModel extends RemoteObject<User> {

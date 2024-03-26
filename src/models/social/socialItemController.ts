@@ -5,7 +5,7 @@ import { Logger } from "../../utils/logging";
 import { ItemOperations } from "../items/ItemOperations";
 import { UserOperations } from "../users/userOperations";
 import { SocialItem } from "./socialItem";
-import { SocialItemNotifications } from "../../notifications/socialItemNotifications";
+import { SocialItemNotifications } from "../notifications/socialItemNotifications";
 import { SocialUser } from "./socialUser";
 
 export class SocialItemController {
