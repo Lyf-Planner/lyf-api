@@ -2,7 +2,7 @@ import { Permission } from "../../api/social";
 import { ItemStatus, ListItem } from "../../api/list";
 import { Logger } from "../../utils/logging";
 import { RestrictedRemoteObject } from "../abstract/restrictedRemoteObject";
-import { updateItemBody } from "../../rest/validators/itemValidators";
+import { updateItemBody } from "../../controller/validators/itemValidators";
 import notificationManager from "../../notifications/notificationManager";
 import { SocialItemNotifications } from "../../notifications/socialItemNotifications";
 import { UserOperations } from "../users/userOperations";

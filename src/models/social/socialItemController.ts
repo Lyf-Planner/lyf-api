@@ -1,6 +1,6 @@
 import { ID } from "../../api/abstract";
 import { SocialAction } from "../../api/social";
-import { updateItemSocialBody } from "../../rest/validators/itemValidators";
+import { updateItemSocialBody } from "../../controller/validators/itemValidators";
 import { Logger } from "../../utils/logging";
 import { ItemOperations } from "../items/ItemOperations";
 import { UserOperations } from "../users/userOperations";
@@ -76,8 +76,12 @@ export class SocialItemController {
     }
 
     Logger.of(SocialItemController).debug("Item Social is::");
-    Logger.of(SocialItemController).debug(`Permitted Users: ${item.getContent().permitted_users}`);
-    Logger.of(SocialItemController).debug(`Invited Users: ${item.getContent().invited_users}`);
+    Logger.of(SocialItemController).debug(
+      `Permitted Users: ${item.getContent().permitted_users}`
+    );
+    Logger.of(SocialItemController).debug(
+      `Invited Users: ${item.getContent().invited_users}`
+    );
 
     // Return users' new social field
     return {

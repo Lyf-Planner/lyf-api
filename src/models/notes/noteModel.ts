@@ -2,7 +2,7 @@ import { Permission } from "../../api/social";
 import { Note } from "../../api/notes";
 import { Logger } from "../../utils/logging";
 import { RestrictedRemoteObject } from "../abstract/restrictedRemoteObject";
-import { updateNoteBody } from "../../rest/validators/noteValidators";
+import { updateNoteBody } from "../../controller/validators/noteValidators";
 import db from "../../repository/dbAccess";
 
 export class NoteModel extends RestrictedRemoteObject<Note> {
