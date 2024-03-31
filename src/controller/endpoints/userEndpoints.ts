@@ -1,5 +1,5 @@
-import { UserHandlers } from "./handlers/userHandlers";
-import { nSecondLimiter } from "./utils";
+import { UserHandlers } from "../handlers/userHandlers";
+import { nSecondLimiter } from "../utils";
 import {
   loginValidator,
   autologinValidator,
@@ -9,8 +9,8 @@ import {
   updateMeValidator,
   deleteMeValidator,
   updateFriendshipValidator,
-} from "./validators/userValidators";
-import { validate } from "./validationMiddleware";
+} from "../validators/userValidators";
+import { validate } from "../middleware/validationMiddleware";
 import express from "express";
 
 export class UserEndpoints extends UserHandlers {

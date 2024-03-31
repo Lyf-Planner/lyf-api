@@ -1,5 +1,5 @@
-import { validate } from "./validationMiddleware";
-import { NoteHandlers } from "./handlers/noteHandlers";
+import { validate } from "../middleware/validationMiddleware";
+import { NoteHandlers } from "../handlers/noteHandlers";
 import express from "express";
 import {
   createNoteValidator,
@@ -7,7 +7,7 @@ import {
   getNoteValidator,
   getNotesValidator,
   updateNoteValidator,
-} from "./validators/noteValidators";
+} from "../validators/noteValidators";
 
 export class NoteEndpoints extends NoteHandlers {
   constructor(server: express.Application) {
