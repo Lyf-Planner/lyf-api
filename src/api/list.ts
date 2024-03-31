@@ -26,6 +26,7 @@ export type ItemMetadata = {
   template_id?: string;
   url?: string;
   location?: string;
+  show_in_upcoming?: boolean;
 };
 
 // Only modifiable by owners

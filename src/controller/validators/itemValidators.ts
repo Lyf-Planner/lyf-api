@@ -31,6 +31,7 @@ export const createItemValidator = [
   body("desc").isString().optional({ nullable: true }),
   body("url").isString().optional({ nullable: true }),
   body("location").isString().optional({ nullable: true }),
+  body("show_in_upcoming").isBoolean().optional({ nullable: true }),
   // Notifications
   body("notifications").isArray(),
   body("notifications.*.user_id").isString(),
@@ -80,6 +81,7 @@ export const updateItemValidator = [
   body("desc").isString().optional({ nullable: true }),
   body("url").isString().optional({ nullable: true }),
   body("location").isString().optional({ nullable: true }),
+  body("show_in_upcoming").isBoolean().optional({ nullable: true }),
   // Notifications
   body("notifications").isArray().optional({ nullable: true }),
   body("notifications.*.user_id").isString(),
