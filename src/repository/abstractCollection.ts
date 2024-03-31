@@ -36,8 +36,19 @@ export class Collection<T extends DBObject> {
   }
 
   public async getManyById(ids: ID[], throwOnUnfound = true): Promise<T[]> {
+    // This operation looks weird because we want to return in the same order we search
     var results = (await this.collection
-      .find({ _id: { $in: ids } })
+      .aggregate([
+        { $match: { _id: { $in: ids } } },
+        {
+          $addFields: {
+            index: {
+              $indexOfArray: [ids, "$_id"],
+            },
+          },
+        },
+        { $sort: { index: 1 } },
+      ])
       .toArray()) as any;
 
     results.length !== ids.length &&
