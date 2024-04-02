@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { UserEndpoints } from "./controller/userEndpoints";
-import { ItemEndpoints } from "./controller/itemEndpoints";
-import { NoteEndpoints } from "./controller/noteEndpoints";
-import { authoriseHeader } from "./controller/authMiddleware";
+import { UserEndpoints } from "./controller/endpoints/userEndpoints";
+import { ItemEndpoints } from "./controller/endpoints/itemEndpoints";
+import { NoteEndpoints } from "./controller/endpoints/noteEndpoints";
+import { authoriseHeader } from "./controller/middleware/authMiddleware";
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
