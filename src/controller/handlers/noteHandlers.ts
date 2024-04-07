@@ -18,14 +18,14 @@ export class NoteHandlers {
     // Instantiate
     var model = await NoteOperations.createNew(noteInput, user_id, true);
 
-    res.status(200).json(model.getContent()).end();
+    res.status(201).json(model.getContent()).end();
   }
 
   protected async updateNote(req: Request, res: Response) {
     var note = req.body as Note;
     var user_id = getMiddlewareVars(res).user_id;
 
-    var remoteItem: NoteModel;
+    var remoteNote: NoteModel;
 
     logger.debug(
       `Updating note ${note.title} (${note.id}) from user ${user_id}`
@@ -34,9 +34,9 @@ export class NoteHandlers {
     // Authorisation checks
     try {
       // These fns will check user is permitted on the note and has Permission > Viewer
-      remoteItem = await NoteOperations.retrieveForUser(note.id, user_id);
-      await remoteItem.safeUpdate(note, user_id);
-      res.status(200).end();
+      remoteNote = await NoteOperations.retrieveForUser(note.id, user_id);
+      await remoteNote.safeUpdate(note, user_id);
+      res.status(200).json(remoteNote.export()).end();
     } catch (err) {
       logger.error(`User ${user_id} did not safely update note ${note.id}`);
       res.status(403).end(`${err}`);
@@ -62,7 +62,7 @@ export class NoteHandlers {
 
       // Perform delete
       await note!.deleteFromDb();
-      res.status(200).end();
+      res.status(204).end();
     } catch (err) {
       logger.error(
         `User ${user_id} tried to delete ${note_id} without valid permissions`

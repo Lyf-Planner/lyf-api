@@ -105,7 +105,7 @@ export class UserHandlers {
         user.getUser() as User,
         password as string
       );
-      res.status(200).json({ user: user?.export(), token }).end();
+      res.status(201).json({ user: user?.export(), token }).end();
     } catch (err) {
       logger.error(err);
       res.status(400).end(`Username ${user_id} is already taken`);
@@ -123,9 +123,9 @@ export class UserHandlers {
       // The work in terms of data safety is done by the validators
       var remoteModel = await UserOperations.retrieveForUser(user_id, user_id);
       await remoteModel.updateSelf(user);
-      res.status(200).end();
+      res.status(200).json(remoteModel.export()).end();
     } catch (err) {
-      res.status(500).end(`${err}`);
+      res.status(400).end(`${err}`);
       return;
     }
   }
@@ -152,7 +152,7 @@ export class UserHandlers {
 
       // Perform delete
       await user!.deleteFromDb();
-      res.status(200).end();
+      res.status(204).end();
     } catch (err) {
       logger.error(
         `User ${user_id} entered incorrect password when trying to delete self`

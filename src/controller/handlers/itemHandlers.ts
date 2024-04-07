@@ -27,7 +27,7 @@ export class ItemHandlers {
     // Instantiate
     var model = await ItemOperations.createNew(itemInput, user_id, true);
 
-    res.status(200).json(model.export()).end();
+    res.status(201).json(model.export()).end();
   }
 
   protected async deleteItem(req: Request, res: Response) {
@@ -56,7 +56,7 @@ export class ItemHandlers {
 
     // Perform delete
     await item!.delete();
-    res.status(200).end();
+    res.status(204).end();
   }
 
   protected async getItem(req: Request, res: Response) {
@@ -111,7 +111,7 @@ export class ItemHandlers {
       // These fns will check user is permitted on the item and has Permission > Viewer
       remoteItem = await ItemOperations.retrieveForUser(item.id, user_id);
       await remoteItem.safeUpdate(item, user_id);
-      res.status(200).end();
+      res.status(200).json(remoteItem.export()).end();
     } catch (err) {
       logger.error(
         `User ${user_id} did not safely update item ${item.id}: ${err}`
