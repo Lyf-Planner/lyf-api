@@ -10,6 +10,10 @@ export function formatDateData(date: Date) {
   return moment(date).format("YYYY-MM-DD");
 }
 
+export function getDayFromDate(date: Date) {
+  return moment(date).format("dddd");
+}
+
 export function parseDateString(date: String) {
   var data = date.split("-").map((x) => parseInt(x));
   return new Date(data[0], data[1] - 1, data[2]);

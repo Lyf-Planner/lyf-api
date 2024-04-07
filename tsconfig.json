@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "module": "commonjs",
+    "module": "CommonJS",
     "noImplicitReturns": false,
     "noUnusedLocals": false,
     "outDir": "build",
@@ -9,9 +9,9 @@
     "strict": true,
     "allowJs": true,
     "target": "es2017",
-    "types": ["node"]
+    "types": ["jest", "node"]
   },
   "compileOnSave": true,
-  "include": ["src"],
-  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"]
+  "include": ["src", "tests"],
+  "exclude": ["node_modules"]
 }
