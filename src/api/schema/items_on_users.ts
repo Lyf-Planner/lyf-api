@@ -14,6 +14,6 @@ export type ItemUserRelationshipDbObject = {
   user_id: string;
   user: UserDbObject;
   invite_pending: boolean;
-  type: ItemRelationshipStatus;
+  status: ItemRelationshipStatus;
   notification_minutes_before?: string;
 };

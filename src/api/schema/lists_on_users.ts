@@ -10,5 +10,5 @@ export type ListUserRelationshipDbObject = {
   list_id: ID;
   user_id: ID;
   invite_pending: boolean;
-  type: ListRelationshipStatus;
+  status: ListRelationshipStatus;
 };
