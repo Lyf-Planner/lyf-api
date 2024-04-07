@@ -1,4 +1,4 @@
-import { Identifiable } from "./abstract"
+import { ID, DBObject } from "./abstract"
 
 export enum UserRelationshipStatus {
     PendingFirstAcceptance = "Pending First",
@@ -9,10 +9,10 @@ export enum UserRelationshipStatus {
     MutualBlock = "Mutually Blocked"
 }
 
-export type UserRelationshipDbObject = Identifiable & {
+export type UserRelationshipDbObject = DBObject & {
     // We must enforce the constraint user1_id < user2_id, for simple searching and duplicate prevention
     // The two user ids form a composite primary key
-    user1_id: string,
-    user2_id: string,
+    user1_id: ID,
+    user2_id: ID,
     status: UserRelationshipStatus,
 }

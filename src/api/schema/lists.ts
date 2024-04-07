@@ -1,4 +1,4 @@
-import { Identifiable, Timestamps } from "./abstract";
+import { DBObject } from "./abstract";
 import { ItemListRelationshipDbObject } from "./items_on_lists";
 import { ListUserRelationshipDbObject } from "./lists_on_users";
 
@@ -8,8 +8,7 @@ export enum ListType {
   Multiple = "Multiple"
 }
 
-export type ListDbObject = Identifiable &
-  Timestamps & {
+export type ListDbObject = DBObject & {
     title: string;
     type: ListType;
     note?: string;

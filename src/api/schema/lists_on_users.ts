@@ -1,4 +1,4 @@
-import { ID } from "./abstract";
+import { DBObject, ID } from "./abstract";
 
 export enum ListRelationshipStatus {
   Owner = "Owner",
@@ -6,7 +6,7 @@ export enum ListRelationshipStatus {
   ReadOnly = "Read Only",
 }
 
-export type ListUserRelationshipDbObject = {
+export type ListUserRelationshipDbObject = DBObject & {
   list_id: ID;
   user_id: ID;
   invite_pending: boolean;
