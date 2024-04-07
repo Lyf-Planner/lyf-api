@@ -1,6 +1,6 @@
-import { ID } from "../../api/abstract";
-import { ListItem } from "../../api/list";
-import { User } from "../../api/user";
+import { ID } from "../../api/mongo_schema/abstract";
+import { ListItem } from "../../api/mongo_schema/list";
+import { User } from "../../api/mongo_schema/user";
 import { UserModel } from "../users/userModel";
 import { SocialItem } from "./socialItem";
 

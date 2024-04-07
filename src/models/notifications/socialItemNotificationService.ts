@@ -3,7 +3,7 @@ import { SocialItem } from "../social/socialItem";
 import { SocialUser } from "../social/socialUser";
 import { TwentyFourHourToAMPM, formatDate } from "../../utils/dates";
 import { UserOperations } from "../users/userOperations";
-import { ItemStatus, ListItem } from "../../api/list";
+import { ItemStatus, ListItem } from "../../api/mongo_schema/list";
 import { Logger } from "../../utils/logging";
 import { UserModel } from "../users/userModel";
 import { ItemOperations } from "../items/ItemOperations";

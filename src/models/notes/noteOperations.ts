@@ -1,8 +1,8 @@
-import { Note } from "../../api/notes";
-import { ID } from "../../api/abstract";
+import { Note } from "../../api/mongo_schema/notes";
+import { ID } from "../../api/mongo_schema/abstract";
 import { NoteModel } from "./noteModel";
 import { Logger } from "../../utils/logging";
-import db from "../../repository/dbAccess";
+import db from "../../repository/mongoDb";
 
 export class NoteOperations {
   // Builder method

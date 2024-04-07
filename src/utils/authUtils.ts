@@ -1,5 +1,5 @@
 import { compare, hash } from "bcrypt";
-import { User } from "../api/user";
+import { User } from "../api/mongo_schema/user";
 import { Logger } from "../utils/logging";
 import * as jwt from "jsonwebtoken";
 import env from "../envManager";

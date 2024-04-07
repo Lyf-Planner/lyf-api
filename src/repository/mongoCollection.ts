@@ -1,5 +1,5 @@
 import { Collection as mongoCollection, Db } from "mongodb";
-import { DBObject, ID } from "../api/abstract";
+import { DBObject, ID } from "../api/mongo_schema/abstract";
 import { Logger } from "../utils/logging";
 import assert from "assert";
 

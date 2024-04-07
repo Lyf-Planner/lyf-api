@@ -1,4 +1,4 @@
-import { Time } from "../../api/abstract";
+import { Time } from "../../api/mongo_schema/abstract";
 import { Logger } from "../../utils/logging";
 
 export class TimeOperations {

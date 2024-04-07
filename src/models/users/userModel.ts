@@ -1,10 +1,10 @@
-import { ID, Time } from "../../api/abstract";
-import { User, UserDetails } from "../../api/user";
+import { ID, Time } from "../../api/mongo_schema/abstract";
+import { User, UserDetails } from "../../api/mongo_schema/user";
 import { Logger } from "../../utils/logging";
 import { RemoteObject } from "../abstract/remoteObject";
 import { UserOperations } from "./userOperations";
 import notificationManager from "../notifications/notificationManager";
-import db from "../../repository/dbAccess";
+import db from "../../repository/mongoDb";
 
 export class UserModel extends RemoteObject<User> {
   // If user is accessed by another, should only be able to view details!

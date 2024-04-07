@@ -1,13 +1,17 @@
 import { Db, MongoClient, ServerApiVersion } from "mongodb";
-import { Collection } from "./abstractCollection";
-import { User } from "../api/user";
-import { ListItem } from "../api/list";
-import { Note } from "../api/notes";
+import { Collection } from "./mongoCollection";
+import { User } from "../api/mongo_schema/user";
+import { ListItem } from "../api/mongo_schema/list";
+import { Note } from "../api/mongo_schema/notes";
 import { Logger } from "../utils/logging";
 import env from "../envManager";
 
-export class Database {
-  private logger = Logger.of(Database);
+// Note:
+// Mongo used to be the main database, but that is now Postgres
+// However, Mongo is still used by Agenda.js to store cron scheduled data (namely, notifications)
+
+export class MongoDatabase {
+  private logger = Logger.of(MongoDatabase);
   private connected = false;
 
   private client: MongoClient;
@@ -67,6 +71,6 @@ export class Database {
   }
 }
 
-const db = new Database();
+const mongoDb = new MongoDatabase();
 
-export default db;
+export default mongoDb;

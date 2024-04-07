@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { User } from "../../api/user";
+import { User } from "../../api/mongo_schema/user";
 import { UserModel } from "../../models/users/userModel";
 import { UserOperations } from "../../models/users/userOperations";
 import { Logger } from "../../utils/logging";

@@ -1,5 +1,5 @@
-import { Permission } from "../../api/social";
-import { ItemStatus, ListItem } from "../../api/list";
+import { Permission } from "../../api/mongo_schema/social";
+import { ItemStatus, ListItem } from "../../api/mongo_schema/list";
 import { Logger } from "../../utils/logging";
 import { RestrictedRemoteObject } from "../abstract/restrictedRemoteObject";
 import { updateItemBody } from "../../controller/validators/itemValidators";
@@ -7,7 +7,7 @@ import notificationManager from "../notifications/notificationManager";
 import { SocialItemNotifications } from "../notifications/socialItemNotificationService";
 import { UserOperations } from "../users/userOperations";
 import { UserModel } from "../users/userModel";
-import db from "../../repository/dbAccess";
+import db from "../../repository/mongoDb";
 
 export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private logger = Logger.of(ItemModel);

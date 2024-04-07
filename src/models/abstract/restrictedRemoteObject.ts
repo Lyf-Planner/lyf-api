@@ -1,5 +1,5 @@
-import { DBObject } from "../../api/abstract";
-import { Permission, Restricted } from "../../api/social";
+import { DBObject } from "../../api/mongo_schema/abstract";
+import { Permission, Restricted } from "../../api/mongo_schema/social";
 import { Collection } from "../../repository/abstractCollection";
 import { RemoteObject } from "./remoteObject";
 

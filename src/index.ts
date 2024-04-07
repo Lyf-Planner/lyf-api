@@ -8,7 +8,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import env from "./envManager";
 import bodyParserErrorHandler from "express-body-parser-error-handler";
-import db from "./repository/dbAccess";
+import db from "./repository/mongoDb";
 import notificationManager from "./models/notifications/notificationManager";
 
 const server = express();

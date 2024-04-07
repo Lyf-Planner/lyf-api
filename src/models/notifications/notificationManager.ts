@@ -1,16 +1,20 @@
-import { ItemStatus, ListItem, ListItemTypes } from "../../api/list";
+import {
+  ItemStatus,
+  ListItem,
+  ListItemTypes,
+} from "../../api/mongo_schema/list";
 import { UserOperations } from "../users/userOperations";
 import { UserModel } from "../users/userModel";
 import { ExpoPushMessage } from "expo-server-sdk";
 import { Logger } from "../../utils/logging";
 import { TwentyFourHourToAMPM, formatDateData } from "../../utils/dates";
 import { ItemOperations } from "../items/ItemOperations";
-import { User } from "../../api/user";
-import { DaysOfWeek } from "../../api/timetable";
+import { User } from "../../api/mongo_schema/user";
+import { DaysOfWeek } from "../../api/mongo_schema/timetable";
 import { pluralisedQuantity } from "../../utils/text";
 import expoPushService from "./expoPushService";
 import moment from "moment-timezone";
-import db from "../../repository/dbAccess";
+import mongoDb from "../../repository/mongoDb";
 
 const Agenda = require("agenda");
 
@@ -19,7 +23,7 @@ const DEFAULT_MINS_BEFORE = "5";
 export class NotificationManager {
   private logger = Logger.of(NotificationManager);
   private agenda = new Agenda({
-    mongo: db.getDb(),
+    mongo: mongoDb.getDb(),
     db: { collection: "cron-jobs" },
     processEvery: "1 minute",
     options: {
@@ -226,7 +230,7 @@ export class NotificationManager {
       `Adjusting notification timezones for user ${user.id} to ${user.timezone}`
     );
 
-    const jobs = await db
+    const jobs = await mongoDb
       .getDb()
       .collection("cron-jobs")
       .find({ "data.user_id": user.id })

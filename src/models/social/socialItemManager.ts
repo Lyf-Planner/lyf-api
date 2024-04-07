@@ -1,5 +1,5 @@
-import { ID } from "../../api/abstract";
-import { SocialAction } from "../../api/social";
+import { ID } from "../../api/mongo_schema/abstract";
+import { SocialAction } from "../../api/mongo_schema/social";
 import { updateItemSocialBody } from "../../controller/validators/itemValidators";
 import { Logger } from "../../utils/logging";
 import { ItemOperations } from "../items/ItemOperations";

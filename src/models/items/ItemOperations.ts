@@ -1,17 +1,17 @@
-import { ID } from "../../api/abstract";
+import { ID } from "../../api/mongo_schema/abstract";
 import {
   ItemSettings,
   ItemStatus,
   ListItem,
   ListItemTypes,
-} from "../../api/list";
+} from "../../api/mongo_schema/list";
 import { ItemModel } from "./itemModel";
 import { Logger } from "../../utils/logging";
 import { SocialItem } from "../social/socialItem";
 import { formatDateData } from "../../utils/dates";
-import { Permission } from "../../api/social";
+import { Permission } from "../../api/mongo_schema/social";
 import { v4 as uuid } from "uuid";
-import db from "../../repository/dbAccess";
+import db from "../../repository/mongoDb";
 import { UserOperations } from "../users/userOperations";
 import { SocialUser } from "../social/socialUser";
 

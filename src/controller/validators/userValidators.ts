@@ -1,11 +1,14 @@
 import { body, query } from "express-validator";
 import { isValidTimeZone } from "./utils";
-import { ID } from "../../api/abstract";
-import { Timetable } from "../../api/timetable";
-import { Notes } from "../../api/notes";
-import { Premium } from "../../api/premium";
-import { UserDetails } from "../../api/user";
-import { FriendshipAction, FriendshipUpdate } from "../../api/social";
+import { ID } from "../../api/mongo_schema/abstract";
+import { Timetable } from "../../api/mongo_schema/timetable";
+import { Notes } from "../../api/mongo_schema/notes";
+import { Premium } from "../../api/mongo_schema/premium";
+import { UserDetails } from "../../api/mongo_schema/user";
+import {
+  FriendshipAction,
+  FriendshipUpdate,
+} from "../../api/mongo_schema/social";
 import Expo from "expo-server-sdk";
 
 // GET

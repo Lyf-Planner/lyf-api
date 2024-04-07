@@ -1,4 +1,4 @@
-import { DBObject, ID } from "../../api/abstract";
+import { DBObject, ID } from "../../api/mongo_schema/abstract";
 import { Collection } from "../../repository/abstractCollection";
 
 export class RemoteObject<T extends DBObject> {
@@ -17,7 +17,6 @@ export class RemoteObject<T extends DBObject> {
   public getId() {
     return this.content.id;
   }
-
 
   public async commit(): Promise<void> {
     this.content = await this.collectionRef.update(this.content, true);

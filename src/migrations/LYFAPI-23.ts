@@ -1,7 +1,7 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 import { v4 as uuid } from "uuid";
-import { NoteType } from "../api/notes";
-import { ItemStatus, ListItemTypes } from "../api/list";
+import { NoteType } from "../api/mongo_schema/notes";
+import { ItemStatus, ListItemTypes } from "../api/mongo_schema/list";
 import moment from "moment-timezone";
 import env from "../envManager";
 

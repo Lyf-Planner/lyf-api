@@ -1,5 +1,8 @@
-import { ID } from "../../api/abstract";
-import { FriendshipAction, FriendshipUpdate } from "../../api/social";
+import { ID } from "../../api/mongo_schema/abstract";
+import {
+  FriendshipAction,
+  FriendshipUpdate,
+} from "../../api/mongo_schema/social";
 import { Logger } from "../../utils/logging";
 import { UserOperations } from "../users/userOperations";
 import { FriendNotifications } from "../notifications/friendNotificationService";

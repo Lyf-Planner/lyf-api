@@ -1,11 +1,11 @@
-import { ID, Time } from "../../api/abstract";
-import { User, UserDetails } from "../../api/user";
+import { ID, Time } from "../../api/mongo_schema/abstract";
+import { User, UserDetails } from "../../api/mongo_schema/user";
 import { Logger } from "../../utils/logging";
 import { UserModel } from "./userModel";
 import { ItemOperations } from "../items/ItemOperations";
 import { SocialUser } from "../social/socialUser";
 import authUtils from "../../utils/authUtils";
-import db from "../../repository/dbAccess";
+import db from "../../repository/mongoDb";
 
 export class UserOperations {
   // Builder method
