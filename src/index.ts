@@ -16,41 +16,49 @@ export const server = express();
 
 dotenv.config();
 
+Logger.setLevel(LoggingLevel.DEBUG);
+
+process.env.TZ = "Australia/Melbourne";
+
 //middleware
 server.use(cors());
 server.use(express.json());
 server.use(bodyParserErrorHandler());
 server.use(authoriseHeader);
 
-export async function main() {
-  Logger.setLevel(LoggingLevel.DEBUG);
+server.get("/", (req: Request, res: Response) => {
+  res.send("Lyf API!");
+});
 
-  process.env.TZ = "Australia/Melbourne";
+new UserEndpoints(server);
+new ItemEndpoints(server);
+new NoteEndpoints(server);
 
-  server.get("/", (req: Request, res: Response) => {
-    res.send("Lyf API!");
-  });
+const PORT = env.port;
 
-  new UserEndpoints(server);
-  new ItemEndpoints(server);
-  new NoteEndpoints(server);
+server.set(
+  "trust proxy",
+  1 /* number of proxies between user and server (express-rate-limit) */
+);
 
-  await db.init();
-  await notificationManager.init();
+export const serverInitialised = new Promise(async (resolve, reject) => {
+  try {
+    await db.init();
+    await notificationManager.init();
+    resolve(true);
+  } catch (err) {
+    reject(err);
+  }
+});
 
-  const PORT = env.port;
-
-  server.set(
-    "trust proxy",
-    1 /* number of proxies between user and server (express-rate-limit) */
-  );
-
+const startServer = async () => {
   if (env.nodeEnv !== "test") {
+    await serverInitialised;
     server.listen(PORT, () => {
       console.log(`server started at http://localhost:${PORT}`);
     });
   }
-}
+};
 
 // Graceful shutdown
 export async function shutdown() {
@@ -62,4 +70,4 @@ export async function shutdown() {
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
 
-main();
+startServer();
