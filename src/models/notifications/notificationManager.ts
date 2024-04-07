@@ -21,6 +21,9 @@ const Agenda = require("agenda");
 const DEFAULT_MINS_BEFORE = "5";
 
 export class NotificationManager {
+  public declareInitialised: any;
+  public initialise: Promise<any>;
+
   private logger = Logger.of(NotificationManager);
   private agenda = new Agenda({
     mongo: mongoDb.getDb(),
@@ -32,6 +35,15 @@ export class NotificationManager {
   });
 
   constructor() {
+    // We store a custom Promise to be resolved when the `agenda.on("ready")` is done
+    let initialisedFunc;
+    this.initialise = new Promise(function (resolve, reject) {
+      initialisedFunc = resolve;
+    });
+    this.declareInitialised = initialisedFunc;
+  }
+
+  public async init() {
     this.defineEventNotification();
     this.defineRoutineNotification();
     this.defineDailyNotification();
@@ -39,7 +51,11 @@ export class NotificationManager {
       this.logger.info("Starting Agenda...");
       await this.agenda.start();
       this.logger.info("Agenda started.");
+
+      this.declareInitialised();
     });
+
+    await this.initialise;
   }
 
   public async cleanup() {
