@@ -1,5 +1,5 @@
 // IDs are numbers from postgres autoincrement
-export type ID = number;
+export type ID = string;
 
 export type DBObject = Identifiable & Timestamps;
 

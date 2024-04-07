@@ -15,5 +15,4 @@ export type ItemUserRelationshipDbObject = DBObject & {
   user: UserDbObject;
   invite_pending: boolean;
   status: ItemRelationshipStatus;
-  notification_minutes_before?: string;
 };

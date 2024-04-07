@@ -8,29 +8,30 @@ export enum ItemType {
 }
 
 export enum ItemStatus {
-    Cancelled = "Cancelled",
-    Tentative = "Tentative",
-    Upcoming = "Upcoming",
-    InProgress = "In Progress",
-    Done = "Done",
-  }  
+  Cancelled = "Cancelled",
+  Tentative = "Tentative",
+  Upcoming = "Upcoming",
+  InProgress = "In Progress",
+  Done = "Done",
+}
 
 export type ItemDbObject = DBObject & {
-    title: string;
-    type: ItemType;
-    status: ItemStatus;
-    timezone: string;
-    date?: string;
-    day?: string; // For templates
-    desc?: string;
-    time?: string;
-    end_time?: string;
-    template_id?: string;
-    url?: string;
-    location?: string;
-    show_in_upcoming?: boolean;
-    // Note linking
-    lists: ListUserRelationshipDbObject[];
-    // Access
-    users: ItemUserRelationshipDbObject[];
-  };
+  title: string;
+  type: ItemType;
+  status: ItemStatus;
+  tz: string;
+  date?: string;
+  day?: string; // For templates
+  desc?: string;
+  time?: string;
+  end_time?: string;
+  template_id?: string;
+  url?: string;
+  location?: string;
+  show_in_upcoming?: boolean;
+  notification_mins_before?: string;
+  // Note linking
+  lists: ListUserRelationshipDbObject[];
+  // Access
+  users: ItemUserRelationshipDbObject[];
+};

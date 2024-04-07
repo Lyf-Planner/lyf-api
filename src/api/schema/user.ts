@@ -1,14 +1,14 @@
-import { DBObject } from "./abstract";
+import { Timestamps } from "./abstract";
 import { ItemUserRelationshipDbObject } from "./items_on_users";
 import { ListUserRelationshipDbObject } from "./lists_on_users";
 import { UserRelationshipDbObject } from "./users_on_users";
 
-export type UserDbObject = DBObject & {
+export type UserDbObject = Timestamps & {
   // User metadata
-  user_id: string; // unique constraint
+  user_id: string; // primary key!
   pass_hash: string;
   private: boolean;
-  timezone: string;
+  tz: string;
   expo_tokens: string[];
   display_name?: string;
   pfp_url?: string;
