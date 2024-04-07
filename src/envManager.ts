@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-const packagejson = require('../package.json')
+const VERSION = "2.2.4";
 
 // Expose this layer to access env vars throughout the app
 const env = {
@@ -10,8 +10,7 @@ const env = {
   mongoDb: process.env.MONGO_DB,
   jwtSecret: process.env.JWT_SECRET,
   //expoNotificationToken: process.env.EXPO_NOTIFICATION_TOKEN,
-
-  version: packagejson.version,
+  version: VERSION,
   port: process.env.PORT || 8000,
 };
 
