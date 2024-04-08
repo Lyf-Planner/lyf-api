@@ -15,4 +15,5 @@ export type ItemUserRelationshipDbObject = DBObject & {
   user: UserDbObject;
   invite_pending: boolean;
   status: ItemRelationshipStatus;
+  sorting_key: number; // Used for task priority sorting
 };
