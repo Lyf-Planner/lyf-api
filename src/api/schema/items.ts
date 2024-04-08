@@ -1,6 +1,6 @@
 import { DBObject } from "./abstract";
 import { ItemUserRelationshipDbObject } from "./items_on_users";
-import { ListUserRelationshipDbObject } from "./lists_on_users";
+import { NoteUserRelationshipDbObject } from "./notes_on_users";
 
 export enum ItemType {
   Event = "Event",
@@ -30,8 +30,11 @@ export type ItemDbObject = DBObject & {
   location?: string;
   show_in_upcoming?: boolean;
   notification_mins_before?: string;
+};
+
+export type Item = ItemDbObject & {
   // Note linking
-  lists: ListUserRelationshipDbObject[];
+  notes: NoteUserRelationshipDbObject[];
   // Access
   users: ItemUserRelationshipDbObject[];
 };

@@ -1,15 +1,15 @@
 import { Timestamps } from "./abstract";
 import { ItemUserRelationshipDbObject } from "./items_on_users";
-import { ListUserRelationshipDbObject } from "./lists_on_users";
+import { NoteUserRelationshipDbObject } from "./notes_on_users";
 import { UserRelationshipDbObject } from "./users_on_users";
 
 export type UserDbObject = Timestamps & {
   // User metadata
   user_id: string; // primary key!
-  pass_hash: string;
+  pass_hash: string; // not exported
   private: boolean;
   tz: string;
-  expo_tokens: string[];
+  expo_tokens: string[]; // not exported
   display_name?: string;
   pfp_url?: string;
   // Settings and preferences
@@ -18,10 +18,10 @@ export type UserDbObject = Timestamps & {
   persistent_daily_notification?: boolean;
   event_notifications_enabled?: boolean;
   event_notification_minutes_before?: string;
-  // Relationships
+};
+
+export type User = UserDbObject & {
   relationships: UserRelationshipDbObject[];
-  // Items
   items: ItemUserRelationshipDbObject[];
-  // Lists
-  lists: ListUserRelationshipDbObject[];
+  notes: NoteUserRelationshipDbObject[];
 };

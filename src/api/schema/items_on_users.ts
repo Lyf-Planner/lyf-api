@@ -10,12 +10,15 @@ export enum ItemRelationshipStatus {
 
 export type ItemUserRelationshipDbObject = DBObject & {
   item_id: ID;
-  item: ItemDbObject;
   user_id: ID;
-  user: UserDbObject;
   invite_pending: boolean;
   status: ItemRelationshipStatus;
   sorting_rank: string; // string which indicates order lexicographically
 
   // sorting_rank and user_id are composite unique!
+};
+
+export type ItemUserRelationship = ItemUserRelationshipDbObject & {
+  item: ItemDbObject;
+  user: UserDbObject;
 };
