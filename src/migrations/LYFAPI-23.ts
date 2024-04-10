@@ -1,39 +1,39 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
-import { v4 as uuid } from "uuid";
-import { NoteType } from "../api/notes";
-import { ItemStatus, ListItemTypes } from "../api/list";
-import moment from "moment-timezone";
-import env from "../envManager";
+import { MongoClient, ServerApiVersion } from 'mongodb';
+import { v4 as uuid } from 'uuid';
+import { NoteType } from '../api/mongo_schema/notes';
+import { ItemStatus, ListItemTypes } from '../api/mongo_schema/list';
+import moment from 'moment-timezone';
+import env from '../envManager';
 
 // https://lyf-planner.atlassian.net/browse/LYFAPI-23
 // Migrate old database lyf-tmp (1.0.0) to a new database with the API 2.0 Schema
 
 export const migrate = async () => {
   return;
-  console.log("Starting migration to API 2.0 Schema");
+  console.log('Starting migration to API 2.0 Schema');
   const client = new MongoClient(env.mongoUrl as string, {
     serverApi: {
       version: ServerApiVersion.v1,
       strict: true,
-      deprecationErrors: true,
-    },
+      deprecationErrors: true
+    }
   });
   var mongoConnection = await client.connect();
 
-  var lyf_tmp = mongoConnection.db("lyf-tmp");
+  var lyf_tmp = mongoConnection.db('lyf-tmp');
   var lyf_db = mongoConnection.db(env.mongoDb);
 
   const allUsers = await lyf_tmp
-    .collection("users")
-    .find({ user_id: "90arbiter90" })
+    .collection('users')
+    .find({ user_id: '90arbiter90' })
     .toArray();
   console.log(
-    "Got all users",
+    'Got all users',
     allUsers.map((x) => x.user_id)
   );
 
   for (let user of allUsers) {
-    console.log("\nProcessing user", user.user_id);
+    console.log('\nProcessing user', user.user_id);
 
     const user_notes = await processNotes(user, lyf_db);
 
@@ -43,29 +43,29 @@ export const migrate = async () => {
       _id: user.user_id,
       pass_hash: user.pass_hash,
       timetable: {
-        items: user_items,
+        items: user_items
       },
       notes: {
-        items: user_notes,
+        items: user_notes
       },
       friends: [],
       friend_requests: [],
       premium: user.premium || { enabled: false },
       created: new Date(user.created || user.last_updated).toUTCString(),
-      last_updated: new Date(user.last_updated).toUTCString(),
+      last_updated: new Date(user.last_updated).toUTCString()
     };
 
     console.log(
-      "Uploading user",
+      'Uploading user',
       newUser._id,
-      "with",
+      'with',
       user_items.length,
-      "items and",
+      'items and',
       user_notes.length,
-      "notes"
+      'notes'
     );
 
-    await lyf_db.collection("users").insertOne(newUser);
+    await lyf_db.collection('users').insertOne(newUser);
   }
 };
 
@@ -73,7 +73,7 @@ const processNotes = async (user: any, lyf_prod: any) => {
   var notes = user.notes.items;
   var userReferences = [];
 
-  console.log("\tUploading", notes.length, "notes for user", user.user_id);
+  console.log('\tUploading', notes.length, 'notes for user', user.user_id);
   for (var note of notes) {
     let noteContent = note.content;
     if (note.type === NoteType.List) {
@@ -86,7 +86,7 @@ const processNotes = async (user: any, lyf_prod: any) => {
           status:
             item.status ||
             (item.finished ? ItemStatus.Done : ItemStatus.Upcoming),
-          permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
+          permitted_users: [{ user_id: user.user_id, permissions: 'Owner' }]
         });
       }
       noteContent = newContent;
@@ -97,15 +97,15 @@ const processNotes = async (user: any, lyf_prod: any) => {
       title: note.title,
       type: note.type,
       content: noteContent,
-      permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
+      permitted_users: [{ user_id: user.user_id, permissions: 'Owner' }],
       last_updated: new Date().toUTCString(),
-      created: new Date().toUTCString(),
+      created: new Date().toUTCString()
     };
 
-    await lyf_prod.collection("notes").insertOne(newNote);
+    await lyf_prod.collection('notes').insertOne(newNote);
     userReferences.push({ id: note.id });
   }
-  console.log("\tUploaded", userReferences.length, "notes");
+  console.log('\tUploaded', userReferences.length, 'notes');
 
   return userReferences;
 };
@@ -124,10 +124,10 @@ const getTemplateItems = (user: any) => {
           date: null,
           day: weekday.day,
           time: event.time,
-          permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
+          permitted_users: [{ user_id: user.user_id, permissions: 'Owner' }],
           status:
             event.status ||
-            (event.finished ? ItemStatus.Done : ItemStatus.Upcoming),
+            (event.finished ? ItemStatus.Done : ItemStatus.Upcoming)
         });
       }
     }
@@ -139,10 +139,10 @@ const getTemplateItems = (user: any) => {
           type: ListItemTypes.Task,
           date: null,
           day: weekday.day,
-          permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
+          permitted_users: [{ user_id: user.user_id, permissions: 'Owner' }],
           status:
             task.status ||
-            (task.finished ? ItemStatus.Done : ItemStatus.Upcoming),
+            (task.finished ? ItemStatus.Done : ItemStatus.Upcoming)
         });
       }
     }
@@ -162,10 +162,9 @@ const getMiscItems = (user: any) => {
       date: null,
       day: null,
       time: event.time,
-      permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
+      permitted_users: [{ user_id: user.user_id, permissions: 'Owner' }],
       status:
-        event.status ||
-        (event.finished ? ItemStatus.Done : ItemStatus.Upcoming),
+        event.status || (event.finished ? ItemStatus.Done : ItemStatus.Upcoming)
     });
   }
 
@@ -176,9 +175,9 @@ const getMiscItems = (user: any) => {
       type: ListItemTypes.Task,
       date: null,
       day: null,
-      permitted_users: [{ user_id: user.user_id, permissions: "Owner" }],
+      permitted_users: [{ user_id: user.user_id, permissions: 'Owner' }],
       status:
-        task.status || (task.finished ? ItemStatus.Done : ItemStatus.Upcoming),
+        task.status || (task.finished ? ItemStatus.Done : ItemStatus.Upcoming)
     });
   }
 
@@ -190,7 +189,7 @@ const getTimetableItems = (user: any, templateNames: any) => {
   // Exclude any template instances
   for (let week of user.timetable.weeks) {
     for (let day of Object.values(week) as any) {
-      if (!day.date || day?.date.slice(0, 4) !== "2024") continue;
+      if (!day.date || day?.date.slice(0, 4) !== '2024') continue;
       if (day.events) {
         for (let event of day.events) {
           if (templateNames.includes(event.name)) continue;
@@ -199,15 +198,15 @@ const getTimetableItems = (user: any, templateNames: any) => {
               _id: event.id || uuid(),
               title: event.name,
               type: ListItemTypes.Event,
-              date: moment(new Date(day.date)).format("YYYY-MM-DD"),
+              date: moment(new Date(day.date)).format('YYYY-MM-DD'),
               day: null,
               time: event.time,
               permitted_users: [
-                { user_id: user.user_id, permissions: "Owner" },
+                { user_id: user.user_id, permissions: 'Owner' }
               ],
               status:
                 event.status ||
-                (event.finished ? ItemStatus.Done : ItemStatus.Upcoming),
+                (event.finished ? ItemStatus.Done : ItemStatus.Upcoming)
             });
         }
       }
@@ -219,14 +218,14 @@ const getTimetableItems = (user: any, templateNames: any) => {
               _id: task.id || uuid(),
               title: task.name,
               type: ListItemTypes.Task,
-              date: moment(new Date(day.date)).format("YYYY-MM-DD"),
+              date: moment(new Date(day.date)).format('YYYY-MM-DD'),
               day: null,
               permitted_users: [
-                { user_id: user.user_id, permissions: "Owner" },
+                { user_id: user.user_id, permissions: 'Owner' }
               ],
               status:
                 task.status ||
-                (task.finished ? ItemStatus.Done : ItemStatus.Upcoming),
+                (task.finished ? ItemStatus.Done : ItemStatus.Upcoming)
             });
         }
       }
@@ -246,14 +245,14 @@ const processItems = async (user: any, lyf_prod: any) => {
   const timetableItems = getTimetableItems(user, templateNames);
 
   const allItems = [...templateItems, ...miscItems, ...timetableItems];
-  console.log("\tProcessed", allItems.length, "items");
+  console.log('\tProcessed', allItems.length, 'items');
 
-  console.log("\tUploading items for user", user.user_id);
+  console.log('\tUploading items for user', user.user_id);
   for (let item of allItems as any) {
-    await lyf_prod.collection("items").insertOne(item);
+    await lyf_prod.collection('items').insertOne(item);
     userReferences.push({ id: item._id });
   }
-  console.log("\tUploaded", userReferences.length, "items");
+  console.log('\tUploaded', userReferences.length, 'items');
 
   return userReferences;
 };

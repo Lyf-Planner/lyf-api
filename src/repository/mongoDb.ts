@@ -1,13 +1,17 @@
-import { Db, MongoClient, ServerApiVersion } from "mongodb";
-import { Collection } from "./abstractCollection";
-import { User } from "../api/user";
-import { ListItem } from "../api/list";
-import { Note } from "../api/notes";
-import { Logger } from "../utils/logging";
-import env from "../envManager";
+import { Db, MongoClient, ServerApiVersion } from 'mongodb';
+import { Collection } from './mongoCollection';
+import { User } from '../api/mongo_schema/user';
+import { ListItem } from '../api/mongo_schema/list';
+import { Note } from '../api/mongo_schema/notes';
+import { Logger } from '../utils/logging';
+import env from '../envManager';
 
-export class Database {
-  private logger = Logger.of(Database);
+// Note:
+// Mongo used to be the main database, but that is now Postgres
+// However, Mongo is still used by Agenda.js to store cron scheduled data (namely, notifications)
+
+export class MongoDatabase {
+  private logger = Logger.of(MongoDatabase);
   private connected = false;
 
   private client: MongoClient;
@@ -19,9 +23,9 @@ export class Database {
   constructor(connectionUrl?: string, dbName?: string) {
     this.client = this.setClient(connectionUrl);
     this.database = this.client.db(dbName || env.mongoDb);
-    this.usersCollectionRef = new Collection<User>("users", this.database);
-    this.itemsCollectionRef = new Collection<ListItem>("items", this.database);
-    this.notesCollectionRef = new Collection<Note>("notes", this.database);
+    this.usersCollectionRef = new Collection<User>('users', this.database);
+    this.itemsCollectionRef = new Collection<ListItem>('items', this.database);
+    this.notesCollectionRef = new Collection<Note>('notes', this.database);
   }
 
   public getDb() {
@@ -29,23 +33,23 @@ export class Database {
   }
 
   public async init() {
-    this.logger.info("Initialising DB connection");
+    this.logger.info('Initialising DB connection');
     await this.client.connect();
     await this.database.command({ ping: 1 });
     this.connected = true;
-    this.logger.info("DB initialised!");
+    this.logger.info('DB initialised!');
   }
 
   public async close() {
-    this.logger.info("Closing DB connection");
+    this.logger.info('Closing DB connection');
     await this.client.close();
     this.connected = false;
-    this.logger.info("DB connection closed");
+    this.logger.info('DB connection closed');
   }
 
   private initialisedGateway(returnObject: any) {
     if (!this.connected)
-      this.logger.error("Waiting for DB to initialise (connecting...)");
+      this.logger.error('Waiting for DB to initialise (connecting...)');
     else return returnObject;
   }
 
@@ -61,12 +65,12 @@ export class Database {
       serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
-        deprecationErrors: true,
-      },
+        deprecationErrors: true
+      }
     });
   }
 }
 
-const db = new Database();
+const mongoDb = new MongoDatabase();
 
-export default db;
+export default mongoDb;

@@ -1,5 +1,5 @@
-import { UserHandlers } from "../handlers/userHandlers";
-import { nSecondLimiter } from "../utils";
+import { UserHandlers } from '../handlers/userHandlers';
+import { nSecondLimiter } from '../utils';
 import {
   loginValidator,
   autologinValidator,
@@ -8,35 +8,35 @@ import {
   creationValidator,
   updateMeValidator,
   deleteMeValidator,
-  updateFriendshipValidator,
-} from "../validators/userValidators";
-import { validate } from "../middleware/validationMiddleware";
-import express from "express";
+  updateFriendshipValidator
+} from '../validators/userValidators';
+import { validate } from '../middleware/validationMiddleware';
+import express from 'express';
 
 export class UserEndpoints extends UserHandlers {
   constructor(server: express.Application) {
     super();
     server.get(
-      "/login",
+      '/login',
       validate(loginValidator),
       nSecondLimiter(2),
       this.login
     );
-    server.get("/autoLogin", validate(autologinValidator), this.autoLogin);
+    server.get('/autoLogin', validate(autologinValidator), this.autoLogin);
 
-    server.get("/getUser", validate(getUserValidator), this.getUser);
-    server.post("/getUsers", validate(getUsersValidator), this.getUsers);
+    server.get('/getUser', validate(getUserValidator), this.getUser);
+    server.post('/getUsers', validate(getUsersValidator), this.getUsers);
     server.post(
-      "/createUser",
+      '/createUser',
       creationValidator,
       nSecondLimiter(20),
       this.createUser
     );
-    server.post("/updateMe", validate(updateMeValidator), this.updateMe);
-    server.post("/deleteMe", validate(deleteMeValidator), this.deleteMe);
+    server.post('/updateMe', validate(updateMeValidator), this.updateMe);
+    server.post('/deleteMe', validate(deleteMeValidator), this.deleteMe);
 
     server.post(
-      "/updateFriendship",
+      '/updateFriendship',
       validate(updateFriendshipValidator),
       this.updateFriendship
     );

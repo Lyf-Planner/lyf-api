@@ -1,8 +1,8 @@
-import { compare, hash } from "bcrypt";
-import { User } from "../api/user";
-import { Logger } from "../utils/logging";
-import * as jwt from "jsonwebtoken";
-import env from "../envManager";
+import { compare, hash } from 'bcrypt';
+import { User } from '../api/mongo_schema/user';
+import { Logger } from '../utils/logging';
+import * as jwt from 'jsonwebtoken';
+import env from '../envManager';
 
 export class AuthUtils {
   private logger = Logger.of(AuthUtils);
@@ -11,14 +11,14 @@ export class AuthUtils {
   public async authenticate(user: User, password: string) {
     const res = await compare(password, user.pass_hash);
     if (!res) {
-      console.log("Authentication failed");
+      console.log('Authentication failed');
       return false;
     }
 
     const token = jwt.sign({ user_id: user.id }, env.jwtSecret as any, {
       // Caution: Setting an expiry will only work if we encode an object
       // Don't change the content (user_id) back to a string!
-      expiresIn: "1y",
+      expiresIn: '1y'
     });
     return token;
   }

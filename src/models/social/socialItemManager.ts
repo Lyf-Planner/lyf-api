@@ -1,12 +1,12 @@
-import { ID } from "../../api/abstract";
-import { SocialAction } from "../../api/social";
-import { updateItemSocialBody } from "../../controller/validators/itemValidators";
-import { Logger } from "../../utils/logging";
-import { ItemOperations } from "../items/ItemOperations";
-import { UserOperations } from "../users/userOperations";
-import { SocialItem } from "./socialItem";
-import { SocialItemNotifications } from "../notifications/socialItemNotificationService";
-import { SocialUser } from "./socialUser";
+import { ID } from '../../api/mongo_schema/abstract';
+import { SocialAction } from '../../api/mongo_schema/social';
+import { updateItemSocialBody } from '../../controller/validators/itemValidators';
+import { Logger } from '../../utils/logging';
+import { ItemOperations } from '../items/ItemOperations';
+import { UserOperations } from '../users/userOperations';
+import { SocialItem } from './socialItem';
+import { SocialItemNotifications } from '../notifications/socialItemNotificationService';
+import { SocialUser } from './socialUser';
 
 export class SocialItemManager {
   private from: SocialUser;
@@ -75,7 +75,7 @@ export class SocialItemManager {
         break;
     }
 
-    Logger.of(SocialItemManager).debug("Item Social is::");
+    Logger.of(SocialItemManager).debug('Item Social is::');
     Logger.of(SocialItemManager).debug(
       `Permitted Users: ${item.getContent().permitted_users}`
     );
@@ -86,7 +86,7 @@ export class SocialItemManager {
     // Return users' new social field
     return {
       permitted_users: item.getContent().permitted_users,
-      invited_users: item.getContent().invited_users,
+      invited_users: item.getContent().invited_users
     };
   }
 

@@ -1,53 +1,73 @@
-import { ItemStatus, ListItem, ListItemTypes } from "../../api/list";
-import { UserOperations } from "../users/userOperations";
-import { UserModel } from "../users/userModel";
-import { ExpoPushMessage } from "expo-server-sdk";
-import { Logger } from "../../utils/logging";
-import { TwentyFourHourToAMPM, formatDateData } from "../../utils/dates";
-import { ItemOperations } from "../items/ItemOperations";
-import { User } from "../../api/user";
-import { DaysOfWeek } from "../../api/timetable";
-import { pluralisedQuantity } from "../../utils/text";
-import expoPushService from "./expoPushService";
-import moment from "moment-timezone";
-import db from "../../repository/dbAccess";
+import {
+  ItemStatus,
+  ListItem,
+  ListItemTypes
+} from '../../api/mongo_schema/list';
+import { UserOperations } from '../users/userOperations';
+import { UserModel } from '../users/userModel';
+import { ExpoPushMessage } from 'expo-server-sdk';
+import { Logger } from '../../utils/logging';
+import { TwentyFourHourToAMPM, formatDateData } from '../../utils/dates';
+import { ItemOperations } from '../items/ItemOperations';
+import { User } from '../../api/mongo_schema/user';
+import { DaysOfWeek } from '../../api/mongo_schema/timetable';
+import { pluralisedQuantity } from '../../utils/text';
+import expoPushService from './expoPushService';
+import moment from 'moment-timezone';
+import mongoDb from '../../repository/mongoDb';
 
-const Agenda = require("agenda");
+const Agenda = require('agenda');
 
-const DEFAULT_MINS_BEFORE = "5";
+const DEFAULT_MINS_BEFORE = '5';
 
 export class NotificationManager {
+  public declareInitialised: any;
+  public initialise: Promise<any>;
+
   private logger = Logger.of(NotificationManager);
   private agenda = new Agenda({
-    mongo: db.getDb(),
-    db: { collection: "cron-jobs" },
-    processEvery: "1 minute",
+    mongo: mongoDb.getDb(),
+    db: { collection: 'cron-jobs' },
+    processEvery: '1 minute',
     options: {
-      useUnifiedTopology: true,
-    },
+      useUnifiedTopology: true
+    }
   });
 
   constructor() {
+    // We store a custom Promise to be resolved when the `agenda.on("ready")` is done
+    let initialisedFunc;
+    this.initialise = new Promise(function (resolve, reject) {
+      initialisedFunc = resolve;
+    });
+    this.declareInitialised = initialisedFunc;
+  }
+
+  public async init() {
     this.defineEventNotification();
     this.defineRoutineNotification();
     this.defineDailyNotification();
-    this.agenda.on("ready", async () => {
-      this.logger.info("Starting Agenda...");
+    this.agenda.on('ready', async () => {
+      this.logger.info('Starting Agenda...');
       await this.agenda.start();
-      this.logger.info("Agenda started.");
+      this.logger.info('Agenda started.');
+
+      this.declareInitialised();
     });
+
+    await this.initialise;
   }
 
   public async cleanup() {
-    this.logger.info("Cleaning up NotificationManager");
+    this.logger.info('Cleaning up NotificationManager');
     await this.agenda.stop();
   }
 
   // EVENT NOTIFICATIONS
 
   private defineEventNotification() {
-    this.logger.info("Defining Event Notifications");
-    this.agenda.define("Event Notification", async (job: any, done: any) => {
+    this.logger.info('Defining Event Notifications');
+    this.agenda.define('Event Notification', async (job: any, done: any) => {
       var { id } = job.attrs.data;
       await this.sendItemNotification(id, true);
       done();
@@ -91,10 +111,10 @@ export class NotificationManager {
     this.logger.info(
       `Creating event notification ${id} at ${setTime.toUTCString()}`
     );
-    await this.agenda.schedule(setTime, "Event Notification", {
+    await this.agenda.schedule(setTime, 'Event Notification', {
       id,
       user_id,
-      item_id: item.id,
+      item_id: item.id
     });
   };
 
@@ -108,14 +128,14 @@ export class NotificationManager {
   public async removeEventNotification(item: ListItem, user_id: string) {
     this.logger.info(`Removing event ${item.id}:${user_id}`);
     var id = this.getUniqueJobId(item.id, user_id);
-    await this.agenda.cancel({ "data.id": id });
+    await this.agenda.cancel({ 'data.id': id });
   }
 
   // DAILY NOTIFICATIONS
 
   private defineDailyNotification() {
-    this.logger.info("Defining Daily Notifications");
-    this.agenda.define("Daily Notification", async (job: any, done: any) => {
+    this.logger.info('Defining Daily Notifications');
+    this.agenda.define('Daily Notification', async (job: any, done: any) => {
       var { user_id } = job.attrs.data;
 
       var user = await UserOperations.retrieveForUser(user_id, user_id);
@@ -129,8 +149,8 @@ export class NotificationManager {
 
       var message = this.formatExpoPushMessage(
         user.getContent().expo_tokens || [],
-        "Check Your Schedule!",
-        "(Daily Reminder) " + subtext
+        'Check Your Schedule!',
+        '(Daily Reminder) ' + subtext
       );
       await expoPushService.pushNotificationToExpo([message]);
       done();
@@ -141,9 +161,9 @@ export class NotificationManager {
     this.logger.info(`Setting up daily notification for ${user.id}`);
     var time = user.premium?.notifications?.daily_notification_time;
 
-    var timeArray = time!.split(":");
-    const job = this.agenda.create("Daily Notification", {
-      user_id: user.id,
+    var timeArray = time!.split(':');
+    const job = this.agenda.create('Daily Notification', {
+      user_id: user.id
     });
     const timezone = user.timezone || process.env.TZ;
     job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * *`, { timezone });
@@ -159,14 +179,14 @@ export class NotificationManager {
 
   public async removeDailyNotifications(user_id: string) {
     this.logger.info(`Removing daily notifications for user ${user_id}`);
-    await this.agenda.cancel({ "data.user_id": user_id });
+    await this.agenda.cancel({ 'data.user_id': user_id });
   }
 
   // ROUTINE NOTIFICATIONS
 
   private defineRoutineNotification() {
-    this.logger.info("Defining Routine Notifications");
-    this.agenda.define("Routine Notification", async (job: any, done: any) => {
+    this.logger.info('Defining Routine Notifications');
+    this.agenda.define('Routine Notification', async (job: any, done: any) => {
       var { id } = job.attrs.data;
       await this.sendItemNotification(id);
       done();
@@ -180,13 +200,13 @@ export class NotificationManager {
     var user = (
       await UserOperations.retrieveForUser(user_id, user_id)
     ).getContent();
-    const job = this.agenda.create("Routine Notification", {
+    const job = this.agenda.create('Routine Notification', {
       id,
       user_id,
-      item_id: item.id,
+      item_id: item.id
     });
 
-    var timeArray = item.time!.split(":");
+    var timeArray = item.time!.split(':');
     const timezone = user.timezone || process.env.TZ;
 
     // We do this +1 because Sunday is treated as the zeroth day otherwise
@@ -204,7 +224,7 @@ export class NotificationManager {
   public async removeRoutineNotification(item: ListItem, user_id: string) {
     this.logger.info(`Removing routine ${item.id}:${user_id}`);
     var id = this.getUniqueJobId(item.id, user_id);
-    await this.agenda.cancel({ "data.id": id });
+    await this.agenda.cancel({ 'data.id': id });
   }
 
   // TIMEZONE CHANGE HANDLER
@@ -226,16 +246,16 @@ export class NotificationManager {
       `Adjusting notification timezones for user ${user.id} to ${user.timezone}`
     );
 
-    const jobs = await db
+    const jobs = await mongoDb
       .getDb()
-      .collection("cron-jobs")
-      .find({ "data.user_id": user.id })
+      .collection('cron-jobs')
+      .find({ 'data.user_id': user.id })
       .toArray();
 
     for (let job of jobs) {
       let itemObj;
       switch (job.name) {
-        case "Event Notification":
+        case 'Event Notification':
           itemObj = (
             await ItemOperations.retrieveForUser(job.data.item_id, user.id)
           ).getContent();
@@ -243,11 +263,11 @@ export class NotificationManager {
           await this.setEventNotification({ ...itemObj }, user.id, true);
           break;
 
-        case "Daily Notification":
+        case 'Daily Notification':
           await this.updateDailyNotifications(user);
           break;
 
-        case "Routine Notification":
+        case 'Routine Notification':
           itemObj = (
             await ItemOperations.retrieveForUser(job.data.item_id, user.id)
           ).getContent();
@@ -261,7 +281,7 @@ export class NotificationManager {
 
   private sendItemNotification = async (id: string, clearFromItem = false) => {
     try {
-      const ids = id.split(":");
+      const ids = id.split(':');
       const item_id = ids[0];
       const user_id = ids[1];
 
@@ -277,7 +297,7 @@ export class NotificationManager {
         this.logger.warn(
           `Cancelling notification for ${id} as event was cancelled`
         );
-        await this.agenda.cancel({ "data.id": id });
+        await this.agenda.cancel({ 'data.id': id });
         return;
       }
 
@@ -285,16 +305,16 @@ export class NotificationManager {
       const time = item.getContent().time!;
       const isEvent = item.getContent().type === ListItemTypes.Event;
       var subtext = minutes_before
-        ? `${isEvent ? "Starting in" : "In"} ${pluralisedQuantity(
+        ? `${isEvent ? 'Starting in' : 'In'} ${pluralisedQuantity(
             minutes_before,
-            "minute"
+            'minute'
           )} (at ${TwentyFourHourToAMPM(time)})`
-        : `${isEvent ? "Starting now" : "Now"} (${TwentyFourHourToAMPM(time)})`;
+        : `${isEvent ? 'Starting now' : 'Now'} (${TwentyFourHourToAMPM(time)})`;
 
       this.logger.info(`Sending scheduled notification ${id} to ${user_id}`);
       var message = this.formatExpoPushMessage(to, title, subtext);
       await expoPushService.pushNotificationToExpo([message]);
-      await this.agenda.cancel({ "data.id": id });
+      await this.agenda.cancel({ 'data.id': id });
 
       if (clearFromItem) await item.clearNotification(user_id);
     } catch (err: any) {
@@ -303,7 +323,7 @@ export class NotificationManager {
   };
 
   private getUniqueJobId = (prefix: string, suffix: string) => {
-    return prefix + ":" + suffix;
+    return prefix + ':' + suffix;
   };
 
   private formatExpoPushMessage(to: string[], title: string, body: string) {
@@ -311,7 +331,7 @@ export class NotificationManager {
       to,
       title,
       body,
-      sound: { critical: true, volume: 1, name: "default" },
+      sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
   }
 
@@ -319,7 +339,7 @@ export class NotificationManager {
   private throwIfInfertileEvent = (proposed: any) => {
     if (!proposed.date || !proposed.time)
       throw new Error(
-        "Cannot create a notification on an event without date or time"
+        'Cannot create a notification on an event without date or time'
       );
   };
 
@@ -343,7 +363,7 @@ export class NotificationManager {
       .getContent()
       .timetable?.items.map((x) => x.id) as any;
     var items = await ItemOperations.getRawUserItems(userItemIds, user.getId());
-    const curDay = moment().format("dddd");
+    const curDay = moment().format('dddd');
     const curDate = formatDateData(new Date());
     items = items.filter(
       (x) => x.day === curDay || (x.date === curDate && !x.template_id)
@@ -358,17 +378,17 @@ export class NotificationManager {
     if (taskCount + eventCount === 0) {
       return user.getContent().premium?.notifications
         ?.persistent_daily_notification
-        ? "Nothing planned for today :)"
-        : "";
+        ? 'Nothing planned for today :)'
+        : '';
     } else if (eventCount === 0) {
-      return `You have ${pluralisedQuantity(taskCount, "task")} today`;
+      return `You have ${pluralisedQuantity(taskCount, 'task')} today`;
     } else if (taskCount === 0) {
-      return `You have ${pluralisedQuantity(eventCount, "event")} today`;
+      return `You have ${pluralisedQuantity(eventCount, 'event')} today`;
     } else {
       return `You have ${pluralisedQuantity(
         eventCount,
-        "event"
-      )} and ${pluralisedQuantity(taskCount, "task")} today`;
+        'event'
+      )} and ${pluralisedQuantity(taskCount, 'task')} today`;
     }
   }
 
@@ -377,8 +397,8 @@ export class NotificationManager {
     minutes_before: string,
     timezone: string
   ) => {
-    var dateArray = item.date!.split("-").map((x) => parseInt(x));
-    var timeArray = item.time!.split(":").map((x) => parseInt(x));
+    var dateArray = item.date!.split('-').map((x) => parseInt(x));
+    var timeArray = item.time!.split(':').map((x) => parseInt(x));
     return this.setTimezoneDate(dateArray, timeArray, minutes_before, timezone);
   };
 
@@ -396,7 +416,7 @@ export class NotificationManager {
       .hours(time_array[0])
       .minutes(time_array[1])
       .seconds(0)
-      .add(-parseInt(minutes_before), "minutes")
+      .add(-parseInt(minutes_before), 'minutes')
       .toDate();
   }
 

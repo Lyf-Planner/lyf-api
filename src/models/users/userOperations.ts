@@ -1,11 +1,11 @@
-import { ID, Time } from "../../api/abstract";
-import { User, UserDetails } from "../../api/user";
-import { Logger } from "../../utils/logging";
-import { UserModel } from "./userModel";
-import { ItemOperations } from "../items/ItemOperations";
-import { SocialUser } from "../social/socialUser";
-import authUtils from "../../utils/authUtils";
-import db from "../../repository/dbAccess";
+import { ID, Time } from '../../api/mongo_schema/abstract';
+import { User, UserDetails } from '../../api/mongo_schema/user';
+import { Logger } from '../../utils/logging';
+import { UserModel } from './userModel';
+import { ItemOperations } from '../items/ItemOperations';
+import { SocialUser } from '../social/socialUser';
+import authUtils from '../../utils/authUtils';
+import db from '../../repository/mongoDb';
 
 export class UserOperations {
   // Builder method
@@ -44,28 +44,28 @@ export class UserOperations {
     user.details = {};
     user.timetable = {
       items: [{ id: intro_item_id }],
-      invited_items: [],
+      invited_items: []
     };
     user.notes = {
       items: [],
-      invited_items: [],
+      invited_items: []
     };
     user.timezone = timezone || process.env.TZ;
     user.premium = {
       enabled: true,
       notifications: {
         daily_notifications: false,
-        daily_notification_time: "08:00",
+        daily_notification_time: '08:00',
         persistent_daily_notification: false,
         event_notifications_enabled: true,
-        event_notification_minutes_before: "5",
-      },
+        event_notification_minutes_before: '5'
+      }
     };
     user.social = {
       friends: [],
       requests: [],
       requested: [],
-      blocked: [],
+      blocked: []
     };
 
     var model = new UserModel(user, false, true);
@@ -94,7 +94,7 @@ export class UserOperations {
       ...user.details,
       id: user.id,
       last_updated: user.last_updated,
-      created: user.created,
+      created: user.created
     };
   }
 }

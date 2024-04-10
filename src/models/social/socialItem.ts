@@ -1,8 +1,8 @@
-import { ID } from "../../api/abstract";
-import { ListItem } from "../../api/list";
-import { Permission } from "../../api/social";
-import { ItemModel } from "../items/itemModel";
-import { SocialUser } from "./socialUser";
+import { ID } from '../../api/mongo_schema/abstract';
+import { ListItem } from '../../api/mongo_schema/list';
+import { Permission } from '../../api/mongo_schema/social';
+import { ItemModel } from '../items/itemModel';
+import { SocialUser } from './socialUser';
 
 export class SocialItem extends ItemModel {
   constructor(item: ListItem, from_db: boolean = false, requested_by: string) {
@@ -21,7 +21,7 @@ export class SocialItem extends ItemModel {
     // User must be the owner to do this! (currently)
     if (!inviter || inviter?.permissions !== Permission.Owner) {
       throw new Error(
-        "You must be the creator of this task/event to add other users"
+        'You must be the creator of this task/event to add other users'
       );
     }
 
@@ -29,14 +29,14 @@ export class SocialItem extends ItemModel {
       .getContent()
       .social.friends?.find((x) => x === invited_user.getId());
     if (!inviterFriendship) {
-      throw new Error("You can only invite friends to your items!");
+      throw new Error('You can only invite friends to your items!');
     }
 
     // Add the user to the invite list
     const newUserAccess = {
       user_id: invited_user.getId(),
       displayed_as: invited_user.name(),
-      permissions: Permission.Invited,
+      permissions: Permission.Invited
     };
     this.content.invited_users
       ? this.content.invited_users.push(newUserAccess)
@@ -48,7 +48,7 @@ export class SocialItem extends ItemModel {
 
     if (this.getUserPermission(user_id) !== Permission.Invited) {
       throw new Error(
-        "You either accepted or no longer have an invite for this item. Please refresh!"
+        'You either accepted or no longer have an invite for this item. Please refresh!'
       );
     }
 
@@ -59,7 +59,7 @@ export class SocialItem extends ItemModel {
     // Ensure user is invited
     if (!invite) {
       throw new Error(
-        "Server Error: User had Invited permission but could not find invite"
+        'Server Error: User had Invited permission but could not find invite'
       );
     }
 
@@ -84,7 +84,7 @@ export class SocialItem extends ItemModel {
     // Requested_by must match user or have owner permission
     let requestor_perm = this.getUserPermission(this.requested_by);
     if (requestor_perm !== Permission.Owner && this.requested_by !== user_id) {
-      throw new Error("You must be the Owner to kick another user!");
+      throw new Error('You must be the Owner to kick another user!');
     }
 
     const i = this.content.permitted_users.findIndex(
@@ -96,7 +96,7 @@ export class SocialItem extends ItemModel {
   public removeInvite(user: SocialUser) {
     let requestor_perm = this.getUserPermission(this.requested_by);
     if (requestor_perm !== Permission.Owner) {
-      throw new Error("You must be the Owner to cancel an invite!");
+      throw new Error('You must be the Owner to cancel an invite!');
     }
 
     const user_id = user.getId();

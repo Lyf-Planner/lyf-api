@@ -1,6 +1,6 @@
-import { ID, Identifiable, Time } from "./abstract";
-import { Restricted } from "./social";
-import { UserListItem } from "./timetable";
+import { ID, Identifiable, Time } from './abstract';
+import { Restricted } from './social';
+import { UserListItem } from './timetable';
 
 export type List = (UserListItem | ListItem)[];
 
@@ -62,15 +62,15 @@ export type Comment = {
 };
 
 export enum ListItemTypes {
-  Event = "Event",
-  Task = "Task",
-  Item = "Item",
+  Event = 'Event',
+  Task = 'Task',
+  Item = 'Item'
 }
 
 export enum ItemStatus {
-  Cancelled = "Cancelled",
-  Tentative = "Tentative",
-  Upcoming = "Upcoming",
-  InProgress = "In Progress",
-  Done = "Done",
+  Cancelled = 'Cancelled',
+  Tentative = 'Tentative',
+  Upcoming = 'Upcoming',
+  InProgress = 'In Progress',
+  Done = 'Done'
 }

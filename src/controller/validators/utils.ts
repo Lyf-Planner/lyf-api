@@ -1,9 +1,9 @@
-import { checkExact } from "express-validator";
-import moment from "moment-timezone";
+import { checkExact } from 'express-validator';
+import moment from 'moment-timezone';
 
 export function isValidTimeZone(tz: string) {
   if (!moment.tz.zone(tz)) {
-    throw new Error("Unknown time zone ID: " + tz);
+    throw new Error('Unknown time zone ID: ' + tz);
   } else {
     return true;
   }

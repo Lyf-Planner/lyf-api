@@ -1,19 +1,24 @@
-import { Request, Response } from "express";
-import { UserEndpoints } from "./controller/endpoints/userEndpoints";
-import { ItemEndpoints } from "./controller/endpoints/itemEndpoints";
-import { NoteEndpoints } from "./controller/endpoints/noteEndpoints";
-import { authoriseHeader } from "./controller/middleware/authMiddleware";
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import env from "./envManager";
-import bodyParserErrorHandler from "express-body-parser-error-handler";
-import db from "./repository/dbAccess";
-import notificationManager from "./models/notifications/notificationManager";
+import { Request, Response } from 'express';
+import { UserEndpoints } from './controller/endpoints/userEndpoints';
+import { ItemEndpoints } from './controller/endpoints/itemEndpoints';
+import { NoteEndpoints } from './controller/endpoints/noteEndpoints';
+import { authoriseHeader } from './controller/middleware/authMiddleware';
+import { Logger, LoggingLevel } from './utils/logging';
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import env from './envManager';
+import bodyParserErrorHandler from 'express-body-parser-error-handler';
+import db from './repository/mongoDb';
+import notificationManager from './models/notifications/notificationManager';
 
-const server = express();
+export const server = express();
 
 dotenv.config();
+
+Logger.setLevel(LoggingLevel.DEBUG);
+
+process.env.TZ = 'Australia/Melbourne';
 
 //middleware
 server.use(cors());
@@ -21,41 +26,48 @@ server.use(express.json());
 server.use(bodyParserErrorHandler());
 server.use(authoriseHeader);
 
-async function main() {
-  process.env.TZ = "Australia/Melbourne";
-  server.get("/", (req: Request, res: Response) => {
-    res.send("Lyf API!");
-  });
+server.get('/', (req: Request, res: Response) => {
+  res.send('Lyf API!');
+});
 
-  // Logger.setLevel(
-  //   env.nodeEnv === "prod" ? LoggingLevel.INFO : LoggingLevel.DEBUG
-  // );
+new UserEndpoints(server);
+new ItemEndpoints(server);
+new NoteEndpoints(server);
 
-  new UserEndpoints(server);
-  new ItemEndpoints(server);
-  new NoteEndpoints(server);
+const PORT = env.port;
 
-  await db.init();
+server.set(
+  'trust proxy',
+  1 /* number of proxies between user and server (express-rate-limit) */
+);
 
-  const PORT = env.port;
+export const serverInitialised = new Promise(async (resolve, reject) => {
+  try {
+    await db.init();
+    await notificationManager.init();
+    resolve(true);
+  } catch (err) {
+    reject(err);
+  }
+});
 
-  server.set(
-    "trust proxy",
-    1 /* number of proxies between user and server (express-rate-limit) */
-  );
-  server.listen(PORT, () => {
-    console.log(`server started at http://localhost:${PORT}`);
-  });
-}
+const startServer = async () => {
+  if (env.nodeEnv !== 'test') {
+    await serverInitialised;
+    server.listen(PORT, () => {
+      console.log(`server started at http://localhost:${PORT}`);
+    });
+  }
+};
 
-async function shutdown() {
-  // Graceful shutdown
+// Graceful shutdown
+export async function shutdown() {
   await notificationManager.cleanup();
   await db.close();
   process.exit(0);
 }
 
-process.on("SIGTERM", shutdown);
-process.on("SIGINT", shutdown);
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
 
-main();
+startServer();

@@ -1,20 +1,20 @@
-import { ExpoPushMessage } from "expo-server-sdk";
-import { SocialItem } from "../social/socialItem";
-import { SocialUser } from "../social/socialUser";
-import { TwentyFourHourToAMPM, formatDate } from "../../utils/dates";
-import { UserOperations } from "../users/userOperations";
-import { ItemStatus, ListItem } from "../../api/list";
-import { Logger } from "../../utils/logging";
-import { UserModel } from "../users/userModel";
-import { ItemOperations } from "../items/ItemOperations";
+import { ExpoPushMessage } from 'expo-server-sdk';
+import { SocialItem } from '../social/socialItem';
+import { SocialUser } from '../social/socialUser';
+import { TwentyFourHourToAMPM, formatDate } from '../../utils/dates';
+import { UserOperations } from '../users/userOperations';
+import { ItemStatus, ListItem } from '../../api/mongo_schema/list';
+import { Logger } from '../../utils/logging';
+import { UserModel } from '../users/userModel';
+import { ItemOperations } from '../items/ItemOperations';
 
-import debouncer from "signature-debouncer";
-import expoPushService from "./expoPushService";
+import debouncer from 'signature-debouncer';
+import expoPushService from './expoPushService';
 
 export enum DebounceCategories {
-  "DateChange" = "DateChange",
-  "TimeChange" = "TimeChange",
-  "StatusChange" = "StatusChange",
+  'DateChange' = 'DateChange',
+  'TimeChange' = 'TimeChange',
+  'StatusChange' = 'StatusChange'
 }
 
 export class SocialItemNotifications {
@@ -33,7 +33,7 @@ export class SocialItemNotifications {
       to: to.getContent().expo_tokens || [],
       title: `New ${item.getContent().type} Invite`,
       body: `${from.name()} invited you to ${itemContent.title}`,
-      sound: { critical: true, volume: 1, name: "default" },
+      sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
 
     // Include dates and times if they are set
@@ -67,7 +67,7 @@ export class SocialItemNotifications {
     let message = {
       to: tokens,
       title: `User Joined your ${item.getContent().type}`,
-      body: `${from.name()} joined ${itemContent.title}`,
+      body: `${from.name()} joined ${itemContent.title}`
     } as ExpoPushMessage;
 
     // Send
@@ -96,7 +96,7 @@ export class SocialItemNotifications {
       body: `${from.name()} updated the date of ${item.title} to ${formatDate(
         item.date!
       )}`,
-      sound: { critical: true, volume: 1, name: "default" },
+      sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
 
     // Send
@@ -129,7 +129,7 @@ export class SocialItemNotifications {
       body: `${from.name()} updated the time of ${
         item.title
       } to ${TwentyFourHourToAMPM(newTime)}`,
-      sound: { critical: true, volume: 1, name: "default" },
+      sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
 
     // Send
@@ -161,14 +161,14 @@ export class SocialItemNotifications {
     let message = {
       to: tokens,
       title: `${item.type} ${
-        item.status === ItemStatus.Done ? "Completed!" : item.status
+        item.status === ItemStatus.Done ? 'Completed!' : item.status
       }`,
       body: `${from.name()} marked ${item.title} as ${newStatus}`,
       sound: {
         critical: item.status === ItemStatus.Cancelled,
         volume: 1,
-        name: "default",
-      },
+        name: 'default'
+      }
     } as ExpoPushMessage;
 
     // Send
@@ -203,7 +203,7 @@ export class SocialItemNotifications {
       {
         item_id,
         user_id,
-        type: category,
+        type: category
       },
       10000
     );

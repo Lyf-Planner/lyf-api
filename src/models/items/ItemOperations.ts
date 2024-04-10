@@ -1,19 +1,19 @@
-import { ID } from "../../api/abstract";
+import { ID } from '../../api/mongo_schema/abstract';
 import {
   ItemSettings,
   ItemStatus,
   ListItem,
-  ListItemTypes,
-} from "../../api/list";
-import { ItemModel } from "./itemModel";
-import { Logger } from "../../utils/logging";
-import { SocialItem } from "../social/socialItem";
-import { formatDateData } from "../../utils/dates";
-import { Permission } from "../../api/social";
-import { v4 as uuid } from "uuid";
-import db from "../../repository/dbAccess";
-import { UserOperations } from "../users/userOperations";
-import { SocialUser } from "../social/socialUser";
+  ListItemTypes
+} from '../../api/mongo_schema/list';
+import { ItemModel } from './itemModel';
+import { Logger } from '../../utils/logging';
+import { SocialItem } from '../social/socialItem';
+import { formatDateData } from '../../utils/dates';
+import { Permission } from '../../api/mongo_schema/social';
+import { v4 as uuid } from 'uuid';
+import db from '../../repository/mongoDb';
+import { UserOperations } from '../users/userOperations';
+import { SocialUser } from '../social/socialUser';
 
 export class ItemOperations {
   // Builder method
@@ -94,7 +94,7 @@ export class ItemOperations {
   static settingsFieldsOnly(item: ListItem): ItemSettings {
     // Needs validator
     return {
-      suggestions_only: item.suggestions_only,
+      suggestions_only: item.suggestions_only
     };
   }
 
@@ -117,17 +117,17 @@ export class ItemOperations {
   static async createUserIntroItem(user_id: string) {
     let userIntroItem = {
       id: uuid(),
-      title: "Swipe Me Left!",
+      title: 'Swipe Me Left!',
       type: ListItemTypes.Event,
       status: ItemStatus.Upcoming,
       date: formatDateData(new Date()),
       day: null,
-      desc: "This is your first item!\nTo create another like it, type it into the desired day\nTo delete this, hold it down",
+      desc: 'This is your first item!\nTo create another like it, type it into the desired day\nTo delete this, hold it down',
 
       permitted_users: [
-        { user_id, displayed_as: user_id, permissions: Permission.Owner },
+        { user_id, displayed_as: user_id, permissions: Permission.Owner }
       ],
-      notifications: [],
+      notifications: []
     } as any;
     let firstItem = new ItemModel(userIntroItem, false, user_id);
     await firstItem.commit();

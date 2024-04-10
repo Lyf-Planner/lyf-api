@@ -1,5 +1,5 @@
-import { ID, Identifiable } from "./abstract";
-import { ListItem } from "./list";
+import { ID, Identifiable } from './abstract';
+import { ListItem } from './list';
 
 export type Timetable = {
   active_template?: number;
@@ -36,11 +36,11 @@ export type DayPlan = {
 };
 
 export enum DaysOfWeek {
-  Monday = "Monday",
-  Tuesday = "Tuesday",
-  Wednesday = "Wednesday",
-  Thursday = "Thursday",
-  Friday = "Friday",
-  Saturday = "Saturday",
-  Sunday = "Sunday",
+  Monday = 'Monday',
+  Tuesday = 'Tuesday',
+  Wednesday = 'Wednesday',
+  Thursday = 'Thursday',
+  Friday = 'Friday',
+  Saturday = 'Saturday',
+  Sunday = 'Sunday'
 }

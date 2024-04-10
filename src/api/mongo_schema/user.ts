@@ -1,7 +1,7 @@
-import { ID, Identifiable, Time } from "./abstract";
-import { Notes } from "./notes";
-import { Premium } from "./premium";
-import { Timetable } from "./timetable";
+import { ID, Identifiable, Time } from './abstract';
+import { Notes } from './notes';
+import { Premium } from './premium';
+import { Timetable } from './timetable';
 
 // Instead of using Identifiable, we use user_id as id
 export type User = Time &
