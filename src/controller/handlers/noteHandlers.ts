@@ -1,10 +1,10 @@
-import { Permission } from "../../api/mongo_schema/social";
-import { Note } from "../../api/mongo_schema/notes";
-import { NoteModel } from "../../models/notes/noteModel";
-import { NoteOperations } from "../../models/notes/noteOperations";
-import { Logger } from "../../utils/logging";
-import { Request, Response } from "express";
-import { getMiddlewareVars } from "../utils";
+import { Permission } from '../../api/mongo_schema/social';
+import { Note } from '../../api/mongo_schema/notes';
+import { NoteModel } from '../../models/notes/noteModel';
+import { NoteOperations } from '../../models/notes/noteOperations';
+import { Logger } from '../../utils/logging';
+import { Request, Response } from 'express';
+import { getMiddlewareVars } from '../utils';
 
 export class NoteHandlers {
   private logger = Logger.of(NoteHandlers);

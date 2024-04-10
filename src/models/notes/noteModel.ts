@@ -1,9 +1,9 @@
-import { Permission } from "../../api/mongo_schema/social";
-import { Note } from "../../api/mongo_schema/notes";
-import { Logger } from "../../utils/logging";
-import { RestrictedRemoteObject } from "../abstract/restrictedRemoteObject";
-import { updateNoteBody } from "../../controller/validators/noteValidators";
-import db from "../../repository/mongoDb";
+import { Permission } from '../../api/mongo_schema/social';
+import { Note } from '../../api/mongo_schema/notes';
+import { Logger } from '../../utils/logging';
+import { RestrictedRemoteObject } from '../abstract/restrictedRemoteObject';
+import { updateNoteBody } from '../../controller/validators/noteValidators';
+import db from '../../repository/mongoDb';
 
 export class NoteModel extends RestrictedRemoteObject<Note> {
   private logger = Logger.of(NoteModel);

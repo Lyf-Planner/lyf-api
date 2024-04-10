@@ -1,5 +1,5 @@
-import { Expo, ExpoPushMessage } from "expo-server-sdk";
-import { Logger } from "../../utils/logging";
+import { Expo, ExpoPushMessage } from 'expo-server-sdk';
+import { Logger } from '../../utils/logging';
 
 export class ExpoPushService {
   private expo: Expo;

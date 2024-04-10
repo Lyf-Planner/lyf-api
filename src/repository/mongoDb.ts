@@ -1,10 +1,10 @@
-import { Db, MongoClient, ServerApiVersion } from "mongodb";
-import { Collection } from "./mongoCollection";
-import { User } from "../api/mongo_schema/user";
-import { ListItem } from "../api/mongo_schema/list";
-import { Note } from "../api/mongo_schema/notes";
-import { Logger } from "../utils/logging";
-import env from "../envManager";
+import { Db, MongoClient, ServerApiVersion } from 'mongodb';
+import { Collection } from './mongoCollection';
+import { User } from '../api/mongo_schema/user';
+import { ListItem } from '../api/mongo_schema/list';
+import { Note } from '../api/mongo_schema/notes';
+import { Logger } from '../utils/logging';
+import env from '../envManager';
 
 // Note:
 // Mongo used to be the main database, but that is now Postgres
@@ -23,9 +23,9 @@ export class MongoDatabase {
   constructor(connectionUrl?: string, dbName?: string) {
     this.client = this.setClient(connectionUrl);
     this.database = this.client.db(dbName || env.mongoDb);
-    this.usersCollectionRef = new Collection<User>("users", this.database);
-    this.itemsCollectionRef = new Collection<ListItem>("items", this.database);
-    this.notesCollectionRef = new Collection<Note>("notes", this.database);
+    this.usersCollectionRef = new Collection<User>('users', this.database);
+    this.itemsCollectionRef = new Collection<ListItem>('items', this.database);
+    this.notesCollectionRef = new Collection<Note>('notes', this.database);
   }
 
   public getDb() {
@@ -33,23 +33,23 @@ export class MongoDatabase {
   }
 
   public async init() {
-    this.logger.info("Initialising DB connection");
+    this.logger.info('Initialising DB connection');
     await this.client.connect();
     await this.database.command({ ping: 1 });
     this.connected = true;
-    this.logger.info("DB initialised!");
+    this.logger.info('DB initialised!');
   }
 
   public async close() {
-    this.logger.info("Closing DB connection");
+    this.logger.info('Closing DB connection');
     await this.client.close();
     this.connected = false;
-    this.logger.info("DB connection closed");
+    this.logger.info('DB connection closed');
   }
 
   private initialisedGateway(returnObject: any) {
     if (!this.connected)
-      this.logger.error("Waiting for DB to initialise (connecting...)");
+      this.logger.error('Waiting for DB to initialise (connecting...)');
     else return returnObject;
   }
 
@@ -65,8 +65,8 @@ export class MongoDatabase {
       serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
-        deprecationErrors: true,
-      },
+        deprecationErrors: true
+      }
     });
   }
 }

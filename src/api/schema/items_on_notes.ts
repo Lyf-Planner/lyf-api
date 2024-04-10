@@ -1,6 +1,6 @@
-import { DBObject, ID } from "./abstract";
-import { ItemDbObject } from "./items";
-import { NoteDbObject } from "./notes";
+import { DBObject, ID } from './abstract';
+import { ItemDbObject } from './items';
+import { NoteDbObject } from './notes';
 
 // This might need review.. we'll see
 

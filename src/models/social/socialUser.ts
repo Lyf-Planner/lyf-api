@@ -1,8 +1,8 @@
-import { ID } from "../../api/mongo_schema/abstract";
-import { ListItem } from "../../api/mongo_schema/list";
-import { User } from "../../api/mongo_schema/user";
-import { UserModel } from "../users/userModel";
-import { SocialItem } from "./socialItem";
+import { ID } from '../../api/mongo_schema/abstract';
+import { ListItem } from '../../api/mongo_schema/list';
+import { User } from '../../api/mongo_schema/user';
+import { UserModel } from '../users/userModel';
+import { SocialItem } from './socialItem';
 
 export class SocialUser extends UserModel {
   constructor(user: User, from_db: boolean, requestedBySelf: boolean) {
@@ -36,7 +36,7 @@ export class SocialUser extends UserModel {
 
   public noteRequestToSelf(to: ID) {
     this.enforceRequestedBySelf(
-      "You can only modify your own friend requests!",
+      'You can only modify your own friend requests!',
       `User ${this.id} nearly had their friend requests modified by another user`
     );
 
@@ -61,7 +61,7 @@ export class SocialUser extends UserModel {
   public async addressIncomingFriendRequest(from: ID, accepted: boolean) {
     // Can only be modified by self
     this.enforceRequestedBySelf(
-      "You can only modify your own friend requests!",
+      'You can only modify your own friend requests!',
       `User ${this.id} nearly had their friend requests modified by another user`
     );
 
@@ -149,7 +149,7 @@ export class SocialUser extends UserModel {
     // Must be invited by a friend
     let inviter = this.content.social.friends?.find((x) => x === invited_by_id);
     if (!inviter)
-      throw new Error("Users must be invited to an item by a friend");
+      throw new Error('Users must be invited to an item by a friend');
 
     var invited_items = this.content.timetable.invited_items;
     // Ensure user does not get multiple invites
@@ -161,7 +161,7 @@ export class SocialUser extends UserModel {
   }
 
   public addressItemInvite(item: SocialItem, accepted: boolean) {
-    this.enforceRequestedBySelf("Cannot accept someone elses item invite!");
+    this.enforceRequestedBySelf('Cannot accept someone elses item invite!');
     const item_id = item.getId();
 
     if (accepted) {

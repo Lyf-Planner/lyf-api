@@ -1,18 +1,18 @@
-import { DBObject } from "./abstract";
-import { ItemUserRelationshipDbObject } from "./items_on_users";
-import { NoteUserRelationshipDbObject } from "./notes_on_users";
+import { DBObject } from './abstract';
+import { ItemUserRelationshipDbObject } from './items_on_users';
+import { NoteUserRelationshipDbObject } from './notes_on_users';
 
 export enum ItemType {
-  Event = "Event",
-  Task = "Task",
+  Event = 'Event',
+  Task = 'Task'
 }
 
 export enum ItemStatus {
-  Cancelled = "Cancelled",
-  Tentative = "Tentative",
-  Upcoming = "Upcoming",
-  InProgress = "In Progress",
-  Done = "Done",
+  Cancelled = 'Cancelled',
+  Tentative = 'Tentative',
+  Upcoming = 'Upcoming',
+  InProgress = 'In Progress',
+  Done = 'Done'
 }
 
 export type ItemDbObject = DBObject & {

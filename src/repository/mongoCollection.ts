@@ -1,7 +1,7 @@
-import { Collection as mongoCollection, Db } from "mongodb";
-import { DBObject, ID } from "../api/mongo_schema/abstract";
-import { Logger } from "../utils/logging";
-import assert from "assert";
+import { Collection as mongoCollection, Db } from 'mongodb';
+import { DBObject, ID } from '../api/mongo_schema/abstract';
+import { Logger } from '../utils/logging';
+import assert from 'assert';
 
 // Note:
 // This class purely acts as the data access layer
@@ -43,11 +43,11 @@ export class Collection<T extends DBObject> {
         {
           $addFields: {
             index: {
-              $indexOfArray: [ids, "$_id"],
-            },
-          },
+              $indexOfArray: [ids, '$_id']
+            }
+          }
         },
-        { $sort: { index: 1 } },
+        { $sort: { index: 1 } }
       ])
       .toArray()) as any;
 
@@ -60,7 +60,7 @@ export class Collection<T extends DBObject> {
 
   public async getById(id: ID, throwOnUnfound = true): Promise<T | null> {
     var result = (await this.collection.findOne({
-      _id: id,
+      _id: id
     })) as T | null;
 
     result === null && this.handleSingleUnfound(id, throwOnUnfound);
@@ -97,7 +97,7 @@ export class Collection<T extends DBObject> {
       { _id: insert._id },
       { $set: { ...insert } },
       {
-        upsert,
+        upsert
       }
     );
     assert(result.acknowledged);

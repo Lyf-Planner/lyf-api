@@ -1,7 +1,7 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 dotenv.config();
 
-const VERSION = "2.2.4";
+const VERSION = '2.2.4';
 
 // Expose this layer to access env vars throughout the app
 const env = {
@@ -11,7 +11,7 @@ const env = {
   jwtSecret: process.env.JWT_SECRET,
   //expoNotificationToken: process.env.EXPO_NOTIFICATION_TOKEN,
   version: VERSION,
-  port: process.env.PORT || 8000,
+  port: process.env.PORT || 8000
 };
 
 // Verify all required environment variables are included

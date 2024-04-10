@@ -1,7 +1,7 @@
-import { DBObject } from "../../api/mongo_schema/abstract";
-import { Permission, Restricted } from "../../api/mongo_schema/social";
-import { Collection } from "../../repository/mongoCollection";
-import { RemoteObject } from "./remoteObject";
+import { DBObject } from '../../api/mongo_schema/abstract';
+import { Permission, Restricted } from '../../api/mongo_schema/social';
+import { Collection } from '../../repository/mongoCollection';
+import { RemoteObject } from './remoteObject';
 
 export class RestrictedRemoteObject<
   T extends Restricted & DBObject
@@ -37,7 +37,7 @@ export class RestrictedRemoteObject<
   static extractPermissionFields(object: Restricted) {
     return {
       permitted_users: object.permitted_users,
-      invited_users: object.invited_users,
+      invited_users: object.invited_users
     };
   }
 

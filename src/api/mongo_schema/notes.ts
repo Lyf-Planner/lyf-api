@@ -1,6 +1,6 @@
-import { ID, Identifiable, Time } from "./abstract";
-import { Restricted } from "./social";
-import { List } from "./list";
+import { ID, Identifiable, Time } from './abstract';
+import { Restricted } from './social';
+import { List } from './list';
 
 export type Notes = {
   items: (UserNote | Note)[];
@@ -21,8 +21,8 @@ export type Note = Identifiable &
   };
 
 export enum NoteType {
-  List = "List",
-  Text = "Text", // These are often just referred to as Notes - they are the default
+  List = 'List',
+  Text = 'Text' // These are often just referred to as Notes - they are the default
 }
 
 export type NoteContent = List | string;

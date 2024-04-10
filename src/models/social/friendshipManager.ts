@@ -1,12 +1,12 @@
-import { ID } from "../../api/mongo_schema/abstract";
+import { ID } from '../../api/mongo_schema/abstract';
 import {
   FriendshipAction,
-  FriendshipUpdate,
-} from "../../api/mongo_schema/social";
-import { Logger } from "../../utils/logging";
-import { UserOperations } from "../users/userOperations";
-import { FriendNotifications } from "../notifications/friendNotificationService";
-import { SocialUser } from "./socialUser";
+  FriendshipUpdate
+} from '../../api/mongo_schema/social';
+import { Logger } from '../../utils/logging';
+import { UserOperations } from '../users/userOperations';
+import { FriendNotifications } from '../notifications/friendNotificationService';
+import { SocialUser } from './socialUser';
 
 export class FriendshipManager {
   private from: SocialUser;
@@ -20,7 +20,7 @@ export class FriendshipManager {
 
   static async processUpdate(from: ID, update: FriendshipUpdate) {
     // Can't address yourself
-    if (from === update.user_id) throw new Error("You cannot friend yourself");
+    if (from === update.user_id) throw new Error('You cannot friend yourself');
 
     let fromUser = (await UserOperations.retrieveForUser(
       from,

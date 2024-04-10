@@ -1,11 +1,11 @@
-import { Time } from "../../api/mongo_schema/abstract";
-import { Logger } from "../../utils/logging";
+import { Time } from '../../api/mongo_schema/abstract';
+import { Logger } from '../../utils/logging';
 
 export class TimeOperations {
   public static timeFieldsOnly(object: any): Time {
     return {
       created: object.created,
-      last_updated: object.last_updated,
+      last_updated: object.last_updated
     };
   }
 

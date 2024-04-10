@@ -1,11 +1,11 @@
-import { DBObject, ID } from "./abstract";
-import { NoteDbObject } from "./notes";
-import { UserDbObject } from "./user";
+import { DBObject, ID } from './abstract';
+import { NoteDbObject } from './notes';
+import { UserDbObject } from './user';
 
 export enum NoteRelationshipStatus {
-  Owner = "Owner",
-  Editor = "Editor",
-  ReadOnly = "Read Only",
+  Owner = 'Owner',
+  Editor = 'Editor',
+  ReadOnly = 'Read Only'
 }
 
 export type NoteUserRelationshipDbObject = DBObject & {

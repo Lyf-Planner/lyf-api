@@ -1,7 +1,7 @@
-import { Timestamps } from "./abstract";
-import { ItemUserRelationshipDbObject } from "./items_on_users";
-import { NoteUserRelationshipDbObject } from "./notes_on_users";
-import { UserRelationshipDbObject } from "./users_on_users";
+import { Timestamps } from './abstract';
+import { ItemUserRelationshipDbObject } from './items_on_users';
+import { NoteUserRelationshipDbObject } from './notes_on_users';
+import { UserRelationshipDbObject } from './users_on_users';
 
 export type UserDbObject = Timestamps & {
   // User metadata

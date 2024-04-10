@@ -1,18 +1,18 @@
-import { Request, Response } from "express";
-import { User } from "../../api/mongo_schema/user";
-import { UserModel } from "../../models/users/userModel";
-import { UserOperations } from "../../models/users/userOperations";
-import { Logger } from "../../utils/logging";
-import { getMiddlewareVars } from "../utils";
+import { Request, Response } from 'express';
+import { User } from '../../api/mongo_schema/user';
+import { UserModel } from '../../models/users/userModel';
+import { UserOperations } from '../../models/users/userOperations';
+import { Logger } from '../../utils/logging';
+import { getMiddlewareVars } from '../utils';
 import {
   deleteMeBody,
   getUserQuery,
   loginQuery,
   updateFriendshipBody,
-  updateMeBody,
-} from "../validators/userValidators";
-import authUtils from "../../utils/authUtils";
-import { FriendshipManager } from "../../models/social/friendshipManager";
+  updateMeBody
+} from '../validators/userValidators';
+import authUtils from '../../utils/authUtils';
+import { FriendshipManager } from '../../models/social/friendshipManager';
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
@@ -36,7 +36,7 @@ export class UserHandlers {
       password as string
     );
     if (!token) {
-      res.status(401).end("Incorrect password");
+      res.status(401).end('Incorrect password');
       return;
     }
 
@@ -75,7 +75,7 @@ export class UserHandlers {
       );
       res.status(200).json(userModel.getUser(false)).end();
     } catch (err) {
-      res.status(400).end("User not found");
+      res.status(400).end('User not found');
     }
   }
 
@@ -148,7 +148,7 @@ export class UserHandlers {
         user.getUser() as User,
         password as string
       );
-      if (!token) throw new Error("Incorrect password");
+      if (!token) throw new Error('Incorrect password');
 
       // Perform delete
       await user!.deleteFromDb();
