@@ -1,9 +1,9 @@
 import { authoriseTestUser } from '../users/utils';
-import { testDatedItemCreate, testDatedItemExport } from './_testdata';
+import { testNoteCreation, testNoteExport } from './_testdata';
 import { server, serverInitialised } from '../../src/index';
 import request from 'supertest';
 
-describe('Test Item Endpoints', () => {
+describe('Test Note Endpoints', () => {
   let authToken: string = '';
   let createdId: string = '';
 
@@ -13,69 +13,69 @@ describe('Test Item Endpoints', () => {
     expect(authToken).toBeTruthy();
   });
 
-  it('Can CREATE an item, with appropriately exported response', async () => {
+  it('Can CREATE a note, with appropriately exported response', async () => {
     const response = await request(server)
-      .post('/createItem')
+      .post('/createNote')
       .set('Authorization', authToken)
-      .send(testDatedItemCreate);
+      .send(testNoteCreation);
 
     expect(response.status).toBe(201);
-    expect(response.body).toBe(testDatedItemExport);
+    expect(response.body).toBe(testNoteExport);
     createdId = response.body.id;
   });
 
-  it('Is idempotent for item UPDATE operations', async () => {
+  it('Is idempotent for note UPDATE operations', async () => {
     const response = await request(server)
-      .post('/updateItem')
+      .post('/updateNote')
       .set('Authorization', authToken)
-      .send(testDatedItemCreate);
+      .send(testNoteCreation);
 
     expect(response.status).toBe(200);
-    expect(response.body).toBe(testDatedItemExport);
+    expect(response.body).toBe(testNoteExport);
   });
 
-  it('Applies item UPDATE and returns appropriate change', async () => {
+  it('Applies note UPDATE and returns appropriate change', async () => {
     const response = await request(server)
-      .post('/updateItem')
+      .post('/updateNote')
       .set('Authorization', authToken)
-      .send({ id: testDatedItemExport.id, title: 'my modified list' });
+      .send({ id: testNoteExport.id, title: 'my modified list' });
 
     expect(response.status).toBe(200);
     expect(response.body).toBe({
-      ...testDatedItemExport,
+      ...testNoteExport,
       title: 'my modified list'
     });
 
     // Change it back for later tests. May as well test this too
     const secondResponse = await request(server)
-      .post('/updateItem')
+      .post('/updateNote')
       .set('Authorization', authToken)
-      .send(testDatedItemExport);
+      .send(testNoteExport);
 
     expect(secondResponse.status).toBe(200);
-    expect(secondResponse.body).toBe(testDatedItemExport);
+    expect(secondResponse.body).toBe(testNoteExport);
   });
 
-  it('Can GET an item, with the appropriate response', async () => {
+  it('Can GET an note, with the appropriate response', async () => {
     const response = await request(server)
-      .get(`/getItem?id=${testDatedItemExport.id}`)
+      .get(`/getNote?id=${testNoteExport.id}`)
       .set('Authorization', authToken);
 
     expect(response.status).toBe(200);
-    expect(response.body).toBe(testDatedItemExport);
+    expect(response.body).toBe(testNoteExport);
   });
 
-  it('Can DELETE an item, with the appropriate response', async () => {
+  it('Can DELETE an note, with the appropriate response', async () => {
     const response = await request(server)
-      .get(`/deleteItem?id=${testDatedItemExport.id}`)
+      .get(`/deleteNote?id=${testNoteExport.id}`)
       .set('Authorization', authToken);
 
     expect(response.status).toBe(200);
   });
 
-  it('Cannot GET a deleted item', async () => {
+  it('Cannot GET a deleted note', async () => {
     const response = await request(server)
-      .get(`/getItem?id=${testDatedItemExport.id}`)
+      .get(`/getNote?id=${testNoteExport.id}`)
       .set('Authorization', authToken);
 
     expect(response.status).toBe(404);
