@@ -3,7 +3,7 @@ import { ItemUserRelationshipDbObject } from './items_on_users';
 import { NoteUserRelationshipDbObject } from './notes_on_users';
 import { UserRelationshipDbObject } from './users_on_users';
 
-export type UserDbObject = Timestamps & {
+export interface UserDbObject extends Timestamps {
   // User metadata
   user_id: string; // primary key!
   pass_hash: string; // not exported

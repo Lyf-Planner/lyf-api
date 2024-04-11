@@ -1,4 +1,4 @@
-import { DBObject, ID } from './abstract';
+import { DbObject, ID } from './abstract';
 import { NoteDbObject } from './notes';
 import { UserDbObject } from './user';
 
@@ -8,14 +8,14 @@ export enum NoteRelationshipStatus {
   ReadOnly = 'Read Only'
 }
 
-export type NoteUserRelationshipDbObject = DBObject & {
-  note_id: ID;
-  user_id: ID;
+export interface NoteUserRelationshipDbObject extends DbObject {
+  note_id_fk: ID;
+  user_id_fk: ID;
   invite_pending: boolean;
   status: NoteRelationshipStatus;
 };
 
-export type NoteUserRelationship = NoteUserRelationshipDbObject & {
+export interface NoteUserRelationship extends NoteUserRelationshipDbObject {
   note: NoteDbObject;
   user: UserDbObject;
 };

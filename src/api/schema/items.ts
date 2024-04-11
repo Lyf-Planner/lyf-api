@@ -1,6 +1,6 @@
-import { DBObject } from './abstract';
+import { DbObject } from './abstract';
+import { ItemNoteRelationship } from './items_on_notes';
 import { ItemUserRelationshipDbObject } from './items_on_users';
-import { NoteUserRelationshipDbObject } from './notes_on_users';
 
 export enum ItemType {
   Event = 'Event',
@@ -15,7 +15,7 @@ export enum ItemStatus {
   Done = 'Done'
 }
 
-export type ItemDbObject = DBObject & {
+export interface ItemDbObject extends DbObject {
   title: string;
   type: ItemType;
   status: ItemStatus;
@@ -32,9 +32,9 @@ export type ItemDbObject = DBObject & {
   notification_mins_before?: string;
 };
 
-export type Item = ItemDbObject & {
+export interface Item extends ItemDbObject {
   // Note linking
-  notes: NoteUserRelationshipDbObject[];
+  notes: ItemNoteRelationship[];
   // Access
   users: ItemUserRelationshipDbObject[];
 };

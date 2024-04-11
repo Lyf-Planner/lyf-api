@@ -1,4 +1,4 @@
-import { ID, DBObject } from './abstract';
+import { ID, DbObject } from './abstract';
 import { ItemDbObject } from './items';
 import { UserDbObject } from './user';
 
@@ -8,9 +8,9 @@ export enum ItemRelationshipStatus {
   ReadOnly = 'Read Only'
 }
 
-export type ItemUserRelationshipDbObject = DBObject & {
-  item_id: ID;
-  user_id: ID;
+export interface ItemUserRelationshipDbObject extends DbObject {
+  item_id_fk: ID;
+  user_id_fk: ID;
   invite_pending: boolean;
   status: ItemRelationshipStatus;
   sorting_rank: string; // string which indicates order lexicographically
@@ -18,7 +18,7 @@ export type ItemUserRelationshipDbObject = DBObject & {
   // sorting_rank and user_id are composite unique!
 };
 
-export type ItemUserRelationship = ItemUserRelationshipDbObject & {
+export interface ItemUserRelationship extends ItemUserRelationshipDbObject {
   item: ItemDbObject;
   user: UserDbObject;
 };
