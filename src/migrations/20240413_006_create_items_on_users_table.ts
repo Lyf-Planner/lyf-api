@@ -1,0 +1,24 @@
+import { Kysely, sql } from 'kysely';
+
+export async function up(db: Kysely<any>): Promise<void> {
+  await db.schema
+    .createTable('items_on_users')
+    .addColumn('created', 'timestamptz', (col) => col.defaultTo(sql`now()`).notNull())
+    .addColumn('last_updated', 'timestamptz', (col) => col.defaultTo(sql`now()`).notNull())
+    .addColumn('item_id_fk', 'uuid', (col) => col.notNull().references('items.id'))
+    .addColumn('user_id_fk', 'uuid', (col) => col.notNull().references('users.user_id'))
+    .addColumn('invite_pending', 'boolean', (col) => col.notNull())
+    .addColumn('status', 'text', (col) => col.notNull())
+    .addColumn('sorting_rank', 'text', (col) => col.notNull())
+    .addPrimaryKeyConstraint('pk_user_item', ['item_id_fk', 'user_id_fk'])
+    .addUniqueConstraint('sorting_per_user', ['user_id_fk', 'sorting_rank'])
+    .addCheckConstraint('check_status', sql`status IN (\'Owner\', \'Editor\', \'Read Only\')`)
+    .execute();
+
+    await db.schema.createIndex('user_item_item_id_index').on('items_on_users').column('item_id_fk').execute()
+    await db.schema.createIndex('user_item_user_id_index').on('items_on_users').columns(['user_id_fk', 'sorting_rank asc']).execute()
+}
+
+export async function down(db: Kysely<any>): Promise<void> {
+  await db.schema.dropTable('items_on_users').execute();
+}
