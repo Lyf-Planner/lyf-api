@@ -35,7 +35,7 @@ export async function migrateToLatest() {
 
   if (error) {
     log.error(error);
-    log.error('Failed to migrate, exiting');
+    log.error('Failed to migrate, rolled back and exiting');
     process.exit(1);
   }
 }

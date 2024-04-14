@@ -5,8 +5,10 @@ import { User } from './user';
 // - primary key: user1_id_fk + user2_id_fk
 // - foreign key: user1_id_fk (users.id)
 // - foreign key: user2_id_fk (users.id)
+// - user1_id_fk + user2_id_fk is indexed
 // - user1_id_fk is indexed
 // - user2_id_fk is indexed
+// - user1_id_fk + user2_id_fk has unique constraint
 // - user1_id_fk < user2_id_fk constraint
 
 export interface UserFriendshipDbObject extends DbObject {
@@ -15,7 +17,7 @@ export interface UserFriendshipDbObject extends DbObject {
   user1_id_fk: ID;
   user2_id_fk: ID;
   status: UserFriendshipStatus;
-};
+}
 
 export interface UserFriendship extends UserFriendshipDbObject {
   user1: User;
