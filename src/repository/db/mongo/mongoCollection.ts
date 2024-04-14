@@ -35,6 +35,13 @@ export class Collection<T extends DBObject> {
     return this.exportWithoutUnderscoreId(toInsert);
   }
 
+  public async findAll() {
+    var results = (await this.collection.find().toArray()) as any;
+
+    results = results.map((x: any) => this.exportWithoutUnderscoreId(x));
+    return results;
+  }
+
   public async getManyById(ids: ID[], throwOnUnfound = true): Promise<T[]> {
     // This operation looks weird because we want to return in the same order we search
     var results = (await this.collection

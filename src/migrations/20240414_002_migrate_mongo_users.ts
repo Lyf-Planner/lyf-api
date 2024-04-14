@@ -1,0 +1,42 @@
+import { Kysely } from 'kysely';
+import mongoDb from '../repository/db/mongo/mongoDb';
+import { User as MongoUser } from '../api/mongo_schema/user';
+import { UserDbObject as PostgresUser } from '../api/schema/user';
+import { DbObject } from '../api/schema/abstract';
+
+export async function up(db: Kysely<any>): Promise<void> {
+  const usersCollection = mongoDb.usersCollection();
+  const mongoUsers: MongoUser[] = await usersCollection.findAll();
+
+  for (const user of mongoUsers) {
+    await db.insertInto('user').values(transformToPgUser(user)).execute();
+  }
+}
+
+export async function down(db: Kysely<any>): Promise<void> {
+  await db.deleteFrom('users').execute();
+}
+
+const transformToPgUser = (user: MongoUser) => {
+  const pgUser: Omit<PostgresUser, keyof DbObject> = {
+    user_id: user.id,
+    pass_hash: user.pass_hash,
+    expo_tokens: user.expo_tokens || [],
+    private: false,
+    tz: user.timezone || 'Australia/Melbourne',
+    first_day: user.timetable.first_day,
+    display_name: user.details.name,
+    pfp_url: user.details.pfp_url,
+    daily_notifications: user.premium?.notifications?.daily_notifications,
+    daily_notification_time: user.premium?.notifications?.daily_notification_time,
+    persistent_daily_notification: user.premium?.notifications?.persistent_daily_notification,
+    event_notifications_enabled: user.premium?.notifications?.event_notifications_enabled,
+    event_notification_minutes_before: user.premium?.notifications
+      ?.event_notification_minutes_before
+      ? parseInt(user.premium?.notifications?.event_notification_minutes_before)
+      : undefined
+    // Since 'id', 'created', and 'last_updated' are auto-generated, they are omitted
+  };
+
+  return pgUser;
+};
