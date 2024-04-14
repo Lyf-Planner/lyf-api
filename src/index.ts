@@ -4,14 +4,15 @@ import { ItemEndpoints } from './controller/endpoints/itemEndpoints';
 import { NoteEndpoints } from './controller/endpoints/noteEndpoints';
 import { authoriseHeader } from './controller/middleware/authMiddleware';
 import { Logger, LoggingLevel } from './utils/logging';
-import db from './repository/db/mongo/mongoDb';
+import { migrateToLatest } from './repository/db/pg/migrationManager';
+import postgresDb from './repository/db/pg/postgresDb';
+import mongoDb from './repository/db/mongo/mongoDb';
 import notificationManager from './models/notifications/notificationManager';
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import env from './envManager';
 import bodyParserErrorHandler from 'express-body-parser-error-handler';
-import { migrateToLatest } from './repository/db/pg/migrationManager';
 
 export const server = express();
 
@@ -41,7 +42,7 @@ server.set('trust proxy', 1 /* number of proxies between user and server (expres
 
 export const serverInitialised = new Promise(async (resolve, reject) => {
   try {
-    await db.init();
+    await mongoDb.init();
     await notificationManager.init();
     await migrateToLatest();
     resolve(true);
@@ -62,7 +63,9 @@ const startServer = async () => {
 // Graceful shutdown
 export async function shutdown() {
   await notificationManager.cleanup();
-  await db.close();
+  await mongoDb.close();
+  await postgresDb.destroy();
+  console.log("Exiting :)")
   process.exit(0);
 }
 

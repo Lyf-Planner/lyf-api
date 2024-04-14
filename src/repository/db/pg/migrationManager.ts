@@ -1,48 +1,41 @@
-import * as path from 'path'
-import { Pool } from 'pg'
-import { promises as fs } from 'fs'
-import {
-  Kysely,
-  Migrator,
-  PostgresDialect,
-  FileMigrationProvider,
-} from 'kysely'
-import { Database } from '../../../api/schema/database'
-import { DB_DETAILS } from './postgresDb'
+import * as path from 'path';
+import { promises as fs } from 'fs';
+import { Migrator, FileMigrationProvider } from 'kysely';
+import { Logger } from '../../../utils/logging';
+import postgresDb from './postgresDb';
+
+const log = new Logger('KyselyMigrator');
 
 export async function migrateToLatest() {
-  const db = new Kysely<Database>({
-    dialect: new PostgresDialect({
-      pool: new Pool(DB_DETAILS),
-    }),
-  })
-
   const migrator = new Migrator({
-    db,
+    db: postgresDb,
     provider: new FileMigrationProvider({
       fs,
       path,
       // This needs to be an absolute path.
-      migrationFolder: path.join(__dirname, '../migrations'),
+      migrationFolder: path.join(__dirname, '../migrations')
     }),
-    migrationTableName: 'migrations',
-  })
+    migrationTableName: 'migrations'
+  });
 
-  const { error, results } = await migrator.migrateToLatest()
+  log.info('Running migrations up to latest');
+  const { error, results } = await migrator.migrateToLatest();
+
+  if (results && results.length === 0) {
+    log.info('No migrations to run :)');
+  }
 
   results?.forEach((it) => {
     if (it.status === 'Success') {
-      console.log(`migration "${it.migrationName}" was executed successfully`)
+      log.info(`Migration "${it.migrationName}" was executed successfully`);
     } else if (it.status === 'Error') {
-      console.error(`failed to execute migration "${it.migrationName}"`)
+      log.error(`Failed to execute migration "${it.migrationName}"`);
     }
-  })
+  });
 
   if (error) {
-    console.error('failed to migrate')
-    console.error(error)
-    process.exit(1)
+    log.error(error);
+    log.error('Failed to migrate, exiting');
+    process.exit(1);
   }
-
-  await db.destroy()
 }
