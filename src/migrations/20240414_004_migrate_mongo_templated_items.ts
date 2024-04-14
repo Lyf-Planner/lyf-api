@@ -9,37 +9,34 @@ export async function up(db: Kysely<any>): Promise<void> {
   const itemsCollection = mongoDb.itemsCollection();
   const mongoItems: MongoItem[] = await itemsCollection.findAll();
 
-  await db.schema
-    .alterTable('items')
-    .alterColumn('time', (col) => col.setDataType('varchar(5)'))
-    .execute();
-  await db.schema
-    .alterTable('items')
-    .alterColumn('end_time', (col) => col.setDataType('varchar(5)'))
-    .execute();
-
   for (const item of mongoItems) {
-    if (!item.template_id) {
-      await insertAsPgItem(item, db);
+    if (item.template_id) {
+      await insertAsPgItem(item, db)
     }
   }
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
   await db.deleteFrom('items').execute();
-  await db.schema
-    .alterTable('items')
-    .alterColumn('time', (col) => col.setDataType('time'))
-    .execute();
-  await db.schema
-    .alterTable('items')
-    .alterColumn('end_time', (col) => col.setDataType('time'))
-    .execute();
 }
 
 const insertAsPgItem = async (item: MongoItem, db: Kysely<any>) => {
   const owner = await mongoDb.usersCollection().getById(item.permitted_users[0].user_id, false);
   const intendedTimezone = owner?.timezone || 'Australia/Melbourne';
+
+  // Verify template item exists
+  let uploaded_template_id = null;
+  if (item.template_id) {
+    const template_item = await db
+      .selectFrom('items')
+      .where('id', '=', item.template_id as any)
+      .execute();
+    if (template_item.length) {
+      uploaded_template_id = item.template_id as any;
+    } else {
+      console.warn('\tNOT UPLOADING TEMPLATE_ID', item.template_id, 'OF TEMPLATED ITEM', item.id);
+    }
+  }
 
   const pgItem: Omit<PostgresItem, keyof DbObject> & Identifiable = {
     id: item.id as any,
@@ -52,7 +49,7 @@ const insertAsPgItem = async (item: MongoItem, db: Kysely<any>) => {
     desc: item.desc,
     time: item.time, // hh:mm
     end_time: item.end_time,
-    template_id: undefined,
+    template_id: uploaded_template_id,
     url: item.url,
     location: item.location,
     show_in_upcoming: item.show_in_upcoming,

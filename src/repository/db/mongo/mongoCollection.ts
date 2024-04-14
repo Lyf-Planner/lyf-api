@@ -199,6 +199,7 @@ export class Collection<T extends DBObject> {
   }
 
   private exportWithoutUnderscoreId(object: any) {
+    if (!object) return null;
     object.id = object._id;
     delete object._id;
     return object;

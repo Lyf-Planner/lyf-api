@@ -17,7 +17,7 @@ export interface ItemDbObject extends DbObject {
   day?: string;
   desc?: string;
   time?: string; // hh:mm
-  end_time?: string;
+  end_time?: string; // hh:mm
   template_id?: ID;
   url?: string;
   location?: string;
