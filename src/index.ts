@@ -4,13 +4,14 @@ import { ItemEndpoints } from './controller/endpoints/itemEndpoints';
 import { NoteEndpoints } from './controller/endpoints/noteEndpoints';
 import { authoriseHeader } from './controller/middleware/authMiddleware';
 import { Logger, LoggingLevel } from './utils/logging';
+import db from './repository/db/mongo/mongoDb';
+import notificationManager from './models/notifications/notificationManager';
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import env from './envManager';
 import bodyParserErrorHandler from 'express-body-parser-error-handler';
-import db from './repository/mongoDb';
-import notificationManager from './models/notifications/notificationManager';
+import { migrateToLatest } from './repository/db/pg/migrationManager';
 
 export const server = express();
 
@@ -36,15 +37,13 @@ new NoteEndpoints(server);
 
 const PORT = env.port;
 
-server.set(
-  'trust proxy',
-  1 /* number of proxies between user and server (express-rate-limit) */
-);
+server.set('trust proxy', 1 /* number of proxies between user and server (express-rate-limit) */);
 
 export const serverInitialised = new Promise(async (resolve, reject) => {
   try {
     await db.init();
     await notificationManager.init();
+    await migrateToLatest();
     resolve(true);
   } catch (err) {
     reject(err);

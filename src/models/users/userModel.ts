@@ -4,7 +4,7 @@ import { Logger } from '../../utils/logging';
 import { RemoteObject } from '../abstract/remoteObject';
 import { UserOperations } from './userOperations';
 import notificationManager from '../notifications/notificationManager';
-import db from '../../repository/mongoDb';
+import db from '../../repository/db/mongo/mongoDb';
 
 export class UserModel extends RemoteObject<User> {
   // If user is accessed by another, should only be able to view details!
@@ -17,8 +17,7 @@ export class UserModel extends RemoteObject<User> {
   }
 
   public getUser(asSelf = true): (UserDetails & Time) | User {
-    if (!this.requestedBySelf || !asSelf)
-      return UserOperations.extractUserDetails(this.content);
+    if (!this.requestedBySelf || !asSelf) return UserOperations.extractUserDetails(this.content);
     else return this.content;
   }
 
@@ -73,10 +72,7 @@ export class UserModel extends RemoteObject<User> {
     }
   }
 
-  protected enforceRequestedBySelf(
-    error_message: string,
-    logger_message?: string
-  ) {
+  protected enforceRequestedBySelf(error_message: string, logger_message?: string) {
     if (!this.requestedBySelf) {
       this.logger.error(logger_message || error_message);
       throw new Error(error_message);

@@ -2,7 +2,7 @@ import { Note } from '../../api/mongo_schema/notes';
 import { ID } from '../../api/mongo_schema/abstract';
 import { NoteModel } from './noteModel';
 import { Logger } from '../../utils/logging';
-import db from '../../repository/mongoDb';
+import db from '../../repository/db/mongo/mongoDb';
 
 export class NoteOperations {
   // Builder method
@@ -16,8 +16,7 @@ export class NoteOperations {
 
     var permitted = !checkPermissions || !!note.getUserPermission(user_id);
 
-    if (!permitted)
-      throw new Error(`User ${user_id} is not permitted to access item ${id}`);
+    if (!permitted) throw new Error(`User ${user_id} is not permitted to access item ${id}`);
     else {
       return note;
     }
@@ -47,11 +46,7 @@ export class NoteOperations {
 
     if (filteredResults.length !== results.length) {
       let logger = Logger.of(NoteModel);
-      logger.warn(
-        `User no longer has access to ${
-          results.length - filteredResults.length
-        } notes`
-      );
+      logger.warn(`User no longer has access to ${results.length - filteredResults.length} notes`);
     }
 
     return filteredResults.map((x) => x.export());

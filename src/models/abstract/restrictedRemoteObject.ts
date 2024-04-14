@@ -1,11 +1,9 @@
 import { DBObject } from '../../api/mongo_schema/abstract';
 import { Permission, Restricted } from '../../api/mongo_schema/social';
-import { Collection } from '../../repository/mongoCollection';
+import { Collection } from '../../repository/db/mongo/mongoDb/mongoCollection';
 import { RemoteObject } from './remoteObject';
 
-export class RestrictedRemoteObject<
-  T extends Restricted & DBObject
-> extends RemoteObject<T> {
+export class RestrictedRemoteObject<T extends Restricted & DBObject> extends RemoteObject<T> {
   protected requested_by: string;
 
   constructor(
@@ -21,17 +19,11 @@ export class RestrictedRemoteObject<
   public getRequestor = () => this.requested_by;
 
   public requestorPermission() {
-    return this.content.permitted_users?.find(
-      (x) => x.user_id === this.requested_by
-    )?.permissions;
+    return this.content.permitted_users?.find((x) => x.user_id === this.requested_by)?.permissions;
   }
 
   public validateRequestorItemAccess(): boolean {
-    return (
-      this.content.permitted_users.filter(
-        (x) => x.user_id === this.requested_by
-      ).length === 1
-    );
+    return this.content.permitted_users.filter((x) => x.user_id === this.requested_by).length === 1;
   }
 
   static extractPermissionFields(object: Restricted) {

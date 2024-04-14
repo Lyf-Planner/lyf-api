@@ -7,15 +7,13 @@ import {
   PostgresDialect,
   FileMigrationProvider,
 } from 'kysely'
-import { Database } from '../api/schema/database'
+import { Database } from '../../../api/schema/database'
+import { DB_DETAILS } from './postgresDb'
 
-async function migrateToLatest() {
+export async function migrateToLatest() {
   const db = new Kysely<Database>({
     dialect: new PostgresDialect({
-      pool: new Pool({
-        host: 'localhost',
-        database: 'kysely_test',
-      }),
+      pool: new Pool(DB_DETAILS),
     }),
   })
 
@@ -25,8 +23,9 @@ async function migrateToLatest() {
       fs,
       path,
       // This needs to be an absolute path.
-      migrationFolder: path.join(__dirname, './'),
+      migrationFolder: path.join(__dirname, '../migrations'),
     }),
+    migrationTableName: 'migrations',
   })
 
   const { error, results } = await migrator.migrateToLatest()
@@ -47,5 +46,3 @@ async function migrateToLatest() {
 
   await db.destroy()
 }
-
-migrateToLatest()

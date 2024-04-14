@@ -1,8 +1,4 @@
-import {
-  ItemStatus,
-  ListItem,
-  ListItemTypes
-} from '../../api/mongo_schema/list';
+import { ItemStatus, ListItem, ListItemTypes } from '../../api/mongo_schema/list';
 import { UserOperations } from '../users/userOperations';
 import { UserModel } from '../users/userModel';
 import { ExpoPushMessage } from 'expo-server-sdk';
@@ -14,7 +10,7 @@ import { DaysOfWeek } from '../../api/mongo_schema/timetable';
 import { pluralisedQuantity } from '../../utils/text';
 import expoPushService from './expoPushService';
 import moment from 'moment-timezone';
-import mongoDb from '../../repository/mongoDb';
+import mongoDb from '../../repository/db/mongo/mongoDb';
 
 const Agenda = require('agenda');
 
@@ -86,16 +82,10 @@ export class NotificationManager {
     var id = this.getUniqueJobId(item.id, user_id);
 
     this.throwIfInfertileEvent(item);
-    const user = (
-      await UserOperations.retrieveForUser(user_id, user_id)
-    ).getContent();
+    const user = (await UserOperations.retrieveForUser(user_id, user_id)).getContent();
     const notification = this.getUserNotification(item, user_id);
     const timezone = user.timezone || (process.env.TZ as string);
-    var setTime = this.getScheduledTime(
-      item,
-      notification.minutes_before,
-      timezone
-    );
+    var setTime = this.getScheduledTime(item, notification.minutes_before, timezone);
 
     // Ensure notification is for ahead of current time!
     this.logger.debug(`Notification ${id} set for ${setTime}`);
@@ -108,9 +98,7 @@ export class NotificationManager {
       return;
     }
 
-    this.logger.info(
-      `Creating event notification ${id} at ${setTime.toUTCString()}`
-    );
+    this.logger.info(`Creating event notification ${id} at ${setTime.toUTCString()}`);
     await this.agenda.schedule(setTime, 'Event Notification', {
       id,
       user_id,
@@ -197,9 +185,7 @@ export class NotificationManager {
     this.logger.info(`Setting up routine notification for ${user_id}`);
 
     var id = this.getUniqueJobId(item.id, user_id);
-    var user = (
-      await UserOperations.retrieveForUser(user_id, user_id)
-    ).getContent();
+    var user = (await UserOperations.retrieveForUser(user_id, user_id)).getContent();
     const job = this.agenda.create('Routine Notification', {
       id,
       user_id,
@@ -210,8 +196,7 @@ export class NotificationManager {
     const timezone = user.timezone || process.env.TZ;
 
     // We do this +1 because Sunday is treated as the zeroth day otherwise
-    const day =
-      (Object.values(DaysOfWeek).findIndex((x) => x === item.day) + 1) % 7;
+    const day = (Object.values(DaysOfWeek).findIndex((x) => x === item.day) + 1) % 7;
     job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * ${day}`, { timezone });
     await job.save();
   }
@@ -242,9 +227,7 @@ export class NotificationManager {
       return;
     }
 
-    this.logger.info(
-      `Adjusting notification timezones for user ${user.id} to ${user.timezone}`
-    );
+    this.logger.info(`Adjusting notification timezones for user ${user.id} to ${user.timezone}`);
 
     const jobs = await mongoDb
       .getDb()
@@ -256,9 +239,7 @@ export class NotificationManager {
       let itemObj;
       switch (job.name) {
         case 'Event Notification':
-          itemObj = (
-            await ItemOperations.retrieveForUser(job.data.item_id, user.id)
-          ).getContent();
+          itemObj = (await ItemOperations.retrieveForUser(job.data.item_id, user.id)).getContent();
           await this.removeEventNotification({ ...itemObj }, user.id);
           await this.setEventNotification({ ...itemObj }, user.id, true);
           break;
@@ -268,9 +249,7 @@ export class NotificationManager {
           break;
 
         case 'Routine Notification':
-          itemObj = (
-            await ItemOperations.retrieveForUser(job.data.item_id, user.id)
-          ).getContent();
+          itemObj = (await ItemOperations.retrieveForUser(job.data.item_id, user.id)).getContent();
           await this.updateRoutineNotification({ ...itemObj }, user.id);
           break;
       }
@@ -294,9 +273,7 @@ export class NotificationManager {
       const notification = this.getUserNotification(item.getContent(), user_id);
       const status = item.getContent().status;
       if (status === ItemStatus.Cancelled) {
-        this.logger.warn(
-          `Cancelling notification for ${id} as event was cancelled`
-        );
+        this.logger.warn(`Cancelling notification for ${id} as event was cancelled`);
         await this.agenda.cancel({ 'data.id': id });
         return;
       }
@@ -338,9 +315,7 @@ export class NotificationManager {
   // Fertile = has time date and minutes before
   private throwIfInfertileEvent = (proposed: any) => {
     if (!proposed.date || !proposed.time)
-      throw new Error(
-        'Cannot create a notification on an event without date or time'
-      );
+      throw new Error('Cannot create a notification on an event without date or time');
   };
 
   private getUserNotification = (item: ListItem, user_id: string) => {
@@ -359,25 +334,18 @@ export class NotificationManager {
   };
 
   private async getUserDaily(user: UserModel) {
-    var userItemIds = user
-      .getContent()
-      .timetable?.items.map((x) => x.id) as any;
+    var userItemIds = user.getContent().timetable?.items.map((x) => x.id) as any;
     var items = await ItemOperations.getRawUserItems(userItemIds, user.getId());
     const curDay = moment().format('dddd');
     const curDate = formatDateData(new Date());
-    items = items.filter(
-      (x) => x.day === curDay || (x.date === curDate && !x.template_id)
-    );
+    items = items.filter((x) => x.day === curDay || (x.date === curDate && !x.template_id));
 
-    const eventCount = items.filter(
-      (x) => x.type === ListItemTypes.Event
-    ).length;
+    const eventCount = items.filter((x) => x.type === ListItemTypes.Event).length;
     const taskCount = items.filter((x) => x.type === ListItemTypes.Task).length;
 
     // I know it doesn't look pretty, okay.
     if (taskCount + eventCount === 0) {
-      return user.getContent().premium?.notifications
-        ?.persistent_daily_notification
+      return user.getContent().premium?.notifications?.persistent_daily_notification
         ? 'Nothing planned for today :)'
         : '';
     } else if (eventCount === 0) {
@@ -385,18 +353,14 @@ export class NotificationManager {
     } else if (taskCount === 0) {
       return `You have ${pluralisedQuantity(eventCount, 'event')} today`;
     } else {
-      return `You have ${pluralisedQuantity(
-        eventCount,
-        'event'
-      )} and ${pluralisedQuantity(taskCount, 'task')} today`;
+      return `You have ${pluralisedQuantity(eventCount, 'event')} and ${pluralisedQuantity(
+        taskCount,
+        'task'
+      )} today`;
     }
   }
 
-  private getScheduledTime = (
-    item: ListItem,
-    minutes_before: string,
-    timezone: string
-  ) => {
+  private getScheduledTime = (item: ListItem, minutes_before: string, timezone: string) => {
     var dateArray = item.date!.split('-').map((x) => parseInt(x));
     var timeArray = item.time!.split(':').map((x) => parseInt(x));
     return this.setTimezoneDate(dateArray, timeArray, minutes_before, timezone);
@@ -421,8 +385,7 @@ export class NotificationManager {
   }
 
   private setDefaultMinsIfEmpty = (notification: any) => {
-    if (!notification.minutes_before)
-      notification.minutes_before = DEFAULT_MINS_BEFORE;
+    if (!notification.minutes_before) notification.minutes_before = DEFAULT_MINS_BEFORE;
   };
 }
 

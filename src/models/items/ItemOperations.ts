@@ -1,17 +1,12 @@
 import { ID } from '../../api/mongo_schema/abstract';
-import {
-  ItemSettings,
-  ItemStatus,
-  ListItem,
-  ListItemTypes
-} from '../../api/mongo_schema/list';
+import { ItemSettings, ItemStatus, ListItem, ListItemTypes } from '../../api/mongo_schema/list';
 import { ItemModel } from './itemModel';
 import { Logger } from '../../utils/logging';
 import { SocialItem } from '../social/socialItem';
 import { formatDateData } from '../../utils/dates';
 import { Permission } from '../../api/mongo_schema/social';
 import { v4 as uuid } from 'uuid';
-import db from '../../repository/mongoDb';
+import db from '../../repository/db/mongo/mongoDb';
 import { UserOperations } from '../users/userOperations';
 import { SocialUser } from '../social/socialUser';
 
@@ -29,8 +24,7 @@ export class ItemOperations {
       : new ItemModel(result as ListItem, true, user_id);
 
     var permitted = !checkPermissions || !!item.getUserPermission(user_id);
-    if (!permitted)
-      throw new Error(`User ${user_id} is not permitted to access item ${id}`);
+    if (!permitted) throw new Error(`User ${user_id} is not permitted to access item ${id}`);
     else {
       return item;
     }
@@ -49,11 +43,7 @@ export class ItemOperations {
     if (item.template_id && item.permitted_users?.length > 1) {
       let otherUsers = this.usersExceptFrom(user_id, item);
       for (let user of otherUsers) {
-        let socialUser = (await UserOperations.retrieveForUser(
-          user,
-          user_id,
-          true
-        )) as SocialUser;
+        let socialUser = (await UserOperations.retrieveForUser(user, user_id, true)) as SocialUser;
         await socialUser.addRoutineInstantiation(item);
       }
     }
@@ -71,17 +61,11 @@ export class ItemOperations {
     var results = await db.itemsCollection().getManyById(ids, false);
     var items = results.map((x) => new ItemModel(x as ListItem, true, user_id));
 
-    var filteredResults = items.filter(
-      (x) => !validate_access || !!x.getUserPermission(user_id)
-    );
+    var filteredResults = items.filter((x) => !validate_access || !!x.getUserPermission(user_id));
 
     if (filteredResults.length !== results.length) {
       let logger = Logger.of(ItemModel);
-      logger.warn(
-        `User no longer has access to ${
-          results.length - filteredResults.length
-        } items`
-      );
+      logger.warn(`User no longer has access to ${results.length - filteredResults.length} items`);
     }
 
     return filteredResults.map((x) => x.export());
@@ -99,17 +83,7 @@ export class ItemOperations {
   }
 
   static excludeMetadataFields(item: ListItem): any {
-    var {
-      title,
-      type,
-      status,
-      date,
-      day,
-      desc,
-      time,
-      notifications,
-      ...remaining
-    } = item;
+    var { title, type, status, date, day, desc, time, notifications, ...remaining } = item;
     // Need to validate the excluded items are of type ItemMetadata, so this function will error if that type is changed!
     return remaining;
   }
@@ -124,9 +98,7 @@ export class ItemOperations {
       day: null,
       desc: 'This is your first item!\nTo create another like it, type it into the desired day\nTo delete this, hold it down',
 
-      permitted_users: [
-        { user_id, displayed_as: user_id, permissions: Permission.Owner }
-      ],
+      permitted_users: [{ user_id, displayed_as: user_id, permissions: Permission.Owner }],
       notifications: []
     } as any;
     let firstItem = new ItemModel(userIntroItem, false, user_id);
@@ -136,8 +108,6 @@ export class ItemOperations {
   }
 
   public static usersExceptFrom(from_id: ID, item: ListItem) {
-    return item.permitted_users
-      .map((x) => x.user_id)
-      .filter((x) => x !== from_id);
+    return item.permitted_users.map((x) => x.user_id).filter((x) => x !== from_id);
   }
 }

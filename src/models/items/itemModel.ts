@@ -7,7 +7,7 @@ import notificationManager from '../notifications/notificationManager';
 import { SocialItemNotifications } from '../notifications/socialItemNotificationService';
 import { UserOperations } from '../users/userOperations';
 import { UserModel } from '../users/userModel';
-import db from '../../repository/mongoDb';
+import db from '../../repository/db/mongo/mongoDb';
 
 export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private logger = Logger.of(ItemModel);
@@ -24,20 +24,14 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   public async delete() {
     if (this.content.notifications) {
       for (let notif of this.content.notifications) {
-        notificationManager.removeEventNotification(
-          this.content,
-          notif.user_id
-        );
+        notificationManager.removeEventNotification(this.content, notif.user_id);
       }
     }
     await this.deleteFromDb();
   }
 
   // Update and throw if there are any permissions violations
-  public async safeUpdate(
-    proposed: updateItemBody,
-    user_id: string
-  ): Promise<boolean> {
+  public async safeUpdate(proposed: updateItemBody, user_id: string): Promise<boolean> {
     // Run through permissions checks for updates
     var perm = this.getUserPermission(user_id);
     var fromUser = await UserOperations.retrieveForUser(user_id, user_id);
@@ -62,9 +56,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     // 3. Handle any status changes
     this.handleStatusChanges({ ...newItem }, fromUser);
 
-    this.logger.debug(
-      `User ${this.requested_by} safely updated item ${this.id}`
-    );
+    this.logger.debug(`User ${this.requested_by} safely updated item ${this.id}`);
 
     // Apply changeset
     await this.processUpdate(newItem);
@@ -74,17 +66,12 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   // Helpers
   private throwIfReadOnly(perm?: Permission) {
     if (!perm || perm === Permission.Viewer || perm === Permission.Invited) {
-      this.logger.error(
-        `User ${this.requested_by} tried to modify as Viewer on ${this.id}`
-      );
+      this.logger.error(`User ${this.requested_by} tried to modify as Viewer on ${this.id}`);
       throw new Error(`User does not have permission to edit this item`);
     }
   }
 
-  private throwIfModifiedOtherNotifications(
-    fromUser: UserModel,
-    proposed: ListItem
-  ) {
+  private throwIfModifiedOtherNotifications(fromUser: UserModel, proposed: ListItem) {
     if (!proposed.notifications) return;
 
     var success = true;
@@ -113,19 +100,12 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       this.content.notifications &&
       this.content.notifications.find((x) => x.user_id === this.requested_by);
     const newNotif =
-      proposed.notifications &&
-      proposed.notifications.find((x) => x.user_id === this.requested_by);
+      proposed.notifications && proposed.notifications.find((x) => x.user_id === this.requested_by);
 
     if (!oldNotif && newNotif) {
-      this.logger.info(
-        `User ${this.requested_by} set new notification on ${proposed.id}`
-      );
+      this.logger.info(`User ${this.requested_by} set new notification on ${proposed.id}`);
       notificationManager.setEventNotification(proposed, this.requested_by);
-    } else if (
-      oldNotif &&
-      newNotif &&
-      JSON.stringify(oldNotif) !== JSON.stringify(newNotif)
-    ) {
+    } else if (oldNotif && newNotif && JSON.stringify(oldNotif) !== JSON.stringify(newNotif)) {
       notificationManager.updateEventNotification(proposed, this.requested_by);
     } else if (oldNotif && !newNotif) {
       notificationManager.removeEventNotification(proposed, this.requested_by);
@@ -142,29 +122,18 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       for (let notification of this.content.notifications) {
         // Case: date or time was deleted
         if (!proposed.time || !proposed.date) {
-          notificationManager.removeEventNotification(
-            proposed,
-            notification.user_id
-          );
+          notificationManager.removeEventNotification(proposed, notification.user_id);
           continue;
         }
 
         // Otherwise update them all
         var oldNotif =
           this.content.notifications &&
-          this.content.notifications.find(
-            (x) => x.user_id === notification.user_id
-          );
+          this.content.notifications.find((x) => x.user_id === notification.user_id);
         if (!oldNotif) {
-          notificationManager.setEventNotification(
-            proposed,
-            notification.user_id
-          );
+          notificationManager.setEventNotification(proposed, notification.user_id);
         } else {
-          notificationManager.updateEventNotification(
-            proposed,
-            notification.user_id
-          );
+          notificationManager.updateEventNotification(proposed, notification.user_id);
         }
       }
 
@@ -177,8 +146,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private handleStatusChanges(proposed: ListItem, from: UserModel) {
     const statusChanged = proposed.status !== this.content.status;
     const statusChangeRelevant =
-      proposed.status === ItemStatus.Done ||
-      proposed.status === ItemStatus.Cancelled;
+      proposed.status === ItemStatus.Done || proposed.status === ItemStatus.Cancelled;
 
     // Notify any other users of a change!
     if (statusChanged && statusChangeRelevant)
@@ -186,16 +154,11 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   }
 
   public async clearNotification(user_id: string) {
-    this.logger.info(
-      `Clearing notification on item ${this.id} for user ${user_id}`
-    );
+    this.logger.info(`Clearing notification on item ${this.id} for user ${user_id}`);
     var newNotifications = this.content.notifications;
     const i = newNotifications.findIndex((x) => x.user_id === user_id);
     newNotifications.splice(i, 1);
-    await this.safeUpdate(
-      { ...this.content, notifications: newNotifications },
-      user_id
-    );
+    await this.safeUpdate({ ...this.content, notifications: newNotifications }, user_id);
   }
 
   // Determine whether to update or add as suggestion

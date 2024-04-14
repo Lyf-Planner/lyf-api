@@ -5,7 +5,7 @@ import { UserModel } from './userModel';
 import { ItemOperations } from '../items/ItemOperations';
 import { SocialUser } from '../social/socialUser';
 import authUtils from '../../utils/authUtils';
-import db from '../../repository/mongoDb';
+import db from '../../repository/db/mongo/mongoDb';
 
 export class UserOperations {
   // Builder method
@@ -80,9 +80,7 @@ export class UserOperations {
   }
 
   public static async retrieveManyUsers(user_ids: ID[]) {
-    var users = (await db
-      .usersCollection()
-      .getManyById(user_ids, false)) as any[];
+    var users = (await db.usersCollection().getManyById(user_ids, false)) as any[];
     users = users.map((x) => UserOperations.extractUserDetails(x));
 
     return users;
