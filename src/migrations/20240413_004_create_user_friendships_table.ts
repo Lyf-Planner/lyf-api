@@ -19,12 +19,12 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createIndex('user1_index')
     .on('user_friendships')
-    .column('user1_id_fk asc')
+    .column('user1_id_fk')
     .execute();
   await db.schema
     .createIndex('user2_index')
     .on('user_friendships')
-    .column('user2_id_fk asc')
+    .column('user2_id_fk')
     .execute();
 }
 

@@ -3,10 +3,10 @@ import { Kysely, sql } from 'kysely';
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable('notes')
-    .addColumn('id', 'uuid', (col) => col.primaryKey())
+    .addColumn('id', 'uuid', (col) => col.primaryKey().defaultTo(sql`gen_random_uuid()`))
     .addColumn('created', 'timestamptz', (col) => col.defaultTo(sql`now()`).notNull())
     .addColumn('last_updated', 'timestamptz', (col) => col.defaultTo(sql`now()`).notNull())
-    .addColumn('title', 'text', (col) => col.notNull())
+    .addColumn('title', 'varchar(80)', (col) => col.notNull())
     .addColumn('type', 'text', (col) => col.notNull())
     .addColumn('content', 'text')
     .addCheckConstraint('check_type', sql`type IN (\'List Only\', \'Note Only\', \'Multiple\')`)
