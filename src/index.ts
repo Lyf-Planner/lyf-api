@@ -5,14 +5,14 @@ import { NoteEndpoints } from './controller/endpoints/noteEndpoints';
 import { authoriseHeader } from './controller/middleware/authMiddleware';
 import { Logger, LoggingLevel } from './utils/logging';
 import { migrateToLatest } from './repository/db/pg/migrationManager';
-import postgresDb from './repository/db/pg/postgresDb';
-import mongoDb from './repository/db/mongo/mongoDb';
-import notificationManager from './models/notifications/notificationManager';
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import env from './envManager';
 import bodyParserErrorHandler from 'express-body-parser-error-handler';
+import mongoDb from './repository/db/mongo/mongoDb';
+import notificationManager from './models/notifications/notificationManager';
+import postgresDb from './repository/db/pg/postgresDb';
 
 export const server = express();
 
@@ -38,7 +38,10 @@ new NoteEndpoints(server);
 
 const PORT = env.port;
 
-server.set('trust proxy', 1 /* number of proxies between user and server (express-rate-limit) */);
+server.set(
+  'trust proxy',
+  1 /* number of proxies between user and server (express-rate-limit) */
+);
 
 export const serverInitialised = new Promise(async (resolve, reject) => {
   try {
@@ -64,8 +67,7 @@ const startServer = async () => {
 export async function shutdown() {
   await notificationManager.cleanup();
   await mongoDb.close();
-  await postgresDb.destroy();
-  console.log("Exiting :)")
+  await postgresDb.destroy()
   process.exit(0);
 }
 
