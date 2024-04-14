@@ -1,18 +1,19 @@
+import cors from 'cors';
+import dotenv from 'dotenv';
 import { Request, Response } from 'express';
-import { UserEndpoints } from './controller/endpoints/userEndpoints';
+import express from 'express';
+import bodyParserErrorHandler from 'express-body-parser-error-handler';
+
 import { ItemEndpoints } from './controller/endpoints/itemEndpoints';
 import { NoteEndpoints } from './controller/endpoints/noteEndpoints';
+import { UserEndpoints } from './controller/endpoints/userEndpoints';
 import { authoriseHeader } from './controller/middleware/authMiddleware';
-import { Logger, LoggingLevel } from './utils/logging';
-import { migrateToLatest } from './repository/db/pg/migrationManager';
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
 import env from './envManager';
-import bodyParserErrorHandler from 'express-body-parser-error-handler';
-import mongoDb from './repository/db/mongo/mongoDb';
 import notificationManager from './models/notifications/notificationManager';
+import mongoDb from './repository/db/mongo/mongoDb';
+import { migrateToLatest } from './repository/db/pg/migrationManager';
 import postgresDb from './repository/db/pg/postgresDb';
+import { Logger, LoggingLevel } from './utils/logging';
 
 export const server = express();
 
@@ -22,7 +23,7 @@ Logger.setLevel(LoggingLevel.DEBUG);
 
 process.env.TZ = 'Australia/Melbourne';
 
-//middleware
+// middleware
 server.use(cors());
 server.use(express.json());
 server.use(bodyParserErrorHandler());
@@ -67,7 +68,7 @@ const startServer = async () => {
 export async function shutdown() {
   await notificationManager.cleanup();
   await mongoDb.close();
-  await postgresDb.destroy()
+  await postgresDb.destroy();
   process.exit(0);
 }
 

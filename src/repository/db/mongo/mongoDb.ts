@@ -1,10 +1,11 @@
 import { Db, MongoClient, ServerApiVersion } from 'mongodb';
-import { Collection } from './mongoCollection';
-import { User } from '../../../api/mongo_schema/user';
+
 import { ListItem } from '../../../api/mongo_schema/list';
 import { Note } from '../../../api/mongo_schema/notes';
-import { Logger } from '../../../utils/logging';
+import { User } from '../../../api/mongo_schema/user';
 import env from '../../../envManager';
+import { Logger } from '../../../utils/logging';
+import { Collection } from './mongoCollection';
 
 // Note:
 // Mongo used to be the main database, but that is now Postgres
@@ -47,18 +48,19 @@ export class MongoDatabase {
     this.logger.info('DB connection closed');
   }
 
-  private initialisedGateway(returnObject: any) {
-    if (!this.connected)
-      this.logger.error('Waiting for DB to initialise (connecting...)');
-    else return returnObject;
-  }
-
   public usersCollection = (): Collection<User> =>
-    this.initialisedGateway(this.usersCollectionRef);
+    this.initialisedGateway(this.usersCollectionRef)
   public itemsCollection = (): Collection<ListItem> =>
-    this.initialisedGateway(this.itemsCollectionRef);
+    this.initialisedGateway(this.itemsCollectionRef)
   public notesCollection = (): Collection<Note> =>
-    this.initialisedGateway(this.notesCollectionRef);
+    this.initialisedGateway(this.notesCollectionRef)
+
+  private initialisedGateway(returnObject: any) {
+    if (!this.connected) {
+      this.logger.error('Waiting for DB to initialise (connecting...)');
+    }
+    else { return returnObject; }
+  }
 
   private setClient(connectionUrl?: string) {
     return new MongoClient(connectionUrl || (env.mongoUrl as string), {

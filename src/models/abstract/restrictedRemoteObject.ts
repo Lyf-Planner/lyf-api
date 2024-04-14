@@ -6,6 +6,13 @@ import { RemoteObject } from './remoteObject';
 export class RestrictedRemoteObject<T extends Restricted & DBObject> extends RemoteObject<T> {
   protected requested_by: string;
 
+  static extractPermissionFields(object: Restricted) {
+    return {
+      permitted_users: object.permitted_users,
+      invited_users: object.invited_users
+    };
+  }
+
   constructor(
     collection: Collection<T>,
     content: T,
@@ -26,19 +33,12 @@ export class RestrictedRemoteObject<T extends Restricted & DBObject> extends Rem
     return this.content.permitted_users.filter((x) => x.user_id === this.requested_by).length === 1;
   }
 
-  static extractPermissionFields(object: Restricted) {
-    return {
-      permitted_users: object.permitted_users,
-      invited_users: object.invited_users
-    };
-  }
-
   public getUserPermission(user_id: string): Permission | undefined {
     var perm = this.content.permitted_users?.find((x) => x.user_id === user_id);
     var invite = this.content.invited_users?.find((x) => x.user_id === user_id);
 
-    if (!perm && !invite) return;
-    else if (invite) return Permission.Invited;
-    else if (perm) return perm.permissions;
+    if (!perm && !invite) { return; }
+    else if (invite) { return Permission.Invited; }
+    else if (perm) { return perm.permissions; }
   }
 }

@@ -3,42 +3,36 @@ import { SocialAction } from '../../api/mongo_schema/social';
 import { updateItemSocialBody } from '../../controller/validators/itemValidators';
 import { Logger } from '../../utils/logging';
 import { ItemOperations } from '../items/ItemOperations';
+import { SocialItemNotifications } from '../notifications/socialItemNotificationService';
 import { UserOperations } from '../users/userOperations';
 import { SocialItem } from './socialItem';
-import { SocialItemNotifications } from '../notifications/socialItemNotificationService';
 import { SocialUser } from './socialUser';
 
 export class SocialItemManager {
+  public logger = Logger.of(SocialItemManager);
   private from: SocialUser;
   private target: SocialUser;
   private item: SocialItem;
-  public logger = Logger.of(SocialItemManager);
-
-  constructor(from: SocialUser, target: SocialUser, item: SocialItem) {
-    this.from = from;
-    this.target = target;
-    this.item = item;
-  }
 
   static async processUpdate(from: ID, update: updateItemSocialBody) {
-    let fromUser = (await UserOperations.retrieveForUser(
+    const fromUser = (await UserOperations.retrieveForUser(
       from,
       from,
       true
     )) as SocialUser;
-    let targetUser = (await UserOperations.retrieveForUser(
+    const targetUser = (await UserOperations.retrieveForUser(
       update.user_id,
       from,
       true
     )) as SocialUser;
-    let item = (await ItemOperations.retrieveForUser(
+    const item = (await ItemOperations.retrieveForUser(
       update.item_id,
       from,
       true,
       true
     )) as SocialItem;
 
-    let controller = new SocialItemManager(fromUser, targetUser, item);
+    const controller = new SocialItemManager(fromUser, targetUser, item);
 
     switch (update.action) {
       case SocialAction.Invite:
@@ -90,26 +84,10 @@ export class SocialItemManager {
     };
   }
 
-  private async inviteUser() {
-    // Update item data
-    this.item.inviteUser(this.target, this.from);
-
-    // Update user data
-    this.target.receiveItemInvite(this.item, this.from);
-
-    // No errors were triggered, commit changes to both
-    await this.commitToBoth();
-  }
-
-  private async addressItemInvite(accepted: boolean) {
-    // Update item data
-    this.item.handleInviteAddressed(this.target, accepted);
-
-    // Update user data
-    this.target.addressItemInvite(this.item, accepted);
-
-    // No errors were triggered, commit changes to both
-    await this.commitToBoth();
+  constructor(from: SocialUser, target: SocialUser, item: SocialItem) {
+    this.from = from;
+    this.target = target;
+    this.item = item;
   }
 
   public async removeUserFromItem() {
@@ -129,6 +107,28 @@ export class SocialItemManager {
 
     // Update user data
     this.target.removeInvite(this.item);
+
+    // No errors were triggered, commit changes to both
+    await this.commitToBoth();
+  }
+
+  private async inviteUser() {
+    // Update item data
+    this.item.inviteUser(this.target, this.from);
+
+    // Update user data
+    this.target.receiveItemInvite(this.item, this.from);
+
+    // No errors were triggered, commit changes to both
+    await this.commitToBoth();
+  }
+
+  private async addressItemInvite(accepted: boolean) {
+    // Update item data
+    this.item.handleInviteAddressed(this.target, accepted);
+
+    // Update user data
+    this.target.addressItemInvite(this.item, accepted);
 
     // No errors were triggered, commit changes to both
     await this.commitToBoth();

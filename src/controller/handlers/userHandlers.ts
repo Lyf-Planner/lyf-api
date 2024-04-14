@@ -1,7 +1,10 @@
 import { Request, Response } from 'express';
+
 import { User } from '../../api/mongo_schema/user';
+import { FriendshipManager } from '../../models/social/friendshipManager';
 import { UserModel } from '../../models/users/userModel';
 import { UserOperations } from '../../models/users/userOperations';
+import authUtils from '../../utils/authUtils';
 import { Logger } from '../../utils/logging';
 import { getMiddlewareVars } from '../utils';
 import {
@@ -11,8 +14,6 @@ import {
   updateFriendshipBody,
   updateMeBody
 } from '../validators/userValidators';
-import authUtils from '../../utils/authUtils';
-import { FriendshipManager } from '../../models/social/friendshipManager';
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
@@ -148,7 +149,7 @@ export class UserHandlers {
         user.getUser() as User,
         password as string
       );
-      if (!token) throw new Error('Incorrect password');
+      if (!token) { throw new Error('Incorrect password'); }
 
       // Perform delete
       await user!.deleteFromDb();
@@ -167,7 +168,7 @@ export class UserHandlers {
     var from_id = getMiddlewareVars(res).user_id;
 
     try {
-      let social = await FriendshipManager.processUpdate(from_id, update);
+      const social = await FriendshipManager.processUpdate(from_id, update);
       res.status(200).json(social).end();
     } catch (err) {
       logger.error(`Returning 400 with message: ${err}`);

@@ -1,17 +1,18 @@
+import express from 'express';
+
 import { UserHandlers } from '../handlers/userHandlers';
+import { validate } from '../middleware/validationMiddleware';
 import { nSecondLimiter } from '../utils';
 import {
-  loginValidator,
   autologinValidator,
-  getUserValidator,
-  getUsersValidator,
   creationValidator,
-  updateMeValidator,
   deleteMeValidator,
-  updateFriendshipValidator
+  getUsersValidator,
+  getUserValidator,
+  loginValidator,
+  updateFriendshipValidator,
+  updateMeValidator
 } from '../validators/userValidators';
-import { validate } from '../middleware/validationMiddleware';
-import express from 'express';
 
 export class UserEndpoints extends UserHandlers {
   constructor(server: express.Application) {

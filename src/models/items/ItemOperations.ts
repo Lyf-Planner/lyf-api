@@ -1,14 +1,15 @@
+import { v4 as uuid } from 'uuid';
+
 import { ID } from '../../api/mongo_schema/abstract';
 import { ItemSettings, ItemStatus, ListItem, ListItemTypes } from '../../api/mongo_schema/list';
-import { ItemModel } from './itemModel';
+import { Permission } from '../../api/mongo_schema/social';
+import db from '../../repository/db/mongo/mongoDb';
+import { formatDateData } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { SocialItem } from '../social/socialItem';
-import { formatDateData } from '../../utils/dates';
-import { Permission } from '../../api/mongo_schema/social';
-import { v4 as uuid } from 'uuid';
-import db from '../../repository/db/mongo/mongoDb';
-import { UserOperations } from '../users/userOperations';
 import { SocialUser } from '../social/socialUser';
+import { UserOperations } from '../users/userOperations';
+import { ItemModel } from './itemModel';
 
 export class ItemOperations {
   // Builder method
@@ -24,7 +25,7 @@ export class ItemOperations {
       : new ItemModel(result as ListItem, true, user_id);
 
     var permitted = !checkPermissions || !!item.getUserPermission(user_id);
-    if (!permitted) throw new Error(`User ${user_id} is not permitted to access item ${id}`);
+    if (!permitted) { throw new Error(`User ${user_id} is not permitted to access item ${id}`); }
     else {
       return item;
     }
@@ -41,14 +42,14 @@ export class ItemOperations {
 
     // Need to ensure we include routine users if it has a template_id!
     if (item.template_id && item.permitted_users?.length > 1) {
-      let otherUsers = this.usersExceptFrom(user_id, item);
-      for (let user of otherUsers) {
-        let socialUser = (await UserOperations.retrieveForUser(user, user_id, true)) as SocialUser;
+      const otherUsers = this.usersExceptFrom(user_id, item);
+      for (const user of otherUsers) {
+        const socialUser = (await UserOperations.retrieveForUser(user, user_id, true)) as SocialUser;
         await socialUser.addRoutineInstantiation(item);
       }
     }
 
-    if (commit) await model.commit();
+    if (commit) { await model.commit(); }
 
     return model;
   }
@@ -64,7 +65,7 @@ export class ItemOperations {
     var filteredResults = items.filter((x) => !validate_access || !!x.getUserPermission(user_id));
 
     if (filteredResults.length !== results.length) {
-      let logger = Logger.of(ItemModel);
+      const logger = Logger.of(ItemModel);
       logger.warn(`User no longer has access to ${results.length - filteredResults.length} items`);
     }
 
@@ -89,7 +90,7 @@ export class ItemOperations {
   }
 
   static async createUserIntroItem(user_id: string) {
-    let userIntroItem = {
+    const userIntroItem = {
       id: uuid(),
       title: 'Swipe Me Left!',
       type: ListItemTypes.Event,
@@ -101,7 +102,7 @@ export class ItemOperations {
       permitted_users: [{ user_id, displayed_as: user_id, permissions: Permission.Owner }],
       notifications: []
     } as any;
-    let firstItem = new ItemModel(userIntroItem, false, user_id);
+    const firstItem = new ItemModel(userIntroItem, false, user_id);
     await firstItem.commit();
 
     return firstItem.getId();

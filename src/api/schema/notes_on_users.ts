@@ -14,12 +14,12 @@ export interface NoteUserRelationshipDbObject extends DbObject {
   user_id_fk: ID;
   invite_pending: boolean;
   status: NoteRelationshipStatus;
-};
+}
 
 export interface NoteUserRelationship extends NoteUserRelationshipDbObject {
   note: NoteDbObject;
   user: UserDbObject;
-};
+}
 
 export enum NoteRelationshipStatus {
   Owner = 'Owner',

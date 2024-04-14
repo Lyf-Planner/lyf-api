@@ -1,8 +1,9 @@
 import { compare, hash } from 'bcrypt';
-import { User } from '../api/mongo_schema/user';
-import { Logger } from '../utils/logging';
 import * as jwt from 'jsonwebtoken';
+
+import { User } from '../api/mongo_schema/user';
 import env from '../envManager';
+import { Logger } from '../utils/logging';
 
 export class AuthUtils {
   private logger = Logger.of(AuthUtils);

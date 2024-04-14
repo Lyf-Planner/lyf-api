@@ -1,4 +1,4 @@
-import { Kysely, sql } from 'kysely';
+import { sql, Kysely } from 'kysely';
 
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
@@ -15,8 +15,8 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addCheckConstraint('check_status', sql`status IN (\'Owner\', \'Editor\', \'Read Only\')`)
     .execute();
 
-    await db.schema.createIndex('user_item_item_id_index').on('items_on_users').column('item_id_fk').execute()
-    await db.schema.createIndex('user_item_user_id_index').on('items_on_users').columns(['user_id_fk', 'sorting_rank']).execute()
+  await db.schema.createIndex('user_item_item_id_index').on('items_on_users').column('item_id_fk').execute();
+  await db.schema.createIndex('user_item_user_id_index').on('items_on_users').columns(['user_id_fk', 'sorting_rank']).execute();
 }
 
 export async function down(db: Kysely<any>): Promise<void> {

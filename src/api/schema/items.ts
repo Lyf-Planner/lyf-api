@@ -23,12 +23,12 @@ export interface ItemDbObject extends DbObject {
   location?: string;
   show_in_upcoming?: boolean;
   notification_mins_before?: number;
-};
+}
 
 export interface Item extends ItemDbObject {
   notes: ItemNoteRelationship[];
   users: ItemUserRelationshipDbObject[];
-};
+}
 
 export enum ItemType {
   Event = 'Event',

@@ -1,9 +1,9 @@
-import { Permission } from '../../api/mongo_schema/social';
 import { Note } from '../../api/mongo_schema/notes';
-import { Logger } from '../../utils/logging';
-import { RestrictedRemoteObject } from '../abstract/restrictedRemoteObject';
+import { Permission } from '../../api/mongo_schema/social';
 import { updateNoteBody } from '../../controller/validators/noteValidators';
 import db from '../../repository/db/mongo/mongoDb';
+import { Logger } from '../../utils/logging';
+import { RestrictedRemoteObject } from '../abstract/restrictedRemoteObject';
 
 export class NoteModel extends RestrictedRemoteObject<Note> {
   private logger = Logger.of(NoteModel);
@@ -35,7 +35,7 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
   private throwIfReadOnly(perm?: Permission) {
     if (!perm || perm === Permission.Viewer || perm === Permission.Invited) {
       this.logger.error(`User ${this.requested_by} tried to modify as Viewer on ${this.id}`);
-      throw new Error(`User does not have permission to edit this item`);
+      throw new Error('User does not have permission to edit this item');
     }
   }
 
@@ -46,7 +46,7 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
 
       if (newPerms && oldPerms !== newPerms) {
         this.logger.error(`User ${this.requested_by} tried to modify permissions on ${this.id}`);
-        throw new Error(`Non-owners cannot modify permissions`);
+        throw new Error('Non-owners cannot modify permissions');
       }
     }
   }

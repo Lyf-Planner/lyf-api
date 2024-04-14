@@ -4,36 +4,31 @@ import {
   FriendshipUpdate
 } from '../../api/mongo_schema/social';
 import { Logger } from '../../utils/logging';
-import { UserOperations } from '../users/userOperations';
 import { FriendNotifications } from '../notifications/friendNotificationService';
+import { UserOperations } from '../users/userOperations';
 import { SocialUser } from './socialUser';
 
 export class FriendshipManager {
+  public logger = Logger.of(FriendshipManager);
   private from: SocialUser;
   private target: SocialUser;
-  public logger = Logger.of(FriendshipManager);
-
-  constructor(from: SocialUser, target: SocialUser) {
-    this.from = from;
-    this.target = target;
-  }
 
   static async processUpdate(from: ID, update: FriendshipUpdate) {
     // Can't address yourself
-    if (from === update.user_id) throw new Error('You cannot friend yourself');
+    if (from === update.user_id) { throw new Error('You cannot friend yourself'); }
 
-    let fromUser = (await UserOperations.retrieveForUser(
+    const fromUser = (await UserOperations.retrieveForUser(
       from,
       from,
       true
     )) as SocialUser;
-    let targetUser = (await UserOperations.retrieveForUser(
+    const targetUser = (await UserOperations.retrieveForUser(
       update.user_id,
       from,
       true
     )) as SocialUser;
 
-    let controller = new FriendshipManager(fromUser, targetUser);
+    const controller = new FriendshipManager(fromUser, targetUser);
 
     switch (update.action) {
       case FriendshipAction.Request:
@@ -74,6 +69,22 @@ export class FriendshipManager {
     return fromUser.getContent().social;
   }
 
+  constructor(from: SocialUser, target: SocialUser) {
+    this.from = from;
+    this.target = target;
+  }
+
+  public async cancelFriendRequest() {
+    // Update on from
+    this.from.cancelRequest(this.target.getId());
+
+    // Update on target
+    this.target.cancelRequest(this.from.getId());
+
+    // No errors were triggered, commit changes to both
+    await this.commitToBoth();
+  }
+
   private async requestFriendship() {
     // Add to from
     this.from.noteRequestToSelf(this.target.getId());
@@ -105,17 +116,6 @@ export class FriendshipManager {
 
     // Update on target
     this.target.deleteFriendship(this.from.getId());
-
-    // No errors were triggered, commit changes to both
-    await this.commitToBoth();
-  }
-
-  public async cancelFriendRequest() {
-    // Update on from
-    this.from.cancelRequest(this.target.getId());
-
-    // Update on target
-    this.target.cancelRequest(this.from.getId());
 
     // No errors were triggered, commit changes to both
     await this.commitToBoth();

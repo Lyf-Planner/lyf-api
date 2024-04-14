@@ -1,13 +1,13 @@
-import { Permission } from '../../api/mongo_schema/social';
 import { ItemStatus, ListItem } from '../../api/mongo_schema/list';
+import { Permission } from '../../api/mongo_schema/social';
+import { updateItemBody } from '../../controller/validators/itemValidators';
+import db from '../../repository/db/mongo/mongoDb';
 import { Logger } from '../../utils/logging';
 import { RestrictedRemoteObject } from '../abstract/restrictedRemoteObject';
-import { updateItemBody } from '../../controller/validators/itemValidators';
 import notificationManager from '../notifications/notificationManager';
 import { SocialItemNotifications } from '../notifications/socialItemNotificationService';
-import { UserOperations } from '../users/userOperations';
 import { UserModel } from '../users/userModel';
-import db from '../../repository/db/mongo/mongoDb';
+import { UserOperations } from '../users/userOperations';
 
 export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private logger = Logger.of(ItemModel);
@@ -23,7 +23,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
 
   public async delete() {
     if (this.content.notifications) {
-      for (let notif of this.content.notifications) {
+      for (const notif of this.content.notifications) {
         notificationManager.removeEventNotification(this.content, notif.user_id);
       }
     }
@@ -63,16 +63,28 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     return true;
   }
 
+  public async clearNotification(user_id: string) {
+    this.logger.info(`Clearing notification on item ${this.id} for user ${user_id}`);
+    var newNotifications = this.content.notifications;
+    const i = newNotifications.findIndex((x) => x.user_id === user_id);
+    newNotifications.splice(i, 1);
+    await this.safeUpdate({ ...this.content, notifications: newNotifications }, user_id);
+  }
+
+  public displayName() {
+    return `${this.content.title} (${this.content.id})`;
+  }
+
   // Helpers
   private throwIfReadOnly(perm?: Permission) {
     if (!perm || perm === Permission.Viewer || perm === Permission.Invited) {
       this.logger.error(`User ${this.requested_by} tried to modify as Viewer on ${this.id}`);
-      throw new Error(`User does not have permission to edit this item`);
+      throw new Error('User does not have permission to edit this item');
     }
   }
 
   private throwIfModifiedOtherNotifications(fromUser: UserModel, proposed: ListItem) {
-    if (!proposed.notifications) return;
+    if (!proposed.notifications) { return; }
 
     var success = true;
     if (!this.content.notifications && proposed.notifications) {
@@ -91,7 +103,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       this.logger.error(
         `User ${this.requested_by} tried to modify other users notifications on ${this.id}`
       );
-      throw new Error(`Users can only update their own notifications`);
+      throw new Error('Users can only update their own notifications');
     }
   }
 
@@ -119,7 +131,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
 
     // Update when notifications should send
     if (changes && this.content.notifications) {
-      for (let notification of this.content.notifications) {
+      for (const notification of this.content.notifications) {
         // Case: date or time was deleted
         if (!proposed.time || !proposed.date) {
           notificationManager.removeEventNotification(proposed, notification.user_id);
@@ -138,8 +150,8 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       }
 
       // Notify any other users of a change!
-      if (timeChanged) SocialItemNotifications.timeChanged(from, proposed);
-      if (dateChanged) SocialItemNotifications.dateChanged(from, proposed);
+      if (timeChanged) { SocialItemNotifications.timeChanged(from, proposed); }
+      if (dateChanged) { SocialItemNotifications.dateChanged(from, proposed); }
     }
   }
 
@@ -149,16 +161,9 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       proposed.status === ItemStatus.Done || proposed.status === ItemStatus.Cancelled;
 
     // Notify any other users of a change!
-    if (statusChanged && statusChangeRelevant)
+    if (statusChanged && statusChangeRelevant) {
       SocialItemNotifications.statusChanged(from, proposed);
-  }
-
-  public async clearNotification(user_id: string) {
-    this.logger.info(`Clearing notification on item ${this.id} for user ${user_id}`);
-    var newNotifications = this.content.notifications;
-    const i = newNotifications.findIndex((x) => x.user_id === user_id);
-    newNotifications.splice(i, 1);
-    await this.safeUpdate({ ...this.content, notifications: newNotifications }, user_id);
+    }
   }
 
   // Determine whether to update or add as suggestion
@@ -179,9 +184,5 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       approved_by: [],
       dismissed_by: []
     });
-  }
-
-  public displayName() {
-    return `${this.content.title} (${this.content.id})`;
   }
 }

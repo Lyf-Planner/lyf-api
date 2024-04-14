@@ -1,14 +1,14 @@
 import { ExpoPushMessage } from 'expo-server-sdk';
+import debouncer from 'signature-debouncer';
+
+import { ItemStatus, ListItem } from '../../api/mongo_schema/list';
+import { formatDate, TwentyFourHourToAMPM } from '../../utils/dates';
+import { Logger } from '../../utils/logging';
+import { ItemOperations } from '../items/ItemOperations';
 import { SocialItem } from '../social/socialItem';
 import { SocialUser } from '../social/socialUser';
-import { TwentyFourHourToAMPM, formatDate } from '../../utils/dates';
-import { UserOperations } from '../users/userOperations';
-import { ItemStatus, ListItem } from '../../api/mongo_schema/list';
-import { Logger } from '../../utils/logging';
 import { UserModel } from '../users/userModel';
-import { ItemOperations } from '../items/ItemOperations';
-
-import debouncer from 'signature-debouncer';
+import { UserOperations } from '../users/userOperations';
 import expoPushService from './expoPushService';
 
 export enum DebounceCategories {
@@ -29,7 +29,7 @@ export class SocialItemNotifications {
     const itemContent = item.getContent();
 
     // Format the message
-    let message = {
+    const message = {
       to: to.getContent().expo_tokens || [],
       title: `New ${item.getContent().type} Invite`,
       body: `${from.name()} invited you to ${itemContent.title}`,
@@ -37,12 +37,14 @@ export class SocialItemNotifications {
     } as ExpoPushMessage;
 
     // Include dates and times if they are set
-    if (itemContent.date && itemContent.time)
+    if (itemContent.date && itemContent.time) {
       message.body += ` at ${TwentyFourHourToAMPM(
         itemContent.time
       )} on ${formatDate(itemContent.date)}`;
-    else if (itemContent.date)
+    }
+    else if (itemContent.date) {
       message.body += ` on ${formatDate(itemContent.date)}`;
+ }
 
     // Send
     await expoPushService.pushNotificationToExpo([message]);
@@ -55,16 +57,16 @@ export class SocialItemNotifications {
 
     // Notify all users (except the one who joined)
     const itemContent = item.getContent();
-    let usersToNotify = ItemOperations.usersExceptFrom(
+    const usersToNotify = ItemOperations.usersExceptFrom(
       from.getId(),
       itemContent
     );
 
     // Get tokens
-    let tokens = await this.groupUserTokens(usersToNotify);
+    const tokens = await this.groupUserTokens(usersToNotify);
 
     // Format the message
-    let message = {
+    const message = {
       to: tokens,
       title: `User Joined your ${item.getContent().type}`,
       body: `${from.name()} joined ${itemContent.title}`
@@ -76,7 +78,7 @@ export class SocialItemNotifications {
 
   public static async dateChanged(from: UserModel, item: ListItem) {
     const newDate = item.date;
-    if (!newDate) return;
+    if (!newDate) { return; }
 
     logger.info(
       `Notifying users on item ${item.title} (${
@@ -84,13 +86,13 @@ export class SocialItemNotifications {
       }) of date change to ${newDate} from ${from.getId()}`
     );
 
-    let usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
+    const usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
 
     // Get tokens
-    let tokens = await this.groupUserTokens(usersToNotify);
+    const tokens = await this.groupUserTokens(usersToNotify);
 
     // Format the message
-    let message = {
+    const message = {
       to: tokens,
       title: `${item.type} date updated`,
       body: `${from.name()} updated the date of ${item.title} to ${formatDate(
@@ -110,20 +112,20 @@ export class SocialItemNotifications {
 
   public static async timeChanged(from: UserModel, item: ListItem) {
     const newTime = item.time;
-    if (!newTime) return;
+    if (!newTime) { return; }
     logger.info(
       `Notifying users on item ${item.title} (${
         item.id
       }) of time change to ${newTime} from ${from.getId()}`
     );
 
-    let usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
+    const usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
 
     // Get tokens
-    let tokens = await this.groupUserTokens(usersToNotify);
+    const tokens = await this.groupUserTokens(usersToNotify);
 
     // Format the message
-    let message = {
+    const message = {
       to: tokens,
       title: `${item.type} time updated`,
       body: `${from.name()} updated the time of ${
@@ -143,10 +145,10 @@ export class SocialItemNotifications {
 
   public static async statusChanged(from: UserModel, item: ListItem) {
     const newStatus = item.status;
-    if (!newStatus) return;
+    if (!newStatus) { return; }
 
-    let usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
-    if (usersToNotify.length === 0) return;
+    const usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
+    if (usersToNotify.length === 0) { return; }
 
     logger.info(
       `Notifying ${usersToNotify.length} other users on item ${item.title} (${
@@ -155,10 +157,10 @@ export class SocialItemNotifications {
     );
 
     // Get tokens
-    let tokens = await this.groupUserTokens(usersToNotify);
+    const tokens = await this.groupUserTokens(usersToNotify);
 
     // Format the message
-    let message = {
+    const message = {
       to: tokens,
       title: `${item.type} ${
         item.status === ItemStatus.Done ? 'Completed!' : item.status
@@ -184,8 +186,8 @@ export class SocialItemNotifications {
   public static async groupUserTokens(usersToNotify: string[]) {
     // Get all notified user push tokens
     let tokens = [] as string[];
-    for (let user_id of usersToNotify) {
-      let user_tokens = await UserOperations.getUserPushTokens(user_id);
+    for (const user_id of usersToNotify) {
+      const user_tokens = await UserOperations.getUserPushTokens(user_id);
       tokens = tokens.concat(user_tokens);
     }
 

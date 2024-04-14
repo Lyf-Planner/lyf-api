@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
+import PQueue from 'p-queue';
+
 import { Permission } from '../../api/mongo_schema/social';
-import { Logger } from '../../utils/logging';
-import { ItemModel } from '../../models/items/itemModel';
 import { ItemOperations } from '../../models/items/ItemOperations';
+import { ItemModel } from '../../models/items/itemModel';
+import { SocialItemManager } from '../../models/social/socialItemManager';
+import { Logger } from '../../utils/logging';
 import { getMiddlewareVars } from '../utils';
 import {
   createItemBody,
@@ -10,12 +13,46 @@ import {
   updateItemBody,
   updateItemSocialBody
 } from '../validators/itemValidators';
-import { SocialItemManager } from '../../models/social/socialItemManager';
-import PQueue from 'p-queue';
 
 const itemUpdateQueue = new PQueue({ concurrency: 1 });
 
 export class ItemHandlers {
+
+  static async _queuedUpdateItem(req: Request, res: Response) {
+    var item = req.body as updateItemBody;
+    var user_id = getMiddlewareVars(res).user_id;
+
+    var remoteItem: ItemModel;
+    logger.debug(
+      `Updating item ${item.title} (${item.id}) from user ${user_id}`
+    );
+
+    // Authorisation checks
+    try {
+      // These fns will check user is permitted on the item and has Permission > Viewer
+      remoteItem = await ItemOperations.retrieveForUser(item.id, user_id);
+      await remoteItem.safeUpdate(item, user_id);
+      res.status(200).json(remoteItem.export()).end();
+    } catch (err) {
+      logger.error(
+        `User ${user_id} did not safely update item ${item.id}: ${err}`
+      );
+      res.status(403).end(`${err}`);
+    }
+  }
+
+  static async _queuedUpdateItemSocial(req: Request, res: Response) {
+    var update = req.body as updateItemSocialBody;
+    var from_id = getMiddlewareVars(res).user_id;
+
+    try {
+      const social = await SocialItemManager.processUpdate(from_id, update);
+      res.status(200).json(social).end();
+    } catch (err) {
+      logger.error(`Returning 400 with message: ${err}`);
+      res.status(400).end(`${err}`);
+    }
+  }
   protected async createItem(req: Request, res: Response) {
     // Users only type a name in a section (implying type) to create an item
     // Should reevaluate this if we ever grant API access!
@@ -44,8 +81,9 @@ export class ItemHandlers {
         user_id
       );
       var perm = item.requestorPermission();
-      if (!perm || perm !== Permission.Owner)
-        throw new Error(`Items can only be deleted by their owner/creator`);
+      if (!perm || perm !== Permission.Owner) {
+        throw new Error('Items can only be deleted by their owner/creator');
+      }
     } catch (err) {
       logger.error(
         `User ${user_id} tried to delete ${item_id} without valid permissions`
@@ -97,46 +135,10 @@ export class ItemHandlers {
     );
   }
 
-  static async _queuedUpdateItem(req: Request, res: Response) {
-    var item = req.body as updateItemBody;
-    var user_id = getMiddlewareVars(res).user_id;
-
-    var remoteItem: ItemModel;
-    logger.debug(
-      `Updating item ${item.title} (${item.id}) from user ${user_id}`
-    );
-
-    // Authorisation checks
-    try {
-      // These fns will check user is permitted on the item and has Permission > Viewer
-      remoteItem = await ItemOperations.retrieveForUser(item.id, user_id);
-      await remoteItem.safeUpdate(item, user_id);
-      res.status(200).json(remoteItem.export()).end();
-    } catch (err) {
-      logger.error(
-        `User ${user_id} did not safely update item ${item.id}: ${err}`
-      );
-      res.status(403).end(`${err}`);
-    }
-  }
-
   protected async updateItemSocial(req: Request, res: Response) {
     itemUpdateQueue.add(
       async () => await ItemHandlers._queuedUpdateItemSocial(req, res)
     );
-  }
-
-  static async _queuedUpdateItemSocial(req: Request, res: Response) {
-    var update = req.body as updateItemSocialBody;
-    var from_id = getMiddlewareVars(res).user_id;
-
-    try {
-      let social = await SocialItemManager.processUpdate(from_id, update);
-      res.status(200).json(social).end();
-    } catch (err) {
-      logger.error(`Returning 400 with message: ${err}`);
-      res.status(400).end(`${err}`);
-    }
   }
 }
 

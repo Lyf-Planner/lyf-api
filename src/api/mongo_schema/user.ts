@@ -1,4 +1,4 @@
-import { ID, Identifiable, Time } from './abstract';
+import { Identifiable, ID, Time } from './abstract';
 import { Notes } from './notes';
 import { Premium } from './premium';
 import { Timetable } from './timetable';

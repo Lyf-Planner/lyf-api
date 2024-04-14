@@ -1,6 +1,7 @@
-import { Database } from '../../../api/schema/database';
-import { Pool, PoolConfig } from 'pg';
 import { Kysely, PostgresDialect } from 'kysely';
+import { Pool, PoolConfig } from 'pg';
+
+import { Database } from '../../../api/schema/database';
 import env from '../../../envManager';
 
 const PG_POOL_MAX = 10;
@@ -21,4 +22,4 @@ export const postgresDb = new Kysely<Database>({
   log: ['query', 'error']
 });
 
-export default postgresDb
+export default postgresDb;

@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
-import { Logger } from '../../utils/logging';
-import authUtils from '../../utils/authUtils';
+import { NextFunction, Request, Response } from 'express';
+
 import assert from 'assert';
+import authUtils from '../../utils/authUtils';
+import { Logger } from '../../utils/logging';
 
 const logger = new Logger('AuthMiddleware');
 const TOKEN_PREFIX = 'Bearer ';
@@ -16,8 +17,8 @@ export const authoriseHeader = (
     next();
   } else {
     try {
-      let header = (req.headers['authorization'] ||
-        req.headers['Authorization']) as string;
+      const header = (req.headers.authorization ||
+        req.headers.Authorization) as string;
       let token;
 
       if (header && header.startsWith(TOKEN_PREFIX)) {
@@ -26,7 +27,7 @@ export const authoriseHeader = (
         throw new Error('Invalid Authorization header');
       }
 
-      let { user_id, exp } = authUtils.verifyToken(token);
+      const { user_id, exp } = authUtils.verifyToken(token);
       assert(exp! > Math.floor(new Date().getTime() / 1000));
 
       // Grant the user_id to subsequent functions after this middleware, via response locals
@@ -34,7 +35,7 @@ export const authoriseHeader = (
       next();
     } catch (err) {
       logger.debug(err);
-      let message = 'Unauthorised or expired token in request header';
+      const message = 'Unauthorised or expired token in request header';
       logger.warn(message);
       res.status(401).end(message);
     }

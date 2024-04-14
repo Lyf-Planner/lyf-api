@@ -1,11 +1,12 @@
-import { validate } from '../middleware/validationMiddleware';
-import { NoteHandlers } from '../handlers/noteHandlers';
 import express from 'express';
+
+import { NoteHandlers } from '../handlers/noteHandlers';
+import { validate } from '../middleware/validationMiddleware';
 import {
   createNoteValidator,
   deleteNoteValidator,
-  getNoteValidator,
   getNotesValidator,
+  getNoteValidator,
   updateNoteValidator
 } from '../validators/noteValidators';
 

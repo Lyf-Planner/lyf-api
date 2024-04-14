@@ -10,7 +10,7 @@ const env = {
   mongoDb: process.env.MONGO_DB,
   pgConnectionUrl: process.env.PG_CONNECTION_URL,
   jwtSecret: process.env.JWT_SECRET,
-  //expoNotificationToken: process.env.EXPO_NOTIFICATION_TOKEN,
+  // expoNotificationToken: process.env.EXPO_NOTIFICATION_TOKEN,
   version: VERSION,
   port: process.env.PORT || 8000
 };
@@ -20,7 +20,8 @@ const missingVars = Object.entries(env)
   .filter((x) => !x[1])
   .map((x) => x[0]);
 
-if (missingVars.length > 0)
+if (missingVars.length > 0) {
   throw new Error(`Missing environment variables: ${missingVars}`);
+}
 
 export default env;

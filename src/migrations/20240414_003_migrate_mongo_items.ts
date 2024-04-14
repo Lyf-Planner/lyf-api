@@ -1,16 +1,16 @@
 import { Kysely } from 'kysely';
 
-import { User as MongoUser } from '../api/mongo_schema/user';
+import { ListItem as MongoItem } from '../api/mongo_schema/list';
 import { DbObject } from '../api/schema/abstract';
-import { UserDbObject as PostgresUser } from '../api/schema/user';
+import { Item as PostgresItem } from '../api/schema/items';
 import mongoDb from '../repository/db/mongo/mongoDb';
 
 export async function up(db: Kysely<any>): Promise<void> {
-  const usersCollection = mongoDb.usersCollection();
-  const mongoUsers: MongoUser[] = await usersCollection.findAll();
+  const itemsCollection = mongoDb.itemsCollection();
+  const mongoItems: Item[] = await itemsCollection.findAll();
 
-  for (const user of mongoUsers) {
-    await db.insertInto('users').values(transformToPgUser(user)).execute();
+  for (const item of mongoItems) {
+    await db.insertInto('items').values(transformToPgItem(item)).execute();
   }
 }
 
@@ -18,7 +18,7 @@ export async function down(db: Kysely<any>): Promise<void> {
   await db.deleteFrom('users').execute();
 }
 
-const transformToPgUser = (user: MongoUser) => {
+const transformToPgItem = (user: MongoItem) => {
   const pgUser: Omit<PostgresUser, keyof DbObject> = {
     user_id: user.id,
     pass_hash: user.pass_hash,

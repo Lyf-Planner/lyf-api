@@ -19,12 +19,12 @@ export interface UserDbObject extends DbObject {
   first_day?: string;
   display_name?: string;
   pfp_url?: string;
-  daily_notifications?: boolean; 
+  daily_notifications?: boolean;
   daily_notification_time?: string; // hh:mm
   persistent_daily_notification?: boolean;
   event_notifications_enabled?: boolean;
   event_notification_minutes_before?: number;
-};
+}
 
 export type User = UserDbObject & {
   relationships: UserFriendshipDbObject[];

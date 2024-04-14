@@ -21,13 +21,13 @@ export class SocialUser extends UserModel {
     var friends = this.content.social.friends || [];
 
     // Ensure the user has not already requested
-    if (this.userAlreadyPresent(requests, from)) return;
+    if (this.userAlreadyPresent(requests, from)) { return; }
 
     // Ensure the user is not already a friend
-    if (this.userAlreadyPresent(friends, from)) return;
+    if (this.userAlreadyPresent(friends, from)) { return; }
 
     // Ensure the user is not blocked
-    if (this.isBlocked(from)) return;
+    if (this.isBlocked(from)) { return; }
 
     // Add "from" user to this users requests
     requests.push(from);
@@ -40,17 +40,17 @@ export class SocialUser extends UserModel {
       `User ${this.id} nearly had their friend requests modified by another user`
     );
 
-    let requested = this.content.social.requested || [];
-    let friends = this.content.social.friends || [];
+    const requested = this.content.social.requested || [];
+    const friends = this.content.social.friends || [];
 
     // Ensure the user has not already requested
-    if (this.userAlreadyPresent(requested, to)) return;
+    if (this.userAlreadyPresent(requested, to)) { return; }
 
     // Ensure the user is not already a friend
-    if (this.userAlreadyPresent(friends, to)) return;
+    if (this.userAlreadyPresent(friends, to)) { return; }
 
     // Ensure the user is not blocked
-    if (this.isBlocked(to)) return;
+    if (this.isBlocked(to)) { return; }
 
     requested.push(to);
     this.content.social.requested = requested;
@@ -68,7 +68,7 @@ export class SocialUser extends UserModel {
     // Ensure they have 'requests' field
     var requests = this.content.social.requests || [];
     if (!requests) {
-      let message = `User ${this.id} has no friend requests to accept/deny`;
+      const message = `User ${this.id} has no friend requests to accept/deny`;
       this.logger.warn(message);
       throw new Error(message);
     }
@@ -76,7 +76,7 @@ export class SocialUser extends UserModel {
     // Ensure they have request from addressed user
     var fromRequestIndex = requests.findIndex((x) => x === from);
     if (fromRequestIndex === -1) {
-      let message = `Could not find friend request from ${from} on user ${this.id}`;
+      const message = `Could not find friend request from ${from} on user ${this.id}`;
       this.logger.warn(message);
       throw new Error(message);
     }
@@ -84,7 +84,7 @@ export class SocialUser extends UserModel {
     // Handle the from user's request
     if (accepted) {
       // Add the friend
-      let friends = this.content.social.friends || [];
+      const friends = this.content.social.friends || [];
       friends.push(from);
       this.content.social.friends = friends;
     }
@@ -97,7 +97,7 @@ export class SocialUser extends UserModel {
     // Ensure they have 'requested' field
     var requested = this.content.social.requested || [];
     if (!requested) {
-      let message = `User ${this.id} has no friend requests to accept/deny`;
+      const message = `User ${this.id} has no friend requests to accept/deny`;
       this.logger.warn(message);
       throw new Error(message);
     }
@@ -105,7 +105,7 @@ export class SocialUser extends UserModel {
     // Ensure they have request from addressed user
     var fromRequestIndex = requested.findIndex((x) => x === to);
     if (fromRequestIndex === -1) {
-      let message = `Could not find friend request to ${to} on user ${this.id}`;
+      const message = `Could not find friend request to ${to} on user ${this.id}`;
       this.logger.warn(message);
       throw new Error(message);
     }
@@ -113,7 +113,7 @@ export class SocialUser extends UserModel {
     // Handle the from user's request
     if (accepted) {
       // Add the friend
-      let friends = this.content.social.friends || [];
+      const friends = this.content.social.friends || [];
       friends.push(to);
       this.content.social.friends = friends;
     }
@@ -125,11 +125,11 @@ export class SocialUser extends UserModel {
   // Removing Friendships:
 
   public deleteFriendship(toRemove: ID) {
-    let friends = this.content.social.friends;
+    const friends = this.content.social.friends;
 
     // Ensure the user is a friend
     if (this.userAlreadyPresent(friends, toRemove)) {
-      let targetIndex = friends!.findIndex((x) => x === toRemove);
+      const targetIndex = friends!.findIndex((x) => x === toRemove);
       friends!.splice(targetIndex, 1);
     }
   }
@@ -147,13 +147,14 @@ export class SocialUser extends UserModel {
     const invited_by_id = invited_by.getId();
 
     // Must be invited by a friend
-    let inviter = this.content.social.friends?.find((x) => x === invited_by_id);
-    if (!inviter)
+    const inviter = this.content.social.friends?.find((x) => x === invited_by_id);
+    if (!inviter) {
       throw new Error('Users must be invited to an item by a friend');
+    }
 
     var invited_items = this.content.timetable.invited_items;
     // Ensure user does not get multiple invites
-    if (invited_items && invited_items.includes(item_id)) return;
+    if (invited_items && invited_items.includes(item_id)) { return; }
 
     this.content.timetable.invited_items
       ? this.content.timetable.invited_items.push(item_id)
@@ -192,10 +193,10 @@ export class SocialUser extends UserModel {
 
   public async addRoutineInstantiation(item: ListItem) {
     // Check the user is still on the routine
-    if (!item.template_id) return;
+    if (!item.template_id) { return; }
     const myItemIds = this.content.timetable.items.map((x) => x.id);
     const onRoutine = myItemIds.includes(item.template_id);
-    if (!onRoutine) return;
+    if (!onRoutine) { return; }
     else {
       this.logger.info(
         `Adding instantiation of routine ${item.title} (${item.template_id}) to user ${this.id}`
@@ -231,15 +232,15 @@ export class SocialUser extends UserModel {
   }
 
   private removeIncomingAndOutgoingRequests(other: ID) {
-    let requested = this.content.social.requested || [];
-    let requestedIndex = requested.findIndex((x) => x === other);
+    const requested = this.content.social.requested || [];
+    const requestedIndex = requested.findIndex((x) => x === other);
     if (requestedIndex !== -1) {
       requested.splice(requestedIndex, 1);
       this.content.social.requested = requested;
     }
 
-    let requests = this.content.social.requests || [];
-    let requestIndex = requests.findIndex((x) => x === other);
+    const requests = this.content.social.requests || [];
+    const requestIndex = requests.findIndex((x) => x === other);
     if (requestIndex !== -1) {
       requests.splice(requestIndex, 1);
       this.content.social.requests = requests;

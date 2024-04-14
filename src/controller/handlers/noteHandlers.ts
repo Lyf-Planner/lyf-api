@@ -1,9 +1,10 @@
-import { Permission } from '../../api/mongo_schema/social';
+import { Request, Response } from 'express';
+
 import { Note } from '../../api/mongo_schema/notes';
+import { Permission } from '../../api/mongo_schema/social';
 import { NoteModel } from '../../models/notes/noteModel';
 import { NoteOperations } from '../../models/notes/noteOperations';
 import { Logger } from '../../utils/logging';
-import { Request, Response } from 'express';
 import { getMiddlewareVars } from '../utils';
 
 export class NoteHandlers {
@@ -57,8 +58,9 @@ export class NoteHandlers {
         user_id
       );
       var perm = note.requestorPermission();
-      if (!perm || perm !== Permission.Owner)
-        throw new Error(`Notes can only be deleted by their owner/creator`);
+      if (!perm || perm !== Permission.Owner) {
+        throw new Error('Notes can only be deleted by their owner/creator');
+      }
 
       // Perform delete
       await note!.deleteFromDb();

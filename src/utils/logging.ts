@@ -8,12 +8,8 @@ export enum LoggingLevel {
 }
 
 export class Logger {
-  private name: string;
   static level: LoggingLevel = LoggingLevel.DEBUG;
-
-  constructor(name: string) {
-    this.name = name;
-  }
+  private name: string;
 
   public static setLevel(level: LoggingLevel) {
     this.level = level;
@@ -21,6 +17,10 @@ export class Logger {
 
   public static of(arg: Function): Logger {
     return new Logger(arg.name);
+  }
+
+  constructor(name: string) {
+    this.name = name;
   }
 
   public silly(content: any) {

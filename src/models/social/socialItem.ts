@@ -25,7 +25,7 @@ export class SocialItem extends ItemModel {
       );
     }
 
-    let inviterFriendship = invited_by
+    const inviterFriendship = invited_by
       .getContent()
       .social.friends?.find((x) => x === invited_user.getId());
     if (!inviterFriendship) {
@@ -82,7 +82,7 @@ export class SocialItem extends ItemModel {
     const user_id = user.getId();
 
     // Requested_by must match user or have owner permission
-    let requestor_perm = this.getUserPermission(this.requested_by);
+    const requestor_perm = this.getUserPermission(this.requested_by);
     if (requestor_perm !== Permission.Owner && this.requested_by !== user_id) {
       throw new Error('You must be the Owner to kick another user!');
     }
@@ -94,13 +94,13 @@ export class SocialItem extends ItemModel {
   }
 
   public removeInvite(user: SocialUser) {
-    let requestor_perm = this.getUserPermission(this.requested_by);
+    const requestor_perm = this.getUserPermission(this.requested_by);
     if (requestor_perm !== Permission.Owner) {
       throw new Error('You must be the Owner to cancel an invite!');
     }
 
     const user_id = user.getId();
-    if (!this.content.invited_users) return;
+    if (!this.content.invited_users) { return; }
     const i = this.content.invited_users.findIndex(
       (x) => x.user_id === user_id
     );

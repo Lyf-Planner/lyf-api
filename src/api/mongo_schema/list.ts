@@ -1,4 +1,4 @@
-import { ID, Identifiable, Time } from './abstract';
+import { Identifiable, ID, Time } from './abstract';
 import { Restricted } from './social';
 import { UserListItem } from './timetable';
 

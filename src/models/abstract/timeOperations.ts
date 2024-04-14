@@ -24,7 +24,7 @@ export class TimeOperations {
       logger.error(
         `User ${user_id} tried to modify time fields on ${original.id}`
       );
-      throw new Error(`Time fields cannot be modified`);
+      throw new Error('Time fields cannot be modified');
     }
   }
 }

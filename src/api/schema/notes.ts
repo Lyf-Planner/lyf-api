@@ -10,7 +10,7 @@ export interface NoteDbObject extends DbObject {
   title: string;
   type: NoteType;
   content: string | null;
-};
+}
 
 export type Note = NoteDbObject & {
   items: ItemNoteRelationshipDbObject[];

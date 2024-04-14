@@ -1,8 +1,8 @@
-import { Note } from '../../api/mongo_schema/notes';
 import { ID } from '../../api/mongo_schema/abstract';
-import { NoteModel } from './noteModel';
-import { Logger } from '../../utils/logging';
+import { Note } from '../../api/mongo_schema/notes';
 import db from '../../repository/db/mongo/mongoDb';
+import { Logger } from '../../utils/logging';
+import { NoteModel } from './noteModel';
 
 export class NoteOperations {
   // Builder method
@@ -16,7 +16,7 @@ export class NoteOperations {
 
     var permitted = !checkPermissions || !!note.getUserPermission(user_id);
 
-    if (!permitted) throw new Error(`User ${user_id} is not permitted to access item ${id}`);
+    if (!permitted) { throw new Error(`User ${user_id} is not permitted to access item ${id}`); }
     else {
       return note;
     }
@@ -29,7 +29,7 @@ export class NoteOperations {
     commit = false // Also create in db
   ): Promise<NoteModel> {
     var model = new NoteModel(noteInput, false, user_id);
-    if (commit) await model.commit();
+    if (commit) { await model.commit(); }
 
     return model;
   }
@@ -45,7 +45,7 @@ export class NoteOperations {
       .filter((x) => !validate_access || !!x.getUserPermission(user_id));
 
     if (filteredResults.length !== results.length) {
-      let logger = Logger.of(NoteModel);
+      const logger = Logger.of(NoteModel);
       logger.warn(`User no longer has access to ${results.length - filteredResults.length} notes`);
     }
 

@@ -1,15 +1,16 @@
 import { Collection as mongoCollection, Db } from 'mongodb';
+
+import assert from 'assert';
 import { DBObject, ID } from '../../../api/mongo_schema/abstract';
 import { Logger } from '../../../utils/logging';
-import assert from 'assert';
 
 // Note:
 // This class purely acts as the data access layer
 // Permissions and data validation should be handled by callers or parents
 
 export class Collection<T extends DBObject> {
-  private logger = Logger.of(Collection<T>);
   protected collection: mongoCollection;
+  private logger = Logger.of(Collection<T>);
 
   constructor(collectionName: string, db: Db) {
     this.collection = db.collection(collectionName);
@@ -22,7 +23,7 @@ export class Collection<T extends DBObject> {
       ? await this.checkDuplicateExists(object.id)
       : false;
 
-    if (duplicateExists) await this.handleDuplicateExists(object);
+    if (duplicateExists) { await this.handleDuplicateExists(object); }
 
     var toInsert = object as any;
     toInsert._id = object.id; // We don't use Mongo ObjectIds, just UUIDs
@@ -84,12 +85,14 @@ export class Collection<T extends DBObject> {
       ? ((await this.collection.find(condition).toArray()) as any)
       : ((await this.collection.findOne(condition)) as any);
 
-    if ((acceptManyResults && result?.length === 0) || !result)
+    if ((acceptManyResults && result?.length === 0) || !result) {
       this.handleConditionUnfound(condition, throwOnUnfound);
+    }
 
-    if (acceptManyResults)
+    if (acceptManyResults) {
       result = result?.map((x: any) => this.exportWithoutUnderscoreId(x));
-    else result = this.exportWithoutUnderscoreId(result);
+    }
+    else { result = this.exportWithoutUnderscoreId(result); }
 
     return acceptManyResults ? (result as T[]) : (result as T);
   }
@@ -99,7 +102,7 @@ export class Collection<T extends DBObject> {
     insert._id = object.id;
     delete insert.id;
     insert.last_updated = new Date().toISOString();
-    if (!insert.created && upsert) insert.created = new Date().toISOString();
+    if (!insert.created && upsert) { insert.created = new Date().toISOString(); }
     var result = await this.collection.updateOne(
       { _id: insert._id },
       { $set: { ...insert } },
@@ -130,8 +133,8 @@ export class Collection<T extends DBObject> {
 
   private async checkDuplicateExists(id: ID) {
     var search = await this.collection.findOne({ _id: id });
-    if (!!search) return true;
-    else return false;
+    if (!!search) { return true; }
+    else { return false; }
   }
 
   // Error handlers
@@ -141,9 +144,9 @@ export class Collection<T extends DBObject> {
     searched: ID[],
     throwOnUnfound: boolean
   ) {
-    let foundIds = results.map((x: T) => x.id) as ID[];
+    const foundIds = results.map((x: T) => x.id) as ID[];
 
-    let message = `Queried ${
+    const message = `Queried ${
       searched.length
     } documents in collection and did not find ${
       searched.length - results.length
@@ -151,16 +154,16 @@ export class Collection<T extends DBObject> {
 
     if (throwOnUnfound) {
       this.logger.error(message);
-      throw new Error(`Documents queried were not found`);
-    } else this.logger.warn(message);
+      throw new Error('Documents queried were not found');
+    } else { this.logger.warn(message); }
   }
 
   private handleSingleUnfound(id: ID, throwOnUnfound: boolean) {
-    let message = `Queried document ${id} was not found in collection`;
+    const message = `Queried document ${id} was not found in collection`;
     if (throwOnUnfound) {
       this.logger.error(message);
       throw new Error(message);
-    } else this.logger.warn(message);
+    } else { this.logger.warn(message); }
   }
 
   private handleConditionUnfound(condition: Object, throwOnUnfound: boolean) {
@@ -180,7 +183,7 @@ export class Collection<T extends DBObject> {
   }
 
   private handleDidNotUpdate(id: ID, shouldThrow = true) {
-    let message = `No document with ID ${id} was found in update call, and upsert = false`;
+    const message = `No document with ID ${id} was found in update call, and upsert = false`;
     if (shouldThrow) {
       this.logger.error(message);
       throw new Error(message);
@@ -190,7 +193,7 @@ export class Collection<T extends DBObject> {
   }
 
   private handleDidNotDelete(id: ID) {
-    let message = `Object with ID ${id} was not deleted properly!`;
+    const message = `Object with ID ${id} was not deleted properly!`;
     this.logger.error(message);
     throw new Error(message);
   }

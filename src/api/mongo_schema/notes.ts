@@ -1,6 +1,6 @@
-import { ID, Identifiable, Time } from './abstract';
-import { Restricted } from './social';
+import { Identifiable, ID, Time } from './abstract';
 import { List } from './list';
+import { Restricted } from './social';
 
 export type Notes = {
   items: (UserNote | Note)[];

@@ -1,6 +1,7 @@
-import * as path from 'path';
+import { FileMigrationProvider, Migrator } from 'kysely';
+
 import { promises as fs } from 'fs';
-import { Migrator, FileMigrationProvider } from 'kysely';
+import * as path from 'path';
 import { Logger } from '../../../utils/logging';
 import postgresDb from './postgresDb';
 

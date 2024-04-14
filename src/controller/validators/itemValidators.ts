@@ -1,11 +1,12 @@
 import { body, query } from 'express-validator';
+
 import { ID } from '../../api/mongo_schema/abstract';
-import { Permission, SocialAction } from '../../api/mongo_schema/social';
 import {
   ItemStatus,
   ListItem,
   ListItemTypes
 } from '../../api/mongo_schema/list';
+import { Permission, SocialAction } from '../../api/mongo_schema/social';
 import { DaysOfWeek } from '../../api/mongo_schema/timetable';
 import { isValidTimeZone } from './utils';
 

@@ -1,10 +1,10 @@
 import { ID, Time } from '../../api/mongo_schema/abstract';
 import { User, UserDetails } from '../../api/mongo_schema/user';
+import db from '../../repository/db/mongo/mongoDb';
 import { Logger } from '../../utils/logging';
 import { RemoteObject } from '../abstract/remoteObject';
-import { UserOperations } from './userOperations';
 import notificationManager from '../notifications/notificationManager';
-import db from '../../repository/db/mongo/mongoDb';
+import { UserOperations } from './userOperations';
 
 export class UserModel extends RemoteObject<User> {
   // If user is accessed by another, should only be able to view details!
@@ -17,8 +17,8 @@ export class UserModel extends RemoteObject<User> {
   }
 
   public getUser(asSelf = true): (UserDetails & Time) | User {
-    if (!this.requestedBySelf || !asSelf) return UserOperations.extractUserDetails(this.content);
-    else return this.content;
+    if (!this.requestedBySelf || !asSelf) { return UserOperations.extractUserDetails(this.content); }
+    else { return this.content; }
   }
 
   public name() {
@@ -28,7 +28,7 @@ export class UserModel extends RemoteObject<User> {
   // Get the user, but hide sensitive fields
   public export() {
     // Needs validator
-    if (!this.requestedBySelf) return this.getUser();
+    if (!this.requestedBySelf) { return this.getUser(); }
     else {
       const { pass_hash, expo_tokens, ...exported } = this.content;
       return exported;
@@ -50,6 +50,13 @@ export class UserModel extends RemoteObject<User> {
     await this.commit();
   }
 
+  protected enforceRequestedBySelf(error_message: string, logger_message?: string) {
+    if (!this.requestedBySelf) {
+      this.logger.error(logger_message || error_message);
+      throw new Error(error_message);
+    }
+  }
+
   private checkDailyNotifications(proposed: User) {
     var oldEnabled = this.content.premium?.notifications?.daily_notifications;
     var newEnabled = proposed.premium?.notifications?.daily_notifications;
@@ -69,13 +76,6 @@ export class UserModel extends RemoteObject<User> {
   private checkTimezoneChange(proposed: User) {
     if (this.content.timezone && proposed.timezone !== this.content.timezone) {
       notificationManager.handleUserTzChange(proposed, this.content.timezone);
-    }
-  }
-
-  protected enforceRequestedBySelf(error_message: string, logger_message?: string) {
-    if (!this.requestedBySelf) {
-      this.logger.error(logger_message || error_message);
-      throw new Error(error_message);
     }
   }
 }

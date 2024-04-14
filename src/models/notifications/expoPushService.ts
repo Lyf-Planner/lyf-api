@@ -1,4 +1,5 @@
 import { Expo, ExpoPushMessage } from 'expo-server-sdk';
+
 import { Logger } from '../../utils/logging';
 
 export class ExpoPushService {
@@ -13,7 +14,7 @@ export class ExpoPushService {
     for (var message of messages) {
       // Each push token looks like ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]
       // Check that all your push tokens appear to be valid Expo push tokens
-      for (let token of message.to) {
+      for (const token of message.to) {
         if (!Expo.isExpoPushToken(token)) {
           this.logger.error(
             `Push token ${token} is not a valid Expo push token`
@@ -22,12 +23,12 @@ export class ExpoPushService {
         }
       }
 
-      let chunks = this.expo.chunkPushNotifications(messages);
-      let tickets = [];
+      const chunks = this.expo.chunkPushNotifications(messages);
+      const tickets = [];
 
-      for (let chunk of chunks) {
+      for (const chunk of chunks) {
         try {
-          let ticketChunk = await this.expo.sendPushNotificationsAsync(chunk);
+          const ticketChunk = await this.expo.sendPushNotificationsAsync(chunk);
           this.logger.info(
             `Sent message and received ticket ${JSON.stringify(ticketChunk)}`
           );

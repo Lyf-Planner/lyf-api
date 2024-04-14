@@ -1,12 +1,13 @@
-import { ItemHandlers } from '../handlers/itemHandlers';
-import { nSecondLimiter } from '../utils';
 import express from 'express';
+
+import { ItemHandlers } from '../handlers/itemHandlers';
 import { validate } from '../middleware/validationMiddleware';
+import { nSecondLimiter } from '../utils';
 import {
   createItemValidator,
   deleteItemValidator,
-  getItemValidator,
   getItemsValidator,
+  getItemValidator,
   updateItemSocialValidator,
   updateItemValidator
 } from '../validators/itemValidators';

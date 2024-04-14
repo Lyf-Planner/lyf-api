@@ -1,4 +1,4 @@
-import { ID, DbObject } from './abstract';
+import { DbObject, ID } from './abstract';
 import { ItemDbObject } from './items';
 import { UserDbObject } from './user';
 
@@ -18,12 +18,12 @@ export interface ItemUserRelationshipDbObject extends DbObject {
   sorting_rank: string; // string which indicates order lexicographically
 
   // sorting_rank and user_id are composite unique!
-};
+}
 
 export interface ItemUserRelationship extends ItemUserRelationshipDbObject {
   item: ItemDbObject;
   user: UserDbObject;
-};
+}
 
 export enum ItemRelationshipStatus {
   Owner = 'Owner',

@@ -1,4 +1,4 @@
-import { ID, Identifiable } from './abstract';
+import { Identifiable, ID } from './abstract';
 import { ListItem } from './list';
 
 export type Timetable = {
