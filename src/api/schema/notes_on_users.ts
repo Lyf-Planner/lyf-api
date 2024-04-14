@@ -2,11 +2,12 @@ import { DbObject, ID } from './abstract';
 import { NoteDbObject } from './notes';
 import { UserDbObject } from './user';
 
-export enum NoteRelationshipStatus {
-  Owner = 'Owner',
-  Editor = 'Editor',
-  ReadOnly = 'Read Only'
-}
+// Notes:
+// - primary key: user_id_fk + note_id_fk
+// - foreign key: user_id_fk (users.id)
+// - foreign key: note_id_fk (notes.id)
+// - user_id_fk is indexed
+// - note_id_fk is indexed
 
 export interface NoteUserRelationshipDbObject extends DbObject {
   note_id_fk: ID;
@@ -19,3 +20,9 @@ export interface NoteUserRelationship extends NoteUserRelationshipDbObject {
   note: NoteDbObject;
   user: UserDbObject;
 };
+
+export enum NoteRelationshipStatus {
+  Owner = 'Owner',
+  Editor = 'Editor',
+  ReadOnly = 'Read Only'
+}

@@ -1,6 +1,34 @@
-import { DbObject } from './abstract';
+import { DbObject, ID } from './abstract';
 import { ItemNoteRelationship } from './items_on_notes';
 import { ItemUserRelationshipDbObject } from './items_on_users';
+
+// Notes:
+// - primary key: id
+// - foreign key: template_id (items.id)
+// - title has limit of 80 chars
+// - date is indexed (desc)
+
+export interface ItemDbObject extends DbObject {
+  title: string;
+  type: ItemType;
+  status: ItemStatus;
+  tz: string;
+  date?: string;
+  day?: string;
+  desc?: string;
+  time?: string;
+  end_time?: string;
+  template_id?: ID;
+  url?: string;
+  location?: string;
+  show_in_upcoming?: boolean;
+  notification_mins_before?: number;
+};
+
+export interface Item extends ItemDbObject {
+  notes: ItemNoteRelationship[];
+  users: ItemUserRelationshipDbObject[];
+};
 
 export enum ItemType {
   Event = 'Event',
@@ -14,27 +42,3 @@ export enum ItemStatus {
   InProgress = 'In Progress',
   Done = 'Done'
 }
-
-export interface ItemDbObject extends DbObject {
-  title: string;
-  type: ItemType;
-  status: ItemStatus;
-  tz: string;
-  date?: string;
-  day?: string; // For templates
-  desc?: string;
-  time?: string;
-  end_time?: string;
-  template_id?: string;
-  url?: string;
-  location?: string;
-  show_in_upcoming?: boolean;
-  notification_mins_before?: string;
-};
-
-export interface Item extends ItemDbObject {
-  // Note linking
-  notes: ItemNoteRelationship[];
-  // Access
-  users: ItemUserRelationshipDbObject[];
-};
