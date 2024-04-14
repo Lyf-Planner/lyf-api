@@ -26,7 +26,11 @@
     "nodemon": "^2.0.15",
     "supertest": "^6.3.4",
     "ts-jest": "^29.1.2",
-    "ts-node": "^10.4.0"
+    "ts-node": "^10.4.0",
+    "tslint": "^5.7.0",
+    "tslint-config-prettier": "^1.10.0",
+    "tslint-eslint-rules": "^5.4.0",
+    "tslint-import-group-ordering": "^2.1.2"
   },
   "dependencies": {
     "agenda": "^5.0.0",
