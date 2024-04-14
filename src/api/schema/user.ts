@@ -16,6 +16,7 @@ export interface UserDbObject extends DbObject {
   private: boolean;
   tz: string;
   expo_tokens: string[];
+  first_day?: string;
   display_name?: string;
   pfp_url?: string;
   daily_notifications?: boolean;
