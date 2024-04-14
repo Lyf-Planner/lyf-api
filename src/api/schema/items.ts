@@ -13,10 +13,10 @@ export interface ItemDbObject extends DbObject {
   type: ItemType;
   status: ItemStatus;
   tz: string;
-  date?: string;
+  date?: string; // yyyy-mm-dd
   day?: string;
   desc?: string;
-  time?: string;
+  time?: string; // hh:mm
   end_time?: string;
   template_id?: ID;
   url?: string;

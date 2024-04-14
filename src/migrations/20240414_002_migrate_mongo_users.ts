@@ -9,7 +9,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   const mongoUsers: MongoUser[] = await usersCollection.findAll();
 
   for (const user of mongoUsers) {
-    await db.insertInto('user').values(transformToPgUser(user)).execute();
+    await db.insertInto('users').values(transformToPgUser(user)).execute();
   }
 }
 
