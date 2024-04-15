@@ -1,4 +1,4 @@
-import { DbObject, ID } from './abstract';
+import { DbObject, ID, Timestamps } from './abstract';
 import { ItemDbObject } from './items';
 import { UserDbObject } from './user';
 
@@ -10,7 +10,7 @@ import { UserDbObject } from './user';
 // - note_id_fk is indexed
 // - user_id_fk + sorting_rank is unique
 
-export interface ItemUserRelationshipDbObject extends DbObject {
+export interface ItemUserRelationshipDbObject extends Timestamps {
   item_id_fk: ID;
   user_id_fk: ID;
   invite_pending: boolean;

@@ -1,4 +1,4 @@
-import { DbObject, ID } from './abstract';
+import { DbObject, ID, Timestamps } from './abstract';
 import { User } from './user';
 
 // Notes:
@@ -11,7 +11,7 @@ import { User } from './user';
 // - user1_id_fk + user2_id_fk has unique constraint
 // - user1_id_fk < user2_id_fk constraint
 
-export interface UserFriendshipDbObject extends DbObject {
+export interface UserFriendshipDbObject extends Timestamps {
   // We must enforce the constraint user1_id < user2_id, for simple searching and duplicate prevention
   // The two user ids form a composite primary key
   user1_id_fk: ID;

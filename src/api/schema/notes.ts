@@ -9,7 +9,7 @@ import { NoteUserRelationshipDbObject } from './notes_on_users';
 export interface NoteDbObject extends DbObject {
   title: string;
   type: NoteType;
-  content: string | null;
+  content?: string;
 }
 
 export type Note = NoteDbObject & {

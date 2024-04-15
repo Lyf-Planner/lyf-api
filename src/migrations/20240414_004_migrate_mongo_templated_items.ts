@@ -38,8 +38,10 @@ const insertAsPgItem = async (item: MongoItem, db: Kysely<any>) => {
     }
   }
 
-  const pgItem: Omit<PostgresItem, keyof DbObject> & Identifiable = {
+  const pgItem: PostgresItem = {
     id: item.id as any,
+    created: item.created,
+    last_updated: item.last_updated,
     title: item.title,
     type: item.type === ListItemTypes.Item ? ItemType.Task : (item.type as any),
     status: item.status,

@@ -1,8 +1,8 @@
 import { Kysely } from 'kysely';
 
 import { User as MongoUser } from '../api/mongo_schema/user';
-import { DbObject } from '../api/schema/abstract';
 import { UserDbObject as PostgresUser } from '../api/schema/user';
+import {v4 as uuid } from 'uuid';
 import mongoDb from '../repository/db/mongo/mongoDb';
 
 export async function up(db: Kysely<any>): Promise<void> {
@@ -19,8 +19,11 @@ export async function down(db: Kysely<any>): Promise<void> {
 }
 
 const transformToPgUser = (user: MongoUser) => {
-  const pgUser: Omit<PostgresUser, keyof DbObject> = {
+  const pgUser: PostgresUser = {
+    id: uuid() as any,
     user_id: user.id,
+    created: user.created,
+    last_updated: user.last_updated,
     pass_hash: user.pass_hash,
     expo_tokens: user.expo_tokens || [],
     private: false,

@@ -27,22 +27,16 @@ export async function up(db: Kysely<any>): Promise<void> {
 
 export async function down(db: Kysely<any>): Promise<void> {
   await db.deleteFrom('items').execute();
-  await db.schema
-    .alterTable('items')
-    .alterColumn('time', (col) => col.setDataType('time'))
-    .execute();
-  await db.schema
-    .alterTable('items')
-    .alterColumn('end_time', (col) => col.setDataType('time'))
-    .execute();
 }
 
 const insertAsPgItem = async (item: MongoItem, db: Kysely<any>) => {
   const owner = await mongoDb.usersCollection().getById(item.permitted_users[0].user_id, false);
   const intendedTimezone = owner?.timezone || 'Australia/Melbourne';
 
-  const pgItem: Omit<PostgresItem, keyof DbObject> & Identifiable = {
+  const pgItem: PostgresItem = {
     id: item.id as any,
+    created: item.created,
+    last_updated: item.last_updated,
     title: item.title,
     type: item.type === ListItemTypes.Item ? ItemType.Task : (item.type as any),
     status: item.status,

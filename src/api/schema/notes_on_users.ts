@@ -1,4 +1,4 @@
-import { DbObject, ID } from './abstract';
+import { DbObject, ID, Timestamps } from './abstract';
 import { NoteDbObject } from './notes';
 import { UserDbObject } from './user';
 
@@ -9,7 +9,7 @@ import { UserDbObject } from './user';
 // - user_id_fk is indexed
 // - note_id_fk is indexed
 
-export interface NoteUserRelationshipDbObject extends DbObject {
+export interface NoteUserRelationshipDbObject extends Timestamps {
   note_id_fk: ID;
   user_id_fk: ID;
   invite_pending: boolean;
