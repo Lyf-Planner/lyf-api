@@ -9,14 +9,13 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('user_id_fk', 'uuid', (col) => col.notNull().references('users.id'))
     .addColumn('invite_pending', 'boolean', (col) => col.notNull())
     .addColumn('status', 'text', (col) => col.notNull())
-    .addColumn('sorting_rank', 'text', (col) => col.notNull())
+    .addColumn('sorting_rank', 'decimal', (col) => col.notNull())
     .addPrimaryKeyConstraint('pk_item_user', ['item_id_fk', 'user_id_fk'])
-    .addUniqueConstraint('sorting_per_user', ['user_id_fk', 'sorting_rank'])
     .addCheckConstraint('check_status', sql`status IN (\'Owner\', \'Editor\', \'Read Only\')`)
     .execute();
 
   await db.schema.createIndex('user_item_item_id_index').on('items_on_users').column('item_id_fk').execute();
-  await db.schema.createIndex('user_item_user_id_index').on('items_on_users').columns(['user_id_fk', 'sorting_rank']).execute();
+  await db.schema.createIndex('user_item_user_id_index').on('items_on_users').column('user_id_fk').execute();
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
