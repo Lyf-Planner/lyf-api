@@ -1,5 +1,4 @@
 import { Kysely } from 'kysely';
-import { v4 as uuid } from 'uuid';
 import { Note as MongoNote, NoteType as MongoNoteType } from '../api/mongo_schema/notes';
 import { ListItem as MongoItem } from '../api/mongo_schema/list';
 import { ItemNoteRelationshipDbObject } from '../api/schema/items_on_notes';
