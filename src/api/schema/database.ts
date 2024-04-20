@@ -8,10 +8,12 @@ import { UserFriendshipDbObject } from './user_friendships';
 
 export interface Database {
   users: UserDbObject;
-  user_frienships: UserFriendshipDbObject;
+  user_friendships: UserFriendshipDbObject;
   items: ItemDbObject;
   notes: NoteDbObject;
   items_on_notes: ItemNoteRelationshipDbObject;
   items_on_users: ItemUserRelationshipDbObject;
   notes_on_users: NoteUserRelationshipDbObject;
 }
+
+export type DbEntity = Database[keyof Database];

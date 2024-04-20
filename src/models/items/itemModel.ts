@@ -1,7 +1,7 @@
 import { ItemStatus, ListItem } from '../../api/mongo_schema/list';
 import { Permission } from '../../api/mongo_schema/social';
 import { updateItemBody } from '../../controller/validators/itemValidators';
-import db from '../../repository/db/mongo/mongoDb';
+import db from '../../repository/db/mongo/mongo_db';
 import { Logger } from '../../utils/logging';
 import { RestrictedRemoteObject } from '../abstract/restrictedRemoteObject';
 import notificationManager from '../notifications/notificationManager';

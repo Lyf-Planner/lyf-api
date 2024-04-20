@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 import { ItemStatus, ListItem, ListItemTypes } from '../../api/mongo_schema/list';
 import { DaysOfWeek } from '../../api/mongo_schema/timetable';
 import { User } from '../../api/mongo_schema/user';
-import mongoDb from '../../repository/db/mongo/mongoDb';
+import mongoDb from '../../repository/db/mongo/mongo_db';
 import { formatDateData, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { pluralisedQuantity } from '../../utils/text';

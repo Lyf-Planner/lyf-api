@@ -9,10 +9,12 @@ import { NoteDbObject } from './notes';
 // - user_id_fk is indexed
 // - note_id_fk is indexed
 
-export interface ItemNoteRelationshipDbObject extends Timestamps {
+export interface ItemNotePrimaryKey {
   item_id_fk: ID;
   note_id_fk: ID;
 }
+
+export interface ItemNoteRelationshipDbObject extends ItemNotePrimaryKey, Timestamps {}
 
 export interface ItemNoteRelationship extends ItemNoteRelationshipDbObject {
   item: ItemDbObject;

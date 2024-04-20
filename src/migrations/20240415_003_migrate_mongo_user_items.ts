@@ -5,7 +5,7 @@ import { Permission, UserAccess } from '../api/mongo_schema/social';
 import { User as MongoUser } from '../api/mongo_schema/user';
 import { ItemRelationshipStatus, ItemUserRelationshipDbObject } from '../api/schema/items_on_users';
 import { UserDbObject } from '../api/schema/user';
-import mongoDb from '../repository/db/mongo/mongoDb';
+import mongoDb from '../repository/db/mongo/mongo_db';
 
 export async function up(db: Kysely<any>): Promise<void> {
   const itemsCollection = mongoDb.itemsCollection();

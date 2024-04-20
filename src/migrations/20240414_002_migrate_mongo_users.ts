@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 
 import { User as MongoUser } from '../api/mongo_schema/user';
 import { UserDbObject as PostgresUser } from '../api/schema/user';
-import mongoDb from '../repository/db/mongo/mongoDb';
+import mongoDb from '../repository/db/mongo/mongo_db';
 
 export async function up(db: Kysely<any>): Promise<void> {
   const usersCollection = mongoDb.usersCollection();

@@ -4,7 +4,7 @@ import { User as MongoUser } from '../api/mongo_schema/user';
 import { ID, Timestamps } from '../api/schema/abstract';
 import { UserDbObject } from '../api/schema/user';
 import { UserFriendshipDbObject, UserFriendshipStatus } from '../api/schema/user_friendships';
-import mongoDb from '../repository/db/mongo/mongoDb';
+import mongoDb from '../repository/db/mongo/mongo_db';
 
 interface TempRelationship {
   user_id: ID;

@@ -3,7 +3,7 @@ import { Kysely } from 'kysely';
 import { ListItem as MongoItem, ListItemTypes } from '../api/mongo_schema/list';
 import { DbObject, Identifiable } from '../api/schema/abstract';
 import { ItemDbObject as PostgresItem, ItemType } from '../api/schema/items';
-import mongoDb from '../repository/db/mongo/mongoDb';
+import mongoDb from '../repository/db/mongo/mongo_db';
 
 export async function up(db: Kysely<any>): Promise<void> {
   const itemsCollection = mongoDb.itemsCollection();

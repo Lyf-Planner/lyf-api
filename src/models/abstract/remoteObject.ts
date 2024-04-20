@@ -1,5 +1,5 @@
 import { DBObject, ID } from '../../api/mongo_schema/abstract';
-import { Collection } from '../../repository/db/mongo/mongoCollection';
+import { Collection } from '../../repository/db/mongo/mongo_collection';
 
 export class RemoteObject<T extends DBObject> {
   protected id: ID;

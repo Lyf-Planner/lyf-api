@@ -1,6 +1,6 @@
 import { ID, Time } from '../../api/mongo_schema/abstract';
 import { User, UserDetails } from '../../api/mongo_schema/user';
-import db from '../../repository/db/mongo/mongoDb';
+import db from '../../repository/db/mongo/mongo_db';
 import authUtils from '../../utils/authUtils';
 import { Logger } from '../../utils/logging';
 import { ItemOperations } from '../items/ItemOperations';

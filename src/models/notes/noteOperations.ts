@@ -1,6 +1,6 @@
 import { ID } from '../../api/mongo_schema/abstract';
 import { Note } from '../../api/mongo_schema/notes';
-import db from '../../repository/db/mongo/mongoDb';
+import db from '../../repository/db/mongo/mongo_db';
 import { Logger } from '../../utils/logging';
 import { NoteModel } from './noteModel';
 

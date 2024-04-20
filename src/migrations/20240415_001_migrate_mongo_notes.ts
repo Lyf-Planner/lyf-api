@@ -4,7 +4,7 @@ import { ListItem as MongoItem, ListItemTypes } from '../api/mongo_schema/list';
 import { Note as MongoNote, NoteType as MongoNoteType } from '../api/mongo_schema/notes';
 import { ItemDbObject as PostgresItem, ItemStatus, ItemType } from '../api/schema/items';
 import { NoteDbObject as PostgresNote, NoteType as PgNoteType } from '../api/schema/notes';
-import mongoDb from '../repository/db/mongo/mongoDb';
+import mongoDb from '../repository/db/mongo/mongo_db';
 
 export async function up(db: Kysely<any>): Promise<void> {
   const notesCollection = mongoDb.notesCollection();
@@ -13,9 +13,9 @@ export async function up(db: Kysely<any>): Promise<void> {
   for (const note of mongoNotes) {
     // Upload all it's items first
     if (note.type === MongoNoteType.List) {
-        for (const item of note.content as MongoItem[]) {
-            await insertAsPgItem(item, db);
-        }
+      for (const item of note.content as MongoItem[]) {
+        await insertAsPgItem(item, db);
+      }
     }
 
     await insertAsPgNote(note, db);
@@ -35,7 +35,7 @@ const insertAsPgItem = async (item: MongoItem, db: Kysely<any>) => {
     created: item.created,
     last_updated: item.last_updated,
     title: item.title,
-    type: item.type === ListItemTypes.Item ? ItemType.Task : (item.type as any || ItemType.Task),
+    type: item.type === ListItemTypes.Item ? ItemType.Task : (item.type as any) || ItemType.Task,
     status: item.status || ItemStatus.Upcoming,
     tz: intendedTimezone,
     date: item.date, // yyyy-mm-dd
@@ -54,14 +54,14 @@ const insertAsPgItem = async (item: MongoItem, db: Kysely<any>) => {
 };
 
 const insertAsPgNote = async (note: MongoNote, db: Kysely<any>) => {
-    const pgNote: PostgresNote = {
-      id: note.id as any,
-      created: note.created,
-      last_updated: note.last_updated,
-      title: note.title,
-      type: note.type === MongoNoteType.List ? PgNoteType.ListOnly : PgNoteType.NoteOnly as any,
-      content: note.type === MongoNoteType.Text ? note.content as string : undefined
-    };
-
-    await db.insertInto('notes').values(pgNote).execute();
+  const pgNote: PostgresNote = {
+    id: note.id as any,
+    created: note.created,
+    last_updated: note.last_updated,
+    title: note.title,
+    type: note.type === MongoNoteType.List ? PgNoteType.ListOnly : (PgNoteType.NoteOnly as any),
+    content: note.type === MongoNoteType.Text ? (note.content as string) : undefined
   };
+
+  await db.insertInto('notes').values(pgNote).execute();
+};

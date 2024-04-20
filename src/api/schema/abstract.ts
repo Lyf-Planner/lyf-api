@@ -1,7 +1,5 @@
-import { Generated } from 'kysely';
-
 // IDs are numbers from postgres uuid generator (under the Kysely hood)
-export type ID = Generated<string>;
+export type ID = string;
 
 export interface Identifiable {
   id: ID;

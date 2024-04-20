@@ -10,9 +10,9 @@ import { UserEndpoints } from './controller/endpoints/userEndpoints';
 import { authoriseHeader } from './controller/middleware/authMiddleware';
 import env from './envManager';
 import notificationManager from './models/notifications/notificationManager';
-import mongoDb from './repository/db/mongo/mongoDb';
-import { migrateToLatest } from './repository/db/pg/migrationManager';
-import postgresDb from './repository/db/pg/postgresDb';
+import mongoDb from './repository/db/mongo/mongo_db';
+import { migrateToLatest } from './repository/db/pg/migration_manager';
+import postgresDb from './repository/db/pg/postgres_db';
 import { Logger, LoggingLevel } from './utils/logging';
 
 export const server = express();

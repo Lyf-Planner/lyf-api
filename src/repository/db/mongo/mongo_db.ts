@@ -5,7 +5,7 @@ import { Note } from '../../../api/mongo_schema/notes';
 import { User } from '../../../api/mongo_schema/user';
 import env from '../../../envManager';
 import { Logger } from '../../../utils/logging';
-import { Collection } from './mongoCollection';
+import { Collection } from './mongo_collection';
 
 // Note:
 // Mongo used to be the main database, but that is now Postgres

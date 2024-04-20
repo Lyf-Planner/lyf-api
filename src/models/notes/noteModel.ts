@@ -1,7 +1,7 @@
 import { Note } from '../../api/mongo_schema/notes';
 import { Permission } from '../../api/mongo_schema/social';
 import { updateNoteBody } from '../../controller/validators/noteValidators';
-import db from '../../repository/db/mongo/mongoDb';
+import db from '../../repository/db/mongo/mongo_db';
 import { Logger } from '../../utils/logging';
 import { RestrictedRemoteObject } from '../abstract/restrictedRemoteObject';
 

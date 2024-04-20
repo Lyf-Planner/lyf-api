@@ -9,9 +9,12 @@ import { UserDbObject } from './user';
 // - user_id_fk is indexed
 // - note_id_fk is indexed
 
-export interface ItemUserRelationshipDbObject extends Timestamps {
+export interface ItemUserPrimaryKey {
   item_id_fk: ID;
   user_id_fk: ID;
+}
+
+export interface ItemUserRelationshipDbObject extends ItemUserPrimaryKey, Timestamps {
   invite_pending: boolean;
   status: ItemRelationshipStatus;
   sorting_rank: number;
