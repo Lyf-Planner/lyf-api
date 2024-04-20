@@ -58,8 +58,7 @@ export class MongoDatabase {
   private initialisedGateway(returnObject: any) {
     if (!this.connected) {
       this.logger.error('Waiting for DB to initialise (connecting...)');
-    }
-    else { return returnObject; }
+    } else { return returnObject; }
   }
 
   private setClient(connectionUrl?: string) {

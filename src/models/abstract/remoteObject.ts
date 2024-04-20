@@ -5,13 +5,13 @@ export class RemoteObject<T extends DBObject> {
   protected id: ID;
   protected collectionRef: Collection<T>;
   protected content: T;
-  protected from_db: boolean;
+  protected fromDb: boolean;
 
   constructor(collection: any, content: T, from_db: boolean = false) {
     this.collectionRef = collection;
     this.content = content;
     this.id = content.id;
-    this.from_db = from_db;
+    this.fromDb = from_db;
   }
 
   public getId() {
@@ -24,7 +24,7 @@ export class RemoteObject<T extends DBObject> {
 
   public async deleteFromDb(): Promise<void> {
     await this.collectionRef.delete(this.content.id);
-    this.from_db = false;
+    this.fromDb = false;
   }
 
   public getContent(): T {
@@ -36,6 +36,6 @@ export class RemoteObject<T extends DBObject> {
   }
 
   public isFromDb(): boolean {
-    return this.from_db;
+    return this.fromDb;
   }
 }

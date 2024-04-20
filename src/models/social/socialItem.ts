@@ -82,8 +82,8 @@ export class SocialItem extends ItemModel {
     const user_id = user.getId();
 
     // Requested_by must match user or have owner permission
-    const requestor_perm = this.getUserPermission(this.requested_by);
-    if (requestor_perm !== Permission.Owner && this.requested_by !== user_id) {
+    const requestor_perm = this.getUserPermission(this.requestedBy);
+    if (requestor_perm !== Permission.Owner && this.requestedBy !== user_id) {
       throw new Error('You must be the Owner to kick another user!');
     }
 
@@ -94,7 +94,7 @@ export class SocialItem extends ItemModel {
   }
 
   public removeInvite(user: SocialUser) {
-    const requestor_perm = this.getUserPermission(this.requested_by);
+    const requestor_perm = this.getUserPermission(this.requestedBy);
     if (requestor_perm !== Permission.Owner) {
       throw new Error('You must be the Owner to cancel an invite!');
     }

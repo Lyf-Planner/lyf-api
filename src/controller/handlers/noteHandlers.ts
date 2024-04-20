@@ -8,25 +8,21 @@ import { Logger } from '../../utils/logging';
 import { getMiddlewareVars } from '../utils';
 
 export class NoteHandlers {
-  private logger = Logger.of(NoteHandlers);
-
   protected async createNote(req: Request, res: Response) {
-    var noteInput = req.body as Note;
-    var user_id = getMiddlewareVars(res).user_id;
+    const noteInput = req.body as Note;
+    const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Creating note ${noteInput.title} from user ${user_id}`);
 
     // Instantiate
-    var model = await NoteOperations.createNew(noteInput, user_id, true);
+    const model = await NoteOperations.createNew(noteInput, user_id, true);
 
     res.status(201).json(model.getContent()).end();
   }
 
   protected async updateNote(req: Request, res: Response) {
-    var note = req.body as Note;
-    var user_id = getMiddlewareVars(res).user_id;
-
-    var remoteNote: NoteModel;
+    const note = req.body as Note;
+    const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(
       `Updating note ${note.title} (${note.id}) from user ${user_id}`
@@ -35,8 +31,9 @@ export class NoteHandlers {
     // Authorisation checks
     try {
       // These fns will check user is permitted on the note and has Permission > Viewer
-      remoteNote = await NoteOperations.retrieveForUser(note.id, user_id);
+      const remoteNote = await NoteOperations.retrieveForUser(note.id, user_id);
       await remoteNote.safeUpdate(note, user_id);
+
       res.status(200).json(remoteNote.export()).end();
     } catch (err) {
       logger.error(`User ${user_id} did not safely update note ${note.id}`);
@@ -45,19 +42,18 @@ export class NoteHandlers {
   }
 
   protected async deleteNote(req: Request, res: Response) {
-    var { note_id } = req.query;
-    var user_id = getMiddlewareVars(res).user_id;
+    const { note_id } = req.query;
+    const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Deleting note ${note_id} as requested by ${user_id}`);
 
     // Authorisation checks
-    var note: NoteModel;
     try {
-      var note = await NoteOperations.retrieveForUser(
+      const note = await NoteOperations.retrieveForUser(
         note_id as string,
         user_id
       );
-      var perm = note.requestorPermission();
+      const perm = note.requestorPermission();
       if (!perm || perm !== Permission.Owner) {
         throw new Error('Notes can only be deleted by their owner/creator');
       }
@@ -74,15 +70,14 @@ export class NoteHandlers {
   }
 
   protected async getNote(req: Request, res: Response) {
-    var { note_id } = req.body;
-    var user_id = getMiddlewareVars(res).user_id;
+    const { note_id } = req.body;
+    const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Retreiving note ${note_id} for user ${user_id}`);
 
     // Authorisation checks
-    var note: NoteModel;
     try {
-      note = await NoteOperations.retrieveForUser(note_id, user_id);
+      const note = await NoteOperations.retrieveForUser(note_id, user_id);
       res.status(200).json(note!.getContent()).end();
     } catch (err) {
       logger.error(
@@ -93,13 +88,13 @@ export class NoteHandlers {
   }
 
   protected async getNotes(req: Request, res: Response) {
-    var { note_ids } = req.body;
-    var user_id = getMiddlewareVars(res).user_id;
+    const { note_ids } = req.body;
+    const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Retreiving ${note_ids.length} notes for user ${user_id}`);
 
     // No auth checks - automatically excludes those without perms
-    var items = await NoteOperations.getRawUserNotes(note_ids, user_id, true);
+    const items = await NoteOperations.getRawUserNotes(note_ids, user_id, true);
     logger.debug(`Got ${items.length} notes for user`);
 
     res.status(200).json(items!).end();

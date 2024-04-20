@@ -1,16 +1,17 @@
 import { Kysely } from 'kysely';
+
 import { Note as MongoNote } from '../api/mongo_schema/notes';
 import { User as MongoUser } from '../api/mongo_schema/user';
+import { NoteRelationshipStatus, NoteUserRelationshipDbObject } from '../api/schema/notes_on_users';
 import { UserDbObject } from '../api/schema/user';
 import mongoDb from '../repository/db/mongo/mongoDb';
-import { NoteRelationshipStatus, NoteUserRelationshipDbObject } from '../api/schema/notes_on_users';
 
 export async function up(db: Kysely<any>): Promise<void> {
   const usersCollection = mongoDb.usersCollection();
   const mongoUsers: MongoUser[] = await usersCollection.findAll();
 
   for (const user of mongoUsers) {
-    const notes = user.notes.items
+    const notes = user.notes.items;
     // Invited items haven't been used yet - no need to account for
 
     for (const noteIdObject of notes) {
@@ -19,7 +20,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         const note = await mongoDb.notesCollection().getById(id, false);
 
         if (note) {
-            await insertAsPgUserNote(user, note, db);;
+            await insertAsPgUserNote(user, note, db);
         }
       } catch {
         continue;
@@ -37,21 +38,21 @@ const insertAsPgUserNote = async (
   note: MongoNote,
   db: Kysely<any>
 ) => {
-    const userNewId = await getUserNewId(user.id, db)
+    const userNewId = await getUserNewId(user.id, db);
     if (!userNewId) {
-        throw new Error('Previous migrations failed to upload users!')
+        throw new Error('Previous migrations failed to upload users!');
     }
 
-  const pgUserNote: NoteUserRelationshipDbObject = {
+    const pgUserNote: NoteUserRelationshipDbObject = {
     created: new Date(),
     last_updated: new Date(),
     note_id_fk: note.id as any,
     user_id_fk: userNewId as any,
     invite_pending: false,
-    status: NoteRelationshipStatus.Owner,
+    status: NoteRelationshipStatus.Owner
   };
 
-  await db.insertInto('notes_on_users').values(pgUserNote).execute();
+    await db.insertInto('notes_on_users').values(pgUserNote).execute();
 };
 
 const getUserNewId = async (user_id: string, db: Kysely<any>) => {
@@ -63,10 +64,10 @@ const getUserNewId = async (user_id: string, db: Kysely<any>) => {
 
   const pgUser = result[0] as UserDbObject;
   if (!pgUser.id) {
-    console.log("Couldnt migrate user", user_id, "with pg entry", JSON.stringify(pgUser))
+    console.log('Couldnt migrate user', user_id, 'with pg entry', JSON.stringify(pgUser));
     throw new Error('Wtf');
   }
 
-  console.log('got user', user_id, 'new id', pgUser.id)
+  console.log('got user', user_id, 'new id', pgUser.id);
   return pgUser.id;
 };

@@ -1,8 +1,8 @@
 import { Kysely } from 'kysely';
+import { v4 as uuid } from 'uuid';
 
 import { User as MongoUser } from '../api/mongo_schema/user';
 import { UserDbObject as PostgresUser } from '../api/schema/user';
-import {v4 as uuid } from 'uuid';
 import mongoDb from '../repository/db/mongo/mongoDb';
 
 export async function up(db: Kysely<any>): Promise<void> {
@@ -37,7 +37,7 @@ const transformToPgUser = (user: MongoUser) => {
     event_notifications_enabled: user.premium?.notifications?.event_notifications_enabled,
     event_notification_minutes_before: user.premium?.notifications
       ?.event_notification_minutes_before
-      ? parseInt(user.premium?.notifications?.event_notification_minutes_before)
+      ? parseInt(user.premium?.notifications?.event_notification_minutes_before, 10)
       : undefined
     // Since 'id', 'created', and 'last_updated' are auto-generated, they are omitted
   };

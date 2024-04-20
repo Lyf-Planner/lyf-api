@@ -4,11 +4,13 @@
   "description": "Lyf API Server",
   "main": "index.js",
   "scripts": {
-    "test": "jest --silent",
     "build": "tsc",
+    "dev:server": "nodemon --watch './**/*.ts' --exec 'ts-node' src/index.ts",
+    "lint": "npx tslint -p tsconfig.json -c tslint.json && npx tsc",
+    "lint:fix": "npx tslint -p tsconfig.json -c tslint.json --fix && npx tsc",
     "serve": "npm run build && npm run start",
     "start": "node ./build/src/index.js",
-    "dev:server": "nodemon --watch './**/*.ts' --exec 'ts-node' src/index.ts"
+    "test": "jest --silent"
   },
   "author": "Ethan Husband",
   "license": "ISC",

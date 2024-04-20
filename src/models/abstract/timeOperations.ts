@@ -1,8 +1,9 @@
 import { Time } from '../../api/mongo_schema/abstract';
+import { Timestamps } from '../../api/schema/abstract';
 import { Logger } from '../../utils/logging';
 
 export class TimeOperations {
-  public static timeFieldsOnly(object: any): Time {
+  public static timeFieldsOnly(object: Timestamps): Time {
     return {
       created: object.created,
       last_updated: object.last_updated

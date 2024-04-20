@@ -41,8 +41,7 @@ export class SocialItemNotifications {
       message.body += ` at ${TwentyFourHourToAMPM(
         itemContent.time
       )} on ${formatDate(itemContent.date)}`;
-    }
-    else if (itemContent.date) {
+    } else if (itemContent.date) {
       message.body += ` on ${formatDate(itemContent.date)}`;
  }
 

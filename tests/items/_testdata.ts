@@ -1,4 +1,4 @@
-import { ItemType, ItemStatus } from '../../src/api/schema/items';
+import { ItemStatus, ItemType } from '../../src/api/schema/items';
 import { ItemRelationshipStatus } from '../../src/api/schema/items_on_users';
 import { formatDateData, getDayFromDate } from '../../src/utils/dates';
 

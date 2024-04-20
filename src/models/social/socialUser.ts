@@ -196,8 +196,7 @@ export class SocialUser extends UserModel {
     if (!item.template_id) { return; }
     const myItemIds = this.content.timetable.items.map((x) => x.id);
     const onRoutine = myItemIds.includes(item.template_id);
-    if (!onRoutine) { return; }
-    else {
+    if (!onRoutine) { return; } else {
       this.logger.info(
         `Adding instantiation of routine ${item.title} (${item.template_id}) to user ${this.id}`
       );

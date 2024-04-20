@@ -1,7 +1,8 @@
+import request from 'supertest';
+
+import { server, serverInitialised } from '../../src/index';
 import { authoriseTestUser } from '../users/utils';
 import { testDatedItemCreate, testDatedItemExport } from './_testdata';
-import { server, serverInitialised } from '../../src/index';
-import request from 'supertest';
 
 describe('Test Item Endpoints', () => {
   let authToken: string = '';

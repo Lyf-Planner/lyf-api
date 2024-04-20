@@ -1,10 +1,10 @@
 import { Kysely } from 'kysely';
-import { ListItem as MongoItem } from '../api/mongo_schema/list';
-import { User as MongoUser } from '../api/mongo_schema/user';
-import { ItemUserRelationshipDbObject, ItemRelationshipStatus } from '../api/schema/items_on_users';
-import { UserDbObject } from '../api/schema/user';
-import { Permission, UserAccess } from '../api/mongo_schema/social';
 
+import { ListItem as MongoItem } from '../api/mongo_schema/list';
+import { Permission, UserAccess } from '../api/mongo_schema/social';
+import { User as MongoUser } from '../api/mongo_schema/user';
+import { ItemRelationshipStatus, ItemUserRelationshipDbObject } from '../api/schema/items_on_users';
+import { UserDbObject } from '../api/schema/user';
 import mongoDb from '../repository/db/mongo/mongoDb';
 
 export async function up(db: Kysely<any>): Promise<void> {
@@ -46,20 +46,20 @@ const insertAsPgUserItem = async (
   item: MongoItem,
   db: Kysely<any>
 ) => {
-  const newUserId = await getUserNewId(user_access.user_id, db)
-  const oldUser = await mongoDb.usersCollection().getById(user_access.user_id)
-  const oldUserTargetArray = user_access.permissions === Permission.Invited ? oldUser?.timetable.invited_items?.map((x) => ({ id: x, show_in_upcoming: false })) : oldUser?.timetable.items
-  const oldUserRelationshipIndex = oldUserTargetArray ? oldUserTargetArray.findIndex((x) => x.id === item.id) : -1
+  const newUserId = await getUserNewId(user_access.user_id, db);
+  const oldUser = await mongoDb.usersCollection().getById(user_access.user_id);
+  const oldUserTargetArray = user_access.permissions === Permission.Invited ? oldUser?.timetable.invited_items?.map((x) => ({ id: x, show_in_upcoming: false })) : oldUser?.timetable.items;
+  const oldUserRelationshipIndex = oldUserTargetArray ? oldUserTargetArray.findIndex((x) => x.id === item.id) : -1;
 
   let show_in_upcoming = false;
   let sorting_rank = 0;
   if (oldUserRelationshipIndex !== -1) {
-    show_in_upcoming = Boolean(oldUserTargetArray![oldUserRelationshipIndex].show_in_upcoming)
-    sorting_rank = oldUserRelationshipIndex
+    show_in_upcoming = Boolean(oldUserTargetArray![oldUserRelationshipIndex].show_in_upcoming);
+    sorting_rank = oldUserRelationshipIndex;
   }
 
-  const oldUserNotification = item.notifications.find((x) => x.user_id === user_access.user_id)
-  const notification_mins_before = oldUserNotification ? parseInt(oldUserNotification.minutes_before) : undefined
+  const oldUserNotification = item.notifications.find((x) => x.user_id === user_access.user_id);
+  const notification_mins_before = oldUserNotification ? parseInt(oldUserNotification.minutes_before) : undefined;
 
   const pgUserItem: ItemUserRelationshipDbObject = {
     created: new Date(),
@@ -85,10 +85,10 @@ const getUserNewId = async (user_id: string, db: Kysely<any>) => {
 
   const pgUser = result[0] as UserDbObject;
   if (!pgUser.id) {
-    console.log("Couldnt migrate user", user_id, "with pg entry", JSON.stringify(pgUser))
+    console.log('Couldnt migrate user', user_id, 'with pg entry', JSON.stringify(pgUser));
     throw new Error('Wtf');
   }
 
-  console.log('got user', user_id, 'new id', pgUser.id)
+  console.log('got user', user_id, 'new id', pgUser.id);
   return pgUser.id;
 };

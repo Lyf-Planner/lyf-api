@@ -1,8 +1,8 @@
 import { Kysely } from 'kysely';
 
+import { ListItem as MongoItem, ListItemTypes } from '../api/mongo_schema/list';
 import { Note as MongoNote, NoteType as MongoNoteType } from '../api/mongo_schema/notes';
-import { ListItemTypes, ListItem as MongoItem } from '../api/mongo_schema/list';
-import { ItemStatus, ItemType, ItemDbObject as PostgresItem } from '../api/schema/items';
+import { ItemDbObject as PostgresItem, ItemStatus, ItemType } from '../api/schema/items';
 import { NoteDbObject as PostgresNote, NoteType as PgNoteType } from '../api/schema/notes';
 import mongoDb from '../repository/db/mongo/mongoDb';
 
@@ -14,11 +14,11 @@ export async function up(db: Kysely<any>): Promise<void> {
     // Upload all it's items first
     if (note.type === MongoNoteType.List) {
         for (const item of note.content as MongoItem[]) {
-            await insertAsPgItem(item, db)
+            await insertAsPgItem(item, db);
         }
     }
 
-    await insertAsPgNote(note, db)
+    await insertAsPgNote(note, db);
   }
 }
 
@@ -62,6 +62,6 @@ const insertAsPgNote = async (note: MongoNote, db: Kysely<any>) => {
       type: note.type === MongoNoteType.List ? PgNoteType.ListOnly : PgNoteType.NoteOnly as any,
       content: note.type === MongoNoteType.Text ? note.content as string : undefined
     };
-  
+
     await db.insertInto('notes').values(pgNote).execute();
   };

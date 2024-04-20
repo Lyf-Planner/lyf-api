@@ -16,8 +16,7 @@ export class NoteOperations {
 
     var permitted = !checkPermissions || !!note.getUserPermission(user_id);
 
-    if (!permitted) { throw new Error(`User ${user_id} is not permitted to access item ${id}`); }
-    else {
+    if (!permitted) { throw new Error(`User ${user_id} is not permitted to access item ${id}`); } else {
       return note;
     }
   }

@@ -33,19 +33,18 @@ server.get('/', (req: Request, res: Response) => {
   res.send('Lyf API!');
 });
 
-new UserEndpoints(server);
-new ItemEndpoints(server);
-new NoteEndpoints(server);
-
 const PORT = env.port;
 
-server.set(
-  'trust proxy',
-  1 /* number of proxies between user and server (express-rate-limit) */
-);
+server.set('trust proxy', 1 /* number of proxies between user and server (express-rate-limit) */);
 
 export const serverInitialised = new Promise(async (resolve, reject) => {
   try {
+    // Initialise endpoints
+    new UserEndpoints(server);
+    new ItemEndpoints(server);
+    new NoteEndpoints(server);
+
+    // Initialise services
     await mongoDb.init();
     await notificationManager.init();
     await migrateToLatest();

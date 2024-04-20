@@ -19,7 +19,7 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
     this.throwIfReadOnly(perm);
 
     // Checks passed!
-    this.logger.debug(`User ${this.requested_by} safely updated note ${this.id}`);
+    this.logger.debug(`User ${this.requestedBy} safely updated note ${this.id}`);
 
     // Apply changeset
     this.content = { ...this.content, ...proposed };
@@ -34,7 +34,7 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
   // Helpers
   private throwIfReadOnly(perm?: Permission) {
     if (!perm || perm === Permission.Viewer || perm === Permission.Invited) {
-      this.logger.error(`User ${this.requested_by} tried to modify as Viewer on ${this.id}`);
+      this.logger.error(`User ${this.requestedBy} tried to modify as Viewer on ${this.id}`);
       throw new Error('User does not have permission to edit this item');
     }
   }
@@ -45,7 +45,7 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
       var newPerms = JSON.stringify(RestrictedRemoteObject.extractPermissionFields(proposed));
 
       if (newPerms && oldPerms !== newPerms) {
-        this.logger.error(`User ${this.requested_by} tried to modify permissions on ${this.id}`);
+        this.logger.error(`User ${this.requestedBy} tried to modify permissions on ${this.id}`);
         throw new Error('Non-owners cannot modify permissions');
       }
     }

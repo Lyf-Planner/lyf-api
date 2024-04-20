@@ -91,8 +91,7 @@ export class Collection<T extends DBObject> {
 
     if (acceptManyResults) {
       result = result?.map((x: any) => this.exportWithoutUnderscoreId(x));
-    }
-    else { result = this.exportWithoutUnderscoreId(result); }
+    } else { result = this.exportWithoutUnderscoreId(result); }
 
     return acceptManyResults ? (result as T[]) : (result as T);
   }
@@ -133,8 +132,7 @@ export class Collection<T extends DBObject> {
 
   private async checkDuplicateExists(id: ID) {
     var search = await this.collection.findOne({ _id: id });
-    if (!!search) { return true; }
-    else { return false; }
+    if (!!search) { return true; } else { return false; }
   }
 
   // Error handlers
@@ -199,7 +197,7 @@ export class Collection<T extends DBObject> {
   }
 
   private exportWithoutUnderscoreId(object: any) {
-    if (!object) return null;
+    if (!object) { return null; }
     object.id = object._id;
     delete object._id;
     return object;

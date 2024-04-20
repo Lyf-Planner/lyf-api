@@ -17,8 +17,7 @@ export class UserModel extends RemoteObject<User> {
   }
 
   public getUser(asSelf = true): (UserDetails & Time) | User {
-    if (!this.requestedBySelf || !asSelf) { return UserOperations.extractUserDetails(this.content); }
-    else { return this.content; }
+    if (!this.requestedBySelf || !asSelf) { return UserOperations.extractUserDetails(this.content); } else { return this.content; }
   }
 
   public name() {
@@ -28,8 +27,7 @@ export class UserModel extends RemoteObject<User> {
   // Get the user, but hide sensitive fields
   public export() {
     // Needs validator
-    if (!this.requestedBySelf) { return this.getUser(); }
-    else {
+    if (!this.requestedBySelf) { return this.getUser(); } else {
       const { pass_hash, expo_tokens, ...exported } = this.content;
       return exported;
     }

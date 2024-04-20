@@ -18,44 +18,43 @@ import {
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
     // This endpoint is excluded from the auth middleware
-    var { user_id, password } = req.query as loginQuery;
+    const { user_id, password } = req.query as loginQuery;
     logger.debug(`Received login request for user ${user_id}`);
 
-    var userModel;
     try {
-      userModel = await UserOperations.retrieveForUser(
+      const userModel = await UserOperations.retrieveForUser(
         user_id as string,
         user_id as string
       );
+
+      const token = await authUtils.authenticate(
+        userModel.getUser() as User,
+        password as string
+      );
+      if (!token) {
+        res.status(401).end('Incorrect password');
+        return;
+      }
+
+      const exportedData = userModel.export();
+      const payload = { user: exportedData, token };
+
+      res.status(200).json(payload).end();
     } catch (err) {
       res.status(404).end(`User ${user_id} does not exist`);
       return;
     }
-
-    var token = await authUtils.authenticate(
-      userModel.getUser() as User,
-      password as string
-    );
-    if (!token) {
-      res.status(401).end('Incorrect password');
-      return;
-    }
-
-    var exportedData = userModel.export();
-    var payload = { user: exportedData, token };
-
-    res.status(200).json(payload).end();
   }
 
   protected async autoLogin(req: Request, res: Response) {
-    var user_id = getMiddlewareVars(res).user_id;
+    const user_id = getMiddlewareVars(res).user_id;
 
     // The auth middleware has already done all the work here
 
     logger.debug(`Authorized autologin for user ${user_id}`);
 
     try {
-      var userModel = await UserOperations.retrieveForUser(user_id, user_id);
+      const userModel = await UserOperations.retrieveForUser(user_id, user_id);
       res.status(200).json(userModel.export()).end();
     } catch (err) {
       logger.error(err);
@@ -64,15 +63,15 @@ export class UserHandlers {
   }
 
   protected async getUser(req: Request, res: Response) {
-    var { user_id } = req.query as getUserQuery;
-    var requestor_id = getMiddlewareVars(res).user_id;
+    const { user_id } = req.query as getUserQuery;
+    const requestorId = getMiddlewareVars(res).user_id;
 
-    logger.debug(`Received request for user ${user_id} from "${requestor_id}"`);
+    logger.debug(`Received request for user ${user_id} from "${requestorId}"`);
 
     try {
-      var userModel = await UserOperations.retrieveForUser(
+      const userModel = await UserOperations.retrieveForUser(
         user_id as string,
-        requestor_id
+        requestorId
       );
       res.status(200).json(userModel.getUser(false)).end();
     } catch (err) {
@@ -81,28 +80,26 @@ export class UserHandlers {
   }
 
   protected async getUsers(req: Request, res: Response) {
-    var { user_ids } = req.body;
-    var requestor_id = getMiddlewareVars(res).user_id;
+    const { user_ids } = req.body;
+    const requestorId = getMiddlewareVars(res).user_id;
 
     logger.debug(
-      `Received request for user ids ${user_ids} from "${requestor_id}"`
+      `Received request for user ids ${user_ids} from "${requestorId}"`
     );
 
-    var users = await UserOperations.retrieveManyUsers(user_ids);
+    const users = await UserOperations.retrieveManyUsers(user_ids);
     res.status(200).json(users).end();
   }
 
   protected async createUser(req: Request, res: Response) {
     // This endpoint is excluded from the auth middleware
-    var { user_id, password, timezone } = req.body;
+    const { user_id, password, timezone } = req.body;
 
     logger.info(`Received request to create account "${user_id}"`);
-    var token;
-    var user;
 
     try {
-      user = await UserOperations.createNew(user_id, password, true, timezone);
-      token = await authUtils.authenticate(
+      const user = await UserOperations.createNew(user_id, password, true, timezone);
+      const token = await authUtils.authenticate(
         user.getUser() as User,
         password as string
       );
@@ -118,11 +115,11 @@ export class UserHandlers {
   // This endpoint should not permit Premium updates in future
   protected async updateMe(req: Request, res: Response) {
     const user = req.body as updateMeBody;
-    const user_id = getMiddlewareVars(res).user_id;
+    const userId = getMiddlewareVars(res).user_id;
 
     try {
       // The work in terms of data safety is done by the validators
-      var remoteModel = await UserOperations.retrieveForUser(user_id, user_id);
+      const remoteModel = await UserOperations.retrieveForUser(userId, userId);
       await remoteModel.updateSelf(user);
       res.status(200).json(remoteModel.export()).end();
     } catch (err) {
@@ -132,20 +129,18 @@ export class UserHandlers {
   }
 
   protected async deleteMe(req: Request, res: Response) {
-    var { password } = req.body as deleteMeBody;
-    var user_id = getMiddlewareVars(res).user_id;
+    const { password } = req.body as deleteMeBody;
+    const user_id = getMiddlewareVars(res).user_id;
 
     logger.info(`Received self-deletion request from ${user_id}`);
 
     // Authorisation checks
-    var user: UserModel;
-
     try {
-      var user = (await UserOperations.retrieveForUser(
+      const user = (await UserOperations.retrieveForUser(
         user_id,
         user_id
       )) as UserModel;
-      var token = await authUtils.authenticate(
+      const token = await authUtils.authenticate(
         user.getUser() as User,
         password as string
       );
@@ -164,11 +159,11 @@ export class UserHandlers {
   }
 
   protected async updateFriendship(req: Request, res: Response) {
-    var update = req.body as updateFriendshipBody;
-    var from_id = getMiddlewareVars(res).user_id;
+    const update = req.body as updateFriendshipBody;
+    const fromId = getMiddlewareVars(res).user_id;
 
     try {
-      const social = await FriendshipManager.processUpdate(from_id, update);
+      const social = await FriendshipManager.processUpdate(fromId, update);
       res.status(200).json(social).end();
     } catch (err) {
       logger.error(`Returning 400 with message: ${err}`);

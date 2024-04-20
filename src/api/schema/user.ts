@@ -1,4 +1,4 @@
-import { DbObject, ID, Timestamps } from './abstract';
+import { DbObject } from './abstract';
 import { ItemUserRelationshipDbObject } from './items_on_users';
 import { NoteUserRelationshipDbObject } from './notes_on_users';
 import { UserFriendshipDbObject } from './user_friendships';

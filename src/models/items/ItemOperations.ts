@@ -25,8 +25,7 @@ export class ItemOperations {
       : new ItemModel(result as ListItem, true, user_id);
 
     var permitted = !checkPermissions || !!item.getUserPermission(user_id);
-    if (!permitted) { throw new Error(`User ${user_id} is not permitted to access item ${id}`); }
-    else {
+    if (!permitted) { throw new Error(`User ${user_id} is not permitted to access item ${id}`); } else {
       return item;
     }
   }

@@ -56,7 +56,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
     // 3. Handle any status changes
     this.handleStatusChanges({ ...newItem }, fromUser);
 
-    this.logger.debug(`User ${this.requested_by} safely updated item ${this.id}`);
+    this.logger.debug(`User ${this.requestedBy} safely updated item ${this.id}`);
 
     // Apply changeset
     await this.processUpdate(newItem);
@@ -78,7 +78,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   // Helpers
   private throwIfReadOnly(perm?: Permission) {
     if (!perm || perm === Permission.Viewer || perm === Permission.Invited) {
-      this.logger.error(`User ${this.requested_by} tried to modify as Viewer on ${this.id}`);
+      this.logger.error(`User ${this.requestedBy} tried to modify as Viewer on ${this.id}`);
       throw new Error('User does not have permission to edit this item');
     }
   }
@@ -101,7 +101,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
 
     if (!success) {
       this.logger.error(
-        `User ${this.requested_by} tried to modify other users notifications on ${this.id}`
+        `User ${this.requestedBy} tried to modify other users notifications on ${this.id}`
       );
       throw new Error('Users can only update their own notifications');
     }
@@ -110,17 +110,17 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   private handleNotificationChanges(proposed: ListItem) {
     const oldNotif =
       this.content.notifications &&
-      this.content.notifications.find((x) => x.user_id === this.requested_by);
+      this.content.notifications.find((x) => x.user_id === this.requestedBy);
     const newNotif =
-      proposed.notifications && proposed.notifications.find((x) => x.user_id === this.requested_by);
+      proposed.notifications && proposed.notifications.find((x) => x.user_id === this.requestedBy);
 
     if (!oldNotif && newNotif) {
-      this.logger.info(`User ${this.requested_by} set new notification on ${proposed.id}`);
-      notificationManager.setEventNotification(proposed, this.requested_by);
+      this.logger.info(`User ${this.requestedBy} set new notification on ${proposed.id}`);
+      notificationManager.setEventNotification(proposed, this.requestedBy);
     } else if (oldNotif && newNotif && JSON.stringify(oldNotif) !== JSON.stringify(newNotif)) {
-      notificationManager.updateEventNotification(proposed, this.requested_by);
+      notificationManager.updateEventNotification(proposed, this.requestedBy);
     } else if (oldNotif && !newNotif) {
-      notificationManager.removeEventNotification(proposed, this.requested_by);
+      notificationManager.removeEventNotification(proposed, this.requestedBy);
     }
   }
 
@@ -169,7 +169,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   // Determine whether to update or add as suggestion
   private async processUpdate(proposed: ListItem) {
     if (this.content.suggestions_only) {
-      this.updateAsSuggestion(proposed, this.requested_by);
+      this.updateAsSuggestion(proposed, this.requestedBy);
     } else {
       this.content = proposed;
     }

@@ -1,4 +1,4 @@
-import { DbObject, ID, Timestamps } from './abstract';
+import { ID, Timestamps } from './abstract';
 import { User } from './user';
 
 // Notes:
