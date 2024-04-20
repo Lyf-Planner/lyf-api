@@ -8,6 +8,7 @@
     "dev:server": "nodemon --watch './**/*.ts' --exec 'ts-node' src/index.ts",
     "lint": "npx tslint -p tsconfig.json -c tslint.json && npx tsc",
     "lint:fix": "npx tslint -p tsconfig.json -c tslint.json --fix && npx tsc",
+    "precommit": "yarn lint:fix",
     "serve": "npm run build && npm run start",
     "start": "node ./build/src/index.js",
     "test": "jest --silent"
@@ -24,6 +25,7 @@
     "@types/pg": "^8.11.5",
     "@types/supertest": "^6.0.2",
     "@types/uuid": "^8.3.3",
+    "husky": "^9.0.11",
     "jest": "^29.7.0",
     "nodemon": "^2.0.15",
     "supertest": "^6.3.4",
