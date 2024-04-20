@@ -14,12 +14,12 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute();
 
   await db.schema
-    .createIndex('user_note_user_id_index')
+    .createIndex('note_user_user_id_index')
     .on('notes_on_users')
     .column('user_id_fk')
     .execute();
   await db.schema
-    .createIndex('user_note_note_id_index')
+    .createIndex('note_user_note_id_index')
     .on('notes_on_users')
     .column('note_id_fk')
     .execute();

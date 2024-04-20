@@ -14,8 +14,8 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addCheckConstraint('check_status', sql`status IN (\'Owner\', \'Editor\', \'Read Only\')`)
     .execute();
 
-  await db.schema.createIndex('user_item_item_id_index').on('items_on_users').column('item_id_fk').execute();
-  await db.schema.createIndex('user_item_user_id_index').on('items_on_users').column('user_id_fk').execute();
+  await db.schema.createIndex('item_user_item_id_index').on('items_on_users').column('item_id_fk').execute();
+  await db.schema.createIndex('item_user_user_id_index').on('items_on_users').column('user_id_fk').execute();
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
