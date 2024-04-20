@@ -1,9 +1,10 @@
-import { Generated, Kysely } from 'kysely';
+import { Kysely } from 'kysely';
+
 import { User as MongoUser } from '../api/mongo_schema/user';
-import mongoDb from '../repository/db/mongo/mongoDb';
-import { UserFriendshipDbObject, UserFriendshipStatus } from '../api/schema/user_friendships';
 import { ID, Timestamps } from '../api/schema/abstract';
 import { UserDbObject } from '../api/schema/user';
+import { UserFriendshipDbObject, UserFriendshipStatus } from '../api/schema/user_friendships';
+import mongoDb from '../repository/db/mongo/mongoDb';
 
 interface TempRelationship {
   user_id: ID;
@@ -36,19 +37,20 @@ export async function up(db: Kysely<any>): Promise<void> {
     const relationships = [...friends, ...requests_incoming, ...requests_outgoing];
 
     for (const relationship of relationships) {
-        const targetUserNewId = await getUserNewId(relationship.user_id, db)
-        if (!targetUserNewId) {
-            console.error('User', relationship.user_id, 'missing in new db');
-            continue;
-        }
+      const targetUserNewId = await getUserNewId(relationship.user_id, db);
+      if (!targetUserNewId) {
+        console.error('User', relationship.user_id, 'missing in new db');
+        continue;
+      }
       const updatedIdRelationship = {
         user_id: targetUserNewId,
         status: relationship.status
       };
 
       // Satisfy user1_id_fk < user2_id_fk
-      if (user1NewId < updatedIdRelationship.user_id)
+      if (user1NewId < updatedIdRelationship.user_id) {
         await transformToPgUserRelationship(user1NewId, updatedIdRelationship, db);
+      }
     }
   }
 }
