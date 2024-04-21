@@ -20,7 +20,6 @@ export async function down(db: Kysely<any>): Promise<void> {
 
 const transformToPgUser = (user: MongoUser) => {
   const pgUser: PostgresUser = {
-    id: uuid() as any,
     user_id: user.id,
     created: user.created,
     last_updated: user.last_updated,

@@ -2,8 +2,7 @@ import { Kysely } from 'kysely';
 
 import { ListItem as MongoItem } from '../api/mongo_schema/list';
 import { Permission, UserAccess } from '../api/mongo_schema/social';
-import { User as MongoUser } from '../api/mongo_schema/user';
-import { ItemRelationshipStatus, ItemUserRelationshipDbObject } from '../api/schema/items_on_users';
+import { ItemUserPermission, ItemUserRelationshipDbObject } from '../api/schema/items_on_users';
 import { UserDbObject } from '../api/schema/user';
 import mongoDb from '../repository/db/mongo/mongo_db';
 
@@ -67,7 +66,7 @@ const insertAsPgUserItem = async (
     item_id_fk: item.id as any,
     user_id_fk: newUserId as any,
     invite_pending: user_access.permissions === Permission.Invited,
-    status: user_access.permissions === Permission.Invited ? ItemRelationshipStatus.Editor : user_access.permissions as any,
+    permission: user_access.permissions === Permission.Invited ? ItemUserPermission.Editor : user_access.permissions as any,
     show_in_upcoming,
     notification_mins_before,
     sorting_rank
@@ -84,11 +83,11 @@ const getUserNewId = async (user_id: string, db: Kysely<any>) => {
   }
 
   const pgUser = result[0] as UserDbObject;
-  if (!pgUser.id) {
+  if (!pgUser.user_id) {
     console.log('Couldnt migrate user', user_id, 'with pg entry', JSON.stringify(pgUser));
     throw new Error('Wtf');
   }
 
-  console.log('got user', user_id, 'new id', pgUser.id);
-  return pgUser.id;
+  console.log('got user', user_id, 'new id', pgUser.user_id);
+  return pgUser.user_id;
 };
