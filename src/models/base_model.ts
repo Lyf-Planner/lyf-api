@@ -1,18 +1,18 @@
 import { Model } from '../api/schema/models';
-import { Export } from '../api/schema/serialized';
-import { User } from '../api/schema/user';
+import { User, UserID } from '../api/schema/user';
 
 export abstract class BaseModel<T extends Model> {
   protected entity: T;
-  protected requestedBy: User;
+  protected requestedBy: UserID;
 
-  constructor(entity: T, requestor: User, validate = true) {
+  constructor(entity: T, requestor: UserID, validate = true) {
     this.entity = entity;
     this.requestedBy = requestor;
     this.validate();
   }
 
-  public async includeRelations() {}
+  public includeRelations() {}
+  public export() {}
 
   public async update(changes: Partial<T>, validate = true) {
     const updatedContent = { ...this.entity, ...changes };
@@ -26,9 +26,5 @@ export abstract class BaseModel<T extends Model> {
 
   public validate(content?: T) {
     return true;
-  }
-
-  public export(): Model {
-    return this.entity;
   }
 }
