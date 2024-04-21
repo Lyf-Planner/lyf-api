@@ -1,6 +1,6 @@
 import request from 'supertest';
 
-import { server, serverInitialised } from '../../src';
+import { server, serverInitialised } from '../../../src';
 import { exportedTestUser, testUserCredentials } from './_testdata';
 import { authoriseTestUser } from './utils';
 
@@ -14,18 +14,14 @@ describe('Test User Endpoints', () => {
   });
 
   it('Can CREATE a user, with appropriately exported response', async () => {
-    const response = await request(server)
-      .post('/createUser')
-      .send(testUserCredentials);
+    const response = await request(server).post('/createUser').send(testUserCredentials);
 
     expect(response.status).toBe(201);
     expect(response.body.user).toBe(exportedTestUser);
   });
 
   it('Prevents a CREATE on an already existing user_id', async () => {
-    const response = await request(server)
-      .post('/createUser')
-      .send(testUserCredentials);
+    const response = await request(server).post('/createUser').send(testUserCredentials);
 
     expect(response.status).toBe(400);
   });

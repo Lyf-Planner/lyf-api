@@ -12,10 +12,12 @@ export interface NoteDbObject extends DbObject {
   content?: string;
 }
 
-export type Note = NoteDbObject & {
+export interface NoteRelations {
   items: ItemNoteRelationshipDbObject[];
   users: NoteUserRelationshipDbObject[];
-};
+}
+
+export interface Note extends NoteDbObject, Partial<NoteRelations> {}
 
 export enum NoteType {
   ListOnly = 'List Only',

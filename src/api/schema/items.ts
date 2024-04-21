@@ -25,10 +25,12 @@ export interface ItemDbObject extends DbObject {
   notification_mins_before?: number;
 }
 
-export interface Item extends ItemDbObject {
+export interface ItemRelations {
   notes: ItemNoteRelationship[];
   users: ItemUserRelationshipDbObject[];
 }
+
+export interface Item extends ItemDbObject, Partial<ItemRelations> {}
 
 export enum ItemType {
   Event = 'Event',

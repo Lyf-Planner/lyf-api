@@ -22,10 +22,14 @@ export interface ItemUserRelationshipDbObject extends ItemUserPrimaryKey, Timest
   notification_mins_before?: number;
 }
 
-export interface ItemUserRelationship extends ItemUserRelationshipDbObject {
+export interface ItemUserRelationshipRelations {
   item: ItemDbObject;
   user: UserDbObject;
 }
+
+export interface ItemUserRelationship
+  extends ItemUserRelationshipDbObject,
+    Partial<ItemUserRelationshipRelations> {}
 
 export enum ItemRelationshipStatus {
   Owner = 'Owner',

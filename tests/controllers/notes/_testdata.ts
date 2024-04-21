@@ -1,5 +1,5 @@
-import { NoteType } from '../../src/api/schema/notes';
-import { NoteRelationshipStatus } from '../../src/api/schema/notes_on_users';
+import { NoteType } from '../../../src/api/schema/notes';
+import { NoteRelationshipStatus } from '../../../src/api/schema/notes_on_users';
 
 export const testNoteCreation = {
   title: 'test note',

@@ -4,7 +4,7 @@ import { Database } from '../api/schema/database';
 import { UserDbObject } from '../api/schema/user';
 import { BaseRepository } from './base_repository';
 
-export class UserRepository extends BaseRepository {
+export class UserRepository extends BaseRepository<UserDbObject> {
     constructor(db: Kysely<Database>) {
       super(db, 'users');
     }

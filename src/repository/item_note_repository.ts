@@ -6,7 +6,7 @@ import { BaseRepository } from './base_repository';
 
 const TABLE_NAME = 'items_on_notes';
 
-export class ItemNoteRepository extends BaseRepository {
+export class ItemNoteRepository extends BaseRepository<ItemNoteRelationshipDbObject> {
   constructor(db: Kysely<Database>) {
     super(db, TABLE_NAME); // 'composite' is just a placeholder
   }

@@ -1,4 +1,4 @@
-import { DbObject } from './abstract';
+import { DbObject, Timestamps } from './abstract';
 import { ItemUserRelationshipDbObject } from './items_on_users';
 import { NoteUserRelationshipDbObject } from './notes_on_users';
 import { UserFriendshipDbObject } from './user_friendships';
@@ -26,11 +26,27 @@ export interface UserDbObject extends DbObject {
   event_notification_minutes_before?: number;
 }
 
-export type User = UserDbObject & {
-  relationships: UserFriendshipDbObject[];
+export interface UserRelations {
+  friendships: UserFriendshipDbObject[];
   items: ItemUserRelationshipDbObject[];
   notes: NoteUserRelationshipDbObject[];
-};
+}
 
-// - Id's should only be exposed to the user via their JWT token
-// - pass_hash and expo_tokens should never be exposed
+export interface User extends UserDbObject, Partial<UserRelations> {}
+
+// Fields on a user returned to other users - don't expose their ID
+export interface ExternalUserSerialized extends Timestamps {
+  user_id: string;
+  tz: string;
+  display_name?: string;
+  pfp_url?: string;
+  friendships?: UserFriendshipDbObject[];
+}
+
+export interface UserBackendOnlyFields {
+  pass_hash: string;
+  expo_tokens: string[];
+}
+
+// Fields on a user returned to themselves
+export interface UserSerialized extends Omit<User, keyof UserBackendOnlyFields> {}

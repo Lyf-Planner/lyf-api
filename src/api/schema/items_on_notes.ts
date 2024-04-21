@@ -16,7 +16,11 @@ export interface ItemNotePrimaryKey {
 
 export interface ItemNoteRelationshipDbObject extends ItemNotePrimaryKey, Timestamps {}
 
-export interface ItemNoteRelationship extends ItemNoteRelationshipDbObject {
+export interface ItemNoteRelationshipRelations {
   item: ItemDbObject;
   note: NoteDbObject;
 }
+
+export interface ItemNoteRelationship
+  extends ItemNoteRelationshipDbObject,
+    Partial<ItemNoteRelationshipRelations> {}

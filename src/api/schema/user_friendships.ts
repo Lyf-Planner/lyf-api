@@ -22,10 +22,12 @@ export interface UserFriendshipDbObject extends UserFriendshipPrimaryKey, Timest
   status: UserFriendshipStatus;
 }
 
-export interface UserFriendship extends UserFriendshipDbObject {
+export interface UserFriendshipRelations {
   user1: User;
   user2: User;
 }
+
+export interface UserFriendship extends UserFriendshipDbObject, Partial<UserFriendshipRelations> {}
 
 export enum UserFriendshipStatus {
   PendingFirstAcceptance = 'Pending First',

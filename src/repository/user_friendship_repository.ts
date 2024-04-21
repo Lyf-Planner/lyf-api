@@ -6,7 +6,7 @@ import { BaseRepository } from './base_repository';
 
 const TABLE_NAME = 'user_friendships';
 
-export class UserFriendshipRepository extends BaseRepository {
+export class UserFriendshipRepository extends BaseRepository<UserFriendshipDbObject> {
   constructor(db: Kysely<Database>) {
     super(db, TABLE_NAME);
   }

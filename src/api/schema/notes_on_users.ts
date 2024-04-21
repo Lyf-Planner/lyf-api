@@ -19,10 +19,14 @@ export interface NoteUserRelationshipDbObject extends NoteUserPrimaryKey, Timest
   status: NoteRelationshipStatus;
 }
 
-export interface NoteUserRelationship extends NoteUserRelationshipDbObject {
+export interface NoteUserRelationshipRelations {
   note: NoteDbObject;
   user: UserDbObject;
 }
+
+export interface NoteUserRelationship
+  extends NoteUserRelationshipDbObject,
+    Partial<NoteUserRelationshipRelations> {}
 
 export enum NoteRelationshipStatus {
   Owner = 'Owner',

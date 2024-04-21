@@ -8,7 +8,7 @@ const DEFAULT_PK = 'id';
  * Generic repository base class for basic CRUD operations.
  * T defines the table row type.
  */
-export abstract class BaseRepository<T = DbEntity> {
+export abstract class BaseRepository<T extends DbEntity> {
   protected db: Kysely<Database>;
   protected tableName: keyof Database;
 
