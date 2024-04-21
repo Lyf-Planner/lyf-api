@@ -16,7 +16,7 @@ export interface ItemUserPrimaryKey {
 
 export interface ItemUserRelationshipDbObject extends ItemUserPrimaryKey, Timestamps {
   invite_pending: boolean;
-  status: ItemRelationshipStatus;
+  permission: ItemUserPermission;
   sorting_rank: number;
   show_in_upcoming?: boolean;
   notification_mins_before?: number;
@@ -31,7 +31,7 @@ export interface ItemUserRelationship
   extends ItemUserRelationshipDbObject,
     Partial<ItemUserRelationshipRelations> {}
 
-export enum ItemRelationshipStatus {
+export enum ItemUserPermission {
   Owner = 'Owner',
   Editor = 'Editor',
   ReadOnly = 'Read Only'

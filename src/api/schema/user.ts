@@ -10,8 +10,10 @@ import { UserFriendshipDbObject } from './user_friendships';
 // - user_id has limit of 30 chars
 // - display_name has limit of 30 chars
 
-export interface UserDbObject extends DbObject {
-  user_id: string; // unique
+export type UserID = string;
+
+export interface UserDbObject extends Timestamps {
+  user_id: UserID; // unique
   pass_hash: string;
   private: boolean;
   tz: string;
