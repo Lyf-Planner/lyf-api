@@ -27,6 +27,8 @@ export class UserFriendshipRepository extends BaseRepository<UserFriendshipDbObj
     return this.db
       .selectFrom(TABLE_NAME)
       .selectAll()
+      .innerJoin('users', 'users.user_id', 'user1_id_fk')
+      .innerJoin('users', 'users.user_id', 'user2_id_fk')
       .where((eb) => eb.or([eb('user1_id_fk', '=', user_id), eb('user2_id_fk', '=', user_id)]))
       .execute();
   }

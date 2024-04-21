@@ -1,5 +1,6 @@
 import { Kysely } from 'kysely';
 
+import { ID } from '../api/schema/abstract';
 import { Database, DbEntity } from '../api/schema/database';
 
 const DEFAULT_PK = 'id';
@@ -21,7 +22,7 @@ export abstract class BaseRepository<T extends DbEntity> {
     return (await this.db.selectFrom(this.tableName).selectAll().execute()) as T[];
   }
 
-  async findById(id: string): Promise<T | undefined> {
+  async findById(id: ID): Promise<T | undefined> {
     return (await this.db
       .selectFrom(this.tableName)
       .selectAll()
@@ -38,7 +39,7 @@ export abstract class BaseRepository<T extends DbEntity> {
     return created as T;
   }
 
-  async update(id: string, entity: Partial<DbEntity>): Promise<T | undefined> {
+  async update(id: ID, entity: Partial<DbEntity>): Promise<T | undefined> {
     const [updated] = await this.db
       .updateTable(this.tableName)
       .set(entity)
@@ -48,7 +49,7 @@ export abstract class BaseRepository<T extends DbEntity> {
     return updated as T;
   }
 
-  async delete(id: string): Promise<boolean> {
+  async delete(id: ID): Promise<boolean> {
     const deleteResult = await this.db
       .deleteFrom(this.tableName)
       .where(DEFAULT_PK, '=', id)

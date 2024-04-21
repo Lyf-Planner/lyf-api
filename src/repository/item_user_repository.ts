@@ -23,11 +23,21 @@ export class ItemUserRepository extends BaseRepository<ItemUserRelationshipDbObj
       .executeTakeFirst();
   }
 
-  async findByUserId(user_id: string): Promise<ItemUserRelationshipDbObject[]> {
-    return this.db.selectFrom(TABLE_NAME).selectAll().where('user_id_fk', '=', user_id).execute();
+  async findItemsByUserId(user_id: string): Promise<ItemUserRelationshipDbObject[]> {
+    return await this.db
+      .selectFrom('items')
+      .innerJoin('items_on_users', 'items.id', 'items_on_users.item_id_fk')
+      .selectAll()
+      .where('user_id_fk', '=', user_id)
+      .execute();
   }
 
-  async findByItemId(item_id: string): Promise<ItemUserRelationshipDbObject[]> {
-    return this.db.selectFrom(TABLE_NAME).selectAll().where('item_id_fk', '=', item_id).execute();
+  async findUsersByItemId(item_id: string): Promise<ItemUserRelationshipDbObject[]> {
+    return await this.db
+      .selectFrom('users')
+      .innerJoin('items_on_users', 'users.user_id', 'items_on_users.user_id_fk')
+      .selectAll()
+      .where('item_id_fk', '=', item_id)
+      .execute();
   }
 }

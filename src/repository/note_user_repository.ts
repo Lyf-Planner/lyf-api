@@ -1,6 +1,7 @@
 import { Kysely } from 'kysely';
 
 import { Database } from '../api/schema/database';
+import { ItemNoteRelationshipDbObject } from '../api/schema/items_on_notes';
 import { NoteUserPrimaryKey, NoteUserRelationshipDbObject } from '../api/schema/notes_on_users';
 import { BaseRepository } from './base_repository';
 
@@ -23,11 +24,21 @@ export class NoteUserRepository extends BaseRepository<NoteUserRelationshipDbObj
       .executeTakeFirst();
   }
 
-  async findByUserId(user_id: string): Promise<NoteUserRelationshipDbObject[]> {
-    return this.db.selectFrom(TABLE_NAME).selectAll().where('user_id_fk', '=', user_id).execute();
+  async findItemsByNoteId(note_id: string): Promise<ItemNoteRelationshipDbObject[]> {
+    return await this.db
+      .selectFrom('items')
+      .innerJoin('items_on_notes', 'items.id', 'items_on_notes.item_id_fk')
+      .selectAll()
+      .where('note_id_fk', '=', note_id)
+      .execute();
   }
 
-  async findByNoteId(note_id: string): Promise<NoteUserRelationshipDbObject[]> {
-    return this.db.selectFrom(TABLE_NAME).selectAll().where('note_id_fk', '=', note_id).execute();
+  async findNotesByItemId(item_id: string): Promise<ItemNoteRelationshipDbObject[]> {
+    return await this.db
+      .selectFrom('notes')
+      .innerJoin('items_on_notes', 'notes.id', 'items_on_notes.note_id_fk')
+      .selectAll()
+      .where('item_id_fk', '=', item_id)
+      .execute();
   }
 }
