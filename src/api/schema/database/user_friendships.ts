@@ -1,5 +1,4 @@
 import { ID, Timestamps } from './abstract';
-import { User } from './user';
 
 // Notes:
 // - primary key: user1_id_fk + user2_id_fk
@@ -18,16 +17,13 @@ export interface UserFriendshipPrimaryKey {
   user2_id_fk: ID;
 }
 
-export interface UserFriendshipDbObject extends UserFriendshipPrimaryKey, Timestamps {
+export interface UserFriendshipRelations {
   status: UserFriendshipStatus;
 }
 
-export interface UserFriendshipRelations {
-  user1: User;
-  user2: User;
-}
+export interface UserFriendshipDbObject extends UserFriendshipPrimaryKey, UserFriendshipRelations, Timestamps {}
 
-export interface UserFriendship extends UserFriendshipDbObject, Partial<UserFriendshipRelations> {}
+// Enums
 
 export enum UserFriendshipStatus {
   PendingFirstAcceptance = 'Pending First',

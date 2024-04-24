@@ -1,6 +1,4 @@
 import { ID, Timestamps } from './abstract';
-import { NoteDbObject } from './notes';
-import { UserDbObject } from './user';
 
 // Notes:
 // - primary key: user_id_fk + note_id_fk
@@ -14,19 +12,17 @@ export interface NoteUserPrimaryKey {
   user_id_fk: ID;
 }
 
-export interface NoteUserRelationshipDbObject extends NoteUserPrimaryKey, Timestamps {
+export interface NoteUserRelations {
   invite_pending: boolean;
   status: NoteRelationshipStatus;
 }
 
-export interface NoteUserRelationshipRelations {
-  note: NoteDbObject;
-  user: UserDbObject;
-}
+export interface NoteUserRelationshipDbObject
+  extends NoteUserPrimaryKey,
+    NoteUserRelations,
+    Timestamps {}
 
-export interface NoteUserRelationship
-  extends NoteUserRelationshipDbObject,
-    Partial<NoteUserRelationshipRelations> {}
+// Enums
 
 export enum NoteRelationshipStatus {
   Owner = 'Owner',

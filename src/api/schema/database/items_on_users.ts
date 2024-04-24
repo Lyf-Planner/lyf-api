@@ -1,6 +1,4 @@
 import { ID, Timestamps } from './abstract';
-import { ItemDbObject } from './items';
-import { UserDbObject } from './user';
 
 // Notes:
 // - primary key: user_id_fk + item_id_fk
@@ -14,7 +12,7 @@ export interface ItemUserPrimaryKey {
   user_id_fk: ID;
 }
 
-export interface ItemUserRelationshipDbObject extends ItemUserPrimaryKey, Timestamps {
+export interface ItemUserRelations {
   invite_pending: boolean;
   permission: ItemUserPermission;
   sorting_rank: number;
@@ -22,14 +20,12 @@ export interface ItemUserRelationshipDbObject extends ItemUserPrimaryKey, Timest
   notification_mins_before?: number;
 }
 
-export interface ItemUserRelationshipRelations {
-  item: ItemDbObject;
-  user: UserDbObject;
-}
+export interface ItemUserRelationshipDbObject
+  extends Timestamps,
+    ItemUserPrimaryKey,
+    ItemUserRelations {}
 
-export interface ItemUserRelationship
-  extends ItemUserRelationshipDbObject,
-    Partial<ItemUserRelationshipRelations> {}
+// Enums
 
 export enum ItemUserPermission {
   Owner = 'Owner',

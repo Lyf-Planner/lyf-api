@@ -1,26 +1,15 @@
-import { DbObject } from './abstract';
-import { ItemNoteRelationshipDbObject } from './items_on_notes';
-import { NoteUserRelationshipDbObject } from './notes_on_users';
+import { ItemDbObject } from './database/items';
+import { ItemNoteRelations } from './database/items_on_notes';
+import { NoteDbObject } from './database/notes';
+import { NoteUserRelations } from './database/notes_on_users';
+import { UserPublicFields } from './database/user';
 
-// Notes:
-// - primary key: id
-// - title has limit of 80 chars
-
-export interface NoteDbObject extends DbObject {
-  title: string;
-  type: NoteType;
-  content?: string;
-}
+export interface NoteRelatedUser extends UserPublicFields, NoteUserRelations {}
+export interface NoteRelatedItem extends ItemDbObject, ItemNoteRelations {}
 
 export interface NoteRelations {
-  items: ItemNoteRelationshipDbObject[];
-  users: NoteUserRelationshipDbObject[];
+  users: NoteRelatedUser[];
+  items: NoteRelatedItem[];
 }
 
 export interface Note extends NoteDbObject, Partial<NoteRelations> {}
-
-export enum NoteType {
-  ListOnly = 'List Only',
-  NoteOnly = 'Note Only',
-  Multiple = 'Multiple'
-}
