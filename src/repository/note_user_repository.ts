@@ -1,15 +1,17 @@
-import { Kysely } from 'kysely';
-
-import { Database } from '../api/schema/database';
-import { ItemNoteRelationshipDbObject } from '../api/schema/items_on_notes';
-import { NoteUserPrimaryKey, NoteUserRelationshipDbObject } from '../api/schema/notes_on_users';
+import { ItemNoteRelationshipDbObject } from '../api/schema/database/items_on_notes';
+import { NoteDbObject } from '../api/schema/database/notes';
+import {
+  NoteUserPrimaryKey,
+  NoteUserRelationshipDbObject
+} from '../api/schema/database/notes_on_users';
+import { UserDbObject } from '../api/schema/database/user';
 import { BaseRepository } from './base_repository';
 
 const TABLE_NAME = 'notes_on_users';
 
 export class NoteUserRepository extends BaseRepository<NoteUserRelationshipDbObject> {
-  constructor(db: Kysely<Database>) {
-    super(db, TABLE_NAME);
+  constructor() {
+    super(TABLE_NAME);
   }
 
   async findByCompositeId({
@@ -24,21 +26,25 @@ export class NoteUserRepository extends BaseRepository<NoteUserRelationshipDbObj
       .executeTakeFirst();
   }
 
-  async findItemsByNoteId(note_id: string): Promise<ItemNoteRelationshipDbObject[]> {
+  async findNoteRelatedUsers(
+    note_id: string
+  ): Promise<(UserDbObject & NoteUserRelationshipDbObject)[]> {
     return await this.db
-      .selectFrom('items')
-      .innerJoin('items_on_notes', 'items.id', 'items_on_notes.item_id_fk')
+      .selectFrom('users')
+      .innerJoin('notes_on_users', 'users.user_id', 'notes_on_users.user_id_fk')
       .selectAll()
       .where('note_id_fk', '=', note_id)
       .execute();
   }
 
-  async findNotesByItemId(item_id: string): Promise<ItemNoteRelationshipDbObject[]> {
+  async findUserRelatedNotes(
+    user_id: string
+  ): Promise<(NoteDbObject & NoteUserRelationshipDbObject)[]> {
     return await this.db
       .selectFrom('notes')
-      .innerJoin('items_on_notes', 'notes.id', 'items_on_notes.note_id_fk')
+      .innerJoin('notes_on_users', 'notes.id', 'notes_on_users.note_id_fk')
       .selectAll()
-      .where('item_id_fk', '=', item_id)
+      .where('user_id_fk', '=', user_id)
       .execute();
   }
 }

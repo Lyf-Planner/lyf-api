@@ -1,12 +1,11 @@
-import { Kysely } from 'kysely';
-
-import { Database } from '../api/schema/database';
-import { UserDbObject, UserID } from '../api/schema/user';
+import { UserDbObject, UserID } from '../api/schema/database/user';
 import { BaseRepository } from './base_repository';
 
+const TABLE_NAME = 'users';
+
 export class UserRepository extends BaseRepository<UserDbObject> {
-  constructor(db: Kysely<Database>) {
-    super(db, 'users');
+  constructor() {
+    super(TABLE_NAME);
   }
 
   async findByUserId(user_id: UserID): Promise<UserDbObject | undefined> {

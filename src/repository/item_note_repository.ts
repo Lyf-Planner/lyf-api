@@ -1,18 +1,16 @@
-import { Kysely } from 'kysely';
-
-import { Database } from '../api/schema/database';
+import { ItemDbObject } from '../api/schema/database/items';
 import {
   ItemNotePrimaryKey,
-  ItemNoteRelationship,
   ItemNoteRelationshipDbObject
-} from '../api/schema/items_on_notes';
+} from '../api/schema/database/items_on_notes';
+import { NoteDbObject } from '../api/schema/database/notes';
 import { BaseRepository } from './base_repository';
 
 const TABLE_NAME = 'items_on_notes';
 
 export class ItemNoteRepository extends BaseRepository<ItemNoteRelationshipDbObject> {
-  constructor(db: Kysely<Database>) {
-    super(db, TABLE_NAME); // 'composite' is just a placeholder
+  constructor() {
+    super(TABLE_NAME);
   }
 
   async findByCompositeId({
@@ -27,7 +25,7 @@ export class ItemNoteRepository extends BaseRepository<ItemNoteRelationshipDbObj
       .executeTakeFirst();
   }
 
-  async findItemsByNoteId(note_id: string): Promise<ItemNoteRelationship[]> {
+  async findNoteRelatedItems(note_id: string): Promise<(ItemDbObject & ItemNoteRelationshipDbObject)[]> {
     return await this.db
       .selectFrom('items')
       .innerJoin('items_on_notes', 'items.id', 'items_on_notes.item_id_fk')
@@ -36,7 +34,7 @@ export class ItemNoteRepository extends BaseRepository<ItemNoteRelationshipDbObj
       .execute();
   }
 
-  async findNotesByItemId(item_id: string): Promise<ItemNoteRelationship[]> {
+  async findItemRelatedNotes(item_id: string): Promise<(NoteDbObject & ItemNoteRelationshipDbObject)[]> {
     return await this.db
       .selectFrom('notes')
       .innerJoin('items_on_notes', 'notes.id', 'items_on_notes.note_id_fk')

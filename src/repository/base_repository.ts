@@ -1,7 +1,8 @@
 import { Kysely } from 'kysely';
 
-import { ID } from '../api/schema/abstract';
+import { ID } from '../api/schema/database/abstract';
 import { Database, DbEntity } from '../api/schema/database';
+import postgresDb from './db/pg/postgres_db';
 
 const DEFAULT_PK = 'id';
 
@@ -13,8 +14,8 @@ export abstract class BaseRepository<T extends DbEntity> {
   protected db: Kysely<Database>;
   protected tableName: keyof Database;
 
-  constructor(db: Kysely<Database>, tableName: keyof Database) {
-    this.db = db;
+  constructor(tableName: keyof Database) {
+    this.db = postgresDb;
     this.tableName = tableName;
   }
 
