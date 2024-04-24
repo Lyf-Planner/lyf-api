@@ -1,30 +1,31 @@
-import { Model } from '../api/schema/models';
-import { User, UserID } from '../api/schema/user';
+import { Entity } from '../api/schema';
+import { DbEntity } from '../api/schema/database';
+import { UserID } from '../api/schema/database/user';
 
-export abstract class BaseModel<T extends Model> {
+export abstract class BaseModel<T> {
   protected entity: T;
   protected requestedBy: UserID;
 
-  constructor(entity: T, requestor: UserID, validate = true) {
-    this.entity = entity;
-    this.requestedBy = requestor;
-    this.validate();
-  }
-
-  public includeRelations() {}
-  public export() {}
-
-  public async update(changes: Partial<T>, validate = true) {
-    const updatedContent = { ...this.entity, ...changes };
+  constructor(object: DbEntity, requested_by: UserID, validate = true) {
+    this.entity = this.parse(object);
+    this.requestedBy = requested_by;
 
     if (validate) {
-      this.validate(updatedContent);
+      this.validate();
     }
-
-    this.entity = updatedContent;
   }
 
-  public validate(content?: T) {
-    return true;
+  // All models translate the submitted db type to the internally used API type, and validate.
+  protected abstract parse<K extends DbEntity>(dbObject: K): T;
+  protected abstract validate(): void;
+
+  public update(changes: Partial<T>, validate = true) {
+    const updatedContent = { ...this.entity, ...changes };
+
+    this.entity = updatedContent;
+
+    if (validate) {
+      this.validate();
+    }
   }
 }

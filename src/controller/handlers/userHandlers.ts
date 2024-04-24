@@ -4,6 +4,8 @@ import { User } from '../../api/mongo_schema/user';
 import { FriendshipManager } from '../../models/social/friendshipManager';
 import { UserModel } from '../../models/users/userModel';
 import { UserOperations } from '../../models/users/userOperations';
+import { AuthService } from '../../services/auth_service';
+import { UserService } from '../../services/user_service';
 import authUtils from '../../utils/authUtils';
 import { Logger } from '../../utils/logging';
 import { getMiddlewareVars } from '../utils';
@@ -93,20 +95,25 @@ export class UserHandlers {
 
   protected async createUser(req: Request, res: Response) {
     // This endpoint is excluded from the auth middleware
-    const { user_id, password, timezone } = req.body;
+    const { user_id, password, tz } = req.body;
 
     logger.info(`Received request to create account "${user_id}"`);
 
     try {
-      const user = await UserOperations.createNew(user_id, password, true, timezone);
+      // const userModel = await new UserService().initialiseUser(user_id, password, tz);
+      // const user = userModel.export(true);
+
+      // const token = await new AuthService().authenticate(userModel.getEntity(), password);
+
+      const user = await UserOperations.createNew(user_id, password, true, tz);
       const token = await authUtils.authenticate(
         user.getUser() as User,
         password as string
       );
-      res.status(201).json({ user: user?.export(), token }).end();
+      res.status(201).json({ user, token }).end();
     } catch (err) {
       logger.error(err);
-      res.status(400).end(`Username ${user_id} is already taken`);
+      res.status(400).end(err);
       return;
     }
   }

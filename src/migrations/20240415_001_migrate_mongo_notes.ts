@@ -2,8 +2,8 @@ import { Kysely } from 'kysely';
 
 import { ListItem as MongoItem, ListItemTypes } from '../api/mongo_schema/list';
 import { Note as MongoNote, NoteType as MongoNoteType } from '../api/mongo_schema/notes';
-import { ItemDbObject as PostgresItem, ItemStatus, ItemType } from '../api/schema/items';
-import { NoteDbObject as PostgresNote, NoteType as PgNoteType } from '../api/schema/notes';
+import { ItemDbObject as PostgresItem, ItemStatus, ItemType } from '../api/schema/database/items';
+import { NoteDbObject as PostgresNote, NoteType as PgNoteType } from '../api/schema/database/notes';
 import mongoDb from '../repository/db/mongo/mongo_db';
 
 export async function up(db: Kysely<any>): Promise<void> {

@@ -1,5 +1,5 @@
 import { Time } from '../../api/mongo_schema/abstract';
-import { Timestamps } from '../../api/schema/abstract';
+import { Timestamps } from '../../api/schema/database/abstract';
 import { Logger } from '../../utils/logging';
 
 export class TimeOperations {

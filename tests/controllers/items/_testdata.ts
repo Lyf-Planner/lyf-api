@@ -1,5 +1,5 @@
-import { ItemStatus, ItemType } from '../../../src/api/schema/items';
-import { ItemUserPermission } from '../../../src/api/schema/items_on_users';
+import { ItemStatus, ItemType } from '../../../src/api/schema/database/items';
+import { ItemUserPermission } from '../../../src/api/schema/database/items_on_users';
 import { formatDateData, getDayFromDate } from '../../../src/utils/dates';
 
 const creationDate = new Date();

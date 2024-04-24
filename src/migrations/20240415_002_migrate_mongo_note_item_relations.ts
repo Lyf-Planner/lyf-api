@@ -2,7 +2,7 @@ import { Kysely } from 'kysely';
 
 import { ListItem as MongoItem } from '../api/mongo_schema/list';
 import { Note as MongoNote, NoteType as MongoNoteType } from '../api/mongo_schema/notes';
-import { ItemNoteRelationshipDbObject } from '../api/schema/items_on_notes';
+import { ItemNoteRelationshipDbObject } from '../api/schema/database/items_on_notes';
 import mongoDb from '../repository/db/mongo/mongo_db';
 
 export async function up(db: Kysely<any>): Promise<void> {

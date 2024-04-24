@@ -3,11 +3,11 @@ import * as jwt from 'jsonwebtoken';
 
 import { User } from '../api/schema/user';
 import env from '../envManager';
-import { BaseService } from './base_service';
+import { BaseService } from './abstract/base_service';
 
 export class AuthService extends BaseService {
   // Verify password matches user pass_hash, mint token if so
-  static async authenticate(user: User, password: string) {
+  public async authenticate(user: User, password: string) {
     const res = await compare(password, user.pass_hash);
     if (!res) {
       console.log('Authentication failed');
@@ -22,11 +22,11 @@ export class AuthService extends BaseService {
     return token;
   }
 
-  static verifyToken(token: string): jwt.JwtPayload {
+  public verifyToken(token: string): jwt.JwtPayload {
     return jwt.verify(token as string, env.jwtSecret as any) as any;
   }
 
-  static async hashPass(password: string) {
+  public async hashPass(password: string) {
     return await hash(password, 10);
   }
 }

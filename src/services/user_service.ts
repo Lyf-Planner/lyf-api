@@ -1,26 +1,25 @@
-import { UserDbObject, UserID } from '../api/schema/user';
+import { UserDbObject, UserID } from '../api/schema/database/user';
+import { User } from '../api/schema/user';
 import { UserModel } from '../models/user_model';
-import postgresDb from '../repository/db/pg/postgres_db';
-import { ItemRepository } from '../repository/item_repository';
 import { UserRepository } from '../repository/user_repository';
 import { formatDateData } from '../utils/dates';
 import { Logger } from '../utils/logging';
 import { AuthService } from './auth_service';
-import { BaseService } from './base_service';
 import { ItemService } from './item_service';
+import { ModelService } from './abstract/model_service';
 
-export class UserService extends BaseService {
+export class UserService extends ModelService<User, UserModel> {
+  protected repository: UserRepository;
   private logger = Logger.of(UserService);
-  private repository: UserRepository;
+  protected modelFactory = (user: User, requested_by: UserID) => new UserModel(user, requested_by);
 
-  constructor(user_repository: UserRepository) {
+  constructor() {
     super();
-    this.repository = user_repository;
+    this.repository = new UserRepository();
   }
 
   // Builder method
   public async retrieveForUser(user_id: UserID, requestor_id: UserID): Promise<UserModel> {
-    // Fetch user
     const userData = await this.repository.findByUserId(user_id);
     if (!userData) {
       throw new Error(`User ${user_id} does not exist`);
@@ -28,26 +27,17 @@ export class UserService extends BaseService {
 
     const user = new UserModel(userData, requestor_id);
 
-    // Ensure not private
-    const user_undiscoverable = !user.requestedBySelf() && user.isPrivate();
-    if (user_undiscoverable) {
-      this.logger.warn(`User ${user_id} was queried but hidden due to privacy`);
-      throw new Error(`User ${user_id} does not exist`);
-    }
-
     return user;
   }
 
-  // Builder method
-  async createNew(user_id: UserID, password: string, tz: string): Promise<UserModel> {
-    const repository = new ItemRepository(postgresDb);
+  async initialiseUser(user_id: UserID, password: string, tz: string): Promise<UserModel> {
     const creationDate = new Date();
 
     const userCreationData: UserDbObject = {
       created: creationDate,
       last_updated: creationDate,
       user_id,
-      pass_hash: await AuthService.hashPass(password),
+      pass_hash: await new AuthService().hashPass(password),
       private: false,
       tz: tz,
       expo_tokens: [],
@@ -61,10 +51,8 @@ export class UserService extends BaseService {
       event_notification_minutes_before: 5
     };
 
-    const newUserData = await this.repository.create(userCreationData);
-    const user = new UserModel(newUserData, user_id);
-
-    await new ItemService(repository).createUserIntroItem(user_id, tz);
+    const user = await this.createNew(userCreationData, user_id);
+    await new ItemService().createUserIntroItem(user_id, tz);
 
     return user;
   }
