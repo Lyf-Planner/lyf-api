@@ -1,14 +1,37 @@
-import { UserID, UserPublicFields, UserSensitiveFields } from '../api/schema/database/user';
-import { User, UserRelations } from '../api/schema/user';
-import { ItemUserRepository } from '../repository/item_user_repository';
-import { Logger } from '../utils/logging';
-import { BaseModel } from './base_model';
+import {
+  UserDbObject,
+  UserID,
+  UserSensitiveFields
+} from '../../api/schema/database/user';
+import {
+  PublicUser,
+  User,
+  UserFriend,
+  UserRelatedItem,
+  UserRelatedNote,
+  UserRelations
+} from '../../api/schema/user';
+import { Logger } from '../../utils/logging';
+import { BaseEntity } from './base_entity';
 
-export class UserModel extends BaseModel<User> {
-  private logger = Logger.of(UserModel);
+export class UserEntity extends BaseEntity<User> {
+  private logger = Logger.of(UserEntity);
 
   constructor(entity: User, requested_by: UserID) {
     super(entity, requested_by);
+  }
+
+  protected parse(dbObject: UserDbObject) {
+    const initialRelations: UserRelations = {
+      friends: [] as UserFriend[],
+      items: [] as UserRelatedItem[],
+      notes: [] as UserRelatedNote[]
+    };
+
+    return {
+      ...dbObject,
+      ...initialRelations
+    };
   }
 
   public validate() {
@@ -20,13 +43,19 @@ export class UserModel extends BaseModel<User> {
     }
   }
 
+  public includeRelations(relations: Partial<UserRelations>) {
+    this.update(relations);
+  }
+
   public export() {
     if (this.requestedBySelf()) {
       return this.stripSensitiveFields();
     } else {
-      return this.exportToOtherUser();
+      return this.exportAsPublicUser();
     }
   }
+
+  // --- Helpers ---
 
   public requestedBySelf() {
     return this.entity.user_id === this.requestedBy;
@@ -36,10 +65,6 @@ export class UserModel extends BaseModel<User> {
     return this.entity.private;
   }
 
-  // public async loadRelations(): Promise<UserRelations> {
-  //   const items = new ItemUserRepository().findItemsByUserId()
-  // }
-
   public getSensitive(): UserSensitiveFields {
     if (this.requestedBySelf()) {
       throw new Error('User tried to retrieve sensitive fields on another user');
@@ -48,13 +73,14 @@ export class UserModel extends BaseModel<User> {
     return { expo_tokens: this.entity.expo_tokens, pass_hash: this.entity.pass_hash };
   }
 
-  private exportToOtherUser(): UserPublicFields {
+  private exportAsPublicUser(): PublicUser {
     return {
       created: this.entity.created,
       last_updated: this.entity.last_updated,
       user_id: this.entity.user_id,
       display_name: this.entity.display_name,
-      pfp_url: this.entity.pfp_url
+      pfp_url: this.entity.pfp_url,
+      friends: this.entity.friends,
     };
   }
 

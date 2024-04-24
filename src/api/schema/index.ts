@@ -1,9 +1,10 @@
-import { Item, ItemRelatedTemplate, ItemRelatedUser } from './items';
+import { ItemDbObject } from './database/items';
+import { Item, ItemRelatedUser } from './items';
 import { Note, NoteRelatedItem, NoteRelatedUser } from './notes';
-import { User, UserFriend, UserRelatedItem, UserRelatedNote } from './user';
+import { PublicUser, User, UserFriend, UserRelatedItem, UserRelatedNote } from './user';
 
 export interface Entities {
-  user: User;
+  user: User|PublicUser;
   item: Item;
   note: Note;
 }
@@ -11,15 +12,15 @@ export interface Entities {
 export type Entity = Entities[keyof Entities];
 
 export interface Relations {
-  friendships: UserFriend[];
-  userItem: UserRelatedItem[];
-  userNote: UserRelatedNote[];
+  friendships: UserFriend;
+  userItem: UserRelatedItem;
+  userNote: UserRelatedNote;
 
-  itemUsers: ItemRelatedUser[];
-  itemTemplate: ItemRelatedTemplate; // if template_id present
+  itemUsers: ItemRelatedUser;
+  itemTemplate: ItemDbObject; // if template_id present
 
-  noteUsers: NoteRelatedUser[];
-  noteItems: NoteRelatedItem[];
+  noteUsers: NoteRelatedUser;
+  noteItems: NoteRelatedItem;
 }
 
 export type Relation = Relations[keyof Relations];

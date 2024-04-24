@@ -16,4 +16,4 @@ export interface Database {
   notes_on_users: NoteUserRelationshipDbObject;
 }
 
-export type DbEntity = Database[keyof Database];
+export type DbObject = Database[keyof Database];

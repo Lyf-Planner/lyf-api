@@ -84,7 +84,9 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   }
 
   private throwIfModifiedOtherNotifications(fromUser: UserModel, proposed: ListItem) {
-    if (!proposed.notifications) { return; }
+    if (!proposed.notifications) {
+      return;
+    }
 
     var success = true;
     if (!this.content.notifications && proposed.notifications) {
@@ -150,8 +152,12 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       }
 
       // Notify any other users of a change!
-      if (timeChanged) { SocialItemNotifications.timeChanged(from, proposed); }
-      if (dateChanged) { SocialItemNotifications.dateChanged(from, proposed); }
+      if (timeChanged) {
+        SocialItemNotifications.timeChanged(from, proposed);
+      }
+      if (dateChanged) {
+        SocialItemNotifications.dateChanged(from, proposed);
+      }
     }
   }
 

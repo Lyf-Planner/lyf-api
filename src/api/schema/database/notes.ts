@@ -1,10 +1,10 @@
-import { DbObject } from './abstract';
+import { DbEntry } from './abstract';
 
 // Notes:
 // - primary key: id
 // - title has limit of 80 chars
 
-export interface NoteDbObject extends DbObject {
+export interface NoteDbObject extends DbEntry {
   title: string;
   type: NoteType;
   content?: string;

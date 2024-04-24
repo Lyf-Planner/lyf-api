@@ -1,4 +1,4 @@
-import { DbObject, ID } from './abstract';
+import { DbEntry, ID } from './abstract';
 
 // Notes:
 // - primary key: id
@@ -6,7 +6,7 @@ import { DbObject, ID } from './abstract';
 // - title has limit of 80 chars
 // - date is indexed (desc)
 
-export interface ItemDbObject extends DbObject {
+export interface ItemDbObject extends DbEntry {
   title: string;
   type: ItemType;
   status: ItemStatus;

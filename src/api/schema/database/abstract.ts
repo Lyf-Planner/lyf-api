@@ -12,4 +12,4 @@ export interface Timestamps {
   last_updated: Date;
 }
 
-export interface DbObject extends Identifiable, Timestamps {}
+export interface DbEntry extends Identifiable, Timestamps {}
