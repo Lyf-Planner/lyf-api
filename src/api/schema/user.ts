@@ -10,7 +10,7 @@ export interface UserRelatedItem extends ItemDbObject, ItemUserRelations {}
 export interface UserRelatedNote extends NoteDbObject, NoteUserRelations {}
 
 export interface UserRelations {
-  friendships: UserFriend[];
+  friends: UserFriend[];
   items: UserRelatedItem[];
   notes: UserRelatedNote[];
 }
