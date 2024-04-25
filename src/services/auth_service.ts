@@ -3,9 +3,8 @@ import * as jwt from 'jsonwebtoken';
 
 import { User } from '../api/schema/user';
 import env from '../envManager';
-import { BaseService } from './abstract/base_service';
 
-export class AuthService extends BaseService {
+export class AuthService {
   // Verify password matches user pass_hash, mint token if so
   public async authenticate(user: User, password: string) {
     const res = await compare(password, user.pass_hash);

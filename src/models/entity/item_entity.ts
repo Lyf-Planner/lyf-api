@@ -10,7 +10,11 @@ export class ItemEntity extends BaseEntity<Item> {
   constructor(entity: Item, requested_by: UserID) {
     super(entity, requested_by);
   }
-  
+
+  public id() {
+    return this.entity.id;
+  }
+
   protected parse(dbObject: ItemDbObject) {
     const initialRelations: ItemRelations = {
       users: [] as ItemRelatedUser[],

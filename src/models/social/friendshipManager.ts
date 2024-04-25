@@ -1,10 +1,7 @@
 import { ID } from '../../api/mongo_schema/abstract';
-import {
-  FriendshipAction,
-  FriendshipUpdate
-} from '../../api/mongo_schema/social';
+import { FriendshipAction, FriendshipUpdate } from '../../api/mongo_schema/social';
 import { Logger } from '../../utils/logging';
-import { FriendNotifications } from '../notifications/friendNotificationService';
+import { FriendNotifications } from '../../services/notifications/friendNotificationService';
 import { UserOperations } from '../users/userOperations';
 import { SocialUser } from './socialUser';
 
@@ -15,13 +12,11 @@ export class FriendshipManager {
 
   static async processUpdate(from: ID, update: FriendshipUpdate) {
     // Can't address yourself
-    if (from === update.user_id) { throw new Error('You cannot friend yourself'); }
+    if (from === update.user_id) {
+      throw new Error('You cannot friend yourself');
+    }
 
-    const fromUser = (await UserOperations.retrieveForUser(
-      from,
-      from,
-      true
-    )) as SocialUser;
+    const fromUser = (await UserOperations.retrieveForUser(from, from, true)) as SocialUser;
     const targetUser = (await UserOperations.retrieveForUser(
       update.user_id,
       from,
@@ -32,35 +27,25 @@ export class FriendshipManager {
 
     switch (update.action) {
       case FriendshipAction.Request:
-        controller.logger.info(
-          `User ${from} sending friend request to ${update.user_id}`
-        );
+        controller.logger.info(`User ${from} sending friend request to ${update.user_id}`);
         await FriendNotifications.newFriendRequest(targetUser, fromUser);
         await controller.requestFriendship();
         break;
       case FriendshipAction.Cancel:
-        controller.logger.info(
-          `User ${from} cancelling friend request to ${update.user_id}`
-        );
+        controller.logger.info(`User ${from} cancelling friend request to ${update.user_id}`);
         await controller.cancelFriendRequest();
         break;
       case FriendshipAction.Accept:
-        controller.logger.info(
-          `User ${from} accepting friend request from ${update.user_id}`
-        );
+        controller.logger.info(`User ${from} accepting friend request from ${update.user_id}`);
         await controller.addressIncomingRequest(true);
         await FriendNotifications.newFriend(targetUser, fromUser);
         break;
       case FriendshipAction.Decline:
-        controller.logger.info(
-          `User ${from} declining friend request from ${update.user_id}`
-        );
+        controller.logger.info(`User ${from} declining friend request from ${update.user_id}`);
         await controller.addressIncomingRequest(false);
         break;
       case FriendshipAction.Remove:
-        controller.logger.info(
-          `User ${from} deleting friendship with ${update.user_id}`
-        );
+        controller.logger.info(`User ${from} deleting friendship with ${update.user_id}`);
         await controller.deleteFriendship();
         break;
     }

@@ -3,12 +3,8 @@ import { Expo, ExpoPushMessage } from 'expo-server-sdk';
 import { Logger } from '../../utils/logging';
 
 export class ExpoPushService {
-  private expo: Expo;
+  private expo: Expo = new Expo();
   private logger = Logger.of(ExpoPushService);
-
-  constructor(expo: Expo) {
-    this.expo = expo;
-  }
 
   public async pushNotificationToExpo(messages: ExpoPushMessage[]) {
     for (var message of messages) {
@@ -16,9 +12,7 @@ export class ExpoPushService {
       // Check that all your push tokens appear to be valid Expo push tokens
       for (const token of message.to) {
         if (!Expo.isExpoPushToken(token)) {
-          this.logger.error(
-            `Push token ${token} is not a valid Expo push token`
-          );
+          this.logger.error(`Push token ${token} is not a valid Expo push token`);
           continue;
         }
       }
@@ -29,9 +23,7 @@ export class ExpoPushService {
       for (const chunk of chunks) {
         try {
           const ticketChunk = await this.expo.sendPushNotificationsAsync(chunk);
-          this.logger.info(
-            `Sent message and received ticket ${JSON.stringify(ticketChunk)}`
-          );
+          this.logger.info(`Sent message and received ticket ${JSON.stringify(ticketChunk)}`);
           tickets.push(...ticketChunk);
           // NOTE: If a ticket contains an error code in ticket.details.error, you
           // must handle it appropriately. The error codes are listed in the Expo
@@ -46,8 +38,3 @@ export class ExpoPushService {
     }
   }
 }
-
-var expo = new Expo();
-const expoPushService = new ExpoPushService(expo);
-
-export default expoPushService;

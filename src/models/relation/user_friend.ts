@@ -7,28 +7,14 @@ import { UserFriend } from '../../api/schema/user';
 import { BaseRelation } from './base_relation';
 
 export class UserFriendRelation extends BaseRelation<UserFriend> {
-  protected parseBase(base_db_object: UserDbObject): UserPublicFields {
+  protected parse(combined_db_object: UserDbObject & UserFriendshipDbObject): UserFriend {
     return {
-      user_id: base_db_object.user_id,
-      created: base_db_object.created,
-      last_updated: base_db_object.last_updated,
-      display_name: base_db_object.display_name,
-      pfp_url: base_db_object.pfp_url
-    };
-  }
-
-  protected parseRelation(relation_db_object: UserFriendshipDbObject): UserFriendshipRelations {
-    const { user1_id_fk, user2_id_fk, ...relations } = relation_db_object;
-    return relations;
-  }
-
-  protected parse(
-    base_db_object: UserDbObject,
-    relation_db_object: UserFriendshipDbObject
-  ): UserFriend {
-    return {
-      ...this.parseBase(base_db_object),
-      ...this.parseRelation(relation_db_object)
+      user_id: combined_db_object.user_id,
+      created: combined_db_object.created,
+      last_updated: combined_db_object.last_updated,
+      display_name: combined_db_object.display_name,
+      pfp_url: combined_db_object.pfp_url,
+      status: combined_db_object.status
     };
   }
 }

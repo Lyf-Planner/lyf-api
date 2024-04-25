@@ -3,7 +3,7 @@ import { SocialAction } from '../../api/mongo_schema/social';
 import { updateItemSocialBody } from '../../controller/validators/itemValidators';
 import { Logger } from '../../utils/logging';
 import { ItemOperations } from '../items/ItemOperations';
-import { SocialItemNotifications } from '../notifications/socialItemNotificationService';
+import { SocialItemNotifications } from '../../services/notifications/socialItemNotificationService';
 import { UserOperations } from '../users/userOperations';
 import { SocialItem } from './socialItem';
 import { SocialUser } from './socialUser';
@@ -15,11 +15,7 @@ export class SocialItemManager {
   private item: SocialItem;
 
   static async processUpdate(from: ID, update: updateItemSocialBody) {
-    const fromUser = (await UserOperations.retrieveForUser(
-      from,
-      from,
-      true
-    )) as SocialUser;
+    const fromUser = (await UserOperations.retrieveForUser(from, from, true)) as SocialUser;
     const targetUser = (await UserOperations.retrieveForUser(
       update.user_id,
       from,
@@ -43,16 +39,12 @@ export class SocialItemManager {
         await SocialItemNotifications.newItemInvite(targetUser, fromUser, item);
         break;
       case SocialAction.Accept:
-        controller.logger.info(
-          `User ${from} accepted invitation to item ${update.item_id}`
-        );
+        controller.logger.info(`User ${from} accepted invitation to item ${update.item_id}`);
         await controller.addressItemInvite(true);
         await SocialItemNotifications.newItemUser(fromUser, item);
         break;
       case SocialAction.Decline:
-        controller.logger.info(
-          `User ${from} declined invitation to item ${update.item_id}`
-        );
+        controller.logger.info(`User ${from} declined invitation to item ${update.item_id}`);
         await controller.addressItemInvite(false);
         break;
       case SocialAction.Cancel:
@@ -70,12 +62,8 @@ export class SocialItemManager {
     }
 
     Logger.of(SocialItemManager).debug('Item Social is::');
-    Logger.of(SocialItemManager).debug(
-      `Permitted Users: ${item.getContent().permitted_users}`
-    );
-    Logger.of(SocialItemManager).debug(
-      `Invited Users: ${item.getContent().invited_users}`
-    );
+    Logger.of(SocialItemManager).debug(`Permitted Users: ${item.getContent().permitted_users}`);
+    Logger.of(SocialItemManager).debug(`Invited Users: ${item.getContent().invited_users}`);
 
     // Return users' new social field
     return {

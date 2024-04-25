@@ -9,7 +9,7 @@ import { NoteEndpoints } from './controller/endpoints/noteEndpoints';
 import { UserEndpoints } from './controller/endpoints/userEndpoints';
 import { authoriseHeader } from './controller/middleware/authMiddleware';
 import env from './envManager';
-import notificationManager from './models/notifications/notificationManager';
+import notificationService from './services/notifications/notification_service';
 import mongoDb from './repository/db/mongo/mongo_db';
 import { migrateToLatest } from './repository/db/pg/migration_manager';
 import postgresDb from './repository/db/pg/postgres_db';
@@ -46,7 +46,7 @@ export const serverInitialised = new Promise(async (resolve, reject) => {
 
     // Initialise services
     await mongoDb.init();
-    await notificationManager.init();
+    await notificationService.init();
     await migrateToLatest();
     resolve(true);
   } catch (err) {
@@ -65,7 +65,7 @@ const startServer = async () => {
 
 // Graceful shutdown
 export async function shutdown() {
-  await notificationManager.cleanup();
+  await notificationService.cleanup();
   await mongoDb.close();
   await postgresDb.destroy();
   process.exit(0);

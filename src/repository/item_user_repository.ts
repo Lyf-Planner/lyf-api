@@ -1,5 +1,8 @@
 import { Item } from '../api/schema/items';
-import { ItemUserPrimaryKey, ItemUserRelationshipDbObject } from '../api/schema/database/items_on_users';
+import {
+  ItemUserPrimaryKey,
+  ItemUserRelationshipDbObject
+} from '../api/schema/database/items_on_users';
 import { ItemRelatedUser } from '../api/schema/items';
 import { UserRelatedItem } from '../api/schema/user';
 import { User } from '../api/schema/user';
@@ -15,10 +18,26 @@ export class ItemUserRepository extends BaseRepository<ItemUserRelationshipDbObj
     super(TABLE_NAME);
   }
 
-  async findItemRelatedUsers(item_id: ID): Promise<(UserDbObject & ItemUserRelationshipDbObject)[]> {
+  async updateRelation(
+    user_id_fk: UserID,
+    item_id_fk: ID,
+    changes: Partial<ItemUserRelationshipDbObject>
+  ) {
+    return await this.db
+      .updateTable(TABLE_NAME)
+      .set(changes)
+      .where('user_id_fk', '=', user_id_fk)
+      .where('item_id_fk', '=', item_id_fk)
+      .returningAll()
+      .execute();
+  }
+
+  async findItemRelatedUsers(
+    item_id: ID
+  ): Promise<(UserDbObject & ItemUserRelationshipDbObject)[]> {
     const result = await this.db
       .selectFrom('users')
-      .innerJoin('items_on_users', 'users.user_id', 'items_on_users.user_id_fk')
+      .innerJoin(TABLE_NAME, 'users.user_id', 'items_on_users.user_id_fk')
       .selectAll()
       .where('item_id_fk', '=', item_id)
       .execute();
@@ -26,10 +45,12 @@ export class ItemUserRepository extends BaseRepository<ItemUserRelationshipDbObj
     return result;
   }
 
-  async findUserRelatedItems(user_id: UserID): Promise<(ItemDbObject & ItemUserRelationshipDbObject)[]> {
+  async findUserRelatedItems(
+    user_id: UserID
+  ): Promise<(ItemDbObject & ItemUserRelationshipDbObject)[]> {
     const result = await this.db
       .selectFrom('items')
-      .innerJoin('items_on_users', 'items.id', 'items_on_users.item_id_fk')
+      .innerJoin(TABLE_NAME, 'items.id', 'items_on_users.item_id_fk')
       .selectAll()
       .where('user_id_fk', '=', user_id)
       .execute();
@@ -47,5 +68,51 @@ export class ItemUserRepository extends BaseRepository<ItemUserRelationshipDbObj
       .where('item_id_fk', '=', item_id_fk)
       .where('user_id_fk', '=', user_id_fk)
       .executeTakeFirst();
+  }
+
+  async findUserRelatedItemsOnDate(
+    user_id: UserID,
+    date: string
+  ): Promise<(ItemDbObject & ItemUserRelationshipDbObject)[]> {
+    const result = await this.db
+      .selectFrom('items')
+      .innerJoin(TABLE_NAME, 'items.id', 'items_on_users.item_id_fk')
+      .selectAll()
+      .where('user_id_fk', '=', user_id)
+      .where('date', '=', date)
+      .execute();
+
+    return result;
+  }
+
+  async findUserRelatedItemsOnDay(
+    user_id: UserID,
+    day: string
+  ): Promise<(ItemDbObject & ItemUserRelationshipDbObject)[]> {
+    const result = await this.db
+      .selectFrom('items')
+      .innerJoin(TABLE_NAME, 'items.id', 'items_on_users.item_id_fk')
+      .selectAll()
+      .where('user_id_fk', '=', user_id)
+      .where('day', '=', day)
+      .execute();
+
+    return result;
+  }
+
+  async findUserRelatedItemsOnDateOrDay(
+    user_id: UserID,
+    date: string,
+    day: string
+  ): Promise<(ItemDbObject & ItemUserRelationshipDbObject)[]> {
+    const result = await this.db
+      .selectFrom('items')
+      .innerJoin(TABLE_NAME, 'items.id', 'items_on_users.item_id_fk')
+      .selectAll()
+      .where('user_id_fk', '=', user_id)
+      .where((eb) => eb.or([eb('date', '=', date), eb('day', '=', day)]))
+      .execute();
+
+    return result;
   }
 }

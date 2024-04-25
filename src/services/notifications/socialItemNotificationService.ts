@@ -4,11 +4,11 @@ import debouncer from 'signature-debouncer';
 import { ItemStatus, ListItem } from '../../api/mongo_schema/list';
 import { formatDate, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
-import { ItemOperations } from '../items/ItemOperations';
-import { SocialItem } from '../social/socialItem';
-import { SocialUser } from '../social/socialUser';
-import { UserModel } from '../users/userModel';
-import { UserOperations } from '../users/userOperations';
+import { ItemOperations } from '../../models/items/ItemOperations';
+import { SocialItem } from '../../models/social/socialItem';
+import { SocialUser } from '../../models/social/socialUser';
+import { UserModel } from '../../models/users/userModel';
+import { UserOperations } from '../../models/users/userOperations';
 import expoPushService from './expoPushService';
 
 export enum DebounceCategories {
@@ -18,14 +18,8 @@ export enum DebounceCategories {
 }
 
 export class SocialItemNotifications {
-  public static async newItemInvite(
-    to: SocialUser,
-    from: SocialUser,
-    item: SocialItem
-  ) {
-    logger.info(
-      `Notifying user ${to.getId()} of invite to item ${item.displayName()}`
-    );
+  public static async newItemInvite(to: SocialUser, from: SocialUser, item: SocialItem) {
+    logger.info(`Notifying user ${to.getId()} of invite to item ${item.displayName()}`);
     const itemContent = item.getContent();
 
     // Format the message
@@ -38,28 +32,23 @@ export class SocialItemNotifications {
 
     // Include dates and times if they are set
     if (itemContent.date && itemContent.time) {
-      message.body += ` at ${TwentyFourHourToAMPM(
-        itemContent.time
-      )} on ${formatDate(itemContent.date)}`;
+      message.body += ` at ${TwentyFourHourToAMPM(itemContent.time)} on ${formatDate(
+        itemContent.date
+      )}`;
     } else if (itemContent.date) {
       message.body += ` on ${formatDate(itemContent.date)}`;
- }
+    }
 
     // Send
     await expoPushService.pushNotificationToExpo([message]);
   }
 
   public static async newItemUser(from: SocialUser, item: SocialItem) {
-    logger.info(
-      `Notifying users on item ${item.displayName()} of new user ${from.getId()}`
-    );
+    logger.info(`Notifying users on item ${item.displayName()} of new user ${from.getId()}`);
 
     // Notify all users (except the one who joined)
     const itemContent = item.getContent();
-    const usersToNotify = ItemOperations.usersExceptFrom(
-      from.getId(),
-      itemContent
-    );
+    const usersToNotify = ItemOperations.usersExceptFrom(from.getId(), itemContent);
 
     // Get tokens
     const tokens = await this.groupUserTokens(usersToNotify);
@@ -77,7 +66,9 @@ export class SocialItemNotifications {
 
   public static async dateChanged(from: UserModel, item: ListItem) {
     const newDate = item.date;
-    if (!newDate) { return; }
+    if (!newDate) {
+      return;
+    }
 
     logger.info(
       `Notifying users on item ${item.title} (${
@@ -94,9 +85,7 @@ export class SocialItemNotifications {
     const message = {
       to: tokens,
       title: `${item.type} date updated`,
-      body: `${from.name()} updated the date of ${item.title} to ${formatDate(
-        item.date!
-      )}`,
+      body: `${from.name()} updated the date of ${item.title} to ${formatDate(item.date!)}`,
       sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
 
@@ -111,7 +100,9 @@ export class SocialItemNotifications {
 
   public static async timeChanged(from: UserModel, item: ListItem) {
     const newTime = item.time;
-    if (!newTime) { return; }
+    if (!newTime) {
+      return;
+    }
     logger.info(
       `Notifying users on item ${item.title} (${
         item.id
@@ -127,9 +118,7 @@ export class SocialItemNotifications {
     const message = {
       to: tokens,
       title: `${item.type} time updated`,
-      body: `${from.name()} updated the time of ${
-        item.title
-      } to ${TwentyFourHourToAMPM(newTime)}`,
+      body: `${from.name()} updated the time of ${item.title} to ${TwentyFourHourToAMPM(newTime)}`,
       sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
 
@@ -144,10 +133,14 @@ export class SocialItemNotifications {
 
   public static async statusChanged(from: UserModel, item: ListItem) {
     const newStatus = item.status;
-    if (!newStatus) { return; }
+    if (!newStatus) {
+      return;
+    }
 
     const usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
-    if (usersToNotify.length === 0) { return; }
+    if (usersToNotify.length === 0) {
+      return;
+    }
 
     logger.info(
       `Notifying ${usersToNotify.length} other users on item ${item.title} (${
@@ -161,9 +154,7 @@ export class SocialItemNotifications {
     // Format the message
     const message = {
       to: tokens,
-      title: `${item.type} ${
-        item.status === ItemStatus.Done ? 'Completed!' : item.status
-      }`,
+      title: `${item.type} ${item.status === ItemStatus.Done ? 'Completed!' : item.status}`,
       body: `${from.name()} marked ${item.title} as ${newStatus}`,
       sound: {
         critical: item.status === ItemStatus.Cancelled,

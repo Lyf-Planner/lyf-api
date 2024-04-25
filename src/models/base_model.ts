@@ -14,6 +14,10 @@ export abstract class BaseModel<T> {
     }
   }
 
+  public get() {
+    return this.entity;
+  }
+
   // All models parse the submitted db type to the internally used API type, and validate.
   // Note that relations are assumed to already be parsed
   protected abstract parse(db_object: DbObject, relation_db_object?: DbObject): T;

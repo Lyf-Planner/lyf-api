@@ -1,14 +1,12 @@
 import { ExpoPushMessage } from 'expo-server-sdk';
 
 import { Logger } from '../../utils/logging';
-import { SocialUser } from '../social/socialUser';
+import { SocialUser } from '../../models/social/socialUser';
 import expoPushService from './expoPushService';
 
 export class FriendNotifications {
   public static async newFriendRequest(to: SocialUser, from: SocialUser) {
-    logger.info(
-      `Notifying ${to.getId()} of friend request from ${from.getId()}`
-    );
+    logger.info(`Notifying ${to.getId()} of friend request from ${from.getId()}`);
 
     const message = {
       to: to.getContent().expo_tokens || [],
@@ -20,9 +18,7 @@ export class FriendNotifications {
   }
 
   public static async newFriend(to: SocialUser, from: SocialUser) {
-    logger.info(
-      `Notifying ${to.getId()} of accepted friend request from ${from.getId()}`
-    );
+    logger.info(`Notifying ${to.getId()} of accepted friend request from ${from.getId()}`);
 
     const message = {
       to: to.getContent().expo_tokens || [],

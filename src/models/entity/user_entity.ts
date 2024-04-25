@@ -1,8 +1,4 @@
-import {
-  UserDbObject,
-  UserID,
-  UserSensitiveFields
-} from '../../api/schema/database/user';
+import { UserDbObject, UserID, UserSensitiveFields } from '../../api/schema/database/user';
 import {
   PublicUser,
   User,
@@ -19,6 +15,10 @@ export class UserEntity extends BaseEntity<User> {
 
   constructor(entity: User, requested_by: UserID) {
     super(entity, requested_by);
+  }
+
+  public id() {
+    return this.entity.user_id
   }
 
   protected parse(dbObject: UserDbObject) {
@@ -65,6 +65,10 @@ export class UserEntity extends BaseEntity<User> {
     return this.entity.private;
   }
 
+  public name() {
+    return this.entity.display_name || this.entity.user_id;
+  }
+
   public getSensitive(): UserSensitiveFields {
     if (this.requestedBySelf()) {
       throw new Error('User tried to retrieve sensitive fields on another user');
@@ -80,7 +84,7 @@ export class UserEntity extends BaseEntity<User> {
       user_id: this.entity.user_id,
       display_name: this.entity.display_name,
       pfp_url: this.entity.pfp_url,
-      friends: this.entity.friends,
+      friends: this.entity.friends
     };
   }
 

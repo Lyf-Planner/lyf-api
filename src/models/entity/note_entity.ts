@@ -11,6 +11,10 @@ export class NoteEntity extends BaseEntity<Note> {
     super(entity, requested_by);
   }
 
+  public id() {
+    return this.entity.id;
+  }
+
   protected parse(dbObject: NoteDbObject) {
     const initialRelations: NoteRelations = {
       users: [] as NoteRelatedUser[],

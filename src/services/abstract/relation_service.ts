@@ -1,6 +1,7 @@
-import { Relation } from "../../api/schema";
-import { BaseService } from "./base_service";
+import { DbObject } from '../../api/schema/database';
+import { BaseRepository } from '../../repository/base_repository';
+import { BaseService } from './base_service';
 
-export class RelationService<T extends Relation, K extends Relation> extends BaseService {
-
+export abstract class RelationService<T extends DbObject> extends BaseService<T> {
+  protected abstract repository: BaseRepository<DbObject>;
 }

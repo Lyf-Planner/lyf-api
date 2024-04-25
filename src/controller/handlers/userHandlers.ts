@@ -4,8 +4,6 @@ import { User } from '../../api/mongo_schema/user';
 import { FriendshipManager } from '../../models/social/friendshipManager';
 import { UserModel } from '../../models/users/userModel';
 import { UserOperations } from '../../models/users/userOperations';
-import { AuthService } from '../../services/auth_service';
-import { UserService } from '../../services/user_service';
 import authUtils from '../../utils/authUtils';
 import { Logger } from '../../utils/logging';
 import { getMiddlewareVars } from '../utils';
