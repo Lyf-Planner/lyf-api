@@ -16,9 +16,10 @@ To run the app locally, simply git clone, then run
 yarn && yarn serve
 ```
 
-## Understanding the Architecture
+## The Architecture
 
-A lot of the architecture concerns itself with keeping the external representation and database representation of data points seperate. Due to this, there are two sets of types - one for internal use and export, the other corresponding directly to database tables. In turn, there is a layer which works only with database table types - `repository`, a layer which works only with the internal type - `service`, and a layer which converts the types - `model`. The other layer, controller, performs declarative actions on the services to carry out it's endpoint handling functionality.
+The architecture and design of the API largely concerns itself with translating the internal data stored in the database, to a more useful representation of the data which lends itself to more declarative operations and presents with a client-friendly structure.
+Due to this, there are two sets of types defined in the `schemas` - one for internal use and export (`api`), the other corresponding directly to database tables (`database`). In turn, there is a layer which works only with database table types - `repository`, a layer which works only with the internal type - `service`, and a layer which converts the types - `model`. The other layer, controller, performs declarative actions on the services to carry out it's endpoint handling functionality.
 
 **SCHEMAS**
 
