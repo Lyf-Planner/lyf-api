@@ -19,9 +19,12 @@ yarn && yarn serve
 ## The Architecture
 
 The architecture and design of the API largely concerns itself with translating the internal data stored in the database, to a more useful representation of the data which lends itself to more declarative operations and presents with a client-friendly structure.
-Due to this, there are two sets of types defined in the `schemas` - one for internal use and export (`api`), the other corresponding directly to database tables (`database`). In turn, there is a layer which works only with database table types - `repository`, a layer which works only with the internal type - `service`, and a layer which converts the types - `model`. The other layer, controller, performs declarative actions on the services to carry out it's endpoint handling functionality.
 
-**SCHEMAS**
+Due to this, there are two sets of types defined in the `schemas` - one for internal use and export (`api`), the other corresponding directly to database tables (`database`). In turn, there is a layer which works only with database table types - `repository`, a layer which works only with the internal type - `service`, and a layer which converts the types - `model`. 
+
+The other layer, `controller`, performs declarative actions on the services to carry out it's endpoint handling functionality.
+
+### SCHEMAS
 
 The `schemas` directory has two layers - `database` representing database objects and corresponding directly with db tables, and `api`, converting the database types into a more useful representation that we use internally for all business logic operations, as well as export.
 
@@ -31,49 +34,53 @@ The `schemas` directory has two layers - `database` representing database object
 - api
     - Types used internally
     - Contains two variants of types - Entities and Relations
-    - Entities include:
+    - Entities are:
       - users
       - items
       - notes
     - Relations are attached to entities and usually include
       - `dbObject` + `relationDbObject` - `relationPkFields`
-      - That is, they are the combination of the dbObject they query, plus the relational fields grabbed from the relevanty relation table (usually this is everything but the primary keys, but not always)
+      - That is, they are the combination of the dbObject they query, plus the relational fields grabbed from the relevant relation table (usually this is everything but the primary keys, but not always)
       - Example: `interface UserRelatedItem extends ItemDbObject, ItemUserRelationFields`, where `ItemUserRelationFields` is every field on `ItemUserRelationshipDbObject` except primary keys
 
-**LAYERS**
+### LAYERS
 
 The layers of the API itself are where all the operation of the server occurs. Each of them have their own context boundaries and responsibilities as follows
 
-- controller
-  - Links endpoints to handlers
-  - Calls on service layer to perform the tasks the endpoint entails
-    - These instructions should be highly declarative
-- service
-  - Performs business logic tasks, exposes these tasks to the controller declaratively
-  - Performs operations that span across multiple models
-  - Bridges the gap between the `model` and `repository` layer, by querying `database` data and sending it to the model to be transformed into `api` data
-  - Each EntityService has a buildModel method that calls the repository and creates a model from the result
-  - RelationService’s need two symmetric buildModel implementations
-- model
-    - Converts `database` representation to `api` representation
-    - Constructor always accepts dbObject types (relations accept two)
-      - Each model has a `parse` function that converts this constructor arg into an `api` type for encapsulation. 
-    - Encapsulates and adds methods to api interfaces
-    - Validates the api data
-    - Each `api` Entity -> Entity model
-        - Methods to append relations
-    - Each `api` Relation -> Relation model
-        - Common functionality of stripping `dbRelationshipObject` pks (or other fields) to store as an API relation
-        - Also has a seperate parser for the base dbObject
-- repository
-    - Retrieves data in ‘database’ format
-    - One per db table
-    - Returns relational data as dumb inner join (dbObject & dbRelationshipObject)
-    - Performs queries and all db access
-    - Any new query needs to live here!
-- db
-  - Contains implementations of the databases we use (PostgreSQL and MongoDB)
-  - Note that MongoDB is only relevant to Agenda.js which we use for persistent cron scheduling, and may soon be deprecated
+**controller**
+- Links endpoints to handlers
+- Calls on service layer to perform the tasks the endpoint entails
+  - These instructions should be highly declarative
+
+**service**
+- Performs business logic tasks, exposes these tasks to the controller declaratively
+- Performs operations that span across multiple models
+- Bridges the gap between the `model` and `repository` layer, by querying `database` data and sending it to the model to be transformed into `api` data
+- Each EntityService has a buildModel method that calls the repository and creates a model from the result
+- RelationService’s need two symmetric buildModel implementations
+
+**model**
+- Converts `database` representation to `api` representation
+- Constructor always accepts dbObject types (relations accept two)
+  - Each model has a `parse` function that converts this constructor arg into an `api` type for encapsulation. 
+- Encapsulates and adds methods to api interfaces
+- Validates the api data
+- Each `api` Entity -> Entity model
+    - Methods to append relations
+- Each `api` Relation -> Relation model
+    - Common functionality of stripping `dbRelationshipObject` pks (or other fields) to store as an API relation
+    - Also has a seperate parser for the base dbObject
+
+**repository**
+- Retrieves data in ‘database’ format
+- One per db table
+- Returns relational data as dumb inner join (dbObject & dbRelationshipObject)
+- Performs queries and all db access
+- Any new query needs to live here!
+
+**db**
+- Contains implementations of the databases we use (PostgreSQL and MongoDB)
+- Note that MongoDB is only relevant to Agenda.js which we use for persistent cron scheduling, and may soon be deprecated
 
 ## Contributing
 
