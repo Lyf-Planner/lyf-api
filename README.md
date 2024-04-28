@@ -24,26 +24,27 @@ Due to this, there are two sets of types defined in the `schemas` - one for inte
 
 The other layer, `controller`, performs declarative actions on the services to carry out it's endpoint handling functionality.
 
-### SCHEMAS
+### Schemas
 
 The `schemas` directory has two layers - `database` representing database objects and corresponding directly with db tables, and `api`, converting the database types into a more useful representation that we use internally for all business logic operations, as well as export.
 
-- database
-    - Interfaces correspond directly to db tables
-    - The grouped (|) type of all of these interfaces is the `DbObject` interface
-- api
-    - Types used internally
-    - Contains two variants of types - Entities and Relations
-    - Entities are:
-      - users
-      - items
-      - notes
-    - Relations are attached to entities and usually include
-      - `dbObject` + `relationDbObject` - `relationPkFields`
-      - That is, they are the combination of the dbObject they query, plus the relational fields grabbed from the relevant relation table (usually this is everything but the primary keys, but not always)
-      - Example: `interface UserRelatedItem extends ItemDbObject, ItemUserRelationFields`, where `ItemUserRelationFields` is every field on `ItemUserRelationshipDbObject` except primary keys
+**database**
+- Interfaces correspond directly to db tables
+- The grouped (|) type of all of these interfaces is the `DbObject` interface
 
-### LAYERS
+**api**
+- Types used internally
+- Contains two variants of types - Entities and Relations
+- Entities are:
+  - users
+  - items
+  - notes
+- Relations are attached to entities and usually include
+  - `dbObject` + `relationDbObject` - `relationPkFields`
+  - That is, they are the combination of the dbObject they query, plus the relational fields grabbed from the relevant relation table (usually this is everything but the primary keys, but not always)c
+  - Example: `interface UserRelatedItem extends ItemDbObject, ItemUserRelationFields`, where `ItemUserRelationFields` is every field on `ItemUserRelationshipDbObject` except primary keys
+
+### Layers
 
 The layers of the API itself are where all the operation of the server occurs. Each of them have their own context boundaries and responsibilities as follows
 
@@ -51,25 +52,44 @@ The layers of the API itself are where all the operation of the server occurs. E
 - Links endpoints to handlers
 - Calls on service layer to perform the tasks the endpoint entails
   - These instructions should be highly declarative
+- Essentially a very high level version of the service layer
 
 **service**
 - Performs business logic tasks, exposes these tasks to the controller declaratively
 - Performs operations that span across multiple models
-- Bridges the gap between the `model` and `repository` layer, by querying `database` data and sending it to the model to be transformed into `api` data
-- Each EntityService has a buildModel method that calls the repository and creates a model from the result
+- Performs all operations using the data exposed by model layer
 - RelationService’s need two symmetric buildModel implementations
 
 **model**
-- Converts `database` representation to `api` representation
-- Constructor always accepts dbObject types (relations accept two)
-  - Each model has a `parse` function that converts this constructor arg into an `api` type for encapsulation. 
-- Encapsulates and adds methods to api interfaces
-- Validates the api data
-- Each `api` Entity -> Entity model
-    - Methods to append relations
-- Each `api` Relation -> Relation model
-    - Common functionality of stripping `dbRelationshipObject` pks (or other fields) to store as an API relation
-    - Also has a seperate parser for the base dbObject
+- Layer converts `database` representation to `api` representation
+- Essentially our own ORM
+- Has a set of `COMMAND_TYPES`
+  - `Init`
+  - `Save`
+  - `Update`
+  - `Delete`
+  - `Create`
+  - `Export`
+- Each model has it's own relation inclusion map, depending on what relations it supports
+- Each model has a constructor with an ID and a relation inclusion map
+- Each model has methods which correspond to the command types, to pass the same operation onto their relations recursively
+  - Has a `.recurseRelations` method which accepts a `COMMAND_TYPE` and applies it to all the relations of a model (which, themselves are models)
+    - This can be implemented on the base model itself (instead of abstract)
+  - Has a static `.build` builder method, accepting an ID and relation graph which enacts a models `Create` command type.
+    - Creates the data in the db, then calls `.init`
+  - Has a `.init` method which enacts a models `Init` command type. 
+    - Fetches it's db data, then runs recurseRelations with fetch
+  - Has a `.save` method which enacts a models `Save` command type. 
+    - Saves the models state to db (strips `relations` in save), then runs recurseRelations with Save
+  - Has a `.update` method which enacts a models `Update` command type. 
+    - Updates internal model state, then saves also, then runs recurseRelations with Update
+  - Has a `.delete` method which enacts a models `Delete` command type
+    - Clears model internal state, clears db, then runs recurseRelations with Delete
+  - Has a `.export` method which enacts a models `Export` command type
+    - Serialises the data to the format it should be for the client (depending on validation, authorisation level etc), then runs recurseRelations with Export
+    - Has a `includeOptionals` param for commonly useless fields (e.g foreign keys)
+    - Has a `includeSensitives` param for sensitive fields
+  - All of the above have options for excluding the automatic recursion to the relaitons (an `excludeRelations` flag)
 
 **repository**
 - Retrieves data in ‘database’ format
