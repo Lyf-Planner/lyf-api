@@ -1,6 +1,6 @@
-import { DBObject } from '../../api/mongo_schema/abstract';
-import { Permission, Restricted } from '../../api/mongo_schema/social';
-import { Collection } from '../../repository/db/mongo/mongo_collection';
+import { DBObject } from '../../../api/mongo_schema/abstract';
+import { Permission, Restricted } from '../../../api/mongo_schema/social';
+import { Collection } from '../../../repository/db/mongo/mongo_collection';
 import { RemoteObject } from './remoteObject';
 
 export class RestrictedRemoteObject<T extends Restricted & DBObject> extends RemoteObject<T> {
@@ -37,6 +37,12 @@ export class RestrictedRemoteObject<T extends Restricted & DBObject> extends Rem
     var perm = this.content.permitted_users?.find((x) => x.user_id === user_id);
     var invite = this.content.invited_users?.find((x) => x.user_id === user_id);
 
-    if (!perm && !invite) { return; } else if (invite) { return Permission.Invited; } else if (perm) { return perm.permissions; }
+    if (!perm && !invite) {
+      return;
+    } else if (invite) {
+      return Permission.Invited;
+    } else if (perm) {
+      return perm.permissions;
+    }
   }
 }

@@ -1,11 +1,11 @@
-import { ItemStatus, ListItem } from '../../api/mongo_schema/list';
-import { Permission } from '../../api/mongo_schema/social';
-import { updateItemBody } from '../../controller/validators/itemValidators';
-import db from '../../repository/db/mongo/mongo_db';
-import { Logger } from '../../utils/logging';
+import { ItemStatus, ListItem } from '../../../api/mongo_schema/list';
+import { Permission } from '../../../api/mongo_schema/social';
+import { updateItemBody } from '../../../controller/validators/itemValidators';
+import db from '../../../repository/db/mongo/mongo_db';
+import { Logger } from '../../../utils/logging';
 import { RestrictedRemoteObject } from '../abstract/restrictedRemoteObject';
 import notificationManager from '../../services/notifications/notificationManager';
-import { SocialItemNotifications } from '../../services/notifications/socialItemNotificationService';
+import { SocialItemNotifications } from '../../../services/notifications/socialItemNotificationService';
 import { UserModel } from '../users/userModel';
 import { UserOperations } from '../users/userOperations';
 

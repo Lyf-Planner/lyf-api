@@ -1,6 +1,6 @@
-import { ID } from '../../api/mongo_schema/abstract';
-import { ListItem } from '../../api/mongo_schema/list';
-import { User } from '../../api/mongo_schema/user';
+import { ID } from '../../../api/mongo_schema/abstract';
+import { ListItem } from '../../../api/mongo_schema/list';
+import { User } from '../../../api/mongo_schema/user';
 import { UserModel } from '../users/userModel';
 import { SocialItem } from './socialItem';
 
@@ -21,13 +21,19 @@ export class SocialUser extends UserModel {
     var friends = this.content.social.friends || [];
 
     // Ensure the user has not already requested
-    if (this.userAlreadyPresent(requests, from)) { return; }
+    if (this.userAlreadyPresent(requests, from)) {
+      return;
+    }
 
     // Ensure the user is not already a friend
-    if (this.userAlreadyPresent(friends, from)) { return; }
+    if (this.userAlreadyPresent(friends, from)) {
+      return;
+    }
 
     // Ensure the user is not blocked
-    if (this.isBlocked(from)) { return; }
+    if (this.isBlocked(from)) {
+      return;
+    }
 
     // Add "from" user to this users requests
     requests.push(from);
@@ -44,13 +50,19 @@ export class SocialUser extends UserModel {
     const friends = this.content.social.friends || [];
 
     // Ensure the user has not already requested
-    if (this.userAlreadyPresent(requested, to)) { return; }
+    if (this.userAlreadyPresent(requested, to)) {
+      return;
+    }
 
     // Ensure the user is not already a friend
-    if (this.userAlreadyPresent(friends, to)) { return; }
+    if (this.userAlreadyPresent(friends, to)) {
+      return;
+    }
 
     // Ensure the user is not blocked
-    if (this.isBlocked(to)) { return; }
+    if (this.isBlocked(to)) {
+      return;
+    }
 
     requested.push(to);
     this.content.social.requested = requested;
@@ -154,7 +166,9 @@ export class SocialUser extends UserModel {
 
     var invited_items = this.content.timetable.invited_items;
     // Ensure user does not get multiple invites
-    if (invited_items && invited_items.includes(item_id)) { return; }
+    if (invited_items && invited_items.includes(item_id)) {
+      return;
+    }
 
     this.content.timetable.invited_items
       ? this.content.timetable.invited_items.push(item_id)
@@ -171,9 +185,7 @@ export class SocialUser extends UserModel {
     }
 
     // Remove from invites
-    const i = this.content.timetable.invited_items?.findIndex(
-      (x) => x === item_id
-    )!;
+    const i = this.content.timetable.invited_items?.findIndex((x) => x === item_id)!;
     this.content.timetable.invited_items?.splice(i, 1);
   }
 
@@ -193,10 +205,14 @@ export class SocialUser extends UserModel {
 
   public async addRoutineInstantiation(item: ListItem) {
     // Check the user is still on the routine
-    if (!item.template_id) { return; }
+    if (!item.template_id) {
+      return;
+    }
     const myItemIds = this.content.timetable.items.map((x) => x.id);
     const onRoutine = myItemIds.includes(item.template_id);
-    if (!onRoutine) { return; } else {
+    if (!onRoutine) {
+      return;
+    } else {
       this.logger.info(
         `Adding instantiation of routine ${item.title} (${item.template_id}) to user ${this.id}`
       );

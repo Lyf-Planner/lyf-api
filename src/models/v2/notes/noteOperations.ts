@@ -1,7 +1,7 @@
-import { ID } from '../../api/mongo_schema/abstract';
-import { Note } from '../../api/mongo_schema/notes';
-import db from '../../repository/db/mongo/mongo_db';
-import { Logger } from '../../utils/logging';
+import { ID } from '../../../api/mongo_schema/abstract';
+import { Note } from '../../../api/mongo_schema/notes';
+import db from '../../../repository/db/mongo/mongo_db';
+import { Logger } from '../../../utils/logging';
 import { NoteModel } from './noteModel';
 
 export class NoteOperations {
@@ -16,7 +16,9 @@ export class NoteOperations {
 
     var permitted = !checkPermissions || !!note.getUserPermission(user_id);
 
-    if (!permitted) { throw new Error(`User ${user_id} is not permitted to access item ${id}`); } else {
+    if (!permitted) {
+      throw new Error(`User ${user_id} is not permitted to access item ${id}`);
+    } else {
       return note;
     }
   }
@@ -28,7 +30,9 @@ export class NoteOperations {
     commit = false // Also create in db
   ): Promise<NoteModel> {
     var model = new NoteModel(noteInput, false, user_id);
-    if (commit) { await model.commit(); }
+    if (commit) {
+      await model.commit();
+    }
 
     return model;
   }

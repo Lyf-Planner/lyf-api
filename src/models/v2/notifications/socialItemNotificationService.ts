@@ -1,10 +1,10 @@
 import { ExpoPushMessage } from 'expo-server-sdk';
 import { SocialItem } from '../social/socialItem';
 import { SocialUser } from '../social/socialUser';
-import { TwentyFourHourToAMPM, formatDate } from '../../utils/dates';
+import { TwentyFourHourToAMPM, formatDate } from '../../../utils/dates';
 import { UserOperations } from '../users/userOperations';
-import { ItemStatus, ListItem } from '../../api/mongo_schema/list';
-import { Logger } from '../../utils/logging';
+import { ItemStatus, ListItem } from '../../../api/mongo_schema/list';
+import { Logger } from '../../../utils/logging';
 import { UserModel } from '../users/userModel';
 import { ItemOperations } from '../items/ItemOperations';
 
@@ -18,14 +18,8 @@ export enum DebounceCategories {
 }
 
 export class SocialItemNotifications {
-  public static async newItemInvite(
-    to: SocialUser,
-    from: SocialUser,
-    item: SocialItem
-  ) {
-    logger.info(
-      `Notifying user ${to.getId()} of invite to item ${item.displayName()}`
-    );
+  public static async newItemInvite(to: SocialUser, from: SocialUser, item: SocialItem) {
+    logger.info(`Notifying user ${to.getId()} of invite to item ${item.displayName()}`);
     const itemContent = item.getContent();
 
     // Format the message
@@ -38,27 +32,21 @@ export class SocialItemNotifications {
 
     // Include dates and times if they are set
     if (itemContent.date && itemContent.time)
-      message.body += ` at ${TwentyFourHourToAMPM(
-        itemContent.time
-      )} on ${formatDate(itemContent.date)}`;
-    else if (itemContent.date)
-      message.body += ` on ${formatDate(itemContent.date)}`;
+      message.body += ` at ${TwentyFourHourToAMPM(itemContent.time)} on ${formatDate(
+        itemContent.date
+      )}`;
+    else if (itemContent.date) message.body += ` on ${formatDate(itemContent.date)}`;
 
     // Send
     await expoPushService.pushNotificationToExpo([message]);
   }
 
   public static async newItemUser(from: SocialUser, item: SocialItem) {
-    logger.info(
-      `Notifying users on item ${item.displayName()} of new user ${from.getId()}`
-    );
+    logger.info(`Notifying users on item ${item.displayName()} of new user ${from.getId()}`);
 
     // Notify all users (except the one who joined)
     const itemContent = item.getContent();
-    let usersToNotify = ItemOperations.usersExceptFrom(
-      from.getId(),
-      itemContent
-    );
+    let usersToNotify = ItemOperations.usersExceptFrom(from.getId(), itemContent);
 
     // Get tokens
     let tokens = await this.groupUserTokens(usersToNotify);
@@ -93,9 +81,7 @@ export class SocialItemNotifications {
     let message = {
       to: tokens,
       title: `${item.type} date updated`,
-      body: `${from.name()} updated the date of ${item.title} to ${formatDate(
-        item.date!
-      )}`,
+      body: `${from.name()} updated the date of ${item.title} to ${formatDate(item.date!)}`,
       sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
 
@@ -126,9 +112,7 @@ export class SocialItemNotifications {
     let message = {
       to: tokens,
       title: `${item.type} time updated`,
-      body: `${from.name()} updated the time of ${
-        item.title
-      } to ${TwentyFourHourToAMPM(newTime)}`,
+      body: `${from.name()} updated the time of ${item.title} to ${TwentyFourHourToAMPM(newTime)}`,
       sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
 
@@ -160,9 +144,7 @@ export class SocialItemNotifications {
     // Format the message
     let message = {
       to: tokens,
-      title: `${item.type} ${
-        item.status === ItemStatus.Done ? 'Completed!' : item.status
-      }`,
+      title: `${item.type} ${item.status === ItemStatus.Done ? 'Completed!' : item.status}`,
       body: `${from.name()} marked ${item.title} as ${newStatus}`,
       sound: {
         critical: item.status === ItemStatus.Cancelled,

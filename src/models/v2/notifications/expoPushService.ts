@@ -1,5 +1,5 @@
 import { Expo, ExpoPushMessage } from 'expo-server-sdk';
-import { Logger } from '../../utils/logging';
+import { Logger } from '../../../utils/logging';
 
 export class ExpoPushService {
   private expo: Expo;
@@ -15,9 +15,7 @@ export class ExpoPushService {
       // Check that all your push tokens appear to be valid Expo push tokens
       for (let token of message.to) {
         if (!Expo.isExpoPushToken(token)) {
-          this.logger.error(
-            `Push token ${token} is not a valid Expo push token`
-          );
+          this.logger.error(`Push token ${token} is not a valid Expo push token`);
           continue;
         }
       }
@@ -28,9 +26,7 @@ export class ExpoPushService {
       for (let chunk of chunks) {
         try {
           let ticketChunk = await this.expo.sendPushNotificationsAsync(chunk);
-          this.logger.info(
-            `Sent message and received ticket ${JSON.stringify(ticketChunk)}`
-          );
+          this.logger.info(`Sent message and received ticket ${JSON.stringify(ticketChunk)}`);
           tickets.push(...ticketChunk);
           // NOTE: If a ticket contains an error code in ticket.details.error, you
           // must handle it appropriately. The error codes are listed in the Expo

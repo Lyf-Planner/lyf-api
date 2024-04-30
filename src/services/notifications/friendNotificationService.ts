@@ -1,7 +1,7 @@
 import { ExpoPushMessage } from 'expo-server-sdk';
 
 import { Logger } from '../../utils/logging';
-import { SocialUser } from '../../models/social/socialUser';
+import { SocialUser } from '../../models/v2/social/socialUser';
 import expoPushService from './expoPushService';
 
 export class FriendNotifications {

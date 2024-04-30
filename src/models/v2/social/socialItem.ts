@@ -1,6 +1,6 @@
-import { ID } from '../../api/mongo_schema/abstract';
-import { ListItem } from '../../api/mongo_schema/list';
-import { Permission } from '../../api/mongo_schema/social';
+import { ID } from '../../../api/mongo_schema/abstract';
+import { ListItem } from '../../../api/mongo_schema/list';
+import { Permission } from '../../../api/mongo_schema/social';
 import { ItemModel } from '../items/itemModel';
 import { SocialUser } from './socialUser';
 
@@ -14,15 +14,11 @@ export class SocialItem extends ItemModel {
   }
 
   public inviteUser(invited_user: SocialUser, invited_by: SocialUser) {
-    const inviter = this.content.permitted_users.find(
-      (x) => x.user_id === invited_by.getId()
-    );
+    const inviter = this.content.permitted_users.find((x) => x.user_id === invited_by.getId());
 
     // User must be the owner to do this! (currently)
     if (!inviter || inviter?.permissions !== Permission.Owner) {
-      throw new Error(
-        'You must be the creator of this task/event to add other users'
-      );
+      throw new Error('You must be the creator of this task/event to add other users');
     }
 
     const inviterFriendship = invited_by
@@ -53,14 +49,11 @@ export class SocialItem extends ItemModel {
     }
 
     const invite =
-      this.content.invited_users &&
-      this.content.invited_users.find((x) => x.user_id === user_id);
+      this.content.invited_users && this.content.invited_users.find((x) => x.user_id === user_id);
 
     // Ensure user is invited
     if (!invite) {
-      throw new Error(
-        'Server Error: User had Invited permission but could not find invite'
-      );
+      throw new Error('Server Error: User had Invited permission but could not find invite');
     }
 
     if (accepted) {
@@ -72,9 +65,7 @@ export class SocialItem extends ItemModel {
     }
 
     // Remove user from invite list
-    const i = this.content.invited_users?.findIndex(
-      (x) => x.user_id === invite.user_id
-    )!;
+    const i = this.content.invited_users?.findIndex((x) => x.user_id === invite.user_id)!;
     this.content.invited_users?.splice(i, 1);
   }
 
@@ -87,9 +78,7 @@ export class SocialItem extends ItemModel {
       throw new Error('You must be the Owner to kick another user!');
     }
 
-    const i = this.content.permitted_users.findIndex(
-      (x) => x.user_id === user_id
-    );
+    const i = this.content.permitted_users.findIndex((x) => x.user_id === user_id);
     this.content.permitted_users.splice(i, 1);
   }
 
@@ -100,10 +89,10 @@ export class SocialItem extends ItemModel {
     }
 
     const user_id = user.getId();
-    if (!this.content.invited_users) { return; }
-    const i = this.content.invited_users.findIndex(
-      (x) => x.user_id === user_id
-    );
+    if (!this.content.invited_users) {
+      return;
+    }
+    const i = this.content.invited_users.findIndex((x) => x.user_id === user_id);
     this.content.invited_users.splice(i, 1);
   }
 }

@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 
 import { User } from '../../api/mongo_schema/user';
-import { FriendshipManager } from '../../models/social/friendshipManager';
-import { UserModel } from '../../models/users/userModel';
-import { UserOperations } from '../../models/users/userOperations';
+import { FriendshipManager } from '../../models/v2/social/friendshipManager';
+import { UserModel } from '../../models/v2/users/userModel';
+import { UserOperations } from '../../models/v2/users/userOperations';
 import authUtils from '../../utils/authUtils';
 import { Logger } from '../../utils/logging';
 import { getMiddlewareVars } from '../utils';
@@ -22,15 +22,9 @@ export class UserHandlers {
     logger.debug(`Received login request for user ${user_id}`);
 
     try {
-      const userModel = await UserOperations.retrieveForUser(
-        user_id as string,
-        user_id as string
-      );
+      const userModel = await UserOperations.retrieveForUser(user_id as string, user_id as string);
 
-      const token = await authUtils.authenticate(
-        userModel.getUser() as User,
-        password as string
-      );
+      const token = await authUtils.authenticate(userModel.getUser() as User, password as string);
       if (!token) {
         res.status(401).end('Incorrect password');
         return;
@@ -69,10 +63,7 @@ export class UserHandlers {
     logger.debug(`Received request for user ${user_id} from "${requestorId}"`);
 
     try {
-      const userModel = await UserOperations.retrieveForUser(
-        user_id as string,
-        requestorId
-      );
+      const userModel = await UserOperations.retrieveForUser(user_id as string, requestorId);
       res.status(200).json(userModel.getUser(false)).end();
     } catch (err) {
       res.status(400).end('User not found');
@@ -83,9 +74,7 @@ export class UserHandlers {
     const { user_ids } = req.body;
     const requestorId = getMiddlewareVars(res).user_id;
 
-    logger.debug(
-      `Received request for user ids ${user_ids} from "${requestorId}"`
-    );
+    logger.debug(`Received request for user ids ${user_ids} from "${requestorId}"`);
 
     const users = await UserOperations.retrieveManyUsers(user_ids);
     res.status(200).json(users).end();
@@ -104,10 +93,7 @@ export class UserHandlers {
       // const token = await new AuthService().authenticate(userModel.getEntity(), password);
 
       const user = await UserOperations.createNew(user_id, password, true, tz);
-      const token = await authUtils.authenticate(
-        user.getUser() as User,
-        password as string
-      );
+      const token = await authUtils.authenticate(user.getUser() as User, password as string);
       res.status(201).json({ user, token }).end();
     } catch (err) {
       logger.error(err);
@@ -141,23 +127,17 @@ export class UserHandlers {
 
     // Authorisation checks
     try {
-      const user = (await UserOperations.retrieveForUser(
-        user_id,
-        user_id
-      )) as UserModel;
-      const token = await authUtils.authenticate(
-        user.getUser() as User,
-        password as string
-      );
-      if (!token) { throw new Error('Incorrect password'); }
+      const user = (await UserOperations.retrieveForUser(user_id, user_id)) as UserModel;
+      const token = await authUtils.authenticate(user.getUser() as User, password as string);
+      if (!token) {
+        throw new Error('Incorrect password');
+      }
 
       // Perform delete
       await user!.deleteFromDb();
       res.status(204).end();
     } catch (err) {
-      logger.error(
-        `User ${user_id} entered incorrect password when trying to delete self`
-      );
+      logger.error(`User ${user_id} entered incorrect password when trying to delete self`);
       res.status(401).end(`${err}`);
       return;
     }

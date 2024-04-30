@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 
 import { Note } from '../../api/mongo_schema/notes';
 import { Permission } from '../../api/mongo_schema/social';
-import { NoteModel } from '../../models/notes/noteModel';
-import { NoteOperations } from '../../models/notes/noteOperations';
+import { NoteModel } from '../../models/v2/notes/noteModel';
+import { NoteOperations } from '../../models/v2/notes/noteOperations';
 import { Logger } from '../../utils/logging';
 import { getMiddlewareVars } from '../utils';
 
@@ -24,9 +24,7 @@ export class NoteHandlers {
     const note = req.body as Note;
     const user_id = getMiddlewareVars(res).user_id;
 
-    logger.debug(
-      `Updating note ${note.title} (${note.id}) from user ${user_id}`
-    );
+    logger.debug(`Updating note ${note.title} (${note.id}) from user ${user_id}`);
 
     // Authorisation checks
     try {
@@ -49,10 +47,7 @@ export class NoteHandlers {
 
     // Authorisation checks
     try {
-      const note = await NoteOperations.retrieveForUser(
-        note_id as string,
-        user_id
-      );
+      const note = await NoteOperations.retrieveForUser(note_id as string, user_id);
       const perm = note.requestorPermission();
       if (!perm || perm !== Permission.Owner) {
         throw new Error('Notes can only be deleted by their owner/creator');
@@ -62,9 +57,7 @@ export class NoteHandlers {
       await note!.deleteFromDb();
       res.status(204).end();
     } catch (err) {
-      logger.error(
-        `User ${user_id} tried to delete ${note_id} without valid permissions`
-      );
+      logger.error(`User ${user_id} tried to delete ${note_id} without valid permissions`);
       res.status(403).end(`${err}`);
     }
   }
@@ -80,9 +73,7 @@ export class NoteHandlers {
       const note = await NoteOperations.retrieveForUser(note_id, user_id);
       res.status(200).json(note!.getContent()).end();
     } catch (err) {
-      logger.error(
-        `User ${user_id} requested item ${note_id} to which they don't have access`
-      );
+      logger.error(`User ${user_id} requested item ${note_id} to which they don't have access`);
       res.status(403).end(`${err}`);
     }
   }

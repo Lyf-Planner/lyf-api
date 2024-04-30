@@ -1,11 +1,11 @@
 import { v4 as uuid } from 'uuid';
 
-import { ID } from '../../api/mongo_schema/abstract';
-import { ItemSettings, ItemStatus, ListItem, ListItemTypes } from '../../api/mongo_schema/list';
-import { Permission } from '../../api/mongo_schema/social';
-import db from '../../repository/db/mongo/mongo_db';
-import { formatDateData } from '../../utils/dates';
-import { Logger } from '../../utils/logging';
+import { ID } from '../../../api/mongo_schema/abstract';
+import { ItemSettings, ItemStatus, ListItem, ListItemTypes } from '../../../api/mongo_schema/list';
+import { Permission } from '../../../api/mongo_schema/social';
+import db from '../../../repository/db/mongo/mongo_db';
+import { formatDateData } from '../../../utils/dates';
+import { Logger } from '../../../utils/logging';
 import { SocialItem } from '../social/socialItem';
 import { SocialUser } from '../social/socialUser';
 import { UserOperations } from '../users/userOperations';
@@ -25,7 +25,9 @@ export class ItemOperations {
       : new ItemModel(result as ListItem, true, user_id);
 
     var permitted = !checkPermissions || !!item.getUserPermission(user_id);
-    if (!permitted) { throw new Error(`User ${user_id} is not permitted to access item ${id}`); } else {
+    if (!permitted) {
+      throw new Error(`User ${user_id} is not permitted to access item ${id}`);
+    } else {
       return item;
     }
   }
@@ -43,12 +45,18 @@ export class ItemOperations {
     if (item.template_id && item.permitted_users?.length > 1) {
       const otherUsers = this.usersExceptFrom(user_id, item);
       for (const user of otherUsers) {
-        const socialUser = (await UserOperations.retrieveForUser(user, user_id, true)) as SocialUser;
+        const socialUser = (await UserOperations.retrieveForUser(
+          user,
+          user_id,
+          true
+        )) as SocialUser;
         await socialUser.addRoutineInstantiation(item);
       }
     }
 
-    if (commit) { await model.commit(); }
+    if (commit) {
+      await model.commit();
+    }
 
     return model;
   }

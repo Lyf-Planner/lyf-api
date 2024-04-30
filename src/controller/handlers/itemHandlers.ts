@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import PQueue from 'p-queue';
 
 import { Permission } from '../../api/mongo_schema/social';
-import { ItemOperations } from '../../models/items/ItemOperations';
-import { SocialItemManager } from '../../models/social/socialItemManager';
+import { ItemOperations } from '../../models/v2/items/ItemOperations';
+import { SocialItemManager } from '../../models/v2/social/socialItemManager';
 import { Logger } from '../../utils/logging';
 import { getMiddlewareVars } from '../utils';
 import {
