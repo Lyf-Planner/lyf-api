@@ -10,9 +10,9 @@ import { Logger } from '../utils/logging';
 import { ItemNoteService } from './item_note_service';
 import { ItemUserService } from './item_user_service';
 import { EntityService } from './abstract/entity_service';
-import { ItemEntity } from '../models/entity/item_entity';
-import { UserEntity } from '../models/entity/user_entity';
-import { UserItemRelation } from '../models/relation/user_related_item';
+import { ItemEntity } from '../models/v3/entity/item_entity';
+import { UserEntity } from '../models/v3/entity/user_entity';
+import { UserItemRelation } from '../models/v3/relation/user_related_item';
 
 export class ItemService extends EntityService<Item, ItemEntity> {
   protected repository: ItemRepository;

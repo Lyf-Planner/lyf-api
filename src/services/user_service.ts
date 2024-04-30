@@ -1,6 +1,6 @@
 import { UserDbObject, UserID } from '../api/schema/database/user';
 import { User } from '../api/schema/user';
-import { UserEntity } from '../models/entity/user_entity';
+import { UserEntity } from '../models/v3/entity/user_entity';
 import { UserRepository } from '../repository/user_repository';
 import { formatDateData } from '../utils/dates';
 import { Logger } from '../utils/logging';

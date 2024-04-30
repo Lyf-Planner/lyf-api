@@ -1,9 +1,9 @@
-import { NoteDbObject } from '../../api/schema/database/notes';
+import { NoteDbObject } from '../../../api/schema/database/notes';
 import {
   NoteUserRelations,
   NoteUserRelationshipDbObject
-} from '../../api/schema/database/notes_on_users';
-import { UserRelatedNote } from '../../api/schema/user';
+} from '../../../api/schema/database/notes_on_users';
+import { UserRelatedNote } from '../../../api/schema/user';
 import { BaseRelation } from './base_relation';
 
 export class UserNoteRelation extends BaseRelation<UserRelatedNote> {

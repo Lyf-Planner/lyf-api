@@ -1,6 +1,6 @@
 import { UserID } from '../api/schema/database/user';
 import { Note } from '../api/schema/notes';
-import { NoteEntity } from '../models/entity/note_entity';
+import { NoteEntity } from '../models/v3/entity/note_entity';
 import { NoteRepository } from '../repository/note_repository';
 import { Logger } from '../utils/logging';
 import { EntityService } from './abstract/entity_service';

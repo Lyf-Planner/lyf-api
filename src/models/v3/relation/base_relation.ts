@@ -1,6 +1,6 @@
-import { Relation } from '../../api/schema';
-import { DbObject } from '../../api/schema/database';
-import { UserID } from '../../api/schema/database/user';
+import { Relation } from '../../../api/schema';
+import { DbObject } from '../../../api/schema/database';
+import { UserID } from '../../../api/schema/database/user';
 import { BaseModel } from '../base_model';
 
 export abstract class BaseRelation<T extends Relation> extends BaseModel<T> {

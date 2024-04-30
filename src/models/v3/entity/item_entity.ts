@@ -1,7 +1,7 @@
-import { ItemDbObject } from '../../api/schema/database/items';
-import { UserID } from '../../api/schema/database/user';
-import { Item, ItemRelatedUser, ItemRelations } from '../../api/schema/items';
-import { Logger } from '../../utils/logging';
+import { ItemDbObject } from '../../../api/schema/database/items';
+import { UserID } from '../../../api/schema/database/user';
+import { Item, ItemRelatedUser, ItemRelations } from '../../../api/schema/items';
+import { Logger } from '../../../utils/logging';
 import { BaseEntity } from './base_entity';
 
 export class ItemEntity extends BaseEntity<Item> {

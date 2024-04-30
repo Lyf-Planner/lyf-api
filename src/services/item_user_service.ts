@@ -4,10 +4,10 @@ import {
   ItemUserRelationshipDbObject
 } from '../api/schema/database/items_on_users';
 import { UserID } from '../api/schema/database/user';
-import { ItemEntity } from '../models/entity/item_entity';
-import { UserEntity } from '../models/entity/user_entity';
-import { ItemUserRelation } from '../models/relation/item_related_user';
-import { UserItemRelation } from '../models/relation/user_related_item';
+import { ItemEntity } from '../models/v3/entity/item_entity';
+import { UserEntity } from '../models/v3/entity/user_entity';
+import { ItemUserRelation } from '../models/v3/relation/item_related_user';
+import { UserItemRelation } from '../models/v3/relation/user_related_item';
 import { ItemUserRepository } from '../repository/item_user_repository';
 import { Logger } from '../utils/logging';
 import { RelationService } from './abstract/relation_service';

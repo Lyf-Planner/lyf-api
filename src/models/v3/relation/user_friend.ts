@@ -1,9 +1,9 @@
-import { UserDbObject, UserPublicFields } from '../../api/schema/database/user';
+import { UserDbObject, UserPublicFields } from '../../../api/schema/database/user';
 import {
   UserFriendshipDbObject,
   UserFriendshipRelations
-} from '../../api/schema/database/user_friendships';
-import { UserFriend } from '../../api/schema/user';
+} from '../../../api/schema/database/user_friendships';
+import { UserFriend } from '../../../api/schema/user';
 import { BaseRelation } from './base_relation';
 
 export class UserFriendRelation extends BaseRelation<UserFriend> {

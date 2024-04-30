@@ -2,7 +2,7 @@ import { Entity } from '../../api/schema';
 import { DbObject } from '../../api/schema/database';
 import { ID } from '../../api/schema/database/abstract';
 import { UserID } from '../../api/schema/database/user';
-import { BaseEntity } from '../../models/entity/base_entity';
+import { BaseEntity } from '../../models/v3/entity/base_entity';
 import { BaseRepository } from '../../repository/base_repository';
 import { BaseService } from './base_service';
 

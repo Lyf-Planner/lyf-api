@@ -1,7 +1,7 @@
-import { NoteDbObject } from '../../api/schema/database/notes';
-import { UserID } from '../../api/schema/database/user';
-import { Note, NoteRelatedItem, NoteRelatedUser, NoteRelations } from '../../api/schema/notes';
-import { Logger } from '../../utils/logging';
+import { NoteDbObject } from '../../../api/schema/database/notes';
+import { UserID } from '../../../api/schema/database/user';
+import { Note, NoteRelatedItem, NoteRelatedUser, NoteRelations } from '../../../api/schema/notes';
+import { Logger } from '../../../utils/logging';
 import { BaseEntity } from './base_entity';
 
 export class NoteEntity extends BaseEntity<Note> {

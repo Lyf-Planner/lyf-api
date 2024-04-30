@@ -1,9 +1,9 @@
 import {
   ItemUserRelations,
   ItemUserRelationshipDbObject
-} from '../../api/schema/database/items_on_users';
-import { UserDbObject } from '../../api/schema/database/user';
-import { ItemRelatedUser } from '../../api/schema/items';
+} from '../../../api/schema/database/items_on_users';
+import { UserDbObject } from '../../../api/schema/database/user';
+import { ItemRelatedUser } from '../../../api/schema/items';
 import { BaseRelation } from './base_relation';
 
 export class ItemUserRelation extends BaseRelation<ItemRelatedUser> {

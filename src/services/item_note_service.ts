@@ -1,7 +1,7 @@
 import { ID } from '../api/schema/database/abstract';
 import { ItemNoteRelationshipDbObject } from '../api/schema/database/items_on_notes';
-import { ItemEntity } from '../models/entity/item_entity';
-import { NoteItemRelation } from '../models/relation/note_related_item';
+import { ItemEntity } from '../models/v3/entity/item_entity';
+import { NoteItemRelation } from '../models/v3/relation/note_related_item';
 import { ItemNoteRepository } from '../repository/item_note_repository';
 import { Logger } from '../utils/logging';
 import { RelationService } from './abstract/relation_service';

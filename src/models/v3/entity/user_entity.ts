@@ -1,4 +1,4 @@
-import { UserDbObject, UserID, UserSensitiveFields } from '../../api/schema/database/user';
+import { UserDbObject, UserID, UserSensitiveFields } from '../../../api/schema/database/user';
 import {
   PublicUser,
   User,
@@ -6,8 +6,8 @@ import {
   UserRelatedItem,
   UserRelatedNote,
   UserRelations
-} from '../../api/schema/user';
-import { Logger } from '../../utils/logging';
+} from '../../../api/schema/user';
+import { Logger } from '../../../utils/logging';
 import { BaseEntity } from './base_entity';
 
 export class UserEntity extends BaseEntity<User> {
@@ -18,7 +18,7 @@ export class UserEntity extends BaseEntity<User> {
   }
 
   public id() {
-    return this.entity.user_id
+    return this.entity.user_id;
   }
 
   protected parse(dbObject: UserDbObject) {

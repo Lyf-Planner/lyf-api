@@ -1,5 +1,5 @@
-import { DbObject } from '../api/schema/database';
-import { UserID } from '../api/schema/database/user';
+import { DbObject } from '../../api/schema/database';
+import { UserID } from '../../api/schema/database/user';
 
 export abstract class BaseModel<T> {
   protected entity: T;
