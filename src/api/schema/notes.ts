@@ -12,4 +12,6 @@ export interface NoteRelations {
   items: NoteRelatedItem[];
 }
 
-export interface Note extends NoteDbObject, Partial<NoteRelations> {}
+export interface Note extends NoteDbObject {
+  relations: Partial<NoteRelations>;
+}

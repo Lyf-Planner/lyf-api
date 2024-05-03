@@ -63,22 +63,24 @@ The layers of the API itself are where all the operation of the server occurs. E
 **model**
 - Layer converts `database` representation to `api` representation
 - Essentially our own ORM
-- Has a set of `COMMAND_TYPES`
+- Has an enum of `CommandType`s
+  - `Create`
+  - `Delete`
+  - `Export`
+  - `Extract`
   - `Init`
   - `Save`
   - `Update`
-  - `Delete`
-  - `Create`
-  - `Export`
+  - `Validate`
 - Each model has it's own relation inclusion map, depending on what relations it supports
 - Each model has a constructor with an ID and a relation inclusion map
 - Each model has methods which correspond to the command types, to pass the same operation onto their relations recursively
+  - Has a static `.build` builder method, accepting an ID and relation graph which enacts a models `Create` command type.
   - Has a `.recurseRelations` method which accepts a `COMMAND_TYPE` and applies it to all the relations of a model (which, themselves are models)
     - This can be implemented on the base model itself (instead of abstract)
-  - Has a static `.build` builder method, accepting an ID and relation graph which enacts a models `Create` command type.
-    - Creates the data in the db, then calls `.init`
-  - Has a `.init` method which enacts a models `Init` command type. 
-    - Fetches it's db data, then runs recurseRelations with fetch
+    - Validates creation data, creates the data in the db, then calls `.init`
+  - Has a `.load` method which enacts a models `Load` command type. 
+    - Fetches it's db data by it's ID, then runs recurseRelations with fetch
   - Has a `.save` method which enacts a models `Save` command type. 
     - Saves the models state to db (strips `relations` in save), then runs recurseRelations with Save
   - Has a `.update` method which enacts a models `Update` command type. 
@@ -89,6 +91,8 @@ The layers of the API itself are where all the operation of the server occurs. E
     - Serialises the data to the format it should be for the client (depending on validation, authorisation level etc), then runs recurseRelations with Export
     - Has a `includeOptionals` param for commonly useless fields (e.g foreign keys)
     - Has a `includeSensitives` param for sensitive fields
+  - Has a `.validate` method which enacts a models `Validate` command type
+    - Validates the data, accounting for requirements passed by the parent
   - All of the above have options for excluding the automatic recursion to the relaitons (an `excludeRelations` flag)
 
 **repository**

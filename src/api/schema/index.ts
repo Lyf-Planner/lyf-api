@@ -1,7 +1,7 @@
 import { ItemDbObject } from './database/items';
-import { Item, ItemRelatedUser } from './items';
-import { Note, NoteRelatedItem, NoteRelatedUser } from './notes';
-import { PublicUser, User, UserFriend, UserRelatedItem, UserRelatedNote } from './user';
+import { Item, ItemRelatedUser, ItemRelations } from './items';
+import { Note, NoteRelatedItem, NoteRelatedUser, NoteRelations } from './notes';
+import { PublicUser, User, UserFriend, UserRelatedItem, UserRelatedNote, UserRelations } from './user';
 
 export interface Entities {
   user: User|PublicUser;
@@ -23,4 +23,6 @@ export interface Relations {
   noteItems: NoteRelatedItem;
 }
 
-export type Relation = Relations[keyof Relations];
+export type AllRelations = ItemRelations & NoteRelations & UserRelations
+export type RelationKey = keyof AllRelations
+export type Relation = AllRelations[RelationKey];

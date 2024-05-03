@@ -12,11 +12,14 @@ export interface UserRelatedItem extends Item, ItemUserRelations {}
 export interface UserRelatedNote extends Note, NoteUserRelations {}
 
 export interface UserRelations {
-  friends: UserFriend[];
+  users: UserFriend[];
   items: UserRelatedItem[];
   notes: UserRelatedNote[];
 }
 
-export interface User extends UserDbObject, Partial<UserRelations> {}
-export interface PublicUser extends UserPublicFields, Partial<UserRelations> {}
-
+export interface User extends UserDbObject {
+  relations: Partial<UserRelations>;
+}
+export interface PublicUser extends UserPublicFields {
+  relations: Partial<UserRelations>;
+}

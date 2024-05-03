@@ -1,39 +1,76 @@
-import { DbObject } from '../../api/schema/database';
+import { Entity, RelationKey } from '../../api/schema';
+import { ID } from '../../api/schema/database/abstract';
 import { UserID } from '../../api/schema/database/user';
+import { LyfError } from '../../utils/lyf_error';
+import { CommandType } from './command_types';
 
-export abstract class BaseModel<T> {
-  protected entity: T;
-  protected requestedBy: UserID;
+export type InternalRelations = Record<RelationKey, BaseModel<Entity>>;
 
-  constructor(object: DbObject, requested_by: UserID, validate = true) {
-    this.entity = this.parse(object);
-    this.requestedBy = requested_by;
+export type ModelExtract = Entity & {
+  relations: Record<string, ModelExtract>;
+};
 
-    if (validate) {
-      this.validate();
+export abstract class BaseModel<T extends Entity> {
+  protected id: ID | UserID;
+
+  protected baseEntity?: T;
+  protected relations: Record<string, BaseModel<Entity>> = {};
+
+  public abstract delete(): Promise<null>;
+  public abstract export(requestor?: UserID): Promise<ModelExtract>;
+  public extract(): Promise<ModelExtract> { return this.baseModelExtract() }
+  public abstract load(id?: ID | UserID): Promise<Partial<T>>;
+  public abstract validate(requirements?: object): Promise<void>;
+  public abstract update(changes?: Partial<T>): Promise<Partial<T>>;
+  protected abstract save(): Promise<Partial<T>>;
+  
+  constructor(id: ID | UserID) {
+    this.id = id;
+  }
+
+  // Should be called by each of the major commands
+  // Return value may be unused and may not actually be async
+  public async recurseMyRelations<K>(
+    command: CommandType,
+    payload?: Partial<T>
+  ): Promise<Record<string, K>> {
+    const recursedRelations: Record<string, K> = {};
+
+    for (const [key, value] of Object.entries(this.relations)) {
+      recursedRelations[key] = await this.recurseRelation(command, value, payload) as K
+    }
+
+    return recursedRelations;
+  }
+
+  public async recurseRelation(command: CommandType, model: BaseModel<Entity>, payload?: any) {
+    switch (command) {
+      case CommandType.Delete:
+        return await model.delete();
+      case CommandType.Export:
+        return await model.export();
+      case CommandType.Extract:
+        return await model.extract();
+      case CommandType.Load:
+        return await model.load();
+      case CommandType.Save:
+        return await model.save();
+      case CommandType.Update:
+        return await model.update(payload);
+      case CommandType.Validate:
+        return await model.validate(payload);
     }
   }
 
-  public get() {
-    return this.entity;
-  }
-
-  // All models parse the submitted db type to the internally used API type, and validate.
-  // Note that relations are assumed to already be parsed
-  protected abstract parse(db_object: DbObject, relation_db_object?: DbObject): T;
-
-  public validate() {}
-  public export(): any {
-    return this.entity;
-  }
-
-  public update(changes: Partial<T>, validate = true) {
-    const updatedContent = { ...this.entity, ...changes };
-
-    this.entity = updatedContent;
-
-    if (validate) {
-      this.validate();
+  // Extract is the one command type we can just do straight on the BaseModel
+  private async baseModelExtract(): Promise<ModelExtract> {
+    if (!this.baseEntity) {
+      throw new LyfError('Server did not load Model before extraction', 500);
     }
+
+    return {
+      ...this.baseEntity,
+      relations: await this.recurseMyRelations<ModelExtract>(CommandType.Extract),
+    };
   }
 }

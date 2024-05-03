@@ -6,7 +6,9 @@ export interface ItemRelatedUser extends PublicUser, ItemUserRelations {}
 
 export interface ItemRelations {
   users: ItemRelatedUser[];
-  template?: Item; // if template_id present
+  items: Item[]; // if template_id present
 }
 
-export interface Item extends ItemDbObject, Partial<ItemRelations> {}
+export interface Item extends ItemDbObject {
+  relations: Partial<ItemRelations>
+}
