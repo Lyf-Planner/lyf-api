@@ -4,8 +4,10 @@ import { NoteDbObject } from './database/notes';
 import { NoteUserRelations } from './database/notes_on_users';
 import { UserPublicFields } from './database/user';
 
-export interface NoteRelatedUser extends UserPublicFields, NoteUserRelations {}
 export interface NoteRelatedItem extends ItemDbObject, ItemNoteRelations {}
+export interface NoteRelatedUser extends UserPublicFields, NoteUserRelations {}
+
+export type NoteRelatedEntity = NoteRelatedItem | NoteRelatedUser
 
 export interface NoteRelations {
   users: NoteRelatedUser[];
