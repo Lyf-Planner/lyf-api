@@ -1,15 +1,22 @@
-import { ItemDbObject } from './database/items';
-import { Item, ItemRelatedEntity, ItemRelatedUser, ItemRelations } from './items';
-import { Note, NoteRelatedEntity, NoteRelatedItem, NoteRelatedUser, NoteRelations } from './notes';
-import { PublicUser, User, UserFriend, UserRelatedEntity, UserRelatedItem, UserRelatedNote, UserRelations } from './user';
+import { DbBaseObject } from './database';
+import { Item, ItemRelatedEntity } from './items';
+import { Note, NoteRelatedEntity } from './notes';
+import { ExposedUser, PublicUser, User, UserRelatedEntity } from './user';
 
-export interface Entities {
-  user: User|PublicUser;
-  item: Item;
-  note: Note;
-}
+export type Relation = ItemRelatedEntity | NoteRelatedEntity | UserRelatedEntity;
 
-export type RootEntity = Entities[keyof Entities];
-export type Relation = ItemRelatedEntity | NoteRelatedEntity | UserRelatedEntity
+export type Entity = DbBaseObject | Relation;
 
-export type Entity = RootEntity | Relation
+// The final outgoing types
+export type EntityGraphRoot = DbBaseObject & {
+  relations: Record<string, EntitySubgraph|EntitySubgraph[]>;
+};
+
+export type EntitySubgraph = Relation & {
+  relations: Record<string, EntitySubgraph|EntitySubgraph[]>;
+};
+
+export type EntityGraph = EntityGraphRoot | EntitySubgraph;
+
+// Explicitly listed node types
+export type GraphExport = ExposedUser | User | PublicUser | Item | Note;

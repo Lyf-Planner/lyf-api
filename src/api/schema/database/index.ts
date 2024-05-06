@@ -18,4 +18,5 @@ export interface Database {
 
 export type DbObject = Database[keyof Database];
 
+export type DbBaseObject = ItemDbObject | NoteDbObject | UserDbObject
 export type DbRelationFields = ItemNoteRelations | ItemUserRelations | NoteUserRelations | UserFriendshipRelations

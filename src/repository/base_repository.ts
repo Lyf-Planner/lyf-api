@@ -43,7 +43,10 @@ export abstract class BaseRepository<T extends DbObject> {
   async update(id: ID, object: Partial<DbObject>): Promise<T | undefined> {
     const [updated] = await this.db
       .updateTable(this.tableName)
-      .set(object)
+      .set({
+        ...object,
+        last_updated: new Date()
+      })
       .where(DEFAULT_PK, '=', id)
       .returningAll()
       .execute();

@@ -1,6 +1,6 @@
 import { ItemUserRelations } from './database/items_on_users';
 import { NoteUserRelations } from './database/notes_on_users';
-import { UserDbObject, UserPublicFields } from './database/user';
+import { UserDbObject, UserExposedFields, UserPublicFields } from './database/user';
 import { UserFriendshipRelations } from './database/user_friendships';
 import { Item } from './items';
 import { Note } from './notes';
@@ -18,6 +18,9 @@ export interface UserRelations {
 }
 
 export interface User extends UserDbObject {
+  relations: Partial<UserRelations>;
+}
+export interface ExposedUser extends UserExposedFields {
   relations: Partial<UserRelations>;
 }
 export interface PublicUser extends UserPublicFields {

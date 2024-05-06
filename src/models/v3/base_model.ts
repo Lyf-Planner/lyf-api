@@ -1,28 +1,33 @@
-import { Entity } from '../../api/schema';
+import { Entity, EntityGraph, EntitySubgraph, GraphExport } from '../../api/schema';
+import { DbObject } from '../../api/schema/database';
 import { ID } from '../../api/schema/database/abstract';
 import { UserID } from '../../api/schema/database/user';
+import { BaseRepository } from '../../repository/base_repository';
+import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { CommandType } from './command_types';
 
-export type ModelExtract = Entity & {
-  relations: Record<string, ModelExtract>;
-};
+
 
 export abstract class BaseModel<T extends Entity> {
   protected _id: ID | UserID;
 
   protected baseEntity?: T;
-  protected relations: Record<string, BaseModel<Entity>> = {};
+  protected relations: Record<string, BaseModel<Entity>|BaseModel<Entity>[]> = {};
+
+  protected abstract logger: Logger;
+  protected abstract repository: BaseRepository<DbObject>
 
   public id() { return this._id };
 
-  public abstract delete(): Promise<null>;
-  public abstract export(requestor?: UserID): Promise<ModelExtract>;
-  public extract(): Promise<ModelExtract> { return this.baseModelExtract() }
-  public abstract load(relations: object): Promise<Partial<T>>;
+  public abstract delete(): Promise<void>;
+  public abstract export(requestor?: UserID): Promise<EntityGraph>;
+  public extract(): Promise<EntityGraph> { return this.baseEntityGraph() }
+  public abstract load(relations: object): Promise<void>;
   public abstract validate(requirements?: object): Promise<void>;
-  public abstract update(changes?: Partial<T>): Promise<Partial<T>>;
-  protected abstract save(): Promise<Partial<T>>;
+  public abstract update(changes: Partial<EntityGraph>): Promise<void>;
+
+  protected abstract save(): Promise<void>;
   
   constructor(id: ID | UserID) {
     this._id = id;
@@ -32,12 +37,30 @@ export abstract class BaseModel<T extends Entity> {
   // Return value may be unused and may not actually be async
   public async recurseRelations<K>(
     command: CommandType,
-    payload?: Partial<T>
-  ): Promise<Record<string, K>> {
-    const recursedRelations: Record<string, K> = {};
+    payload?: Record<string, any>
+  ): Promise<Record<string, K|K[]>> {
+    const recursedRelations: Record<string, K|K[]> = {};
 
     for (const [key, value] of Object.entries(this.relations)) {
-      recursedRelations[key] = await this.handleCommand(command, value, payload) as K
+      // Handle relations being an array
+      if (Array.isArray(value)) {
+        const relationArray = [];
+
+        for (const model of value) {
+          let relevantPayload;
+
+          if (payload && Array.isArray(payload?.[key])) {
+            relevantPayload = payload?.[key].find((x: BaseModel<Entity>) => x.id() === model.id());
+          }
+          
+          relationArray.push(await this.handleCommand(command, model, relevantPayload) as K)
+        }
+
+        recursedRelations[key] = relationArray;
+      } else {
+        recursedRelations[key] = this.handleCommand(command, value as BaseModel<Entity>, payload?.[key]) as K
+      }
+
     }
 
     return recursedRelations;
@@ -63,14 +86,14 @@ export abstract class BaseModel<T extends Entity> {
   }
 
   // Extract is the one command type we can just do straight on the BaseModel
-  private async baseModelExtract(): Promise<ModelExtract> {
+  private async baseEntityGraph(): Promise<EntityGraph> {
     if (!this.baseEntity) {
       throw new LyfError('Server did not load Model before extraction', 500);
     }
 
     return {
       ...this.baseEntity,
-      relations: await this.recurseRelations<ModelExtract>(CommandType.Extract),
+      relations: await this.recurseRelations<EntitySubgraph>(CommandType.Extract),
     };
   }
 }
