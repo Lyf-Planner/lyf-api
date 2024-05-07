@@ -1,3 +1,4 @@
+
 import { Entity, EntityGraph, EntitySubgraph, GraphExport } from '../../api/schema';
 import { DbObject } from '../../api/schema/database';
 import { ID } from '../../api/schema/database/abstract';
@@ -12,7 +13,7 @@ import { CommandType } from './command_types';
 export abstract class BaseModel<T extends Entity> {
   protected _id: ID | UserID;
 
-  protected baseEntity?: T;
+  protected baseEntity: T;
   protected relations: Record<string, BaseModel<Entity>|BaseModel<Entity>[]> = {};
 
   protected abstract logger: Logger;
@@ -20,6 +21,7 @@ export abstract class BaseModel<T extends Entity> {
 
   public id() { return this._id };
 
+  public abstract build(id: ID|UserID): Promise<BaseModel<T>>
   public abstract delete(): Promise<void>;
   public abstract export(requestor?: UserID): Promise<EntityGraph>;
   public extract(): Promise<EntityGraph> { return this.baseEntityGraph() }
@@ -29,7 +31,8 @@ export abstract class BaseModel<T extends Entity> {
 
   protected abstract save(): Promise<void>;
   
-  constructor(id: ID | UserID) {
+  constructor(baseEntity: T, id: ID | UserID) {
+    this.baseEntity = baseEntity;
     this._id = id;
   }
 
@@ -45,7 +48,6 @@ export abstract class BaseModel<T extends Entity> {
       // Handle relations being an array
       if (Array.isArray(value)) {
         const relationArray = [];
-
         for (const model of value) {
           let relevantPayload;
 

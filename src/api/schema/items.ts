@@ -9,7 +9,7 @@ export type ItemRelatedEntity = ItemRelatedUser | ItemRelatedItem
 
 export interface ItemRelations {
   users: ItemRelatedUser[];
-  items: ItemRelatedItem[]; // if template_id present
+  items: ItemRelatedItem; // if template_id present
 }
 
 export interface Item extends ItemDbObject {

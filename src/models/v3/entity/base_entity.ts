@@ -6,12 +6,11 @@ import { CommandType } from '../command_types';
 
 export abstract class BaseEntity<T extends DbBaseObject> extends BaseModel<T> {
   public async delete() {
-    delete this.baseEntity;
     await this.repository.delete(this._id);
     await this.recurseRelations(CommandType.Delete);
   }
 
-  public async load() {
+  public async load(relations: object, recurse = true) {
     const dbObject = await this.repository.findById(this._id) as T;
     if (!dbObject) {
       throw new LyfError(`Model with id ${this._id} does not have a database entry in ${this.repository}`, 500)  
