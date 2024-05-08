@@ -13,7 +13,7 @@ import { CommandType } from './command_types';
 export abstract class BaseModel<T extends Entity> {
   protected _id: ID | UserID;
 
-  protected baseEntity: T;
+  protected baseEntity?: T;
   protected relations: Record<string, BaseModel<Entity>|BaseModel<Entity>[]> = {};
 
   protected abstract logger: Logger;
@@ -21,18 +21,16 @@ export abstract class BaseModel<T extends Entity> {
 
   public id() { return this._id };
 
-  public abstract build(id: ID|UserID): Promise<BaseModel<T>>
+  // public abstract static build(id: ID|UserID): Promise<BaseModel<T>>
   public abstract delete(): Promise<void>;
-  public abstract export(requestor?: UserID): Promise<EntityGraph>;
+  public abstract export(requestor?: UserID): Promise<GraphExport>;
   public extract(): Promise<EntityGraph> { return this.baseEntityGraph() }
   public abstract load(relations: object): Promise<void>;
-  public abstract validate(requirements?: object): Promise<void>;
   public abstract update(changes: Partial<EntityGraph>): Promise<void>;
 
   protected abstract save(): Promise<void>;
   
-  constructor(baseEntity: T, id: ID | UserID) {
-    this.baseEntity = baseEntity;
+  constructor(id: ID | UserID) {
     this._id = id;
   }
 
@@ -82,8 +80,6 @@ export abstract class BaseModel<T extends Entity> {
         return await model.save();
       case CommandType.Update:
         return await model.update(payload);
-      case CommandType.Validate:
-        return await model.validate(payload);
     }
   }
 

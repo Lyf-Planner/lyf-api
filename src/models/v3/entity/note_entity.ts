@@ -1,50 +1,37 @@
+import { EntitySubgraph } from '../../../api/schema';
 import { NoteDbObject } from '../../../api/schema/database/notes';
 import { UserID } from '../../../api/schema/database/user';
 import { Note, NoteRelatedItem, NoteRelatedUser, NoteRelations } from '../../../api/schema/notes';
+import { NoteRepository } from '../../../repository/note_repository';
 import { Logger } from '../../../utils/logging';
+import { LyfError } from '../../../utils/lyf_error';
+import { CommandType } from '../command_types';
+import { NoteItemRelation } from '../relation/note_related_item';
+import { NoteUserRelation } from '../relation/note_related_user';
 import { BaseEntity } from './base_entity';
 
+export type NoteModelRelations = {
+  items: NoteItemRelation[];
+  users: NoteUserRelation[];
+};
+
 export class NoteEntity extends BaseEntity<Note> {
-  private logger = Logger.of(NoteEntity);
+  protected logger = Logger.of(NoteEntity);
+  protected repository = new NoteRepository();
 
-  constructor(entity: Note, requested_by: UserID) {
-    super(entity, requested_by);
-  }
+  protected relations: Partial<NoteModelRelations> = {};
 
-  public id() {
-    return this.entity.id;
-  }
+  public async export(requestor?: UserID) {
+    const relatedUsers = this.relations.users;
+    const relatedUserIds = relatedUsers?.map((x) => x.id());
 
-  protected parse(dbObject: NoteDbObject) {
-    const initialRelations: NoteRelations = {
-      users: [] as NoteRelatedUser[],
-      items: [] as NoteRelatedItem[]
-    };
-
-    return {
-      ...dbObject,
-      ...initialRelations
-    };
-  }
-
-  public validate() {
-    if (this.entity.users) {
-      const user_ids = this.entity.users.map((x) => x.user_id);
-
-      if (!user_ids.includes(this.requestedBy)) {
-        this.logger.error(
-          `User ${this.requestedBy} lost access to note ${this.entity.id} during process`
-        );
-        throw new Error(`User ${this.requestedBy} no longer has access to note ${this.entity.id}`);
-      }
+    if (requestor && !relatedUserIds?.includes(requestor)) {
+      throw new LyfError('User tried to load an item they should not have access to', 401);
+    } else {
+      return {
+        ...this.baseEntity!,
+        relations: await this.recurseRelations<EntitySubgraph>(CommandType.Export)
+      };
     }
-  }
-
-  public includeRelations(relations: Partial<NoteRelations>) {
-    this.update(relations);
-  }
-
-  public export() {
-    return this.entity;
   }
 }

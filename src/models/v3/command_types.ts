@@ -6,5 +6,4 @@ export enum CommandType {
     Load,
     Save,
     Update,
-    Validate
 }

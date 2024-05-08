@@ -1,95 +1,80 @@
-import { UserDbObject, UserID, UserSensitiveFields } from '../../../api/schema/database/user';
+import { EntitySubgraph } from '../../../api/schema';
+import { UserID, UserSensitiveFields } from '../../../api/schema/database/user';
 import {
+  ExposedUser,
   PublicUser,
   User,
-  UserFriend,
-  UserRelatedItem,
-  UserRelatedNote,
-  UserRelations
 } from '../../../api/schema/user';
+import { UserRepository } from '../../../repository/user_repository';
 import { Logger } from '../../../utils/logging';
+import { LyfError } from '../../../utils/lyf_error';
+import { CommandType } from '../command_types';
+import { UserFriendRelation } from '../relation/user_friend';
+import { UserItemRelation } from '../relation/user_related_item';
+import { UserNoteRelation } from '../relation/user_related_note';
 import { BaseEntity } from './base_entity';
 
+export type UserModelRelations = {
+  items: UserItemRelation[];
+  notes: UserNoteRelation[];
+  users: UserFriendRelation[];
+};
+
 export class UserEntity extends BaseEntity<User> {
-  private logger = Logger.of(UserEntity);
+  protected logger = Logger.of(UserEntity);
+  protected repository = new UserRepository();
 
-  constructor(entity: User, requested_by: UserID) {
-    super(entity, requested_by);
-  }
+  protected relations: Partial<UserModelRelations> = {};
 
-  public id() {
-    return this.entity.user_id;
-  }
+  public async export(requestor?: UserID): Promise<ExposedUser|PublicUser> {
+    const relatedUsers = this.relations.users;
+    const relatedUserIds = relatedUsers?.map((x) => x.id());
 
-  protected parse(dbObject: UserDbObject) {
-    const initialRelations: UserRelations = {
-      friends: [] as UserFriend[],
-      items: [] as UserRelatedItem[],
-      notes: [] as UserRelatedNote[]
-    };
+    if (requestor && !relatedUserIds?.includes(requestor)) {
+      throw new LyfError('User tried to load an item they should not have access to', 401);
+    }
+    
+    if (requestor !== this._id) {
+      return await this.exportAsPublicUser()
+    }
 
     return {
-      ...dbObject,
-      ...initialRelations
+      ...this.stripSensitiveFields(),
+      relations: await this.recurseRelations<EntitySubgraph>(CommandType.Export)
     };
-  }
-
-  public validate() {
-    if (!this.requestedBySelf() && this.isPrivate()) {
-      this.logger.warn(
-        `User ${this.entity.user_id} was queried by ${this.requestedBy} but hidden due to privacy`
-      );
-      throw new Error(`User ${this.entity.user_id} does not exist`); // Shhhh
-    }
-  }
-
-  public includeRelations(relations: Partial<UserRelations>) {
-    this.update(relations);
-  }
-
-  public export() {
-    if (this.requestedBySelf()) {
-      return this.stripSensitiveFields();
-    } else {
-      return this.exportAsPublicUser();
-    }
   }
 
   // --- Helpers ---
 
-  public requestedBySelf() {
-    return this.entity.user_id === this.requestedBy;
-  }
-
   public isPrivate() {
-    return this.entity.private;
+    return this.baseEntity!.private;
   }
 
   public name() {
-    return this.entity.display_name || this.entity.user_id;
+    return this.baseEntity!.display_name || this.baseEntity!.user_id;
   }
 
-  public getSensitive(): UserSensitiveFields {
-    if (this.requestedBySelf()) {
+  public getSensitive(requestor: UserID): UserSensitiveFields {
+    if (requestor !== this._id) {
       throw new Error('User tried to retrieve sensitive fields on another user');
     }
 
-    return { expo_tokens: this.entity.expo_tokens, pass_hash: this.entity.pass_hash };
+    return { expo_tokens: this.baseEntity!.expo_tokens, pass_hash: this.baseEntity!.pass_hash };
   }
 
-  private exportAsPublicUser(): PublicUser {
+  private async exportAsPublicUser(): Promise<PublicUser> {
     return {
-      created: this.entity.created,
-      last_updated: this.entity.last_updated,
-      user_id: this.entity.user_id,
-      display_name: this.entity.display_name,
-      pfp_url: this.entity.pfp_url,
-      friends: this.entity.friends
+      created: this.baseEntity!.created,
+      last_updated: this.baseEntity!.last_updated,
+      user_id: this.baseEntity!.user_id,
+      display_name: this.baseEntity!.display_name,
+      pfp_url: this.baseEntity!.pfp_url,
+      relations: await this.recurseRelations<EntitySubgraph>(CommandType.Export)
     };
   }
 
   private stripSensitiveFields() {
-    const { pass_hash, expo_tokens, ...exported } = this.entity;
+    const { pass_hash, expo_tokens, ...exported } = this.baseEntity!;
     return exported;
   }
 }

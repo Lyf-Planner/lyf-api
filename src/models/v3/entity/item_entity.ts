@@ -1,4 +1,5 @@
 import { EntitySubgraph } from '../../../api/schema';
+import { ID } from '../../../api/schema/database/abstract';
 import { UserID } from '../../../api/schema/database/user';
 import { Item, ItemRelations } from '../../../api/schema/items';
 import { ItemRepository } from '../../../repository/item_repository';
@@ -10,8 +11,8 @@ import { ItemUserRelation } from '../relation/item_related_user';
 import { BaseEntity } from './base_entity';
 
 export type ItemModelRelations = {
-  users: ItemUserRelation[];
   items: ItemEntity; // if template_id present
+  users: ItemUserRelation[];
 };
 
 export class ItemEntity extends BaseEntity<Item> {
@@ -28,14 +29,9 @@ export class ItemEntity extends BaseEntity<Item> {
       throw new LyfError('User tried to load an item they should not have access to', 401);
     } else {
       return {
-        ...this.baseEntity,
+        ...this.baseEntity!,
         relations: await this.recurseRelations<EntitySubgraph>(CommandType.Export)
       };
     }
-  }
-
-  public async validate() {}
-  public async build() {
-    return new ItemEntity({} as any, "")
   }
 }
