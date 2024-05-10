@@ -1,7 +1,7 @@
 import { ItemStatus, ListItem } from '../../../api/mongo_schema/list';
 import { Permission } from '../../../api/mongo_schema/social';
 import { updateItemBody } from '../../../controller/validators/itemValidators';
-import db from '../../../repository/db/mongo/mongo_db';
+import db from '../../../db/mongo/mongo_db';
 import { SocialItemNotifications } from '../../../services/notifications/socialItemNotificationService';
 import { Logger } from '../../../utils/logging';
 import notificationManager from '../../services/notifications/notificationManager';

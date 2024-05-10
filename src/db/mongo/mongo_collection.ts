@@ -1,8 +1,8 @@
 import { Collection as mongoCollection, Db } from 'mongodb';
 
 import assert from 'assert';
-import { DBObject, ID } from '../../../api/mongo_schema/abstract';
-import { Logger } from '../../../utils/logging';
+import { DBObject, ID } from '../../api/mongo_schema/abstract';
+import { Logger } from '../../utils/logging';
 
 // Note:
 // This class purely acts as the data access layer
@@ -19,11 +19,11 @@ export class Collection<T extends DBObject> {
   // CRUD Operations
 
   public async create(object: T, checkDuplicate = true): Promise<T> {
-    var duplicateExists = checkDuplicate
-      ? await this.checkDuplicateExists(object.id)
-      : false;
+    var duplicateExists = checkDuplicate ? await this.checkDuplicateExists(object.id) : false;
 
-    if (duplicateExists) { await this.handleDuplicateExists(object); }
+    if (duplicateExists) {
+      await this.handleDuplicateExists(object);
+    }
 
     var toInsert = object as any;
     toInsert._id = object.id; // We don't use Mongo ObjectIds, just UUIDs
@@ -59,8 +59,7 @@ export class Collection<T extends DBObject> {
       ])
       .toArray()) as any;
 
-    results.length !== ids.length &&
-      this.handleManyUnfound(results, ids, throwOnUnfound);
+    results.length !== ids.length && this.handleManyUnfound(results, ids, throwOnUnfound);
 
     results = results.map((x: any) => this.exportWithoutUnderscoreId(x));
     return results;
@@ -91,7 +90,9 @@ export class Collection<T extends DBObject> {
 
     if (acceptManyResults) {
       result = result?.map((x: any) => this.exportWithoutUnderscoreId(x));
-    } else { result = this.exportWithoutUnderscoreId(result); }
+    } else {
+      result = this.exportWithoutUnderscoreId(result);
+    }
 
     return acceptManyResults ? (result as T[]) : (result as T);
   }
@@ -101,7 +102,9 @@ export class Collection<T extends DBObject> {
     insert._id = object.id;
     delete insert.id;
     insert.last_updated = new Date().toISOString();
-    if (!insert.created && upsert) { insert.created = new Date().toISOString(); }
+    if (!insert.created && upsert) {
+      insert.created = new Date().toISOString();
+    }
     var result = await this.collection.updateOne(
       { _id: insert._id },
       { $set: { ...insert } },
@@ -111,9 +114,7 @@ export class Collection<T extends DBObject> {
     );
     assert(result.acknowledged);
 
-    result.modifiedCount === 0 &&
-      !upsert &&
-      this.handleDidNotUpdate(object.id, false);
+    result.modifiedCount === 0 && !upsert && this.handleDidNotUpdate(object.id, false);
 
     return this.exportWithoutUnderscoreId(object);
   }
@@ -132,28 +133,28 @@ export class Collection<T extends DBObject> {
 
   private async checkDuplicateExists(id: ID) {
     var search = await this.collection.findOne({ _id: id });
-    if (!!search) { return true; } else { return false; }
+    if (!!search) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   // Error handlers
 
-  private handleManyUnfound(
-    results: T[],
-    searched: ID[],
-    throwOnUnfound: boolean
-  ) {
+  private handleManyUnfound(results: T[], searched: ID[], throwOnUnfound: boolean) {
     const foundIds = results.map((x: T) => x.id) as ID[];
 
-    const message = `Queried ${
-      searched.length
-    } documents in collection and did not find ${
+    const message = `Queried ${searched.length} documents in collection and did not find ${
       searched.length - results.length
     }`;
 
     if (throwOnUnfound) {
       this.logger.error(message);
       throw new Error('Documents queried were not found');
-    } else { this.logger.warn(message); }
+    } else {
+      this.logger.warn(message);
+    }
   }
 
   private handleSingleUnfound(id: ID, throwOnUnfound: boolean) {
@@ -161,7 +162,9 @@ export class Collection<T extends DBObject> {
     if (throwOnUnfound) {
       this.logger.error(message);
       throw new Error(message);
-    } else { this.logger.warn(message); }
+    } else {
+      this.logger.warn(message);
+    }
   }
 
   private handleConditionUnfound(condition: Object, throwOnUnfound: boolean) {
@@ -197,7 +200,9 @@ export class Collection<T extends DBObject> {
   }
 
   private exportWithoutUnderscoreId(object: any) {
-    if (!object) { return null; }
+    if (!object) {
+      return null;
+    }
     object.id = object._id;
     delete object._id;
     return object;

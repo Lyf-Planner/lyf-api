@@ -2,9 +2,12 @@ import { Kysely } from 'kysely';
 
 import { Note as MongoNote } from '../api/mongo_schema/notes';
 import { User as MongoUser } from '../api/mongo_schema/user';
-import { NoteRelationshipStatus, NoteUserRelationshipDbObject } from '../api/schema/database/notes_on_users';
+import {
+  NoteRelationshipStatus,
+  NoteUserRelationshipDbObject
+} from '../api/schema/database/notes_on_users';
 import { UserDbObject } from '../api/schema/database/user';
-import mongoDb from '../repository/db/mongo/mongo_db';
+import mongoDb from '../db/mongo/mongo_db';
 
 export async function up(db: Kysely<any>): Promise<void> {
   const usersCollection = mongoDb.usersCollection();

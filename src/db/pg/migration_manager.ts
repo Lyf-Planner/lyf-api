@@ -2,7 +2,7 @@ import { FileMigrationProvider, Migrator } from 'kysely';
 
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import { Logger } from '../../../utils/logging';
+import { Logger } from '../../utils/logging';
 import postgresDb from './postgres_db';
 
 const log = new Logger('KyselyMigrator');

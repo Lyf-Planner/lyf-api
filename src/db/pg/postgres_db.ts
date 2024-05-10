@@ -1,8 +1,8 @@
 import { Kysely, PostgresDialect } from 'kysely';
 import { Pool, PoolConfig } from 'pg';
 
-import { Database } from '../../../api/schema/database';
-import env from '../../../envManager';
+import { Database } from '../../api/schema/database';
+import env from '../../envManager';
 
 const PG_POOL_MAX = 10;
 

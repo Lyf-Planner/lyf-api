@@ -1,6 +1,6 @@
 import { ID, Time } from '../../../api/mongo_schema/abstract';
 import { User, UserDetails } from '../../../api/mongo_schema/user';
-import db from '../../../repository/db/mongo/mongo_db';
+import db from '../../../db/mongo/mongo_db';
 import authUtils from '../../../utils/authUtils';
 import { Logger } from '../../../utils/logging';
 import { ItemOperations } from '../items/ItemOperations';
@@ -69,7 +69,9 @@ export class UserOperations {
     };
 
     var model = new UserModel(user, false, true);
-    if (commit) { await model.commit(); }
+    if (commit) {
+      await model.commit();
+    }
 
     return model;
   }

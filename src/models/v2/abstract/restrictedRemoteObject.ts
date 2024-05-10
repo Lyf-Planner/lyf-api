@@ -1,6 +1,6 @@
 import { DBObject } from '../../../api/mongo_schema/abstract';
 import { Permission, Restricted } from '../../../api/mongo_schema/social';
-import { Collection } from '../../../repository/db/mongo/mongo_collection';
+import { Collection } from '../../../db/mongo/mongo_collection';
 import { RemoteObject } from './remoteObject';
 
 export class RestrictedRemoteObject<T extends Restricted & DBObject> extends RemoteObject<T> {

@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { ID } from '../../../api/mongo_schema/abstract';
 import { ItemSettings, ItemStatus, ListItem, ListItemTypes } from '../../../api/mongo_schema/list';
 import { Permission } from '../../../api/mongo_schema/social';
-import db from '../../../repository/db/mongo/mongo_db';
+import db from '../../../db/mongo/mongo_db';
 import { formatDateData } from '../../../utils/dates';
 import { Logger } from '../../../utils/logging';
 import { SocialItem } from '../social/socialItem';

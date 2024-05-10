@@ -3,8 +3,11 @@ import { Kysely } from 'kysely';
 import { User as MongoUser } from '../api/mongo_schema/user';
 import { ID, Timestamps } from '../api/schema/database/abstract';
 import { UserDbObject } from '../api/schema/database/user';
-import { UserFriendshipDbObject, UserFriendshipStatus } from '../api/schema/database/user_friendships';
-import mongoDb from '../repository/db/mongo/mongo_db';
+import {
+  UserFriendshipDbObject,
+  UserFriendshipStatus
+} from '../api/schema/database/user_friendships';
+import mongoDb from '../db/mongo/mongo_db';
 
 interface TempRelationship {
   user_id: ID;

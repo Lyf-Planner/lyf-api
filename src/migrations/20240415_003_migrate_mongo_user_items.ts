@@ -2,9 +2,12 @@ import { Kysely } from 'kysely';
 
 import { ListItem as MongoItem } from '../api/mongo_schema/list';
 import { Permission, UserAccess } from '../api/mongo_schema/social';
-import { ItemUserPermission, ItemUserRelationshipDbObject } from '../api/schema/database/items_on_users';
+import {
+  ItemUserPermission,
+  ItemUserRelationshipDbObject
+} from '../api/schema/database/items_on_users';
 import { UserDbObject } from '../api/schema/database/user';
-import mongoDb from '../repository/db/mongo/mongo_db';
+import mongoDb from '../db/mongo/mongo_db';
 
 export async function up(db: Kysely<any>): Promise<void> {
   const itemsCollection = mongoDb.itemsCollection();
@@ -40,15 +43,16 @@ export async function down(db: Kysely<any>): Promise<void> {
     .execute();
 }
 
-const insertAsPgUserItem = async (
-  user_access: UserAccess,
-  item: MongoItem,
-  db: Kysely<any>
-) => {
+const insertAsPgUserItem = async (user_access: UserAccess, item: MongoItem, db: Kysely<any>) => {
   const newUserId = await getUserNewId(user_access.user_id, db);
   const oldUser = await mongoDb.usersCollection().getById(user_access.user_id);
-  const oldUserTargetArray = user_access.permissions === Permission.Invited ? oldUser?.timetable.invited_items?.map((x) => ({ id: x, show_in_upcoming: false })) : oldUser?.timetable.items;
-  const oldUserRelationshipIndex = oldUserTargetArray ? oldUserTargetArray.findIndex((x) => x.id === item.id) : -1;
+  const oldUserTargetArray =
+    user_access.permissions === Permission.Invited
+      ? oldUser?.timetable.invited_items?.map((x) => ({ id: x, show_in_upcoming: false }))
+      : oldUser?.timetable.items;
+  const oldUserRelationshipIndex = oldUserTargetArray
+    ? oldUserTargetArray.findIndex((x) => x.id === item.id)
+    : -1;
 
   let show_in_upcoming = false;
   let sorting_rank = 0;
@@ -58,7 +62,9 @@ const insertAsPgUserItem = async (
   }
 
   const oldUserNotification = item.notifications.find((x) => x.user_id === user_access.user_id);
-  const notification_mins_before = oldUserNotification ? parseInt(oldUserNotification.minutes_before) : undefined;
+  const notification_mins_before = oldUserNotification
+    ? parseInt(oldUserNotification.minutes_before)
+    : undefined;
 
   const pgUserItem: ItemUserRelationshipDbObject = {
     created: new Date(),
@@ -66,7 +72,10 @@ const insertAsPgUserItem = async (
     item_id_fk: item.id as any,
     user_id_fk: newUserId as any,
     invite_pending: user_access.permissions === Permission.Invited,
-    permission: user_access.permissions === Permission.Invited ? ItemUserPermission.Editor : user_access.permissions as any,
+    permission:
+      user_access.permissions === Permission.Invited
+        ? ItemUserPermission.Editor
+        : (user_access.permissions as any),
     show_in_upcoming,
     notification_mins_before,
     sorting_rank

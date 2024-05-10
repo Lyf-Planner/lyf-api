@@ -7,7 +7,7 @@ import { ItemType } from '../../api/schema/database/items';
 import { Item } from '../../api/schema/items';
 import { ItemEntity } from '../../models/v3/entity/item_entity';
 import { UserEntity } from '../../models/v3/entity/user_entity';
-import mongoDb from '../../repository/db/mongo/mongo_db';
+import mongoDb from '../../db/mongo/mongo_db';
 import { formatDateData, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { pluralisedQuantity } from '../../utils/text';
@@ -75,7 +75,7 @@ export class NotificationService {
       user_id: user.id(),
       item_id: item.id()
     });
-  }
+  };
 
   public async updateEventNotification(item: ItemEntity, user: UserEntity, mins_before: number) {
     // The package does not offer a direct update method, so just recreate
@@ -294,11 +294,11 @@ export class NotificationService {
     } catch (err: any) {
       this.logger.warn(`Notification ${id} failed to send: ${err.message}`);
     }
-  }
+  };
 
   private getUniqueJobId = (prefix: string, suffix: string) => {
     return prefix + ':' + suffix;
-  }
+  };
 
   private formatExpoPushMessage(to: string[], title: string, body: string) {
     return {
@@ -314,7 +314,7 @@ export class NotificationService {
     if (!proposed.date || !proposed.time) {
       throw new Error('Cannot create a notification on an event without date or time');
     }
-  }
+  };
 
   private async getUserDaily(user: UserEntity) {
     const userDate = moment().tz(user.get().tz).toDate();
@@ -359,7 +359,7 @@ export class NotificationService {
     var dateArray = itemDate.split('-').map((x) => parseInt(x));
     var timeArray = itemTime.split(':').map((x) => parseInt(x));
     return this.setTimezoneDate(dateArray, timeArray, mins_before, timezone);
-  }
+  };
 
   private setTimezoneDate(
     date_array: number[],
