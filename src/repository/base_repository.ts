@@ -1,64 +1,37 @@
 import { Kysely } from 'kysely';
 
-import { ID } from '../api/schema/database/abstract';
 import { Database, DbObject } from '../api/schema/database';
 import postgresDb from './db/pg/postgres_db';
 
-const DEFAULT_PK = 'id';
-
 /**
  * Generic repository base class for basic CRUD operations.
- * T defines the table row type.
+ * T defines the table schema.
  */
 export abstract class BaseRepository<T extends DbObject> {
-  protected db: Kysely<Database>;
-  protected tableName: keyof Database;
+  protected readonly db: Kysely<Database> = postgresDb;
+  public readonly table_name: keyof Database;
 
   constructor(tableName: keyof Database) {
-    this.db = postgresDb;
-    this.tableName = tableName;
+    this.table_name = tableName;
   }
 
   async findAll(): Promise<T[]> {
-    return (await this.db.selectFrom(this.tableName).selectAll().execute()) as T[];
-  }
-
-  async findById(id: ID): Promise<T | undefined> {
-    return (await this.db
-      .selectFrom(this.tableName)
-      .selectAll()
-      .where(DEFAULT_PK, '=', id)
-      .executeTakeFirst()) as T | undefined;
+    return (await this.db.selectFrom(this.table_name).selectAll().execute()) as T[];
   }
 
   async create(object: DbObject): Promise<T> {
     const [created] = await this.db
-      .insertInto(this.tableName)
+      .insertInto(this.table_name)
       .values(object)
       .returningAll()
       .execute();
+
+    // Using "as T" here and in other places isn't ideal,
+    // but because we declare tableName as "keyof Database",
+    // Kysely cannot infer the return type.
+    //
+    // A solution probably exists and would be great to find,
+    // But for the moment this is the trade-off of abstraction.
     return created as T;
-  }
-
-  async update(id: ID, object: Partial<DbObject>): Promise<T | undefined> {
-    const [updated] = await this.db
-      .updateTable(this.tableName)
-      .set({
-        ...object,
-        last_updated: new Date()
-      })
-      .where(DEFAULT_PK, '=', id)
-      .returningAll()
-      .execute();
-    return updated as T;
-  }
-
-  async delete(id: ID): Promise<boolean> {
-    const deleteResult = await this.db
-      .deleteFrom(this.tableName)
-      .where(DEFAULT_PK, '=', id)
-      .execute();
-
-    return deleteResult.length > 0;
   }
 }

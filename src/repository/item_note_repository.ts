@@ -4,25 +4,17 @@ import {
   ItemNoteRelationshipDbObject
 } from '../api/schema/database/items_on_notes';
 import { NoteDbObject } from '../api/schema/database/notes';
-import { BaseRepository } from './base_repository';
+import { RelationRepository } from './relation_repository';
 
 const TABLE_NAME = 'items_on_notes';
 
-export class ItemNoteRepository extends BaseRepository<ItemNoteRelationshipDbObject> {
+export class ItemNoteRepository extends RelationRepository<ItemNoteRelationshipDbObject> {
+  protected readonly pk_a = 'item_id_fk';
+  protected readonly pk_b = 'note_id_fk'
+  
+
   constructor() {
     super(TABLE_NAME);
-  }
-
-  async findByCompositeId({
-    item_id_fk,
-    note_id_fk
-  }: ItemNotePrimaryKey): Promise<ItemNoteRelationshipDbObject | undefined> {
-    return this.db
-      .selectFrom(TABLE_NAME)
-      .selectAll()
-      .where('item_id_fk', '=', item_id_fk)
-      .where('note_id_fk', '=', note_id_fk)
-      .executeTakeFirst();
   }
 
   async findNoteRelatedItems(note_id: string): Promise<(ItemDbObject & ItemNoteRelationshipDbObject)[]> {

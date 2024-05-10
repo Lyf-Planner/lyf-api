@@ -3,17 +3,14 @@ import {
   ItemUserPrimaryKey,
   ItemUserRelationshipDbObject
 } from '../api/schema/database/items_on_users';
-import { ItemRelatedUser } from '../api/schema/items';
-import { UserRelatedItem } from '../api/schema/user';
-import { User } from '../api/schema/user';
-import { BaseRepository } from './base_repository';
 import { ID } from '../api/mongo_schema/abstract';
 import { UserDbObject, UserID } from '../api/schema/database/user';
 import { ItemDbObject } from '../api/schema/database/items';
+import { RelationRepository } from './relation_repository';
 
 const TABLE_NAME = 'items_on_users';
 
-export class ItemUserRepository extends BaseRepository<ItemUserRelationshipDbObject> {
+export class ItemUserRepository extends RelationRepository<ItemUserRelationshipDbObject> {
   constructor() {
     super(TABLE_NAME);
   }

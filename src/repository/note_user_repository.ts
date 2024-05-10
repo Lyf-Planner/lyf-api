@@ -1,15 +1,14 @@
-import { ItemNoteRelationshipDbObject } from '../api/schema/database/items_on_notes';
 import { NoteDbObject } from '../api/schema/database/notes';
 import {
   NoteUserPrimaryKey,
   NoteUserRelationshipDbObject
 } from '../api/schema/database/notes_on_users';
 import { UserDbObject } from '../api/schema/database/user';
-import { BaseRepository } from './base_repository';
+import { RelationRepository } from './relation_repository';
 
 const TABLE_NAME = 'notes_on_users';
 
-export class NoteUserRepository extends BaseRepository<NoteUserRelationshipDbObject> {
+export class NoteUserRepository extends RelationRepository<NoteUserRelationshipDbObject> {
   constructor() {
     super(TABLE_NAME);
   }
