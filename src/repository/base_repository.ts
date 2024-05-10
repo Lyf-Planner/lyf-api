@@ -11,8 +11,8 @@ export abstract class BaseRepository<T extends DbObject> {
   protected readonly db: Kysely<Database> = postgresDb;
   public readonly table_name: keyof Database;
 
-  constructor(tableName: keyof Database) {
-    this.table_name = tableName;
+  constructor(table_name: keyof Database) {
+    this.table_name = table_name;
   }
 
   async findAll(): Promise<T[]> {

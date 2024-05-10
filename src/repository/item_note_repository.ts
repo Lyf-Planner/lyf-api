@@ -12,7 +12,6 @@ export class ItemNoteRepository extends RelationRepository<ItemNoteRelationshipD
   protected readonly pk_a = 'item_id_fk';
   protected readonly pk_b = 'note_id_fk'
   
-
   constructor() {
     super(TABLE_NAME);
   }

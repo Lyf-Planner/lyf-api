@@ -1,5 +1,6 @@
 import { EntitySubgraph } from '../../../api/schema';
-import { UserID, UserSensitiveFields } from '../../../api/schema/database/user';
+import { ID } from '../../../api/schema/database/abstract';
+import { UserDbObject, UserSensitiveFields } from '../../../api/schema/database/user';
 import {
   ExposedUser,
   PublicUser,
@@ -20,13 +21,13 @@ export type UserModelRelations = {
   users: UserFriendRelation[];
 };
 
-export class UserEntity extends BaseEntity<User> {
+export class UserEntity extends BaseEntity<UserDbObject> {
   protected logger = Logger.of(UserEntity);
   protected repository = new UserRepository();
 
   protected relations: Partial<UserModelRelations> = {};
 
-  public async export(requestor?: UserID): Promise<ExposedUser|PublicUser> {
+  public async export(requestor?: ID): Promise<ExposedUser|PublicUser> {
     const relatedUsers = this.relations.users;
     const relatedUserIds = relatedUsers?.map((x) => x.id());
 
@@ -51,10 +52,10 @@ export class UserEntity extends BaseEntity<User> {
   }
 
   public name() {
-    return this.baseEntity!.display_name || this.baseEntity!.user_id;
+    return this.baseEntity!.display_name || this.baseEntity!.id;
   }
 
-  public getSensitive(requestor: UserID): UserSensitiveFields {
+  public getSensitive(requestor: ID): UserSensitiveFields {
     if (requestor !== this._id) {
       throw new Error('User tried to retrieve sensitive fields on another user');
     }
@@ -66,7 +67,7 @@ export class UserEntity extends BaseEntity<User> {
     return {
       created: this.baseEntity!.created,
       last_updated: this.baseEntity!.last_updated,
-      user_id: this.baseEntity!.user_id,
+      id: this.baseEntity!.id,
       display_name: this.baseEntity!.display_name,
       pfp_url: this.baseEntity!.pfp_url,
       relations: await this.recurseRelations<EntitySubgraph>(CommandType.Export)

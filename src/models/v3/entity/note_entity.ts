@@ -1,7 +1,6 @@
 import { EntitySubgraph } from '../../../api/schema';
+import { ID } from '../../../api/schema/database/abstract';
 import { NoteDbObject } from '../../../api/schema/database/notes';
-import { UserID } from '../../../api/schema/database/user';
-import { Note, NoteRelatedItem, NoteRelatedUser, NoteRelations } from '../../../api/schema/notes';
 import { NoteRepository } from '../../../repository/note_repository';
 import { Logger } from '../../../utils/logging';
 import { LyfError } from '../../../utils/lyf_error';
@@ -15,13 +14,13 @@ export type NoteModelRelations = {
   users: NoteUserRelation[];
 };
 
-export class NoteEntity extends BaseEntity<Note> {
+export class NoteEntity extends BaseEntity<NoteDbObject> {
   protected logger = Logger.of(NoteEntity);
   protected repository = new NoteRepository();
 
   protected relations: Partial<NoteModelRelations> = {};
 
-  public async export(requestor?: UserID) {
+  public async export(requestor?: ID) {
     const relatedUsers = this.relations.users;
     const relatedUserIds = relatedUsers?.map((x) => x.id());
 

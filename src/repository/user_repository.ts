@@ -1,26 +1,27 @@
-import { UserDbObject, UserID } from '../api/schema/database/user';
-import { BaseRepository } from './base_repository';
+import { ID } from '../api/schema/database/abstract';
+import { UserDbObject } from '../api/schema/database/user';
+import { EntityRepository } from './entity_repository';
 
 const TABLE_NAME = 'users';
 
-export class UserRepository extends BaseRepository<UserDbObject> {
+export class UserRepository extends EntityRepository<UserDbObject> {
   constructor() {
     super(TABLE_NAME);
   }
 
-  async findByUserId(user_id: UserID): Promise<UserDbObject | undefined> {
+  async findByUserId(user_id: ID): Promise<UserDbObject | undefined> {
     return this.db
-      .selectFrom(this.tableName)
+      .selectFrom(this.table_name)
       .selectAll()
-      .where('user_id', '=', user_id)
+      .where(this.pk, '=', user_id)
       .executeTakeFirst();
   }
 
-  async findManyByUserId(user_ids: UserID[]): Promise<UserDbObject[]> {
+  async findManyByUserId(user_ids: ID[]): Promise<UserDbObject[]> {
     return this.db
-      .selectFrom(this.tableName)
+      .selectFrom(this.table_name)
       .selectAll()
-      .where('user_id', 'in', user_ids)
+      .where(this.pk, 'in', user_ids)
       .execute();
   }
 }

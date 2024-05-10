@@ -7,15 +7,24 @@ import { NoteUserPrimaryKey, NoteUserRelations, NoteUserRelationshipDbObject } f
 import { UserDbObject } from './user';
 import { UserFriendshipDbObject, UserFriendshipPrimaryKey, UserFriendshipRelations } from './user_friendships';
 
-export interface Database {
-  users: UserDbObject;
-  user_friendships: UserFriendshipDbObject;
+// Main database interface
+
+export interface DatabaseEntities {
   items: ItemDbObject;
   notes: NoteDbObject;
+  users: UserDbObject;
+}
+
+export interface DatabaseRelations {
+  user_friendships: UserFriendshipDbObject;
   items_on_notes: ItemNoteRelationshipDbObject;
   items_on_users: ItemUserRelationshipDbObject;
   notes_on_users: NoteUserRelationshipDbObject;
 }
+
+export type Database = DatabaseEntities & DatabaseRelations;
+
+// Supplementary types
 
 export type DbObject = Database[keyof Database];
 

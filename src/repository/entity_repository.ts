@@ -1,10 +1,14 @@
-import { DbEntityObject, DbPrimaryKey } from '../api/schema/database';
-import { ID } from '../api/schema/database/abstract';
+import { DatabaseEntities, DbEntityObject, DbPrimaryKey } from '../api/schema/database';
+import { ID, Identifiable } from '../api/schema/database/abstract';
 import { LyfError } from '../utils/lyf_error';
 import { BaseRepository } from './base_repository';
 
 export abstract class EntityRepository<T extends DbEntityObject> extends BaseRepository<T> {
-  public abstract readonly pk: DbPrimaryKey;
+  public readonly pk = 'id';
+
+  constructor(table_name: keyof DatabaseEntities) {
+    super(table_name);
+  }
 
   async delete(id: ID): Promise<boolean> {
     const deleteResult = await this.db.deleteFrom(this.table_name).where(this.pk, '=', id).execute();

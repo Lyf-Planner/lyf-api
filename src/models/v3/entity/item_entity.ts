@@ -1,11 +1,10 @@
 import { EntitySubgraph } from '../../../api/schema';
 import { ID } from '../../../api/schema/database/abstract';
-import { UserID } from '../../../api/schema/database/user';
-import { Item, ItemRelations } from '../../../api/schema/items';
+import { ItemDbObject } from '../../../api/schema/database/items';
+import { Item } from '../../../api/schema/items';
 import { ItemRepository } from '../../../repository/item_repository';
 import { Logger } from '../../../utils/logging';
 import { LyfError } from '../../../utils/lyf_error';
-import { ItemModel } from '../../v2/items/itemModel';
 import { CommandType } from '../command_types';
 import { ItemUserRelation } from '../relation/item_related_user';
 import { BaseEntity } from './base_entity';
@@ -15,13 +14,13 @@ export type ItemModelRelations = {
   users: ItemUserRelation[];
 };
 
-export class ItemEntity extends BaseEntity<Item> {
+export class ItemEntity extends BaseEntity<ItemDbObject> {
   protected logger = Logger.of(ItemEntity);
   protected repository = new ItemRepository();
 
   protected relations: Partial<ItemModelRelations> = {};
 
-  public async export(requestor?: UserID) {
+  public async export(requestor?: ID) {
     const relatedUsers = this.relations.users;
     const relatedUserIds = relatedUsers?.map((x) => x.id());
 

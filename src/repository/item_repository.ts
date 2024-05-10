@@ -1,9 +1,9 @@
 import { ItemDbObject } from '../api/schema/database/items';
-import { BaseRepository } from './base_repository';
+import { EntityRepository } from './entity_repository';
 
 const TABLE_NAME = 'items';
 
-export class ItemRepository extends BaseRepository<ItemDbObject> {
+export class ItemRepository extends EntityRepository<ItemDbObject> {
   constructor() {
     super(TABLE_NAME);
   }

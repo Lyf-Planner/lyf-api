@@ -4,19 +4,22 @@ import {
   ItemUserRelationshipDbObject
 } from '../api/schema/database/items_on_users';
 import { ID } from '../api/mongo_schema/abstract';
-import { UserDbObject, UserID } from '../api/schema/database/user';
+import { UserDbObject } from '../api/schema/database/user';
 import { ItemDbObject } from '../api/schema/database/items';
 import { RelationRepository } from './relation_repository';
 
 const TABLE_NAME = 'items_on_users';
 
 export class ItemUserRepository extends RelationRepository<ItemUserRelationshipDbObject> {
+  protected readonly pk_a = 'item_id_fk';
+  protected readonly pk_b = 'user_id_fk';
+  
   constructor() {
     super(TABLE_NAME);
   }
 
   async updateRelation(
-    user_id_fk: UserID,
+    user_id_fk: ID,
     item_id_fk: ID,
     changes: Partial<ItemUserRelationshipDbObject>
   ) {
@@ -34,7 +37,7 @@ export class ItemUserRepository extends RelationRepository<ItemUserRelationshipD
   ): Promise<(UserDbObject & ItemUserRelationshipDbObject)[]> {
     const result = await this.db
       .selectFrom('users')
-      .innerJoin(TABLE_NAME, 'users.user_id', 'items_on_users.user_id_fk')
+      .innerJoin(TABLE_NAME, 'users.id', 'items_on_users.user_id_fk')
       .selectAll()
       .where('item_id_fk', '=', item_id)
       .execute();
@@ -43,7 +46,7 @@ export class ItemUserRepository extends RelationRepository<ItemUserRelationshipD
   }
 
   async findUserRelatedItems(
-    user_id: UserID
+    user_id: ID
   ): Promise<(ItemDbObject & ItemUserRelationshipDbObject)[]> {
     const result = await this.db
       .selectFrom('items')
@@ -55,20 +58,8 @@ export class ItemUserRepository extends RelationRepository<ItemUserRelationshipD
     return result;
   }
 
-  async findByCompositeId({
-    item_id_fk,
-    user_id_fk
-  }: ItemUserPrimaryKey): Promise<ItemUserRelationshipDbObject | undefined> {
-    return this.db
-      .selectFrom(TABLE_NAME)
-      .selectAll()
-      .where('item_id_fk', '=', item_id_fk)
-      .where('user_id_fk', '=', user_id_fk)
-      .executeTakeFirst();
-  }
-
   async findUserRelatedItemsOnDate(
-    user_id: UserID,
+    user_id: ID,
     date: string
   ): Promise<(ItemDbObject & ItemUserRelationshipDbObject)[]> {
     const result = await this.db
@@ -83,7 +74,7 @@ export class ItemUserRepository extends RelationRepository<ItemUserRelationshipD
   }
 
   async findUserRelatedItemsOnDay(
-    user_id: UserID,
+    user_id: ID,
     day: string
   ): Promise<(ItemDbObject & ItemUserRelationshipDbObject)[]> {
     const result = await this.db
@@ -98,7 +89,7 @@ export class ItemUserRepository extends RelationRepository<ItemUserRelationshipD
   }
 
   async findUserRelatedItemsOnDateOrDay(
-    user_id: UserID,
+    user_id: ID,
     date: string,
     day: string
   ): Promise<(ItemDbObject & ItemUserRelationshipDbObject)[]> {

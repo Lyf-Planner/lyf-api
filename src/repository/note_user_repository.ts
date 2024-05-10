@@ -9,20 +9,11 @@ import { RelationRepository } from './relation_repository';
 const TABLE_NAME = 'notes_on_users';
 
 export class NoteUserRepository extends RelationRepository<NoteUserRelationshipDbObject> {
+  protected readonly pk_a = 'note_id_fk';
+  protected readonly pk_b = 'user_id_fk';
+
   constructor() {
     super(TABLE_NAME);
-  }
-
-  async findByCompositeId({
-    note_id_fk,
-    user_id_fk
-  }: NoteUserPrimaryKey): Promise<NoteUserRelationshipDbObject | undefined> {
-    return this.db
-      .selectFrom(TABLE_NAME)
-      .selectAll()
-      .where('note_id_fk', '=', note_id_fk)
-      .where('user_id_fk', '=', user_id_fk)
-      .executeTakeFirst();
   }
 
   async findNoteRelatedUsers(
@@ -30,7 +21,7 @@ export class NoteUserRepository extends RelationRepository<NoteUserRelationshipD
   ): Promise<(UserDbObject & NoteUserRelationshipDbObject)[]> {
     return await this.db
       .selectFrom('users')
-      .innerJoin('notes_on_users', 'users.user_id', 'notes_on_users.user_id_fk')
+      .innerJoin('notes_on_users', 'users.id', 'notes_on_users.user_id_fk')
       .selectAll()
       .where('note_id_fk', '=', note_id)
       .execute();

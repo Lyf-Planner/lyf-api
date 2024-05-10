@@ -8,9 +8,6 @@ export abstract class RelationRepository<T extends DbRelationObject> extends Bas
   protected abstract readonly pk_a: DbPrimaryKey;
   protected abstract readonly pk_b: DbPrimaryKey;
 
-  protected abstract readonly entity_repository_a: EntityRepository<DbEntityObject>;
-  protected abstract readonly entity_repository_b: EntityRepository<DbEntityObject>;
-
   // These should be ordered in a way that corresponds to the naming order of the table,
   // Example: items_on_users => id_a is for item, id_b is for user.
   //
@@ -54,19 +51,5 @@ export abstract class RelationRepository<T extends DbRelationObject> extends Bas
       .execute();
 
     return result as T[] | undefined;
-  }
-
-  async innerJoinByIdA(id_a: ID): Promise<(T & DbEntityObject)[] | undefined> {
-    const entityTable = this.entity_repository_a.table_name
-    const entityPk = this.entity_repository_a.pk
-
-    const result = await this.db
-      .selectFrom(entityTable)
-      .innerJoin(this.table_name, `${entityTable}.${entityPk}`, `${this.table_name}.${this.pk_a}`)
-      .selectAll()
-      .where('item_id_fk', '=', item_id)
-      .execute();
-
-    return result;
   }
 }

@@ -2,7 +2,6 @@
 import { Entity, EntityGraph, EntitySubgraph, GraphExport } from '../../api/schema';
 import { DbObject } from '../../api/schema/database';
 import { ID } from '../../api/schema/database/abstract';
-import { UserID } from '../../api/schema/database/user';
 import { BaseRepository } from '../../repository/base_repository';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
@@ -11,7 +10,7 @@ import { CommandType } from './command_types';
 
 
 export abstract class BaseModel<T extends Entity> {
-  protected _id: ID | UserID;
+  protected _id: ID;
 
   protected baseEntity?: T;
   protected relations: Record<string, BaseModel<Entity>|BaseModel<Entity>[]> = {};
@@ -21,16 +20,16 @@ export abstract class BaseModel<T extends Entity> {
 
   public id() { return this._id };
 
-  // public abstract static build(id: ID|UserID): Promise<BaseModel<T>>
-  public abstract delete(): Promise<void>;
-  public abstract export(requestor?: UserID): Promise<GraphExport>;
+  // public abstract static build(id: ID): Promise<BaseModel<T>>
+  public abstract delete(relation_only?: boolean): Promise<void>;
+  public abstract export(requestor?: ID): Promise<GraphExport>;
   public extract(): Promise<EntityGraph> { return this.baseEntityGraph() }
   public abstract load(relations: object): Promise<void>;
   public abstract update(changes: Partial<EntityGraph>): Promise<void>;
 
   protected abstract save(): Promise<void>;
   
-  constructor(id: ID | UserID) {
+  constructor(id: ID) {
     this._id = id;
   }
 
