@@ -76,18 +76,18 @@ const insertAsPgUserItem = async (
 };
 
 const getUserNewId = async (user_id: string, db: Kysely<any>) => {
-  const result = await db.selectFrom('users').selectAll().where('user_id', '=', user_id).execute();
+  const result = await db.selectFrom('users').selectAll().where('id', '=', user_id).execute();
   if (result.length !== 1) {
     console.log('user_id', user_id, 'does not exist anymore!! Ignoring');
     return;
   }
 
   const pgUser = result[0] as UserDbObject;
-  if (!pgUser.user_id) {
+  if (!pgUser.id) {
     console.log('Couldnt migrate user', user_id, 'with pg entry', JSON.stringify(pgUser));
     throw new Error('Wtf');
   }
 
-  console.log('got user', user_id, 'new id', pgUser.user_id);
-  return pgUser.user_id;
+  console.log('got user', user_id, 'new id', pgUser.id);
+  return pgUser.id;
 };

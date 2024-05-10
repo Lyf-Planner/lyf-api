@@ -1,19 +1,11 @@
-import { Timestamps } from './abstract';
+import { Identifiable, Timestamps } from './abstract';
 
 // Notes:
-// - primary key: user_id
-// - user_id is indexed
-// - user_id has unique constraint
-// - user_id has limit of 30 chars
+// - primary key: id
+// - id has limit of 30 chars
 // - display_name has limit of 30 chars
 
-export type UserID = string;
-
-export interface UserPrimaryKey {
-  user_id: UserID;
-}
-
-export interface UserPublicFields extends UserPrimaryKey, Timestamps {
+export interface UserPublicFields extends Identifiable, Timestamps {
   display_name?: string;
   pfp_url?: string;
 }

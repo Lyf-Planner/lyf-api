@@ -6,7 +6,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('created', 'timestamptz', (col) => col.defaultTo(sql`now()`).notNull())
     .addColumn('last_updated', 'timestamptz', (col) => col.defaultTo(sql`now()`).notNull())
     .addColumn('item_id_fk', 'uuid', (col) => col.notNull().references('items.id'))
-    .addColumn('user_id_fk', 'uuid', (col) => col.notNull().references('users.user_id'))
+    .addColumn('user_id_fk', 'uuid', (col) => col.notNull().references('users.id'))
     .addColumn('invite_pending', 'boolean', (col) => col.notNull())
     .addColumn('status', 'text', (col) => col.notNull())
     .addColumn('sorting_rank', 'decimal', (col) => col.notNull())
