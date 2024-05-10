@@ -7,7 +7,7 @@ import { UserPublicFields } from './database/user';
 export interface NoteRelatedItem extends ItemDbObject, ItemNoteRelations {}
 export interface NoteRelatedUser extends UserPublicFields, NoteUserRelations {}
 
-export type NoteRelatedEntity = NoteRelatedItem | NoteRelatedUser
+export type NoteRelatedEntity = NoteRelatedItem | NoteRelatedUser;
 
 export interface NoteRelations {
   users: NoteRelatedUser[];

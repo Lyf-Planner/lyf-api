@@ -6,8 +6,8 @@ import { Logger } from '../utils/logging';
 import { EntityService } from './abstract/entity_service';
 
 export class NoteService extends EntityService<Note, NoteEntity> {
-  private logger = Logger.of(NoteService);
   protected repository: NoteRepository;
+  private logger = Logger.of(NoteService);
   protected modelFactory = (note: Note, requested_by: UserID) => new NoteEntity(note, requested_by);
 
   constructor(note_repository: NoteRepository) {

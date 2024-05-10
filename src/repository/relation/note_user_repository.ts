@@ -1,10 +1,7 @@
-import { NoteDbObject } from '../api/schema/database/notes';
-import {
-  NoteUserPrimaryKey,
-  NoteUserRelationshipDbObject
-} from '../api/schema/database/notes_on_users';
-import { UserDbObject } from '../api/schema/database/user';
-import { RelationRepository } from './relation_repository';
+import { NoteDbObject } from '../../api/schema/database/notes';
+import { NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
+import { UserDbObject } from '../../api/schema/database/user';
+import { RelationRepository } from './_relation_repository';
 
 const TABLE_NAME = 'notes_on_users';
 

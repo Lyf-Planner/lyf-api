@@ -2,14 +2,9 @@ import { EntityGraph, GraphExport } from '../../../api/schema';
 import { DbRelationFields, DbRelationObject } from '../../../api/schema/database';
 import { ItemUserRelations } from '../../../api/schema/database/items_on_users';
 import { NoteDbObject } from '../../../api/schema/database/notes';
-import {
-  NoteUserRelations,
-  NoteUserRelationshipDbObject
-} from '../../../api/schema/database/notes_on_users';
-import { UserRelatedNote } from '../../../api/schema/user';
-import { ItemUserRepository } from '../../../repository/item_user_repository';
-import { NoteRepository } from '../../../repository/note_repository';
-import { NoteUserRepository } from '../../../repository/note_user_repository';
+import { NoteUserRelationshipDbObject } from '../../../api/schema/database/notes_on_users';
+import { NoteRepository } from '../../../repository/entity/note_repository';
+import { NoteUserRepository } from '../../../repository/relation/note_user_repository';
 import { Logger } from '../../../utils/logging';
 import { BaseRelation } from './base_relation';
 

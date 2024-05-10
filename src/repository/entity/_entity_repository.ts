@@ -1,7 +1,7 @@
-import { DatabaseEntities, DbEntityObject, DbPrimaryKey } from '../api/schema/database';
-import { ID, Identifiable } from '../api/schema/database/abstract';
-import { LyfError } from '../utils/lyf_error';
-import { BaseRepository } from './base_repository';
+import { DatabaseEntities, DbEntityObject } from '../../api/schema/database';
+import { ID } from '../../api/schema/database/abstract';
+import { LyfError } from '../../utils/lyf_error';
+import { BaseRepository } from '../_base_repository';
 
 export abstract class EntityRepository<T extends DbEntityObject> extends BaseRepository<T> {
   public readonly pk = 'id';

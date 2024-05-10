@@ -1,7 +1,7 @@
 import { EntitySubgraph } from '../../../api/schema';
 import { ID } from '../../../api/schema/database/abstract';
 import { NoteDbObject } from '../../../api/schema/database/notes';
-import { NoteRepository } from '../../../repository/note_repository';
+import { NoteRepository } from '../../../repository/entity/note_repository';
 import { Logger } from '../../../utils/logging';
 import { LyfError } from '../../../utils/lyf_error';
 import { CommandType } from '../command_types';

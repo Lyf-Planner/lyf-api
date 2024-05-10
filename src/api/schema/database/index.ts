@@ -28,9 +28,9 @@ export type Database = DatabaseEntities & DatabaseRelations;
 
 export type DbObject = Database[keyof Database];
 
-export type DbPrimaryKey = keyof (Identifiable & ItemNotePrimaryKey & ItemUserPrimaryKey & NoteUserPrimaryKey & UserFriendshipPrimaryKey)
+export type DbPrimaryKey = keyof (Identifiable & ItemNotePrimaryKey & ItemUserPrimaryKey & NoteUserPrimaryKey & UserFriendshipPrimaryKey);
 
-export type DbEntityObject = ItemDbObject | NoteDbObject | UserDbObject
-export type DbRelationObject = ItemNoteRelationshipDbObject | ItemUserRelationshipDbObject | NoteUserRelationshipDbObject | UserFriendshipDbObject
+export type DbEntityObject = ItemDbObject | NoteDbObject | UserDbObject;
+export type DbRelationObject = ItemNoteRelationshipDbObject | ItemUserRelationshipDbObject | NoteUserRelationshipDbObject | UserFriendshipDbObject;
 
-export type DbRelationFields = ItemNoteRelations | ItemUserRelations | NoteUserRelations | UserFriendshipRelations
+export type DbRelationFields = ItemNoteRelations | ItemUserRelations | NoteUserRelations | UserFriendshipRelations;

@@ -1,11 +1,11 @@
 import { ID, Time } from '../../../api/mongo_schema/abstract';
 import { User, UserDetails } from '../../../api/mongo_schema/user';
+import db from '../../../repository/db/mongo/mongo_db';
+import authUtils from '../../../utils/authUtils';
 import { Logger } from '../../../utils/logging';
-import { UserModel } from './userModel';
 import { ItemOperations } from '../items/ItemOperations';
 import { SocialUser } from '../social/socialUser';
-import authUtils from '../../../utils/authUtils';
-import db from '../../../repository/db/mongo/mongo_db';
+import { UserModel } from './userModel';
 
 export class UserOperations {
   // Builder method
@@ -36,7 +36,7 @@ export class UserOperations {
     commit = true, // Also create in db
     timezone?: string
   ): Promise<UserModel> {
-    let intro_item_id = await ItemOperations.createUserIntroItem(user_id);
+    const intro_item_id = await ItemOperations.createUserIntroItem(user_id);
 
     var user = {} as any;
     user.id = user_id;
@@ -69,7 +69,7 @@ export class UserOperations {
     };
 
     var model = new UserModel(user, false, true);
-    if (commit) await model.commit();
+    if (commit) { await model.commit(); }
 
     return model;
   }

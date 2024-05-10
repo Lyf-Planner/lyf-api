@@ -4,17 +4,17 @@ import { UserEntity } from '../models/v3/entity/user_entity';
 import { UserRepository } from '../repository/user_repository';
 import { formatDateData } from '../utils/dates';
 import { Logger } from '../utils/logging';
+import { EntityService } from './abstract/entity_service';
 import { AuthService } from './auth_service';
 import { ItemService } from './item_service';
-import { EntityService } from './abstract/entity_service';
 import notificationService, { NotificationService } from './notifications/notification_service';
 
 export class UserService extends EntityService<UserDbObject, UserEntity> {
-  private logger = Logger.of(UserService);
 
   protected repository: UserRepository;
+  private logger = Logger.of(UserService);
   protected modelFactory = (user: UserDbObject, requested_by: UserID) =>
-    new UserEntity(user, requested_by);
+    new UserEntity(user, requested_by)
 
   constructor() {
     super();
@@ -74,7 +74,7 @@ export class UserService extends EntityService<UserDbObject, UserEntity> {
   async safeUpdate(id: UserID, changes: Partial<User>) {
     const existingDbObject = await this.repository.findByUserId(id);
     if (!existingDbObject) {
-      throw new Error(`Tried to update non-existing user`);
+      throw new Error('Tried to update non-existing user');
     }
 
     const existingUser = this.modelFactory(existingDbObject, id);

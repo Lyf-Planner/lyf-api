@@ -1,34 +1,35 @@
-
 import { Entity, EntityGraph, EntitySubgraph, GraphExport } from '../../api/schema';
 import { DbObject } from '../../api/schema/database';
 import { ID } from '../../api/schema/database/abstract';
-import { BaseRepository } from '../../repository/base_repository';
+import { BaseRepository } from '../../repository/_base_repository';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { CommandType } from './command_types';
-
-
 
 export abstract class BaseModel<T extends Entity> {
   protected _id: ID;
 
   protected baseEntity?: T;
-  protected relations: Record<string, BaseModel<Entity>|BaseModel<Entity>[]> = {};
+  protected relations: Record<string, BaseModel<Entity> | BaseModel<Entity>[]> = {};
 
   protected abstract logger: Logger;
-  protected abstract repository: BaseRepository<DbObject>
+  protected abstract repository: BaseRepository<DbObject>;
 
-  public id() { return this._id };
+  public id() {
+    return this._id;
+  }
 
   // public abstract static build(id: ID): Promise<BaseModel<T>>
   public abstract delete(relation_only?: boolean): Promise<void>;
   public abstract export(requestor?: ID): Promise<GraphExport>;
-  public extract(): Promise<EntityGraph> { return this.baseEntityGraph() }
+  public extract(): Promise<EntityGraph> {
+    return this.baseEntityGraph();
+  }
   public abstract load(relations: object): Promise<void>;
   public abstract update(changes: Partial<EntityGraph>): Promise<void>;
 
   protected abstract save(): Promise<void>;
-  
+
   constructor(id: ID) {
     this._id = id;
   }
@@ -38,8 +39,8 @@ export abstract class BaseModel<T extends Entity> {
   public async recurseRelations<K>(
     command: CommandType,
     payload?: Record<string, any>
-  ): Promise<Record<string, K|K[]>> {
-    const recursedRelations: Record<string, K|K[]> = {};
+  ): Promise<Record<string, K | K[]>> {
+    const recursedRelations: Record<string, K | K[]> = {};
 
     for (const [key, value] of Object.entries(this.relations)) {
       // Handle relations being an array
@@ -51,15 +52,18 @@ export abstract class BaseModel<T extends Entity> {
           if (payload && Array.isArray(payload?.[key])) {
             relevantPayload = payload?.[key].find((x: BaseModel<Entity>) => x.id() === model.id());
           }
-          
-          relationArray.push(await this.handleCommand(command, model, relevantPayload) as K)
+
+          relationArray.push((await this.handleCommand(command, model, relevantPayload)) as K);
         }
 
         recursedRelations[key] = relationArray;
       } else {
-        recursedRelations[key] = this.handleCommand(command, value as BaseModel<Entity>, payload?.[key]) as K
+        recursedRelations[key] = this.handleCommand(
+          command,
+          value as BaseModel<Entity>,
+          payload?.[key]
+        ) as K;
       }
-
     }
 
     return recursedRelations;
@@ -90,7 +94,7 @@ export abstract class BaseModel<T extends Entity> {
 
     return {
       ...this.baseEntity,
-      relations: await this.recurseRelations<EntitySubgraph>(CommandType.Extract),
+      relations: await this.recurseRelations<EntitySubgraph>(CommandType.Extract)
     };
   }
 }

@@ -5,8 +5,8 @@ import {
   ItemNoteRelations,
   ItemNoteRelationshipDbObject
 } from '../../../api/schema/database/items_on_notes';
-import { ItemNoteRepository } from '../../../repository/item_note_repository';
-import { ItemRepository } from '../../../repository/item_repository';
+import { ItemRepository } from '../../../repository/entity/item_repository';
+import { ItemNoteRepository } from '../../../repository/relation/item_note_repository';
 import { Logger } from '../../../utils/logging';
 import { BaseRelation } from './base_relation';
 

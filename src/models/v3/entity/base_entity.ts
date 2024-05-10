@@ -1,12 +1,12 @@
-import { EntityGraph, EntityGraphRoot, EntitySubgraph } from '../../../api/schema';
+import { EntityGraphRoot, EntitySubgraph } from '../../../api/schema';
 import { DbEntityObject } from '../../../api/schema/database';
-import { EntityRepository } from '../../../repository/entity_repository';
+import { EntityRepository } from '../../../repository/entity/_entity_repository';
 import { LyfError } from '../../../utils/lyf_error';
 import { BaseModel } from '../base_model';
 import { CommandType } from '../command_types';
 
 export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> {
-  protected abstract repository: EntityRepository<T>
+  protected abstract repository: EntityRepository<T>;
 
   public async delete() {
     await this.repository.delete(this._id);
@@ -16,7 +16,7 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
   public async load(relations: object, recurse = true) {
     const dbObject = await this.repository.findById(this._id) as T;
     if (!dbObject) {
-      throw new LyfError(`Model with id ${this._id} does not have a database entry in ${this.repository}`, 500)  
+      throw new LyfError(`Model with id ${this._id} does not have a database entry in ${this.repository}`, 500);
     }
 
     this.baseEntity = dbObject;
@@ -28,7 +28,7 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
       throw new LyfError('Model was saved before being loaded', 500);
     }
 
-    await this.repository.update(this._id, this.baseEntity)
+    await this.repository.update(this._id, this.baseEntity);
     await this.recurseRelations(CommandType.Save);
   }
 

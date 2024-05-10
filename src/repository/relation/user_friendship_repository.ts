@@ -1,6 +1,6 @@
-import { UserDbObject } from '../api/schema/database/user';
-import { UserFriendshipDbObject, UserFriendshipPrimaryKey } from '../api/schema/database/user_friendships';
-import { RelationRepository } from './relation_repository';
+import { UserDbObject } from '../../api/schema/database/user';
+import { UserFriendshipDbObject } from '../../api/schema/database/user_friendships';
+import { RelationRepository } from './_relation_repository';
 
 const TABLE_NAME = 'user_friendships';
 

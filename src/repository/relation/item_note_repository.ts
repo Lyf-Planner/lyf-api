@@ -1,17 +1,16 @@
-import { ItemDbObject } from '../api/schema/database/items';
+import { ItemDbObject } from '../../api/schema/database/items';
 import {
-  ItemNotePrimaryKey,
   ItemNoteRelationshipDbObject
-} from '../api/schema/database/items_on_notes';
-import { NoteDbObject } from '../api/schema/database/notes';
-import { RelationRepository } from './relation_repository';
+} from '../../api/schema/database/items_on_notes';
+import { NoteDbObject } from '../../api/schema/database/notes';
+import { RelationRepository } from './_relation_repository';
 
 const TABLE_NAME = 'items_on_notes';
 
 export class ItemNoteRepository extends RelationRepository<ItemNoteRelationshipDbObject> {
   protected readonly pk_a = 'item_id_fk';
-  protected readonly pk_b = 'note_id_fk'
-  
+  protected readonly pk_b = 'note_id_fk';
+
   constructor() {
     super(TABLE_NAME);
   }

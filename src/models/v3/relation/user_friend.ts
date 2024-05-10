@@ -1,13 +1,12 @@
 import { EntityGraph, GraphExport } from '../../../api/schema';
 import { DbRelationFields, DbRelationObject } from '../../../api/schema/database';
-import { UserDbObject, UserPublicFields } from '../../../api/schema/database/user';
+import { UserDbObject } from '../../../api/schema/database/user';
 import {
   UserFriendshipDbObject,
   UserFriendshipRelations
 } from '../../../api/schema/database/user_friendships';
-import { UserFriend } from '../../../api/schema/user';
-import { UserFriendshipRepository } from '../../../repository/user_friendship_repository';
-import { UserRepository } from '../../../repository/user_repository';
+import { UserRepository } from '../../../repository/entity/user_repository';
+import { UserFriendshipRepository } from '../../../repository/relation/user_friendship_repository';
 import { Logger } from '../../../utils/logging';
 import { BaseRelation } from './base_relation';
 

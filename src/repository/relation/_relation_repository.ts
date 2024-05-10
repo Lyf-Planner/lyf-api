@@ -1,7 +1,6 @@
-import { DbEntityObject, DbPrimaryKey, DbRelationObject } from '../api/schema/database';
-import { ID } from '../api/schema/database/abstract';
-import { BaseRepository } from './base_repository';
-import { EntityRepository } from './entity_repository';
+import { DbPrimaryKey, DbRelationObject } from '../../api/schema/database';
+import { ID } from '../../api/schema/database/abstract';
+import { BaseRepository } from '../_base_repository';
 
 export abstract class RelationRepository<T extends DbRelationObject> extends BaseRepository<T> {
   // These are instantiated in lexicographical order.

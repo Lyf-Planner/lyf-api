@@ -5,8 +5,8 @@ import {
   NoteUserRelationshipDbObject
 } from '../../../api/schema/database/notes_on_users';
 import { UserDbObject } from '../../../api/schema/database/user';
-import { NoteUserRepository } from '../../../repository/note_user_repository';
-import { UserRepository } from '../../../repository/user_repository';
+import { UserRepository } from '../../../repository/entity/user_repository';
+import { NoteUserRepository } from '../../../repository/relation/note_user_repository';
 import { Logger } from '../../../utils/logging';
 import { BaseRelation } from './base_relation';
 

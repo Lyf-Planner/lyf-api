@@ -5,5 +5,5 @@ export enum CommandType {
     Extract,
     Load,
     Save,
-    Update,
+    Update
 }

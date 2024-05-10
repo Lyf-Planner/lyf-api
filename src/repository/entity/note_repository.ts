@@ -1,5 +1,5 @@
-import { NoteDbObject } from '../api/schema/database/notes';
-import { EntityRepository } from './entity_repository';
+import { NoteDbObject } from '../../api/schema/database/notes';
+import { EntityRepository } from './_entity_repository';
 
 const TABLE_NAME = 'notes';
 

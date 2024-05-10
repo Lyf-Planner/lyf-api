@@ -4,9 +4,9 @@ import { UserDbObject, UserSensitiveFields } from '../../../api/schema/database/
 import {
   ExposedUser,
   PublicUser,
-  User,
+  User
 } from '../../../api/schema/user';
-import { UserRepository } from '../../../repository/user_repository';
+import { UserRepository } from '../../../repository/entity/user_repository';
 import { Logger } from '../../../utils/logging';
 import { LyfError } from '../../../utils/lyf_error';
 import { CommandType } from '../command_types';
@@ -34,9 +34,9 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     if (requestor && !relatedUserIds?.includes(requestor)) {
       throw new LyfError('User tried to load an item they should not have access to', 401);
     }
-    
+
     if (requestor !== this._id) {
-      return await this.exportAsPublicUser()
+      return await this.exportAsPublicUser();
     }
 
     return {

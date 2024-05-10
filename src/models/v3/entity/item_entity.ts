@@ -1,8 +1,7 @@
 import { EntitySubgraph } from '../../../api/schema';
 import { ID } from '../../../api/schema/database/abstract';
 import { ItemDbObject } from '../../../api/schema/database/items';
-import { Item } from '../../../api/schema/items';
-import { ItemRepository } from '../../../repository/item_repository';
+import { ItemRepository } from '../../../repository/entity/item_repository';
 import { Logger } from '../../../utils/logging';
 import { LyfError } from '../../../utils/lyf_error';
 import { CommandType } from '../command_types';

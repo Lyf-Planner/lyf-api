@@ -5,9 +5,8 @@ import {
   ItemUserRelations,
   ItemUserRelationshipDbObject
 } from '../../../api/schema/database/items_on_users';
-import { UserRelatedItem } from '../../../api/schema/user';
-import { ItemRepository } from '../../../repository/item_repository';
-import { ItemUserRepository } from '../../../repository/item_user_repository';
+import { ItemRepository } from '../../../repository/entity/item_repository';
+import { ItemUserRepository } from '../../../repository/relation/item_user_repository';
 import { Logger } from '../../../utils/logging';
 import { BaseRelation } from './base_relation';
 

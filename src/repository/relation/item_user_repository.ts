@@ -1,19 +1,15 @@
-import { Item } from '../api/schema/items';
-import {
-  ItemUserPrimaryKey,
-  ItemUserRelationshipDbObject
-} from '../api/schema/database/items_on_users';
-import { ID } from '../api/mongo_schema/abstract';
-import { UserDbObject } from '../api/schema/database/user';
-import { ItemDbObject } from '../api/schema/database/items';
-import { RelationRepository } from './relation_repository';
+import { ID } from '../../api/mongo_schema/abstract';
+import { ItemDbObject } from '../../api/schema/database/items';
+import { ItemUserRelationshipDbObject } from '../../api/schema/database/items_on_users';
+import { UserDbObject } from '../../api/schema/database/user';
+import { RelationRepository } from './_relation_repository';
 
 const TABLE_NAME = 'items_on_users';
 
 export class ItemUserRepository extends RelationRepository<ItemUserRelationshipDbObject> {
   protected readonly pk_a = 'item_id_fk';
   protected readonly pk_b = 'user_id_fk';
-  
+
   constructor() {
     super(TABLE_NAME);
   }

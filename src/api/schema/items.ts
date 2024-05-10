@@ -5,7 +5,7 @@ import { PublicUser } from './user';
 export interface ItemRelatedUser extends PublicUser, ItemUserRelations {}
 export interface ItemRelatedItem extends Item {}
 
-export type ItemRelatedEntity = ItemRelatedUser | ItemRelatedItem
+export type ItemRelatedEntity = ItemRelatedUser | ItemRelatedItem;
 
 export interface ItemRelations {
   users: ItemRelatedUser[];
@@ -13,5 +13,5 @@ export interface ItemRelations {
 }
 
 export interface Item extends ItemDbObject {
-  relations: Partial<ItemRelations>
+  relations: Partial<ItemRelations>;
 }
