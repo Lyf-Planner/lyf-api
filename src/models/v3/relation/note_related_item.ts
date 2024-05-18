@@ -1,52 +1,63 @@
-import { EntityGraph, GraphExport } from '../../../api/schema';
 import { DbRelationFields, DbRelationObject } from '../../../api/schema/database';
+import { ID } from '../../../api/schema/database/abstract';
 import { ItemDbObject } from '../../../api/schema/database/items';
 import {
   ItemNoteRelations,
   ItemNoteRelationshipDbObject
 } from '../../../api/schema/database/items_on_notes';
-import { ItemRepository } from '../../../repository/entity/item_repository';
+import { NoteRelatedItem } from '../../../api/schema/notes';
 import { ItemNoteRepository } from '../../../repository/relation/item_note_repository';
 import { Logger } from '../../../utils/logging';
+import { ItemEntity } from '../entity/item_entity';
 import { BaseRelation } from './base_relation';
 
-export class NoteItemRelation extends BaseRelation<ItemDbObject, ItemNoteRelationshipDbObject> {
+export class NoteItemRelation extends BaseRelation<ItemNoteRelationshipDbObject, ItemDbObject> {
   protected logger: Logger = Logger.of(NoteItemRelation);
 
-  protected relationFields: Partial<ItemNoteRelations> = {};
-  protected relationRepository = new ItemNoteRepository();
+  protected relatedEntity: ItemEntity;
+  protected repository = new ItemNoteRepository();
 
-  protected repository = new ItemRepository();
-
-  protected checkRelationFieldUpdates(): Promise<void> {
-    throw new Error('Method not implemented.');
+  constructor(id: ID, entity_id: ID) {
+    super(id, entity_id);
+    this.relatedEntity = new ItemEntity(entity_id);
   }
 
-  public delete(): Promise<void> {
-    throw new Error('Method not implemented.');
+  static filter(object: any): ItemNoteRelations {
+    return {}
   }
 
-  protected deleteRelation(): Promise<void> {
-    throw new Error('Method not implemented.');
+  public async delete(): Promise<void> {
+    await this.repository.deleteRelation(this._entityId, this._id);
   }
 
-  public export(requestor?: string | undefined): Promise<GraphExport> {
-    throw new Error('Method not implemented.');
+  public async extract(): Promise<ItemDbObject & ItemNoteRelationshipDbObject> {
+    return {
+      ...await this.relatedEntity.extract(false) as ItemDbObject,
+      ...this.base!
+    }
   }
 
-  protected extractRelationFields(db_relation_object: DbRelationObject): Promise<DbRelationFields> {
-    throw new Error('Method not implemented.');
+  public async export(requestor?: string | undefined): Promise<NoteRelatedItem> {
+    return {
+      ...await this.relatedEntity.export("", false) as ItemDbObject,
+      ...NoteItemRelation.filter(this.base!)
+    }
   }
 
-  public load(relations: object): Promise<void> {
-    throw new Error('Method not implemented.');
+  public async load(relations: object): Promise<void> {
+    this.base = await this.repository.findByCompositeId(this._entityId, this._id);
+    await this.relatedEntity.load();
   }
 
-  public update(changes: Partial<EntityGraph>): Promise<void> {
-    throw new Error('Method not implemented.');
+  public async update(changes: Partial<NoteRelatedItem>): Promise<void> {
+    const relationFieldUpdates = NoteItemRelation.filter(changes);
+    this.base = {
+      ...this.base!,
+      ...relationFieldUpdates
+    }
   }
 
-  protected save(): Promise<void> {
-    throw new Error('Method not implemented.');
+  public async save(): Promise<void> {
+    await this.repository.updateRelation(this._entityId, this._id, this.base!)
   }
 }

@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { ItemHandlers } from '../handlers/itemHandlers';
+import { ItemHandlers } from '../handlers/v2/itemHandlers';
 import { validate } from '../middleware/validationMiddleware';
 import { nSecondLimiter } from '../utils';
 import {

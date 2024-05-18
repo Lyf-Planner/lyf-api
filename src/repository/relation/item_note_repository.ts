@@ -1,3 +1,4 @@
+import { ID } from '../../api/schema/database/abstract';
 import { ItemDbObject } from '../../api/schema/database/items';
 import {
   ItemNoteRelationshipDbObject
@@ -15,6 +16,14 @@ export class ItemNoteRepository extends RelationRepository<ItemNoteRelationshipD
     super(TABLE_NAME);
   }
 
+  public async deleteRelation(item_id: ID, note_id: ID) {
+    await this.db
+      .deleteFrom(this.table_name)
+      .where(this.pk_a, '=', item_id)
+      .where(this.pk_b, '=', note_id)
+      .execute();
+  }
+
   async findNoteRelatedItems(note_id: string): Promise<(ItemDbObject & ItemNoteRelationshipDbObject)[]> {
     return await this.db
       .selectFrom('items')
@@ -30,6 +39,20 @@ export class ItemNoteRepository extends RelationRepository<ItemNoteRelationshipD
       .innerJoin('items_on_notes', 'notes.id', 'items_on_notes.note_id_fk')
       .selectAll()
       .where('item_id_fk', '=', item_id)
+      .execute();
+  }
+
+  async updateRelation(
+    item_id_fk: ID,
+    note_id_fk: ID,
+    changes: Partial<ItemNoteRelationshipDbObject>
+  ) {
+    return await this.db
+      .updateTable(TABLE_NAME)
+      .set(changes)
+      .where('item_id_fk', '=', item_id_fk)
+      .where('note_id_fk', '=', note_id_fk)
+      .returningAll()
       .execute();
   }
 }

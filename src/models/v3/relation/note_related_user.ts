@@ -1,52 +1,68 @@
-import { EntityGraph, GraphExport } from '../../../api/schema';
 import { DbRelationFields, DbRelationObject } from '../../../api/schema/database';
+import { ID } from '../../../api/schema/database/abstract';
 import {
   NoteUserRelations,
   NoteUserRelationshipDbObject
 } from '../../../api/schema/database/notes_on_users';
 import { UserDbObject } from '../../../api/schema/database/user';
+import { NoteRelatedUser } from '../../../api/schema/notes';
+import { PublicUser } from '../../../api/schema/user';
 import { UserRepository } from '../../../repository/entity/user_repository';
 import { NoteUserRepository } from '../../../repository/relation/note_user_repository';
 import { Logger } from '../../../utils/logging';
+import { UserEntity } from '../entity/user_entity';
 import { BaseRelation } from './base_relation';
 
-export class NoteUserRelation extends BaseRelation<UserDbObject, NoteUserRelationshipDbObject> {
+export class NoteUserRelation extends BaseRelation<NoteUserRelationshipDbObject, UserDbObject> {
   protected logger: Logger = Logger.of(NoteUserRelation);
 
-  protected relationFields: Partial<NoteUserRelations> = {};
-  protected relationRepository = new NoteUserRepository();
+  protected relatedEntity: UserEntity;
+  protected repository = new NoteUserRepository();
 
-  protected repository = new UserRepository();
-
-  protected checkRelationFieldUpdates(): Promise<void> {
-    throw new Error('Method not implemented.');
+  constructor(id: ID, entity_id: ID) {
+    super(id, entity_id);
+    this.relatedEntity = new UserEntity(entity_id);
   }
 
-  public delete(): Promise<void> {
-    throw new Error('Method not implemented.');
+  static filter(object: any): NoteUserRelations {
+    return {
+      invite_pending: object.invite_pending,
+      status: object.status
+    }
   }
 
-  protected deleteRelation(): Promise<void> {
-    throw new Error('Method not implemented.');
+  public async delete(): Promise<void> {
+    await this.repository.deleteRelation(this._id, this._entityId);
   }
 
-  public export(requestor?: string | undefined): Promise<GraphExport> {
-    throw new Error('Method not implemented.');
+  public async extract(): Promise<UserDbObject & NoteUserRelationshipDbObject> {
+    return {
+      ...await this.relatedEntity.extract(false) as UserDbObject,
+      ...this.base!
+    }
   }
 
-  protected extractRelationFields(db_relation_object: DbRelationObject): Promise<DbRelationFields> {
-    throw new Error('Method not implemented.');
+  public async export(requestor?: string | undefined): Promise<NoteRelatedUser> {
+    return {
+      ...await this.relatedEntity.export("", false) as PublicUser,
+      ...NoteUserRelation.filter(this.base!)
+    }
   }
 
-  public load(relations: object): Promise<void> {
-    throw new Error('Method not implemented.');
+  public async load(relations: object): Promise<void> {
+    this.base = await this.repository.findByCompositeId(this._id, this._entityId);
+    await this.relatedEntity.load();
   }
 
-  public update(changes: Partial<EntityGraph>): Promise<void> {
-    throw new Error('Method not implemented.');
+  public async update(changes: Partial<NoteRelatedUser>): Promise<void> {
+    const relationFieldUpdates = NoteUserRelation.filter(changes);
+    this.base = {
+      ...this.base!,
+      ...relationFieldUpdates
+    }
   }
 
-  protected save(): Promise<void> {
-    throw new Error('Method not implemented.');
+  public async save(): Promise<void> {
+    await this.repository.updateRelation(this._id, this._entityId, this.base!);
   }
 }

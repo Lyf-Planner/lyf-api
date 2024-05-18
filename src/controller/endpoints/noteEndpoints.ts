@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { NoteHandlers } from '../handlers/noteHandlers';
+import { NoteHandlers } from '../handlers/v2/noteHandlers';
 import { validate } from '../middleware/validationMiddleware';
 import {
   createNoteValidator,

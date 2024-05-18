@@ -148,7 +148,7 @@
         "ban-keywords",
         "check-format",
         "allow-leading-underscore",
-        "allow-pascal-case"
+        "allow-snake-case"
       ],
       "whitespace": [
         true,

@@ -13,7 +13,7 @@ export class AuthService {
       return false;
     }
 
-    const token = jwt.sign({ user_id: user.user_id }, env.jwtSecret as string, {
+    const token = jwt.sign({ user_id: user.id }, env.jwtSecret as string, {
       // Caution: Setting an expiry will only work if we encode an object
       // Don't change the content (user_id) back to a string!
       expiresIn: '1y'

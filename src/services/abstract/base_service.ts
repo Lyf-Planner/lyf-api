@@ -1,11 +1,12 @@
-import { DbObject } from '../../api/schema/database';
-import { BaseRepository } from '../../repository/base_repository';
+import { Entity } from '../../api/schema';
+import { DbEntityObject, DbObject } from '../../api/schema/database';
+import { BaseModel } from '../../models/v3/base_model';
+import { BaseRepository } from '../../repository/_base_repository';
+import { Logger } from '../../utils/logging';
 
-export abstract class BaseService<T extends DbObject> {
-  protected abstract repository: BaseRepository<DbObject>;
-
-  public async createNewDbObject(entity: T): Promise<T> {
-    const newDbObject = (await this.repository.create(entity)) as T;
-    return newDbObject;
-  }
+export abstract class BaseService<T extends Entity> {
+  protected abstract logger: Logger
+  
+  public abstract processCreation(...args: any[]): Promise<T>;
+  public abstract processUpdate(...args: any[]): Promise<T>;
 }

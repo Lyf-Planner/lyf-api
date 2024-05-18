@@ -2,22 +2,20 @@ import { v4 as uuid } from 'uuid';
 
 import { ID } from '../api/schema/database/abstract';
 import { ItemDbObject, ItemStatus, ItemType } from '../api/schema/database/items';
-import { UserID } from '../api/schema/database/user';
 import { Item } from '../api/schema/items';
 import { ItemEntity } from '../models/v3/entity/item_entity';
 import { UserEntity } from '../models/v3/entity/user_entity';
 import { UserItemRelation } from '../models/v3/relation/user_related_item';
-import { ItemRepository } from '../repository/item_repository';
+import { ItemRepository } from '../repository/entity/item_repository';
 import { formatDateData } from '../utils/dates';
 import { Logger } from '../utils/logging';
 import { EntityService } from './abstract/entity_service';
 import { ItemNoteService } from './item_note_service';
 import { ItemUserService } from './item_user_service';
 
-export class ItemService extends EntityService<Item, ItemEntity> {
+export class ItemService extends EntityService<ItemDbObject> {
   protected repository: ItemRepository;
   private logger = Logger.of(ItemService);
-  protected modelFactory = (item: Item, requested_by: UserID) => new ItemEntity(item, requested_by);
 
   constructor() {
     super();

@@ -24,5 +24,5 @@ export interface ExposedUser extends UserExposedFields {
   relations: Partial<UserRelations>;
 }
 export interface PublicUser extends UserPublicFields {
-  relations: Partial<UserRelations>;
+  relations?: Partial<UserRelations>;
 }

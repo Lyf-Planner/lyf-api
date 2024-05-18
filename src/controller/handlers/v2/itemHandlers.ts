@@ -1,17 +1,17 @@
 import { Request, Response } from 'express';
 import PQueue from 'p-queue';
 
-import { Permission } from '../../api/mongo_schema/social';
-import { ItemOperations } from '../../models/v2/items/ItemOperations';
-import { SocialItemManager } from '../../models/v2/social/socialItemManager';
-import { Logger } from '../../utils/logging';
-import { getMiddlewareVars } from '../utils';
+import { Permission } from '../../../api/mongo_schema/social';
+import { ItemOperations } from '../../../models/v2/items/ItemOperations';
+import { SocialItemManager } from '../../../models/v2/social/socialItemManager';
+import { Logger } from '../../../utils/logging';
+import { getMiddlewareVars } from '../../utils';
 import {
   createItemBody,
   getItemsBody,
   updateItemBody,
   updateItemSocialBody
-} from '../validators/itemValidators';
+} from '../../validators/itemValidators';
 
 const itemUpdateQueue = new PQueue({ concurrency: 1 });
 

@@ -14,17 +14,11 @@ export class ItemUserRepository extends RelationRepository<ItemUserRelationshipD
     super(TABLE_NAME);
   }
 
-  async updateRelation(
-    user_id_fk: ID,
-    item_id_fk: ID,
-    changes: Partial<ItemUserRelationshipDbObject>
-  ) {
-    return await this.db
-      .updateTable(TABLE_NAME)
-      .set(changes)
-      .where('user_id_fk', '=', user_id_fk)
-      .where('item_id_fk', '=', item_id_fk)
-      .returningAll()
+  public async deleteRelation(item_id: ID, user_id: ID) {
+    await this.db
+      .deleteFrom(this.table_name)
+      .where(this.pk_a, '=', item_id)
+      .where(this.pk_b, '=', user_id)
       .execute();
   }
 
@@ -98,5 +92,19 @@ export class ItemUserRepository extends RelationRepository<ItemUserRelationshipD
       .execute();
 
     return result;
+  }
+
+  async updateRelation(
+    item_id_fk: ID,
+    user_id_fk: ID,
+    changes: Partial<ItemUserRelationshipDbObject>
+  ) {
+    return await this.db
+      .updateTable(TABLE_NAME)
+      .set(changes)
+      .where('item_id_fk', '=', item_id_fk)
+      .where('user_id_fk', '=', user_id_fk)
+      .returningAll()
+      .execute();
   }
 }

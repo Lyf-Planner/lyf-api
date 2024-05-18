@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { UserHandlers } from '../handlers/userHandlers';
+import { UserHandlers } from '../handlers/v2/userHandlers';
 import { validate } from '../middleware/validationMiddleware';
 import { nSecondLimiter } from '../utils';
 import {

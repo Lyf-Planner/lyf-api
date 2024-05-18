@@ -1,3 +1,4 @@
+import { ID } from '../../api/schema/database/abstract';
 import { NoteDbObject } from '../../api/schema/database/notes';
 import { NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
 import { UserDbObject } from '../../api/schema/database/user';
@@ -11,6 +12,14 @@ export class NoteUserRepository extends RelationRepository<NoteUserRelationshipD
 
   constructor() {
     super(TABLE_NAME);
+  }
+
+  public async deleteRelation(note_id: ID, user_id: ID) {
+    await this.db
+      .deleteFrom(this.table_name)
+      .where(this.pk_a, '=', note_id)
+      .where(this.pk_b, '=', user_id)
+      .execute();
   }
 
   async findNoteRelatedUsers(
@@ -32,6 +41,20 @@ export class NoteUserRepository extends RelationRepository<NoteUserRelationshipD
       .innerJoin('notes_on_users', 'notes.id', 'notes_on_users.note_id_fk')
       .selectAll()
       .where('user_id_fk', '=', user_id)
+      .execute();
+  }
+
+  async updateRelation(
+    note_id_fk: ID,
+    user_id_fk: ID,
+    changes: Partial<NoteUserRelationshipDbObject>
+  ) {
+    return await this.db
+      .updateTable(TABLE_NAME)
+      .set(changes)
+      .where('note_id_fk', '=', note_id_fk)
+      .where('user_id_fk', '=', user_id_fk)
+      .returningAll()
       .execute();
   }
 }

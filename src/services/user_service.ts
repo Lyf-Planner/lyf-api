@@ -1,20 +1,20 @@
-import { UserDbObject, UserID } from '../api/schema/database/user';
-import { User } from '../api/schema/user';
+import { ID } from '../api/schema/database/abstract';
+import { UserDbObject } from '../api/schema/database/user';
+import { ExposedUser, PublicUser, User } from '../api/schema/user';
 import { UserEntity } from '../models/v3/entity/user_entity';
-import { UserRepository } from '../repository/user_repository';
+import { UserRepository } from '../repository/entity/user_repository';
+import authUtils from '../utils/authUtils';
 import { formatDateData } from '../utils/dates';
 import { Logger } from '../utils/logging';
+import { LyfError } from '../utils/lyf_error';
 import { EntityService } from './abstract/entity_service';
 import { AuthService } from './auth_service';
 import { ItemService } from './item_service';
-import notificationService, { NotificationService } from './notifications/notification_service';
+import notificationService from './notifications/notification_service';
 
-export class UserService extends EntityService<UserDbObject, UserEntity> {
-
+export class UserService extends EntityService<UserDbObject> {
   protected repository: UserRepository;
-  private logger = Logger.of(UserService);
-  protected modelFactory = (user: UserDbObject, requested_by: UserID) =>
-    new UserEntity(user, requested_by)
+  protected logger = Logger.of(UserService);
 
   constructor() {
     super();
@@ -22,24 +22,21 @@ export class UserService extends EntityService<UserDbObject, UserEntity> {
   }
 
   // Builder method
-  public async retrieveForUser(user_id: UserID, requestor_id: UserID): Promise<UserEntity> {
-    const userData = await this.repository.findByUserId(user_id);
-    if (!userData) {
-      throw new Error(`User ${user_id} does not exist`);
-    }
+  public async retrieveForUser(user_id: ID, requestor_id: ID, include: string): Promise<ExposedUser|PublicUser> {
+    const user = new UserEntity(user_id);
 
-    const user = this.modelFactory(userData, requestor_id);
-
-    return user;
+    const inclusions = this.parseInclusions(include);
+    await user.load(inclusions, true);
+    return user.export(requestor_id);
   }
 
-  async initialiseUser(user_id: UserID, password: string, tz: string): Promise<UserEntity> {
+  async processCreation(user_id: ID, password: string, tz: string): Promise<ExposedUser> {
     const creationDate = new Date();
 
     const userCreationData: UserDbObject = {
       created: creationDate,
       last_updated: creationDate,
-      user_id,
+      id: user_id,
       pass_hash: await new AuthService().hashPass(password),
       private: false,
       tz: tz,
@@ -54,38 +51,46 @@ export class UserService extends EntityService<UserDbObject, UserEntity> {
       event_notification_minutes_before: 5
     };
 
-    const user = await this.createNew(userCreationData, user_id);
+    const user = new UserEntity(userCreationData.id);
+    await user.create(userCreationData);
+
     const item = await new ItemService().createUserIntroItem(user, tz);
 
-    user.includeRelations({ items: [item.get()] });
+    user.load({ items: [{ id: item.id() }] });
 
-    return user;
+    const token = await authUtils.authenticate(user, password as string);
+    return (await user.export(user_id)) as ExposedUser;
   }
 
-  async retrieveManyUsers(user_ids: UserID[], requestor: UserID) {
-    const rawUsers = await this.repository.findManyByUserId(user_ids);
-    const exportedUsers = rawUsers
-      .filter((x) => !x.private)
-      .map((x) => this.modelFactory(x, requestor).export());
-
-    return exportedUsers;
-  }
-
-  async safeUpdate(id: UserID, changes: Partial<User>) {
-    const existingDbObject = await this.repository.findByUserId(id);
-    if (!existingDbObject) {
-      throw new Error('Tried to update non-existing user');
+  async processUpdate(id: ID, changes: Partial<User>, from: ID) {
+    if (id !== from) {
+      throw new LyfError(`User ${from} cannot update another user ${id}`, 403);
     }
 
-    const existingUser = this.modelFactory(existingDbObject, id);
+    const user = new UserEntity(id);
+    await user.load();
+    await user.update(changes);
 
     // PRE-COMMIT (update other items like notifications)
-    this.checkDailyNotifications(existingUser, changes);
-    this.checkTimezoneChange(existingUser, changes);
+    this.checkDailyNotifications(user, changes);
+    this.checkTimezoneChange(user, changes);
 
     this.logger.debug(`User ${id} safely updated their own data`);
 
-    await this.commit(existingUser, changes);
+    await user.save();
+    return user.export();
+  }
+
+  async retrieveManyUsers(user_ids: ID[], requestor: ID) {
+    const rawUsers = await this.repository.findManyByUserId(user_ids);
+    const exportedUsers = rawUsers
+      .filter((x) => !x.private)
+      .map((x) => {
+        const user = new UserEntity(x.id, x);
+        user.export(requestor)
+      });
+
+    return exportedUsers;
   }
 
   private checkDailyNotifications(user: UserEntity, changes: Partial<User>) {
