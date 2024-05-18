@@ -1,43 +1,46 @@
-import { ID } from '../api/schema/database/abstract';
-import { UserDbObject } from '../api/schema/database/user';
-import { ExposedUser, PublicUser, User } from '../api/schema/user';
-import { UserEntity } from '../models/v3/entity/user_entity';
-import { UserRepository } from '../repository/entity/user_repository';
-import authUtils from '../utils/authUtils';
-import { formatDateData } from '../utils/dates';
-import { Logger } from '../utils/logging';
-import { LyfError } from '../utils/lyf_error';
-import { EntityService } from './abstract/entity_service';
-import { AuthService } from './auth_service';
+import { ID } from '../../api/schema/database/abstract';
+import { UserDbObject } from '../../api/schema/database/user';
+import { ExposedUser, PublicUser, User } from '../../api/schema/user';
+import { UserEntity } from '../../models/v3/entity/user_entity';
+import { UserRepository } from '../../repository/entity/user_repository';
+import { formatDateData } from '../../utils/dates';
+import { Logger } from '../../utils/logging';
+import { LyfError } from '../../utils/lyf_error';
+import { EntityService } from './_entity_service';
+import { AuthService } from '../auth_service';
 import { ItemService } from './item_service';
-import notificationService from './notifications/notification_service';
+import notificationService from '../notifications/notification_service';
+
+type UserCreationResult = {
+  user: ExposedUser,
+  token: string
+}
 
 export class UserService extends EntityService<UserDbObject> {
-  protected repository: UserRepository;
   protected logger = Logger.of(UserService);
 
   constructor() {
     super();
-    this.repository = new UserRepository();
   }
 
   // Builder method
   public async retrieveForUser(user_id: ID, requestor_id: ID, include: string): Promise<ExposedUser|PublicUser> {
     const user = new UserEntity(user_id);
-
-    const inclusions = this.parseInclusions(include);
-    await user.load(inclusions, true);
-    return user.export(requestor_id);
+    await user.fetchRelations(include);
+    await user.load();
+    
+    const retrieved = await user.export(requestor_id);
+    return retrieved
   }
 
-  async processCreation(user_id: ID, password: string, tz: string): Promise<ExposedUser> {
+  async processCreation(user_id: ID, password: string, tz: string): Promise<UserCreationResult> {
     const creationDate = new Date();
 
     const userCreationData: UserDbObject = {
       created: creationDate,
       last_updated: creationDate,
       id: user_id,
-      pass_hash: await new AuthService().hashPass(password),
+      pass_hash: await AuthService.hashPass(password),
       private: false,
       tz: tz,
       expo_tokens: [],
@@ -54,12 +57,18 @@ export class UserService extends EntityService<UserDbObject> {
     const user = new UserEntity(userCreationData.id);
     await user.create(userCreationData);
 
-    const item = await new ItemService().createUserIntroItem(user, tz);
+    await new ItemService().createUserIntroItem(user, tz);
 
-    user.load({ items: [{ id: item.id() }] });
+    await user.fetchRelations();
+    await user.load();
 
-    const token = await authUtils.authenticate(user, password as string);
-    return (await user.export(user_id)) as ExposedUser;
+    const token = await AuthService.authenticate(user, password) as string;
+    const exported = await user.export(user_id) as ExposedUser;
+
+    return {
+      token,
+      user: exported
+    }
   }
 
   async processUpdate(id: ID, changes: Partial<User>, from: ID) {
@@ -82,7 +91,8 @@ export class UserService extends EntityService<UserDbObject> {
   }
 
   async retrieveManyUsers(user_ids: ID[], requestor: ID) {
-    const rawUsers = await this.repository.findManyByUserId(user_ids);
+    const repo = new UserRepository();
+    const rawUsers = await repo.findManyByUserId(user_ids);
     const exportedUsers = rawUsers
       .filter((x) => !x.private)
       .map((x) => {
