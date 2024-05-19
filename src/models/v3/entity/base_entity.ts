@@ -27,6 +27,10 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
     return this.base!;
   }
 
+  public getRelations() {
+    return this.relations;
+  }
+
   public async load() {
     const dbObject = await this.repository.findById(this._id) as T;
     if (!dbObject) {

@@ -1,9 +1,11 @@
 import { ID } from '../../api/schema/database/abstract';
 import { UserFriendshipDbObject, UserFriendshipStatus } from '../../api/schema/database/user_friendships';
+import { ExposedUser } from '../../api/schema/user';
 import { UserEntity } from '../../models/v3/entity/user_entity';
 import { UserFriendRelation } from '../../models/v3/relation/user_friend';
 import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
 import { Logger } from '../../utils/logging';
+import { LyfError } from '../../utils/lyf_error';
 import { BaseService } from '../_base_service';
 import { UserService } from '../entity/user_service';
 import { FriendNotifications } from '../notifications/friend_notifications';
@@ -62,7 +64,8 @@ export class FriendshipService extends BaseService {
 
     // Return users' new social field
     await fromUser.fetchRelations("include=users")
-    return fromUser;
+    const exportedUser = await fromUser.export() as ExposedUser
+    return exportedUser.relations.users;
   }
 
   private async createFriendship(friendship: UserFriendRelation, status: UserFriendshipStatus) {
@@ -76,7 +79,17 @@ export class FriendshipService extends BaseService {
       status: status
     }
 
-    await friendship.create(newFriendship);
+    try {
+      await friendship.create(newFriendship);
+    } catch (e) {
+      await friendship.load();
+      if (friendship.isBlocked()) {
+        throw new LyfError(`Relationship is blocked, user ${friendship.entityId()} should not have appeared for ${friendship.id()}`, 500)
+      }
+      
+      throw new LyfError(`Some relationship between ${id1} and ${id2} already exists!`, 400)
+    }
+    
   }
 
   private async blockUser(from: UserEntity, target: UserEntity) {
@@ -122,6 +135,10 @@ export class FriendshipService extends BaseService {
 
   private async acceptRequest(from: UserEntity, target: UserEntity) {
     const friendship = new UserFriendRelation(from.id(), target.id());
+    if (friendship.isBlocked()) {
+      throw new LyfError(`Got accept request on blocked relationship ${from.id()} + ${target.id()}`, 400);
+    }
+
     await friendship.load();
     
     // Want to confirm the request is in a fertile state to be accepted

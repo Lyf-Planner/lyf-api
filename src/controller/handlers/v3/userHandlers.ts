@@ -12,6 +12,7 @@ import {
 import { UserService } from '../../../services/entity/user_service';
 import { User } from '../../../api/schema/user';
 import { AuthService } from '../../../services/auth_service';
+import { FriendshipService } from '../../../services/relation/friendship_service';
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
@@ -160,9 +161,11 @@ export class UserHandlers {
     const update = req.body as updateFriendshipBody;
     const fromId = getMiddlewareVars(res).user_id;
 
+    const service = new FriendshipService();
+
     try {
-      const social = await FriendshipManager.processUpdate(fromId, update);
-      res.status(200).json(social).end();
+      const friendships = await service.processUpdate(fromId, update);
+      res.status(200).json(friendships).end();
     } catch (err) {
       logger.error(`Returning 400 with message: ${err}`);
       res.status(400).end(`${err}`);

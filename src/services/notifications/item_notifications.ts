@@ -1,25 +1,23 @@
-import { ExpoPushMessage } from 'expo-server-sdk';
+import Expo, { ExpoPushMessage } from 'expo-server-sdk';
 import debouncer from 'signature-debouncer';
 
 import { ItemStatus, ListItem } from '../../api/mongo_schema/list';
-import { ItemOperations } from '../../models/v2/items/ItemOperations';
-import { SocialItem } from '../../models/v2/social/socialItem';
-import { SocialUser } from '../../models/v2/social/socialUser';
-import { UserModel } from '../../models/v2/users/userModel';
-import { UserOperations } from '../../models/v2/users/userOperations';
 import { formatDate, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
-import expoPushService from './expoPushService';
+import { ExpoPushService } from './expo_push_service';
+import { UserEntity } from '../../models/v3/entity/user_entity';
+import { ItemEntity } from '../../models/v3/entity/item_entity';
 
-export enum DebounceCategories {
+export enum DebounceSignatures {
   'DateChange' = 'DateChange',
   'TimeChange' = 'TimeChange',
   'StatusChange' = 'StatusChange'
 }
 
 export class SocialItemNotifications {
-  public static async newItemInvite(to: SocialUser, from: SocialUser, item: SocialItem) {
+  static async newItemInvite(to: UserEntity, from: UserEntity, item: ItemEntity) {
     logger.info(`Notifying user ${to.getId()} of invite to item ${item.displayName()}`);
+
     const itemContent = item.getContent();
 
     // Format the message
@@ -40,10 +38,10 @@ export class SocialItemNotifications {
     }
 
     // Send
-    await expoPushService.pushNotificationToExpo([message]);
+    await new ExpoPushService().pushNotificationToExpo([message]);
   }
 
-  public static async newItemUser(from: SocialUser, item: SocialItem) {
+  static async newItemUser(from: UserEntity, item: ItemEntity) {
     logger.info(`Notifying users on item ${item.displayName()} of new user ${from.getId()}`);
 
     // Notify all users (except the one who joined)
@@ -61,10 +59,10 @@ export class SocialItemNotifications {
     } as ExpoPushMessage;
 
     // Send
-    await expoPushService.pushNotificationToExpo([message]);
+    await new ExpoPushService().pushNotificationToExpo([message]);
   }
 
-  public static async dateChanged(from: UserModel, item: ListItem) {
+  public static async dateChanged(from: UserEntity, item: ItemEntity) {
     const newDate = item.date;
     if (!newDate) {
       return;
@@ -94,11 +92,11 @@ export class SocialItemNotifications {
       message,
       item.id,
       from.getId(),
-      DebounceCategories.DateChange
+      DebounceSignatures.DateChange
     );
   }
 
-  public static async timeChanged(from: UserModel, item: ListItem) {
+  public static async timeChanged(from: UserEntity, item: ItemEntity) {
     const newTime = item.time;
     if (!newTime) {
       return;
@@ -127,11 +125,11 @@ export class SocialItemNotifications {
       message,
       item.id,
       from.getId(),
-      DebounceCategories.TimeChange
+      DebounceSignatures.TimeChange
     );
   }
 
-  public static async statusChanged(from: UserModel, item: ListItem) {
+  public static async statusChanged(from: UserEntity, item: ItemEntity) {
     const newStatus = item.status;
     if (!newStatus) {
       return;
@@ -168,7 +166,7 @@ export class SocialItemNotifications {
       message,
       item.id,
       from.getId(),
-      DebounceCategories.StatusChange
+      DebounceSignatures.StatusChange
     );
   }
 

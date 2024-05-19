@@ -62,4 +62,14 @@ export class ItemEntity extends BaseEntity<ItemDbObject> {
       this.relations.users = userRelations;
     }
   }
+
+  // --- HELPERS ---
+  isRoutine() {
+    const { date, day, template_id } = this.base!
+    return day && !date && !template_id;
+  }
+
+  templateId() {
+    return this.base!.template_id
+  }
 }

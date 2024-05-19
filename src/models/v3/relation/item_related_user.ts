@@ -49,7 +49,7 @@ export class ItemUserRelation extends BaseRelation<ItemUserRelationshipDbObject,
     }
   }
 
-  public async load(relations: object): Promise<void> {
+  public async load(): Promise<void> {
     this.base = await this.repository.findByCompositeId(this._id, this._entityId);
     await this.relatedEntity.load();
   }

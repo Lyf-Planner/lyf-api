@@ -11,9 +11,8 @@ import mongoDb from '../../db/mongo/mongo_db';
 import { formatDateData, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { pluralisedQuantity } from '../../utils/text';
-import { ItemService } from '../item_service';
-import { ItemUserService } from '../item_user_service';
-import { UserService } from '../user_service';
+import { ItemService } from '../entity/item_service';
+import { UserService } from '../entity/user_service';
 import { ExpoPushService } from './expo_push_service';
 
 const Agenda = require('agenda');

@@ -9,7 +9,7 @@ import { LyfError } from '../../utils/lyf_error';
 import { EntityService } from './_entity_service';
 import { AuthService } from '../auth_service';
 import { ItemService } from './item_service';
-import notificationService from '../notifications/notification_service';
+import notificationService from '../notifications/timetable_notifications';
 
 type UserCreationResult = {
   user: ExposedUser,
