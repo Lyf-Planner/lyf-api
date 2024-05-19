@@ -1,5 +1,6 @@
 import { ID } from '../../../api/schema/database/abstract';
 import { UserDbObject, UserExposedFields, UserPublicFields, UserSensitiveFields } from '../../../api/schema/database/user';
+import { UserFriendshipStatus } from '../../../api/schema/database/user_friendships';
 import {
   ExposedUser,
   PublicUser,
@@ -124,6 +125,10 @@ export class UserEntity extends BaseEntity<UserDbObject> {
         const otherUserId = relationObject.user1_id_fk === this._id ? relationObject.user2_id_fk : relationObject.user1_id_fk;
 
         const userRelation = new UserFriendRelation(this._id, otherUserId)
+        if (userRelation.isBlocked()) {
+          continue;
+        }
+        
         userRelations.push(userRelation)
       }
       this.relations.users = userRelations;

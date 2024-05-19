@@ -23,15 +23,7 @@ export class UserService extends EntityService<UserDbObject> {
     super();
   }
 
-  // Builder method
-  public async retrieveForUser(user_id: ID, requestor_id: ID, include: string): Promise<ExposedUser|PublicUser> {
-    const user = new UserEntity(user_id);
-    await user.fetchRelations(include);
-    await user.load();
-    
-    const retrieved = await user.export(requestor_id);
-    return retrieved
-  }
+  // --- USERS --- //
 
   async processCreation(user_id: ID, password: string, tz: string): Promise<UserCreationResult> {
     const creationDate = new Date();
@@ -62,13 +54,7 @@ export class UserService extends EntityService<UserDbObject> {
     await user.fetchRelations();
     await user.load();
 
-    const token = await AuthService.authenticate(user, password) as string;
-    const exported = await user.export(user_id) as ExposedUser;
-
-    return {
-      token,
-      user: exported
-    }
+    return await this.returnWithToken(user, password);
   }
 
   async processUpdate(id: ID, changes: Partial<User>, from: ID) {
@@ -87,7 +73,15 @@ export class UserService extends EntityService<UserDbObject> {
     this.logger.debug(`User ${id} safely updated their own data`);
 
     await user.save();
-    return user.export();
+    return user;
+  }
+
+  public async retrieveForUser(user_id: ID, requestor_id: ID, include?: string): Promise<UserEntity> {
+    const user = new UserEntity(user_id);
+    await user.fetchRelations(include);
+    await user.load();
+    
+    return user;
   }
 
   async retrieveManyUsers(user_ids: ID[], requestor: ID) {
@@ -97,10 +91,66 @@ export class UserService extends EntityService<UserDbObject> {
       .filter((x) => !x.private)
       .map((x) => {
         const user = new UserEntity(x.id, x);
-        user.export(requestor)
+        return user.export(requestor)
       });
 
     return exportedUsers;
+  }
+
+  // --- FRIENDS --- //
+
+  async createFriendship(id: ID, changes: Partial<User>, from: ID) {
+    if (id !== from) {
+      throw new LyfError(`User ${from} cannot update another user ${id}`, 403);
+    }
+
+    const user = new UserEntity(id);
+    await user.load();
+    await user.update(changes);
+
+    // PRE-COMMIT (update other items like notifications)
+    this.checkDailyNotifications(user, changes);
+    this.checkTimezoneChange(user, changes);
+
+    this.logger.debug(`User ${id} safely updated their own data`);
+
+    await user.save();
+    return user;
+  }
+
+  async processFriendshipUpdate(id: ID, changes: Partial<User>, from: ID) {
+    if (id !== from) {
+      throw new LyfError(`User ${from} cannot update another user ${id}`, 403);
+    }
+
+    const user = new UserEntity(id);
+    await user.load();
+    await user.update(changes);
+
+    // PRE-COMMIT (update other items like notifications)
+    this.checkDailyNotifications(user, changes);
+    this.checkTimezoneChange(user, changes);
+
+    this.logger.debug(`User ${id} safely updated their own data`);
+
+    await user.save();
+    return user;
+  }
+
+  // --- ITEMS --- //
+
+  // --- NOTES --- //
+
+  // --- HELPERS --- //
+
+  async returnWithToken(user: UserEntity, password: string) {
+    const token = await AuthService.authenticate(user, password) as string;
+    const exported = await user.export(user.id()) as ExposedUser;
+
+    return {
+      token,
+      user: exported
+    }
   }
 
   private checkDailyNotifications(user: UserEntity, changes: Partial<User>) {

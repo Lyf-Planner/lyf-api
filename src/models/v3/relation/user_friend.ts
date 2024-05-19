@@ -3,7 +3,8 @@ import { ID } from '../../../api/schema/database/abstract';
 import { UserDbObject } from '../../../api/schema/database/user';
 import {
   UserFriendshipDbObject,
-  UserFriendshipRelations
+  UserFriendshipRelations,
+  UserFriendshipStatus
 } from '../../../api/schema/database/user_friendships';
 import { PublicUser, UserFriend } from '../../../api/schema/user';
 import { UserRepository } from '../../../repository/entity/user_repository';
@@ -48,7 +49,7 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
     }
   }
 
-  public async load(relations: object): Promise<void> {
+  public async load(): Promise<void> {
     this.base = await this.repository.findByCompositeId(this._id, this._entityId);
     await this.relatedEntity.load();
   }
@@ -63,5 +64,33 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
 
   public async save(): Promise<void> {
     await this.repository.updateRelation(this._id, this._entityId, this.base!);
+  }
+
+  // --- HELPERS ---
+
+  public isBlocked() {
+    return (
+      this.base!.status === UserFriendshipStatus.BlockedByFirst ||
+      this.base!.status === UserFriendshipStatus.BlockedBySecond ||
+      this.base!.status === UserFriendshipStatus.MutualBlock
+    )
+  }
+
+  public pendingOnFrom() {
+    return (
+      this.base!.user1_id_fk === this._id && this.base!.status === UserFriendshipStatus.PendingFirstAcceptance ||
+      this.base!.user2_id_fk === this._id && this.base!.status === UserFriendshipStatus.PendingSecondAcceptance
+    );
+  }
+
+  public pendingOnTarget() {
+    return (
+      this.base!.user1_id_fk === this._id && this.base!.status === UserFriendshipStatus.PendingSecondAcceptance ||
+      this.base!.user2_id_fk === this._id && this.base!.status === UserFriendshipStatus.PendingFirstAcceptance
+    );
+  }
+
+  public sortedIds() {
+    return this.repository.sortIds(this._entityId, this._id)
   }
 }

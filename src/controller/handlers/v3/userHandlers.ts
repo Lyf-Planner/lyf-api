@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 
-import authUtils from '../../../utils/authUtils';
 import { Logger } from '../../../utils/logging';
 import { getMiddlewareVars } from '../../utils';
 import {
@@ -10,8 +9,9 @@ import {
   updateFriendshipBody,
   updateMeBody
 } from '../../validators/userValidators';
-import { UserService } from '../../../services/user_service';
+import { UserService } from '../../../services/entity/user_service';
 import { User } from '../../../api/schema/user';
+import { AuthService } from '../../../services/auth_service';
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
@@ -19,16 +19,18 @@ export class UserHandlers {
     const { user_id, password } = req.query as loginQuery;
     logger.debug(`Received login request for user ${user_id}`);
 
-    try {
-      const userModel = await UserOperations.retrieveForUser(user_id as string, user_id as string);
+    const userService = new UserService();
 
-      const token = await authUtils.authenticate(userModel.getUser() as User, password as string);
+    try {
+      const userModel = await userService.retrieveForUser(user_id as string, user_id as string);
+
+      const token = await AuthService.authenticate(userModel, password as string);
       if (!token) {
         res.status(401).end('Incorrect password');
         return;
       }
 
-      const exportedData = userModel.export();
+      const exportedData = await userModel.export();
       const payload = { user: exportedData, token };
 
       res.status(200).json(payload).end();
@@ -45,8 +47,10 @@ export class UserHandlers {
 
     logger.debug(`Authorized autologin for user ${user_id}`);
 
+    const userService = new UserService();
+
     try {
-      const userModel = await UserOperations.retrieveForUser(user_id, user_id);
+      const userModel = await userService.retrieveForUser(user_id, user_id);
       res.status(200).json(userModel.export()).end();
     } catch (err) {
       logger.error(err);
@@ -60,9 +64,11 @@ export class UserHandlers {
 
     logger.debug(`Received request for user ${user_id} from "${requestorId}"`);
 
+    const userService = new UserService();
+
     try {
-      const userModel = await UserOperations.retrieveForUser(user_id as string, requestorId);
-      res.status(200).json(userModel.getUser(false)).end();
+      const userModel = await userService.retrieveForUser(user_id as string, requestorId);
+      res.status(200).json(userModel.export(requestorId)).end();
     } catch (err) {
       res.status(400).end('User not found');
     }
@@ -74,7 +80,9 @@ export class UserHandlers {
 
     logger.debug(`Received request for user ids ${user_ids} from "${requestorId}"`);
 
-    const users = await UserOperations.retrieveManyUsers(user_ids);
+    const userService = new UserService();
+
+    const users = await userService.retrieveManyUsers(user_ids, requestorId);
     res.status(200).json(users).end();
   }
 
@@ -90,7 +98,9 @@ export class UserHandlers {
 
       // const token = await new AuthService().authenticate(userModel.getEntity(), password);
 
-      const user = await new UserService().processCreation(user_id, password, tz);
+      const userService = new UserService();
+
+      const { user, token } = await userService.processCreation(user_id, password, tz);
       
 
       res.status(201).json({ user, token }).end();
@@ -104,14 +114,16 @@ export class UserHandlers {
   // Update user identified in header.
   // This endpoint should not permit Premium updates in future
   protected async updateMe(req: Request, res: Response) {
-    const user = req.body as updateMeBody;
+    const user = req.body as User;
     const userId = getMiddlewareVars(res).user_id;
+
+    const userService = new UserService();
 
     try {
       // The work in terms of data safety is done by the validators
-      const remoteModel = await UserOperations.retrieveForUser(userId, userId);
-      await remoteModel.updateSelf(user);
-      res.status(200).json(remoteModel.export()).end();
+      const userModel = await userService.processUpdate(user.id, user, userId);
+
+      res.status(200).json(userModel.export()).end();
     } catch (err) {
       res.status(400).end(`${err}`);
       return;
@@ -124,16 +136,18 @@ export class UserHandlers {
 
     logger.info(`Received self-deletion request from ${user_id}`);
 
+    const userService = new UserService();
+
     // Authorisation checks
     try {
-      const user = (await UserOperations.retrieveForUser(user_id, user_id)) as UserModel;
-      const token = await authUtils.authenticate(user.getUser() as User, password as string);
+      const userModel = await userService.retrieveForUser(user_id, user_id);
+      const token = await AuthService.authenticate(userModel, password);
       if (!token) {
         throw new Error('Incorrect password');
       }
 
       // Perform delete
-      await user!.deleteFromDb();
+      await userModel.delete();
       res.status(204).end();
     } catch (err) {
       logger.error(`User ${user_id} entered incorrect password when trying to delete self`);
