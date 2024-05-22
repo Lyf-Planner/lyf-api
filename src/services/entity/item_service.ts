@@ -15,10 +15,13 @@ import { ItemUserPermission, ItemUserRelationshipDbObject } from '../../api/sche
 import { NoteItemRelation } from '../../models/v3/relation/note_related_item';
 import { ItemNoteRelationshipDbObject } from '../../api/schema/database/items_on_notes';
 import { LyfError } from '../../utils/lyf_error';
+import { UserRelatedItem } from '../../api/schema/user';
+import { NotificationService } from '../notifications/timetable_notifications';
+import { SocialItemNotifications } from '../notifications/item_notifications';
 
 export class ItemService extends EntityService<ItemDbObject> {
   protected repository: ItemRepository;
-  private logger = Logger.of(ItemService);
+  protected logger = Logger.of(ItemService);
 
   constructor() {
     super();
@@ -67,9 +70,12 @@ export class ItemService extends EntityService<ItemDbObject> {
     return await item.export() as Item;
   }
 
-  async processUpdate(id: ID, changes: Partial<Item>, from: ID) {
+  async processUpdate(id: ID, changes: Partial<UserRelatedItem>, from: ID) {
     const item = new ItemEntity(id);
     await item.load();
+
+    const requestor = new UserEntity(from)
+    await requestor.load()
 
     if (!this.canUpdate(item, from)) {
       throw new LyfError('User does not have permission to update item', 403);
@@ -77,52 +83,38 @@ export class ItemService extends EntityService<ItemDbObject> {
 
     await item.update(changes);
 
-    // PRE-COMMIT (update other items like notifications)
-    this.checkDailyNotifications(user, changes);
-    this.checkTimezoneChange(user, changes);
+    // SAFETY CHECKS
+    // 1. Cannot update as a Viewer or Invited
+    this.throwIfReadOnly(item, from);
+
+    // PRE-COMMIT TASKS
+    // 1. Action any notification updates
+    this.handleNotificationChanges(changes, item, requestor);
+
+    // 2. Handle any time changes
+    this.handleTimeChanges(changes, item, requestor);
+
+    // 3. Handle any status changes
+    this.handleStatusChanges(changes, item, requestor);
 
     this.logger.debug(`User ${id} safely updated their own data`);
 
-    await user.save();
-    return user;
+    await item.save();
+    return item;
   }
 
-  public async retrieveForUser(user_id: ID, requestor_id: ID, include?: string): Promise<UserEntity> {
-    const user = new UserEntity(user_id);
-    await user.fetchRelations(include);
-    await user.load();
+  public async retrieveForUser(item_id: ID, include?: string): Promise<ItemEntity> {
+    const item = new ItemEntity(item_id);
+    await item.fetchRelations(include);
+    await item.load();
     
-    return user;
+    return item;
   }
-
-  async retrieveManyUsers(user_ids: ID[], requestor: ID) {
-    const repo = new UserRepository();
-    const rawUsers = await repo.findManyByUserId(user_ids);
-    const exportedUsers = rawUsers
-      .filter((x) => !x.private)
-      .map((x) => {
-        const user = new UserEntity(x.id, x);
-        return user.export(requestor)
-      });
-
-    return exportedUsers;
-  }
-
-  public async retrieveForUser(item_id: ID, user_id: UserID) {
-    const itemDbObject = await this.repository.findById(item_id);
-    if (!itemDbObject) {
-      throw new Error(`Could not retrieve item ${item_id} for user ${user_id}`);
-    }
-
-    return new ItemEntity(itemDbObject, user_id);
-  }
-
-  public async safeUpdate() {}
 
   public async createUserIntroItem(user: UserEntity, tz: string) {
     const creationDate = new Date();
 
-    const userIntroItem: Item = {
+    const userIntroItem: ItemDbObject = {
       created: creationDate,
       last_updated: creationDate,
       id: uuid(),
@@ -135,7 +127,12 @@ export class ItemService extends EntityService<ItemDbObject> {
       desc: 'This is your first item!\nTo create another like it, type it into the desired day\nTo delete this, hold it down'
     };
 
-    return (await this.initialise(userIntroItem, user, 0)) as UserItemRelation;
+    const item = new ItemEntity(userIntroItem.id);
+    await item.create(userIntroItem);
+
+    const relationship = new ItemUserRelation(userIntroItem.id, user.id());
+    const relationshipObject = this.defaultOwnerRelationship(userIntroItem.id, user.id(), 0)
+    await relationship.create(relationshipObject);
   }
 
   private async canUpdate(item: ItemEntity, user_id: ID) {
@@ -187,49 +184,89 @@ export class ItemService extends EntityService<ItemDbObject> {
     }
   }
 
-  private handleTimeChanges(proposed: ListItem, from: UserModel) {
-    const timeChanged = proposed.time !== this.content.time;
-    const dateChanged = proposed.date !== this.content.date;
-    const changes = timeChanged || dateChanged;
+  private handleNotificationChanges(changes: Partial<UserRelatedItem>, item: ItemEntity, user: UserEntity) {
+    if (changes.notification_mins_before) {
+      new NotificationService().updateEventNotification(item, user, changes.notification_mins_before);
+    }
+  }
+
+  private async handleTimeChanges(changes: Partial<UserRelatedItem>, item: ItemEntity, user: UserEntity) {
+    const timeChangesDetected = changes.time || changes.date;
 
     // Update when notifications should send
-    if (changes && this.content.notifications) {
-      for (const notification of this.content.notifications) {
+    if (timeChangesDetected) {
         // Case: date or time was deleted
-        if (!proposed.time || !proposed.date) {
-          notificationManager.removeEventNotification(proposed, notification.user_id);
-          continue;
-        }
-
-        // Otherwise update them all
-        var oldNotif =
-          this.content.notifications &&
-          this.content.notifications.find((x) => x.user_id === notification.user_id);
-        if (!oldNotif) {
-          notificationManager.setEventNotification(proposed, notification.user_id);
+        if (changes.time === null || changes.date === null) {
+          await this.removeAllNotifications(item)
         } else {
-          notificationManager.updateEventNotification(proposed, notification.user_id);
+          await this.updateAllNotifications(item);
         }
       }
 
       // Notify any other users of a change!
-      if (timeChanged) {
-        SocialItemNotifications.timeChanged(from, proposed);
+      if (changes.time) {
+        SocialItemNotifications.timeChanged(user, item);
       }
-      if (dateChanged) {
-        SocialItemNotifications.dateChanged(from, proposed);
+      if (changes.date) {
+        SocialItemNotifications.dateChanged(user, item);
+      }
+    }
+
+  private handleStatusChanges(changes: Partial<UserRelatedItem>, item: ItemEntity, from: UserEntity) {
+    const statusChanged = changes.status;
+    const statusChangeRelevant =
+      changes.status === ItemStatus.Done || changes.status === ItemStatus.Cancelled;
+
+    // Notify any other users of a change!
+    if (statusChanged && statusChangeRelevant) {
+      SocialItemNotifications.statusChanged(from, item);
+    }
+  }
+
+  private async removeAllNotifications(item: ItemEntity) {
+    await item.fetchRelations("users");
+    const users = item.getRelations().users as ItemUserRelation[];
+
+    const service = new NotificationService()
+    const updateFunc = item.isRoutine() ? service.removeRoutineNotification : service.removeEventNotification;
+
+    for (const user of users) {
+      const notificationMins = user.hasNotification()
+
+      if (notificationMins) {
+        await updateFunc(item, user.getRelatedEntity() as UserEntity)
       }
     }
   }
 
-  private handleStatusChanges(proposed: ListItem, from: UserModel) {
-    const statusChanged = proposed.status !== this.content.status;
-    const statusChangeRelevant =
-      proposed.status === ItemStatus.Done || proposed.status === ItemStatus.Cancelled;
+  private async throwIfReadOnly(item: ItemEntity, user_id: ID) {
+    await item.fetchRelations("users");
+    const itemUsers = item.getRelations().users as ItemUserRelation[];
 
-    // Notify any other users of a change!
-    if (statusChanged && statusChangeRelevant) {
-      SocialItemNotifications.statusChanged(from, proposed);
+    const permitted = itemUsers.some((x) => 
+      x.id() === user_id &&
+      x.getPermission() !== ItemUserPermission.ReadOnly &&
+      !x.isInvited()
+    )
+
+    if (!permitted) {
+      throw new LyfError(`User ${user_id} does not have permission to edit item ${item.id()}`, 403);
+    }
+  }
+
+  private async updateAllNotifications(item: ItemEntity) {
+    await item.fetchRelations("users");
+    const users = item.getRelations().users as ItemUserRelation[];
+
+    const service = new NotificationService()
+    const updateFunc = item.isRoutine() ? service.updateRoutineNotification : service.updateEventNotification;
+
+    for (const user of users) {
+      const notificationMins = user.hasNotification()
+
+      if (notificationMins) {
+        await updateFunc(item, user.getRelatedEntity() as UserEntity, notificationMins)
+      }
     }
   }
 }

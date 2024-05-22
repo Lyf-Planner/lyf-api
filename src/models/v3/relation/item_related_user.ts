@@ -65,4 +65,16 @@ export class ItemUserRelation extends BaseRelation<ItemUserRelationshipDbObject,
   public async save(): Promise<void> {
     await this.repository.updateRelation(this._entityId, this._id, this.base!);
   }
+
+  public getPermission() {
+    return this.base!.permission
+  }
+
+  public hasNotification() {
+    return this.base!.notification_mins_before
+  }
+
+  public isInvited() {
+    return this.base!.invite_pending
+  }
 }
