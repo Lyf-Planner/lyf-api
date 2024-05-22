@@ -14,7 +14,7 @@ export interface NoteUserPrimaryKey {
 
 export interface NoteUserRelations {
   invite_pending: boolean;
-  status: NoteRelationshipStatus;
+  permission: NoteUserPermission;
 }
 
 export interface NoteUserRelationshipDbObject
@@ -24,7 +24,7 @@ export interface NoteUserRelationshipDbObject
 
 // Enums
 
-export enum NoteRelationshipStatus {
+export enum NoteUserPermission {
   Owner = 'Owner',
   Editor = 'Editor',
   ReadOnly = 'Read Only'

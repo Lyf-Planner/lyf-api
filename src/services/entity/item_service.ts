@@ -97,7 +97,7 @@ export class ItemService extends EntityService<ItemDbObject> {
     // 3. Handle any status changes
     this.handleStatusChanges(changes, item, requestor);
 
-    this.logger.debug(`User ${id} safely updated their own data`);
+    this.logger.debug(`User ${from} safely updated item ${id}`);
 
     await item.save();
     return item;

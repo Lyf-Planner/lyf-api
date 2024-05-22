@@ -27,7 +27,7 @@ export class NoteUserRelation extends BaseRelation<NoteUserRelationshipDbObject,
   static filter(object: any): NoteUserRelations {
     return {
       invite_pending: object.invite_pending,
-      status: object.status
+      permission: object.status
     }
   }
 
@@ -64,5 +64,13 @@ export class NoteUserRelation extends BaseRelation<NoteUserRelationshipDbObject,
 
   public async save(): Promise<void> {
     await this.repository.updateRelation(this._id, this._entityId, this.base!);
+  }
+
+  public getPermission() {
+    return this.base!.permission
+  }
+
+  public isInvited() {
+    return this.base!.invite_pending
   }
 }

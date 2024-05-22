@@ -4,6 +4,11 @@ import { NoteEntity } from '../../models/v3/entity/note_entity';
 import { Logger } from '../../utils/logging';
 import { EntityService } from './_entity_service';
 import { Note } from '../../api/schema/notes';
+import { NoteUserRelation } from '../../models/v3/relation/note_related_user';
+import { NoteUserPermission, NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
+import { LyfError } from '../../utils/lyf_error';
+import { UserRelatedNote } from '../../api/schema/user';
+import { UserEntity } from '../../models/v3/entity/user_entity';
 
 export class NoteService extends EntityService<NoteDbObject> {
   protected logger = Logger.of(NoteService);
@@ -23,59 +28,56 @@ export class NoteService extends EntityService<NoteDbObject> {
   }
 
   async processCreation(note_input: NoteDbObject, from: ID): Promise<Note> {
-    const creationDate = new Date();
+    const note = new NoteEntity(note_input.id);
+    await note.create(note_input);
 
-    const userCreationData: UserDbObject = {
-      created: creationDate,
-      last_updated: creationDate,
-      id: user_id,
-      pass_hash: await AuthService.hashPass(password),
-      private: false,
-      tz: tz,
-      expo_tokens: [],
-      first_day: formatDateData(creationDate),
-      display_name: undefined,
-      pfp_url: undefined,
-      daily_notifications: false,
-      daily_notification_time: '08:00',
-      persistent_daily_notification: false,
-      event_notifications_enabled: true,
-      event_notification_minutes_before: 5
-    };
+    const relationship = new NoteUserRelation(note_input.id, from);
+    const relationshipObject = this.defaultNoteOwner(note.id(), from)
+    await relationship.create(relationshipObject);
 
-    const user = new UserEntity(userCreationData.id);
-    await user.create(userCreationData);
+    await note.fetchRelations();
+    return await note.export() as Note;
+  }
 
-    await new ItemService().createUserIntroItem(user, tz);
+  async processUpdate(id: ID, changes: Partial<UserRelatedNote>, from: ID) {
+    const note = new NoteEntity(id);
 
-    await user.fetchRelations();
-    await user.load();
+    await note.load();
+    await note.update(changes);
 
-    const token = await AuthService.authenticate(user, password) as string;
-    const exported = await user.export(user_id) as ExposedUser;
+    // SAFETY CHECKS
+    // 1. Cannot update as a Viewer or Invited
+    this.throwIfReadOnly(note, from);
 
+    this.logger.debug(`User ${from} safely updated note ${id}`);
+
+    await note.save();
+    return note.export();
+  }
+
+  private defaultNoteOwner(note_id: ID, user_id: ID): NoteUserRelationshipDbObject {
     return {
-      token,
-      user: exported
+      user_id_fk: user_id,
+      note_id_fk: note_id,
+      created: new Date(),
+      last_updated: new Date(),
+      invite_pending: false,
+      permission: NoteUserPermission.Owner
     }
   }
 
-  async processUpdate(id: ID, changes: Partial<User>, from: ID) {
-    if (id !== from) {
-      throw new LyfError(`User ${from} cannot update another user ${id}`, 403);
+  private async throwIfReadOnly(note: NoteEntity, user_id: ID) {
+    await note.fetchRelations("users");
+    const noteUsers = note.getRelations().users as NoteUserRelation[];
+
+    const permitted = noteUsers.some((x) => 
+      x.id() === user_id &&
+      x.getPermission() !== NoteUserPermission.ReadOnly &&
+      !x.isInvited()
+    )
+
+    if (!permitted) {
+      throw new LyfError(`User ${user_id} does not have permission to edit item ${note.id()}`, 403);
     }
-
-    const user = new UserEntity(id);
-    await user.load();
-    await user.update(changes);
-
-    // PRE-COMMIT (update other items like notifications)
-    this.checkDailyNotifications(user, changes);
-    this.checkTimezoneChange(user, changes);
-
-    this.logger.debug(`User ${id} safely updated their own data`);
-
-    await user.save();
-    return user.export();
   }
 }

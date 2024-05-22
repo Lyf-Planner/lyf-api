@@ -8,7 +8,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('note_id_fk', 'uuid', (col) => col.notNull().references('notes.id'))
     .addColumn('user_id_fk', 'uuid', (col) => col.notNull().references('users.id'))
     .addColumn('invite_pending', 'boolean', (col) => col.notNull())
-    .addColumn('status', 'text', (col) => col.notNull())
+    .addColumn('permission', 'text', (col) => col.notNull())
     .addPrimaryKeyConstraint('pk_note_user', ['user_id_fk', 'note_id_fk'])
     .addCheckConstraint('check_status', sql`status IN (\'Owner\', \'Editor\', \'Read Only\')`)
     .execute();
