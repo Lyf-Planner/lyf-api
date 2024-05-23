@@ -25,7 +25,7 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
   static filter(object: any): NoteUserRelations {
     return {
       invite_pending: object.invite_pending,
-      status: object.status
+      permission: object.status
     }
   }
 
