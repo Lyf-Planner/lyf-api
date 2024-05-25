@@ -11,11 +11,6 @@ import { AuthService } from '../auth_service';
 import { ItemService } from './item_service';
 import notificationService from '../notifications/timetable_notifications';
 
-type UserCreationResult = {
-  user: ExposedUser,
-  token: string
-}
-
 export class UserService extends EntityService<UserDbObject> {
   protected logger = Logger.of(UserService);
 
@@ -25,14 +20,23 @@ export class UserService extends EntityService<UserDbObject> {
 
   // --- USERS --- //
 
-  async processCreation(user_id: ID, password: string, tz: string): Promise<UserCreationResult> {
+  async getEntity(user_id: string, include?: string) {
+    // TODO: Eventually get rid of this method to keep things more self contained
+    const user = new UserEntity(user_id);
+    await user.fetchRelations(include);
+    await user.load();
+    
+    return user;
+  }
+
+  async processCreation(user_id: ID, pass_hash: string, tz: string): Promise<ExposedUser> {
     const creationDate = new Date();
 
     const userCreationData: UserDbObject = {
       created: creationDate,
       last_updated: creationDate,
       id: user_id,
-      pass_hash: await AuthService.hashPass(password),
+      pass_hash,
       private: false,
       tz: tz,
       expo_tokens: [],
@@ -54,7 +58,26 @@ export class UserService extends EntityService<UserDbObject> {
     await user.fetchRelations();
     await user.load();
 
-    return await this.returnWithToken(user, password);
+    return await user.export() as ExposedUser;
+  }
+
+  async processDeletion(user_id: string, password: string, from_id: string) {
+    if (from_id !== user_id) {
+      const message = `User ${from_id} tried to delete ${user_id}`;
+      this.logger.error(message);
+
+      throw new LyfError(message, 403);
+    }
+
+    const user = new UserEntity(user_id);
+    await user.fetchRelations()
+
+    const authenticated = !!await AuthService.authenticateWithUser(user, password);
+    if (authenticated) {
+      await user.delete()
+    } else {
+      throw new LyfError(`User ${user_id} entered incorrect password when trying to delete self`, 401)
+    }
   }
 
   async processUpdate(id: ID, changes: Partial<User>, from: ID) {
@@ -73,18 +96,17 @@ export class UserService extends EntityService<UserDbObject> {
     this.logger.debug(`User ${id} safely updated their own data`);
 
     await user.save();
-    return user;
+    return user.export(from);
   }
 
-  public async retrieveForUser(user_id: ID, requestor_id: ID, include?: string): Promise<UserEntity> {
-    const user = new UserEntity(user_id);
-    await user.fetchRelations(include);
-    await user.load();
-    
-    return user;
+  public async retrieveForUser(user_id: ID, requestor_id: ID, include?: string): Promise<ExposedUser|PublicUser> {
+    const user = await this.getEntity(user_id, include)
+
+    return await user.export(requestor_id);
   }
 
   async retrieveManyUsers(user_ids: ID[], requestor: ID) {
+    // TODO: Should change this to a static method on the UserEntity - as to not directly access repo
     const repo = new UserRepository();
     const rawUsers = await repo.findManyByUserId(user_ids);
     const exportedUsers = rawUsers
@@ -142,16 +164,6 @@ export class UserService extends EntityService<UserDbObject> {
   // --- NOTES --- //
 
   // --- HELPERS --- //
-
-  async returnWithToken(user: UserEntity, password: string) {
-    const token = await AuthService.authenticate(user, password) as string;
-    const exported = await user.export(user.id()) as ExposedUser;
-
-    return {
-      token,
-      user: exported
-    }
-  }
 
   private checkDailyNotifications(user: UserEntity, changes: Partial<User>) {
     const notificationsEnabledChange = changes.daily_notifications;

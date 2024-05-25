@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 
 import assert from 'assert';
-import authUtils from '../../utils/authUtils';
 import { Logger } from '../../utils/logging';
+import { AuthService } from '../../services/auth_service';
 
 const logger = new Logger('AuthMiddleware');
 const TOKEN_PREFIX = 'Bearer ';
@@ -27,7 +27,7 @@ export const authoriseHeader = (
         throw new Error('Invalid Authorization header');
       }
 
-      const { user_id, exp } = authUtils.verifyToken(token);
+      const { user_id, exp } = AuthService.verifyToken(token);
       assert(exp! > Math.floor(new Date().getTime() / 1000));
 
       // Grant the user_id to subsequent functions after this middleware, via response locals

@@ -70,6 +70,22 @@ export class ItemService extends EntityService<ItemDbObject> {
     return await item.export() as Item;
   }
 
+  async processDeletion(item_id: string, from_id: string) {
+    const item = new ItemEntity(item_id);
+    await item.fetchRelations();
+    await item.load();
+
+    const itemUsers = item.getRelations().users as ItemUserRelation[];
+    const itemDeleter = itemUsers.find((x) => x.entityId() === from_id);
+
+
+    if (itemDeleter && itemDeleter.getPermission() === ItemUserPermission.Owner) {
+      await item.delete();
+    } else {
+      throw new LyfError(`Items can only be deleted by their owner`, 403);
+    }
+  }
+
   async processUpdate(id: ID, changes: Partial<UserRelatedItem>, from: ID) {
     const item = new ItemEntity(id);
     await item.load();

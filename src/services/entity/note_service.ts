@@ -3,7 +3,7 @@ import { ID } from '../../api/schema/database/abstract';
 import { NoteEntity } from '../../models/v3/entity/note_entity';
 import { Logger } from '../../utils/logging';
 import { EntityService } from './_entity_service';
-import { Note } from '../../api/schema/notes';
+import { Note, NoteRelatedUser } from '../../api/schema/notes';
 import { NoteUserRelation } from '../../models/v3/relation/note_related_user';
 import { NoteUserPermission, NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
 import { LyfError } from '../../utils/lyf_error';
@@ -37,6 +37,22 @@ export class NoteService extends EntityService<NoteDbObject> {
 
     await note.fetchRelations();
     return await note.export() as Note;
+  }
+
+  async processDeletion(note_id: string, from_id: string) {
+    const note = new NoteEntity(note_id);
+    await note.fetchRelations();
+    await note.load();
+
+    const noteUsers = note.getRelations().users as NoteUserRelation[];
+    const noteDeleter = noteUsers.find((x) => x.entityId() === from_id);
+
+
+    if (noteDeleter && noteDeleter.getPermission() === NoteUserPermission.Owner) {
+      await note.delete();
+    } else {
+      throw new LyfError(`Notes can only be deleted by their owner`, 403);
+    }
   }
 
   async processUpdate(id: ID, changes: Partial<UserRelatedNote>, from: ID) {

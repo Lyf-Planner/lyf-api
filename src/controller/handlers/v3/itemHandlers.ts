@@ -9,7 +9,7 @@ import {
   updateItemBody,
   updateItemSocialBody
 } from '../../validators/itemValidators';
-import { ItemService } from '../../../services/item_service';
+import { ItemService } from '../../../services/entity/item_service';
 
 const itemUpdateQueue = new PQueue({ concurrency: 1 });
 
