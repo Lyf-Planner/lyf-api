@@ -10,26 +10,32 @@ import {
   updateItemSocialBody
 } from '../../validators/itemValidators';
 import { ItemService } from '../../../services/entity/item_service';
+import { Item } from '../../../api/schema/items';
+import { LyfError } from '../../../utils/lyf_error';
 
 const itemUpdateQueue = new PQueue({ concurrency: 1 });
 
 export class ItemHandlers {
   static async _queuedUpdateItem(req: Request, res: Response) {
-    const item = req.body as updateItemBody;
+    const changes = req.body as Partial<Item>;
+    const item_id = changes.id;
     const user_id = getMiddlewareVars(res).user_id;
 
-    logger.debug(`Updating item ${item.title} (${item.id}) from user ${user_id}`);
+    logger.debug(`Updating item ${item_id} from user ${user_id}`);
 
-    // Authorisation checks
+    const itemService = new ItemService();    
+
     try {
-      // These fns will check user is permitted on the item and has Permission > Viewer
-      const remoteItem = await ItemOperations.retrieveForUser(item.id, user_id);
-      await remoteItem.safeUpdate(item, user_id);
+      if (!item_id) {
+        throw new LyfError(`Update must include item id`, 500)
+      }
 
-      res.status(200).json(remoteItem.export()).end();
-    } catch (err) {
-      logger.error(`User ${user_id} did not safely update item ${item.id}: ${err}`);
-      res.status(403).end(`${err}`);
+      const item = await itemService.processUpdate(item_id, changes, user_id);
+
+      res.status(200).json(item).end();
+    } catch (error) {
+      const lyfError = error as LyfError
+      res.status(lyfError.code).end(lyfError.message);
     }
   }
 

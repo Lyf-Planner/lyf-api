@@ -9,7 +9,7 @@ import { ObjectUtils } from '../../../utils/object';
 import { UserEntity } from '../entity/user_entity';
 import { BaseRelation } from './base_relation';
 
-export class ItemUserRelation extends BaseRelation<ItemUserRelationshipDbObject, UserDbObject> {
+export class ItemUserRelation extends BaseRelation<ItemUserRelationshipDbObject, UserEntity> {
   protected logger: Logger = Logger.of(ItemUserRelation);
 
   // This should be readonly, updates should be done through the Entity directly
@@ -70,7 +70,7 @@ export class ItemUserRelation extends BaseRelation<ItemUserRelationshipDbObject,
     return this.base!.permission
   }
 
-  public hasNotification() {
+  public notificationMinsBefore() {
     return this.base!.notification_mins_before
   }
 

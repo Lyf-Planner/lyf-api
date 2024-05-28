@@ -14,7 +14,6 @@ import { UserFriendRelation } from '../relation/user_friend';
 import { BaseEntity } from './base_entity';
 
 export type ItemModelRelations = {
-  items: ItemEntity; // if template_id present
   users: ItemUserRelation[];
 };
 
@@ -23,6 +22,7 @@ export class ItemEntity extends BaseEntity<ItemDbObject> {
   protected repository = new ItemRepository();
 
   protected relations: Partial<ItemModelRelations> = {};
+  protected template?: ItemEntity; // TODO: Proper item-to-item relation
 
   public async export(requestor?: ID, with_relations = true): Promise<Item|ItemDbObject> {
     const relatedUsers = this.relations.users;
@@ -47,7 +47,7 @@ export class ItemEntity extends BaseEntity<ItemDbObject> {
 
     if (toLoad.includes("items") && this.base?.template_id) {
       const template = new ItemEntity(this.base.template_id);
-      this.relations.items = template;
+      this.template = template;
     }
 
     if (toLoad.includes("users")) {
@@ -63,13 +63,51 @@ export class ItemEntity extends BaseEntity<ItemDbObject> {
     }
   }
 
-  // --- HELPERS ---
+  // --- HELPERS --- //
+  isFullyScheduled() {
+    return this.base!.date && this.base!.time
+  }
+
   isRoutine() {
     const { date, day, template_id } = this.base!
     return day && !date && !template_id;
   }
 
+  public getRelations() {
+    return this.relations;
+  }
+
+  // --- GETTERS --- //
+
+  date() {
+    return this.base!.date;
+  }
+
+  day() {
+    return this.base!.day
+  }
+
+  status() {
+    return this.base!.status
+  }
+
   templateId() {
     return this.base!.template_id
+  }
+
+  time() {
+    return this.base!.time;
+  }
+
+  timezone() {
+    return this.base!.tz
+  }
+
+  title() {
+    return this.base!.title
+  }
+
+  type() {
+    return this.base!.type
   }
 }

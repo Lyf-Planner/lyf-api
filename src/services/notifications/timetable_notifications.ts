@@ -8,12 +8,15 @@ import { Item } from '../../api/schema/items';
 import { ItemEntity } from '../../models/v3/entity/item_entity';
 import { UserEntity } from '../../models/v3/entity/user_entity';
 import mongoDb from '../../db/mongo/mongo_db';
-import { formatDateData, TwentyFourHourToAMPM } from '../../utils/dates';
+import { formatDateData, isFutureDate, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { pluralisedQuantity } from '../../utils/text';
 import { ItemService } from '../entity/item_service';
 import { UserService } from '../entity/user_service';
 import { ExpoPushService } from './expo_push_service';
+import { LyfError } from '../../utils/lyf_error';
+import { ItemUserRelation } from '../../models/v3/relation/item_related_user';
+import { UserItemRelation } from '../../models/v3/relation/user_related_item';
 
 const Agenda = require('agenda');
 
@@ -45,27 +48,29 @@ export class NotificationService {
     await this.agenda.stop();
   }
 
+  // --- EVENTS --- //
+
   public setEventNotification = async (item: ItemEntity, user: UserEntity, mins_before: number) => {
     if (item.isRoutine()) {
+      // Defer to other handler for routine items
       this.setRoutineNotification(item, user);
       return;
     }
 
-    this.throwIfInfertileItem(item.get());
+    if (!item.isFullyScheduled()) {
+      // Can't schedule a notification without a date and time
+      throw new LyfError('Cannot create a notification on an event without date and time', 400);
+    }
 
+    // Extract the scheduled time
     const id = this.getUniqueJobId(item.id(), user.id());
-    const timezone = item.get().tz;
+    const timezone = item.timezone();
     const setTime = this.getScheduledTime(item, mins_before, timezone);
 
-    // Ensure notification is for ahead of current time!
+    // Ensure notification is ahead of local time!
     this.logger.debug(`Notification ${id} set for ${setTime}`);
-    const local_tz_time = moment().tz(timezone).toDate();
-    this.logger.debug(`Item timezone time is ${local_tz_time}`);
-    if (setTime < local_tz_time) {
-      this.logger.info(
-        `Not setting notification for ${user.id()} on item ${item.id()} - set time is past current`
-      );
-      return;
+    if (!isFutureDate(setTime, timezone)) {
+      throw new LyfError(`Reminder is scheduled for a time that has already passed!`, 400)
     }
 
     this.logger.info(`Creating event notification ${id} at ${setTime.toUTCString()}`);
@@ -85,9 +90,11 @@ export class NotificationService {
 
   public async removeEventNotification(item: ItemEntity, user: UserEntity) {
     this.logger.info(`Removing event notification ${item.id()}:${user.id()}`);
-    var id = this.getUniqueJobId(item.id(), user.id());
+    const id = this.getUniqueJobId(item.id(), user.id());
     await this.agenda.cancel({ 'data.id': id });
   }
+
+  // --- DAILY --- //
 
   public async setDailyNotifications(user: UserEntity, daily_time: string) {
     this.logger.info(`Setting up daily notification for ${user.id()}`);
@@ -97,7 +104,7 @@ export class NotificationService {
       user_id: user.id()
     });
 
-    const timezone = user.get().tz;
+    const timezone = user.timezone();
     job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * *`, { timezone });
 
     await job.save();
@@ -113,6 +120,8 @@ export class NotificationService {
     await this.agenda.cancel({ 'data.user_id': user.id() });
   }
 
+  // --- ROUTINES --- //
+
   public async setRoutineNotification(item: ItemEntity, user: UserEntity) {
     this.logger.info(`Setting up routine notification for ${user.id()}`);
 
@@ -123,16 +132,16 @@ export class NotificationService {
       item_id: item.id()
     });
 
-    const itemTime = item.get().time;
+    const itemTime = item.time();
     if (!itemTime) {
       throw new Error(`Cannot set routine notification on item ${item.id()}, it has no set time.`);
     }
 
     const timeArray = itemTime.split(':');
-    const timezone = user.get().tz;
+    const timezone = item.timezone();
 
     // We do this +1 because Sunday is treated as the zeroth day otherwise
-    const day = (Object.values(DaysOfWeek).findIndex((x) => x === item.get().day) + 1) % 7;
+    const day = (Object.values(DaysOfWeek).findIndex((x) => x === item.day()) + 1) % 7;
 
     job.repeatEvery(`${timeArray[1]} ${timeArray[0]} * * ${day}`, { timezone });
     await job.save();
@@ -145,22 +154,21 @@ export class NotificationService {
 
   public async removeRoutineNotification(item: ItemEntity, user: UserEntity) {
     this.logger.info(`Removing routine ${item.id()}:${user.id()}`);
-    var id = this.getUniqueJobId(item.id(), user.id());
+    const id = this.getUniqueJobId(item.id(), user.id());
     await this.agenda.cancel({ 'data.id': id });
   }
 
   // TIMEZONE CHANGE HANDLER
 
   public async handleUserTzChange(user: UserEntity, new_tz: string) {
-    const dailyNotifications = user.get().daily_notifications;
-    const dailyNotificationTime = user.get().daily_notification_time;
+    const dailyNotificationTime = user.dailyNotificationTime();
 
-    if (!dailyNotifications || !dailyNotificationTime) {
+    if (!dailyNotificationTime) {
       return;
     }
 
     const newOffset = moment().tz(new_tz).utcOffset();
-    const oldOffset = moment().tz(user.get().tz).utcOffset();
+    const oldOffset = moment().tz(user.timezone()).utcOffset();
 
     if (oldOffset === newOffset) {
       this.logger.info(
@@ -189,7 +197,7 @@ export class NotificationService {
   private defineEventNotification() {
     this.logger.info('Defining Event Notifications');
     this.agenda.define('Event Notification', async (job: any, done: any) => {
-      var { id } = job.attrs.data;
+      const { id } = job.attrs.data;
       await this.sendItemNotification(id, true);
       done();
     });
@@ -200,19 +208,20 @@ export class NotificationService {
   private defineDailyNotification() {
     this.logger.info('Defining Daily Notifications');
     this.agenda.define('Daily Notification', async (job: any, done: any) => {
-      var { user_id } = job.attrs.data;
+      const { userId } = job.attrs.data;
 
-      var user = await new UserService().retrieveForUser(user_id, user_id);
+      const user = await new UserService().getEntity(userId);
 
-      this.logger.info(`Sending daily notification to ${user_id}`);
-      var subtext = await this.getUserDaily(user);
+      this.logger.info(`Sending daily notification to ${userId}`);
+      const subtext = await this.getUserDaily(user);
       if (!subtext) {
         done();
         return;
       }
 
-      var message = this.formatExpoPushMessage(
-        user.get().expo_tokens || [],
+      const expoTokens = user.getSensitive(userId).expo_tokens || []
+      const message = this.formatExpoPushMessage(
+        expoTokens,
         'Check Your Schedule!',
         '(Daily Reminder) ' + subtext
       );
@@ -240,20 +249,23 @@ export class NotificationService {
       const item_id = ids[0];
       const user_id = ids[1];
 
-      const user = await new UserService().retrieveForUser(user_id, user_id);
-      const item = await new ItemService().retrieveForUser(item_id, user_id);
-      const relation = await new ItemUserService().retrieveAsUserItem(item, user_id);
+      const item = await new ItemService().getEntity(item_id, "users");
+      const itemUsers = item.getRelations().users as ItemUserRelation[];
 
-      if (!item || !user || !relation) {
+      const itemUserRelation = itemUsers.find((x) => x.entityId() === user_id);
+
+      if (!item || !itemUserRelation) {
         throw new Error(
           `Cannot send item ${item_id} notification to ${user_id} - one of item, user or relation was deleted`
         );
       }
 
-      const to = user.get().expo_tokens || [];
-      const title = item.get().title;
-      const mins_before = relation.get().notification_mins_before;
-      const status = item.get().status;
+      const itemUser = itemUserRelation.getRelatedEntity();
+
+      const to = itemUser.getSensitive(user_id).expo_tokens;
+      const title = item.title();
+      const mins_before = itemUserRelation.notificationMinsBefore();
+      const status = item.status();
 
       if (status === ItemStatus.Cancelled) {
         this.logger.warn(`Cancelling notification for ${id} as event was cancelled`);
@@ -261,7 +273,7 @@ export class NotificationService {
         return;
       }
 
-      const time = item.get().time;
+      const time = item.time();
 
       if (!time) {
         this.logger.warn(`Cancelling notification for ${id} as item no longer has time`);
@@ -269,7 +281,7 @@ export class NotificationService {
         return;
       }
 
-      const isEvent = item.get().type === ItemType.Event;
+      const isEvent = item.type() === ItemType.Event;
 
       const subtext = mins_before
         ? `${isEvent ? 'Starting in' : 'In'} ${pluralisedQuantity(
@@ -285,10 +297,8 @@ export class NotificationService {
       await this.agenda.cancel({ 'data.id': id });
 
       if (clearFromRelation) {
-        relation.update({ notification_mins_before: undefined });
-        await new ItemUserService().update(user.id(), item.id(), {
-          notification_mins_before: undefined
-        });
+        await itemUserRelation.update({ notification_mins_before: undefined });
+        await itemUserRelation.save();
       }
     } catch (err: any) {
       this.logger.warn(`Notification ${id} failed to send: ${err.message}`);
@@ -308,31 +318,24 @@ export class NotificationService {
     } as ExpoPushMessage;
   }
 
-  // Fertile = has time date and minutes before
-  private throwIfInfertileItem = (proposed: Item) => {
-    if (!proposed.date || !proposed.time) {
-      throw new Error('Cannot create a notification on an event without date or time');
-    }
-  };
-
   private async getUserDaily(user: UserEntity) {
-    const userDate = moment().tz(user.get().tz).toDate();
+    const userDate = moment().tz(user.timezone()).toDate();
     const userDateString = formatDateData(userDate);
-    const userDayString = moment(userDate).format('dddd');
-    const items = await new ItemUserService().retrieveItemsOnUser(
-      user.id(),
-      userDateString,
-      userDayString
-    );
+
+    await user.fetchItemsInRange(userDateString, userDateString);
+    await user.load()
+
+    const userItemRelations = user.getRelations().items as UserItemRelation[];
+    const userItems = userItemRelations.map((x) => x.getRelatedEntity());
 
     // Filter out template instantiations - will give rise to duplicates
-    const parsedItems = items.filter((x) => !x.get().template_id);
+    const parsedItems = userItems.filter((x) => !x.templateId());
 
-    const eventCount = parsedItems.filter((x) => x.get().type === ItemType.Event).length;
-    const taskCount = parsedItems.filter((x) => x.get().type === ItemType.Task).length;
+    const eventCount = parsedItems.filter((x) => x.type() === ItemType.Event).length;
+    const taskCount = parsedItems.filter((x) => x.type() === ItemType.Task).length;
 
     if (taskCount + eventCount === 0) {
-      return user.get().persistent_daily_notification ? 'Nothing planned for today?' : '';
+      return user.persistentNotifications() ? 'Nothing planned for today?' : '';
     } else if (eventCount === 0) {
       return `You have ${pluralisedQuantity(taskCount, 'task')} today`;
     } else if (taskCount === 0) {
@@ -346,8 +349,8 @@ export class NotificationService {
   }
 
   private getScheduledTime = (item: ItemEntity, mins_before: number, timezone: string) => {
-    const itemDate = item.get().date;
-    const itemTime = item.get().time;
+    const itemDate = item.date();
+    const itemTime = item.time();
 
     if (!itemDate || !itemTime) {
       throw new Error(
@@ -355,8 +358,8 @@ export class NotificationService {
       );
     }
 
-    var dateArray = itemDate.split('-').map((x) => parseInt(x));
-    var timeArray = itemTime.split(':').map((x) => parseInt(x));
+    const dateArray = itemDate.split('-').map((x) => parseInt(x));
+    const timeArray = itemTime.split(':').map((x) => parseInt(x));
     return this.setTimezoneDate(dateArray, timeArray, mins_before, timezone);
   };
 

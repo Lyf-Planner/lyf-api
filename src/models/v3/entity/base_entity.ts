@@ -4,9 +4,11 @@ import { EntityRepository } from '../../../repository/entity/_entity_repository'
 import { LyfError } from '../../../utils/lyf_error';
 import { BaseModel } from '../base_model';
 import { CommandType } from '../command_types';
+import { BaseRelation } from '../relation/base_relation';
 
 export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> {
-  protected relations: Record<string, BaseModel<DbObject> | BaseModel<DbObject>[]> = {};
+  protected relations: Record<string, BaseRelation<DbRelationObject, BaseEntity<DbEntityObject>> | 
+                                      BaseRelation<DbRelationObject, BaseEntity<DbEntityObject>>[]> = {};
   protected abstract repository: EntityRepository<T>;
 
   public abstract fetchRelations(include?: string): Promise<void>
@@ -25,10 +27,6 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
     }
 
     return this.base!;
-  }
-
-  public getRelations() {
-    return this.relations;
   }
 
   public async load() {

@@ -78,17 +78,19 @@ export class ItemUserRepository extends RelationRepository<ItemUserRelationshipD
     return result;
   }
 
-  async findUserRelatedItemsOnDateOrDay(
+  // Items filtered by date or day
+  async findUserFilteredItems(
     user_id: ID,
-    date: string,
-    day: string
+    start_date: string,
+    end_date: string,
+    days: string[]
   ): Promise<(ItemDbObject & ItemUserRelationshipDbObject)[]> {
     const result = await this.db
       .selectFrom('items')
       .innerJoin(TABLE_NAME, 'items.id', 'items_on_users.item_id_fk')
       .selectAll()
       .where('user_id_fk', '=', user_id)
-      .where((eb) => eb.or([eb('date', '=', date), eb('day', '=', day)]))
+      .where((eb) => eb.or([eb.between('date', start_date, end_date), eb('day', 'in', days)]))
       .execute();
 
     return result;

@@ -11,7 +11,7 @@ import { Logger } from '../../../utils/logging';
 import { ItemEntity } from '../entity/item_entity';
 import { BaseRelation } from './base_relation';
 
-export class NoteItemRelation extends BaseRelation<ItemNoteRelationshipDbObject, ItemDbObject> {
+export class NoteItemRelation extends BaseRelation<ItemNoteRelationshipDbObject, ItemEntity> {
   protected logger: Logger = Logger.of(NoteItemRelation);
 
   protected relatedEntity: ItemEntity;

@@ -30,7 +30,6 @@ const transformToPgUser = (user: MongoUser) => {
     first_day: user.timetable.first_day,
     display_name: user.details.name,
     pfp_url: user.details.pfp_url,
-    daily_notifications: user.premium?.notifications?.daily_notifications,
     daily_notification_time: user.premium?.notifications?.daily_notification_time,
     persistent_daily_notification: user.premium?.notifications?.persistent_daily_notification,
     event_notifications_enabled: user.premium?.notifications?.event_notifications_enabled,

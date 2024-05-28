@@ -10,6 +10,7 @@ import { UserRepository } from '../../../repository/entity/user_repository';
 import { ItemUserRepository } from '../../../repository/relation/item_user_repository';
 import { NoteUserRepository } from '../../../repository/relation/note_user_repository';
 import { UserFriendshipRepository } from '../../../repository/relation/user_friendship_repository';
+import { daysInRange } from '../../../utils/dates';
 import { Logger } from '../../../utils/logging';
 import { LyfError } from '../../../utils/lyf_error';
 import { CommandType } from '../command_types';
@@ -90,7 +91,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
   }
 
   public async fetchRelations(include?: string | undefined): Promise<void> {
-    const toLoad = include ? this.parseInclusions(include) : ["items", "users"]
+    const toLoad = include ? this.parseInclusions(include) : ["items", "notes", "users"]
 
     if (toLoad.includes("items")) {
       const userItemsRepo = new ItemUserRepository();
@@ -135,8 +136,39 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     }
   }
 
+  public async fetchItemsInRange(start: string, end: string): Promise<void> {
+    const userItemsRepo = new ItemUserRepository();
+    const relevantDays = daysInRange(start, end)
+    const relationObjects = await userItemsRepo.findUserFilteredItems(this._id, start, end, relevantDays);
+    const itemRelations: UserItemRelation[] = [];
+
+    for (const relationObject of relationObjects) {
+      const itemRelation = new UserItemRelation(relationObject.user_id_fk, relationObject.item_id_fk)
+      itemRelations.push(itemRelation)
+    }
+    this.relations.items = itemRelations;
+  }
+
   private stripSensitiveFields() {
     const { pass_hash, expo_tokens, ...exported } = this.base!;
     return exported;
+  }
+
+  public getRelations() {
+    return this.relations;
+  }
+
+  // --- HELPERS --- //
+
+  timezone() {
+    return this.base!.tz
+  }
+
+  dailyNotificationTime() {
+    return this.base!.daily_notification_time
+  }
+
+  persistentNotifications() {
+    return this.base!.persistent_daily_notification
   }
 }

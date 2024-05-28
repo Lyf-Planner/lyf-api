@@ -13,7 +13,7 @@ import { Logger } from '../../../utils/logging';
 import { UserEntity } from '../entity/user_entity';
 import { BaseRelation } from './base_relation';
 
-export class NoteUserRelation extends BaseRelation<NoteUserRelationshipDbObject, UserDbObject> {
+export class NoteUserRelation extends BaseRelation<NoteUserRelationshipDbObject, UserEntity> {
   protected logger: Logger = Logger.of(NoteUserRelation);
 
   protected relatedEntity: UserEntity;

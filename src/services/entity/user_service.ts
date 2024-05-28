@@ -43,7 +43,6 @@ export class UserService extends EntityService<UserDbObject> {
       first_day: formatDateData(creationDate),
       display_name: undefined,
       pfp_url: undefined,
-      daily_notifications: false,
       daily_notification_time: '08:00',
       persistent_daily_notification: false,
       event_notifications_enabled: true,
@@ -166,15 +165,12 @@ export class UserService extends EntityService<UserDbObject> {
   // --- HELPERS --- //
 
   private checkDailyNotifications(user: UserEntity, changes: Partial<User>) {
-    const notificationsEnabledChange = changes.daily_notifications;
     const notificationsTimeChange = changes.daily_notification_time;
 
-    if (notificationsEnabledChange && notificationsTimeChange) {
-      notificationService.setDailyNotifications(user, notificationsTimeChange);
-    } else if (notificationsTimeChange) {
-      notificationService.updateDailyNotifications(user, notificationsTimeChange);
-    } else if (notificationsEnabledChange === false) {
+    if (notificationsTimeChange === undefined) {
       notificationService.removeDailyNotifications(user);
+    } else {
+      notificationService.updateDailyNotifications(user, notificationsTimeChange);
     }
   }
 

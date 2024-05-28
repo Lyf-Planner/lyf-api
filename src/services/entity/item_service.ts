@@ -20,12 +20,14 @@ import { NotificationService } from '../notifications/timetable_notifications';
 import { SocialItemNotifications } from '../notifications/item_notifications';
 
 export class ItemService extends EntityService<ItemDbObject> {
-  protected repository: ItemRepository;
   protected logger = Logger.of(ItemService);
 
-  constructor() {
-    super();
-    this.repository = new ItemRepository();
+  async getEntity(item_id: ID, include?: string) {
+    const item = new ItemEntity(item_id);
+    await item.fetchRelations(include);
+    await item.load();
+    
+    return item;
   }
 
   async processCreation(
@@ -44,7 +46,7 @@ export class ItemService extends EntityService<ItemDbObject> {
       await templateItem.fetchRelations("users");
       await templateItem.load()
       
-      const usersOnTemplate = templateItem.getRelations().users as UserEntity[];
+      const usersOnTemplate = templateItem.getRelations().users as ItemUserRelation[];
 
       // The creator should be a routine user
       if (!usersOnTemplate.map((x) => x.id()).includes(user_id)) {
@@ -52,7 +54,7 @@ export class ItemService extends EntityService<ItemDbObject> {
       }
 
       for (const itemUser of usersOnTemplate) {
-        await this.copyTemplateRelationship(itemUser, item, templateItem);
+        await this.copyTemplateRelationship(itemUser.getRelatedEntity(), item, templateItem);
       }
     } else {
       // Otherwise just attach the creator
@@ -119,12 +121,9 @@ export class ItemService extends EntityService<ItemDbObject> {
     return item;
   }
 
-  public async retrieveForUser(item_id: ID, include?: string): Promise<ItemEntity> {
-    const item = new ItemEntity(item_id);
-    await item.fetchRelations(include);
-    await item.load();
-    
-    return item;
+  public async retrieveForUser(item_id: ID, include?: string): Promise<Item> {
+    const item = await this.getEntity(item_id, include);
+    return await item.export() as Item
   }
 
   public async createUserIntroItem(user: UserEntity, tz: string) {
@@ -247,7 +246,7 @@ export class ItemService extends EntityService<ItemDbObject> {
     const updateFunc = item.isRoutine() ? service.removeRoutineNotification : service.removeEventNotification;
 
     for (const user of users) {
-      const notificationMins = user.hasNotification()
+      const notificationMins = user.notificationMinsBefore()
 
       if (notificationMins) {
         await updateFunc(item, user.getRelatedEntity() as UserEntity)
@@ -278,7 +277,7 @@ export class ItemService extends EntityService<ItemDbObject> {
     const updateFunc = item.isRoutine() ? service.updateRoutineNotification : service.updateEventNotification;
 
     for (const user of users) {
-      const notificationMins = user.hasNotification()
+      const notificationMins = user.notificationMinsBefore()
 
       if (notificationMins) {
         await updateFunc(item, user.getRelatedEntity() as UserEntity, notificationMins)

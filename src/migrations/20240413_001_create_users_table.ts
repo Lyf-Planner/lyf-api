@@ -12,7 +12,6 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('expo_tokens', sql`text[]`, (col) => col.notNull())
     .addColumn('display_name', 'varchar(30)')
     .addColumn('pfp_url', 'text')
-    .addColumn('daily_notifications', 'boolean')
     .addColumn('daily_notification_time', 'time')
     .addColumn('persistent_daily_notification', 'boolean')
     .addColumn('event_notifications_enabled', 'boolean')

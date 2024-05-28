@@ -14,7 +14,7 @@ import { BaseEntity } from '../entity/base_entity';
 import { UserEntity } from '../entity/user_entity';
 import { BaseRelation } from './base_relation';
 
-export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, UserDbObject> {
+export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, UserEntity> {
   protected logger: Logger = Logger.of(UserFriendRelation);
 
   protected relatedEntity: UserEntity;

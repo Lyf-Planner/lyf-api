@@ -68,4 +68,9 @@ export class NoteEntity extends BaseEntity<NoteDbObject> {
       this.relations.users = userRelations;
     }
   }
+
+  // --- HELPERS --- //
+  public getRelations() {
+    return this.relations;
+  }
 }
