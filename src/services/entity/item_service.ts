@@ -11,7 +11,7 @@ import { formatDateData } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { EntityService } from './_entity_service';
 import { ItemUserRelation } from '../../models/v3/relation/item_related_user';
-import { ItemUserPermission, ItemUserRelationshipDbObject } from '../../api/schema/database/items_on_users';
+import { Permission, ItemUserRelationshipDbObject } from '../../api/schema/database/items_on_users';
 import { NoteItemRelation } from '../../models/v3/relation/note_related_item';
 import { ItemNoteRelationshipDbObject } from '../../api/schema/database/items_on_notes';
 import { LyfError } from '../../utils/lyf_error';
@@ -81,7 +81,7 @@ export class ItemService extends EntityService<ItemDbObject> {
     const itemDeleter = itemUsers.find((x) => x.entityId() === from_id);
 
 
-    if (itemDeleter && itemDeleter.getPermission() === ItemUserPermission.Owner) {
+    if (itemDeleter && itemDeleter.permission() === Permission.Owner) {
       await item.delete();
     } else {
       throw new LyfError(`Items can only be deleted by their owner`, 403);
@@ -157,7 +157,7 @@ export class ItemService extends EntityService<ItemDbObject> {
 
     const relevantUser = users?.find((x) => x.id === user_id);
 
-    if (!relevantUser || relevantUser.permission === ItemUserPermission.ReadOnly) {
+    if (!relevantUser || relevantUser.permission === Permission.ReadOnly) {
       return false;
     }
 
@@ -194,7 +194,7 @@ export class ItemService extends EntityService<ItemDbObject> {
       created: new Date(),
       last_updated: new Date(),
       invite_pending: false,
-      permission: ItemUserPermission.Owner,
+      permission: Permission.Owner,
       sorting_rank: rank || 0
     }
   }
@@ -258,8 +258,8 @@ export class ItemService extends EntityService<ItemDbObject> {
 
     const permitted = itemUsers.some((x) => 
       x.id() === user_id &&
-      x.getPermission() !== ItemUserPermission.ReadOnly &&
-      !x.isInvited()
+      x.permission() !== Permission.ReadOnly &&
+      !x.invited()
     )
 
     if (!permitted) {

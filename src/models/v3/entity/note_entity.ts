@@ -10,14 +10,14 @@ import { LyfError } from '../../../utils/lyf_error';
 import { CommandType } from '../command_types';
 import { NoteItemRelation } from '../relation/note_related_item';
 import { NoteUserRelation } from '../relation/note_related_user';
-import { BaseEntity } from './base_entity';
+import { SocialEntity } from './_social_entity';
 
 export type NoteModelRelations = {
   items: NoteItemRelation[];
   users: NoteUserRelation[];
 };
 
-export class NoteEntity extends BaseEntity<NoteDbObject> {
+export class NoteEntity extends SocialEntity<NoteDbObject> {
   protected logger = Logger.of(NoteEntity);
   protected repository = new NoteRepository();
 

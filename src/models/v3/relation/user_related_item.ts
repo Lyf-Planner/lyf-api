@@ -11,7 +11,7 @@ import { ItemRepository } from '../../../repository/entity/item_repository';
 import { ItemUserRepository } from '../../../repository/relation/item_user_repository';
 import { Logger } from '../../../utils/logging';
 import { ItemEntity } from '../entity/item_entity';
-import { BaseRelation } from './base_relation';
+import { BaseRelation } from './_base_relation';
 
 export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject, ItemEntity> {
   protected logger: Logger = Logger.of(UserItemRelation);

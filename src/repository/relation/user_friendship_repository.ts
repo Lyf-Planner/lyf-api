@@ -1,6 +1,7 @@
 import { ID } from '../../api/schema/database/abstract';
 import { UserDbObject } from '../../api/schema/database/user';
 import { UserFriendshipDbObject } from '../../api/schema/database/user_friendships';
+import { ObjectUtils } from '../../utils/object';
 import { RelationRepository } from './_relation_repository';
 
 const TABLE_NAME = 'user_friendships';
@@ -14,7 +15,7 @@ export class UserFriendshipRepository extends RelationRepository<UserFriendshipD
   }
 
   public async deleteRelation(user1_id: ID, user2_id: ID) {
-    const [id1, id2] = this.sortIds(user1_id, user2_id)
+    const [id1, id2] = [user1_id, user2_id].sort()
 
     await this.db
       .deleteFrom(this.table_name)
@@ -24,7 +25,7 @@ export class UserFriendshipRepository extends RelationRepository<UserFriendshipD
   }
 
   override async findByCompositeId(user1_id: ID, user2_id: ID): Promise<UserFriendshipDbObject | undefined> {
-    const [id1, id2] = this.sortIds(user1_id, user2_id)
+    const [id1, id2] = [user1_id, user2_id].sort()
 
     const result = await this.db
       .selectFrom(this.table_name)
@@ -60,7 +61,7 @@ export class UserFriendshipRepository extends RelationRepository<UserFriendshipD
     changes: Partial<UserFriendshipDbObject>
   ) {
     // Should make the order or args not matter!!
-    const [id1, id2] = this.sortIds(user1_id, user2_id)
+    const [id1, id2] = [user1_id, user2_id].sort()
 
     return await this.db
       .updateTable(TABLE_NAME)
@@ -69,13 +70,5 @@ export class UserFriendshipRepository extends RelationRepository<UserFriendshipD
       .where('user2_id_fk', '=', id2)
       .returningAll()
       .execute();
-  }
-
-  public sortIds(user1_id: ID, user2_id: ID): [ID, ID] {
-    if (user1_id.localeCompare(user2_id) > 0) {
-      return [user2_id, user1_id];
-    } else {
-      return [user1_id, user2_id]
-    }
   }
 }

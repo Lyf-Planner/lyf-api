@@ -5,7 +5,8 @@ import { Logger } from '../../utils/logging';
 import { EntityService } from './_entity_service';
 import { Note, NoteRelatedUser } from '../../api/schema/notes';
 import { NoteUserRelation } from '../../models/v3/relation/note_related_user';
-import { NoteUserPermission, NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
+import { Permission } from '../../api/schema/database/items_on_users';
+import { NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
 import { LyfError } from '../../utils/lyf_error';
 import { UserRelatedNote } from '../../api/schema/user';
 import { UserEntity } from '../../models/v3/entity/user_entity';
@@ -13,11 +14,15 @@ import { UserEntity } from '../../models/v3/entity/user_entity';
 export class NoteService extends EntityService<NoteDbObject> {
   protected logger = Logger.of(NoteService);
 
-  constructor() {
-    super();
+  async getEntity(note_id: ID, include?: string) {
+    const note = new NoteEntity(note_id);
+    await note.fetchRelations(include);
+    await note.load();
+    
+    return note;
   }
 
-  // Builder method
+  
   public async retrieveForUser(note_id: ID, requestor_id: ID, include: string): Promise<Note> {
     const note = new NoteEntity(note_id);
     await note.fetchRelations(include);
@@ -48,7 +53,7 @@ export class NoteService extends EntityService<NoteDbObject> {
     const noteDeleter = noteUsers.find((x) => x.entityId() === from_id);
 
 
-    if (noteDeleter && noteDeleter.getPermission() === NoteUserPermission.Owner) {
+    if (noteDeleter && noteDeleter.permission() === Permission.Owner) {
       await note.delete();
     } else {
       throw new LyfError(`Notes can only be deleted by their owner`, 403);
@@ -78,7 +83,7 @@ export class NoteService extends EntityService<NoteDbObject> {
       created: new Date(),
       last_updated: new Date(),
       invite_pending: false,
-      permission: NoteUserPermission.Owner
+      permission: Permission.Owner
     }
   }
 
@@ -88,8 +93,8 @@ export class NoteService extends EntityService<NoteDbObject> {
 
     const permitted = noteUsers.some((x) => 
       x.id() === user_id &&
-      x.getPermission() !== NoteUserPermission.ReadOnly &&
-      !x.isInvited()
+      x.permission() !== Permission.ReadOnly &&
+      !x.invited()
     )
 
     if (!permitted) {

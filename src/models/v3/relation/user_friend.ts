@@ -10,9 +10,8 @@ import { PublicUser, UserFriend } from '../../../api/schema/user';
 import { UserRepository } from '../../../repository/entity/user_repository';
 import { UserFriendshipRepository } from '../../../repository/relation/user_friendship_repository';
 import { Logger } from '../../../utils/logging';
-import { BaseEntity } from '../entity/base_entity';
 import { UserEntity } from '../entity/user_entity';
-import { BaseRelation } from './base_relation';
+import { BaseRelation } from './_base_relation';
 
 export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, UserEntity> {
   protected logger: Logger = Logger.of(UserFriendRelation);
@@ -68,7 +67,11 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
 
   // --- HELPERS ---
 
-  public isBlocked() {
+  friends() {
+    return this.base!.status === UserFriendshipStatus.Friends;
+  }
+
+  blocked() {
     return (
       this.base!.status === UserFriendshipStatus.BlockedByFirst ||
       this.base!.status === UserFriendshipStatus.BlockedBySecond ||
@@ -76,21 +79,21 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
     )
   }
 
-  public pendingOnFrom() {
+  pendingOnFrom() {
     return (
       this.base!.user1_id_fk === this._id && this.base!.status === UserFriendshipStatus.PendingFirstAcceptance ||
       this.base!.user2_id_fk === this._id && this.base!.status === UserFriendshipStatus.PendingSecondAcceptance
     );
   }
 
-  public pendingOnTarget() {
+  pendingOnTarget() {
     return (
       this.base!.user1_id_fk === this._id && this.base!.status === UserFriendshipStatus.PendingSecondAcceptance ||
       this.base!.user2_id_fk === this._id && this.base!.status === UserFriendshipStatus.PendingFirstAcceptance
     );
   }
 
-  public sortedIds() {
-    return this.repository.sortIds(this._entityId, this._id)
+  sortedIds() {
+    return [this._entityId, this._id].sort();
   }
 }

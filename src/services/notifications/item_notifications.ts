@@ -7,7 +7,6 @@ import { Logger } from '../../utils/logging';
 import { ExpoPushService } from './expo_push_service';
 import { UserEntity } from '../../models/v3/entity/user_entity';
 import { ItemEntity } from '../../models/v3/entity/item_entity';
-import { ItemUserRelation } from '../../models/v3/relation/item_related_user';
 
 export enum DebounceSignatures {
   'DateChange' = 'DateChange',
@@ -28,7 +27,7 @@ export class SocialItemNotifications {
       }) of date change to ${newDate} from ${from.id()}`
     );
 
-    const users = await this.getUsersOnItem(item)
+    const users = await item.getUsers()
 
     // Get tokens
     const tokensToNotify = this.getAllOtherTokens(from, users);
@@ -59,7 +58,7 @@ export class SocialItemNotifications {
       `Notifying users on item ${item.name()} of time change to ${newTime} from ${from.id()}`
     );
 
-    const users = await this.getUsersOnItem(item)
+    const users = await item.getUsers()
 
     // Get tokens
     const tokensToNotify = this.getAllOtherTokens(from, users);
@@ -68,7 +67,7 @@ export class SocialItemNotifications {
     const message = {
       to: tokensToNotify,
       title: `${item.type()} time updated`,
-      body: `${from.name()} updated the time of ${item.title} to ${TwentyFourHourToAMPM(newTime)}`,
+      body: `${from.name()} updated the time of ${item.title()} to ${TwentyFourHourToAMPM(newTime)}`,
       sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
 
@@ -106,7 +105,7 @@ export class SocialItemNotifications {
   static async newItemUser(from: UserEntity, item: ItemEntity) {
     logger.info(`Notifying users on item ${item.name()} of new user ${from.id()}`);
 
-    const users = await this.getUsersOnItem(item)
+    const users = await item.getUsers()
 
     // Get tokens
     const tokensToNotify = this.getAllOtherTokens(from, users);
@@ -133,7 +132,7 @@ export class SocialItemNotifications {
       return;
     }
 
-    const users = await this.getUsersOnItem(item)
+    const users = await item.getUsers()
 
     // Get tokens
     const tokensToNotify = this.getAllOtherTokens(from, users);
@@ -147,8 +146,8 @@ export class SocialItemNotifications {
     // Format the message
     const message = {
       to: tokensToNotify,
-      title: `${item.type()} ${item.status() === ItemStatus.Done ? 'Completed!' : item.status()}`,
-      body: `${from.name()} marked ${item.title} as ${newStatus}`,
+      title: `${item.type()} ${item.status()}`,
+      body: `${from.name()} marked ${item.title()} as ${newStatus}`,
       sound: {
         critical: item.status() === ItemStatus.Cancelled,
         volume: 1,
@@ -180,14 +179,6 @@ export class SocialItemNotifications {
     }
 
     return tokens.flat();
-  }
-
-  static async getUsersOnItem(item: ItemEntity) {
-    // Notify all users (except the one who joined)
-    await item.fetchRelations("users")
-    await item.load();
-    const itemUsers = item.getRelations().users as ItemUserRelation[];
-    return itemUsers.map((x) => x.getRelatedEntity())
   }
 
   static debounceItemMessage(

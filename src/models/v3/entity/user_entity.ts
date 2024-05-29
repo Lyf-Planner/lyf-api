@@ -17,7 +17,7 @@ import { CommandType } from '../command_types';
 import { UserFriendRelation } from '../relation/user_friend';
 import { UserItemRelation } from '../relation/user_related_item';
 import { UserNoteRelation } from '../relation/user_related_note';
-import { BaseEntity } from './base_entity';
+import { BaseEntity } from './_base_entity';
 
 export type UserModelRelations = {
   items: UserItemRelation[];
@@ -126,7 +126,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
         const otherUserId = relationObject.user1_id_fk === this._id ? relationObject.user2_id_fk : relationObject.user1_id_fk;
 
         const userRelation = new UserFriendRelation(this._id, otherUserId)
-        if (userRelation.isBlocked()) {
+        if (userRelation.blocked()) {
           continue;
         }
         

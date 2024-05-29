@@ -11,13 +11,13 @@ import { LyfError } from '../../../utils/lyf_error';
 import { CommandType } from '../command_types';
 import { ItemUserRelation } from '../relation/item_related_user';
 import { UserFriendRelation } from '../relation/user_friend';
-import { BaseEntity } from './base_entity';
+import { SocialEntity } from './_social_entity';
 
 export type ItemModelRelations = {
   users: ItemUserRelation[];
 };
 
-export class ItemEntity extends BaseEntity<ItemDbObject> {
+export class ItemEntity extends SocialEntity<ItemDbObject> {
   protected logger = Logger.of(ItemEntity);
   protected repository = new ItemRepository();
 

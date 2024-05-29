@@ -9,7 +9,7 @@ import { NoteRepository } from '../../../repository/entity/note_repository';
 import { NoteUserRepository } from '../../../repository/relation/note_user_repository';
 import { Logger } from '../../../utils/logging';
 import { NoteEntity } from '../entity/note_entity';
-import { BaseRelation } from './base_relation';
+import { BaseRelation } from './_base_relation';
 
 export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject, NoteEntity> {
   protected logger: Logger = Logger.of(UserNoteRelation);

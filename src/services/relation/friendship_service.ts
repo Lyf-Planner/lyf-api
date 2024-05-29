@@ -36,8 +36,8 @@ export class FriendshipService extends BaseService {
 
     const userService = new UserService();
 
-    const fromUser = await userService.retrieveForUser(from, from, "");
-    const targetUser = await userService.retrieveForUser(update.user_id, from, "");
+    const fromUser = await userService.getEntity(from);
+    const targetUser = await userService.getEntity(update.user_id);
 
     switch (update.action) {
       case FriendshipAction.Accept:
@@ -83,7 +83,7 @@ export class FriendshipService extends BaseService {
       await friendship.create(newFriendship);
     } catch (e) {
       await friendship.load();
-      if (friendship.isBlocked()) {
+      if (friendship.blocked()) {
         throw new LyfError(`Relationship is blocked, user ${friendship.entityId()} should not have appeared for ${friendship.id()}`, 500)
       }
       
@@ -135,7 +135,7 @@ export class FriendshipService extends BaseService {
 
   private async acceptRequest(from: UserEntity, target: UserEntity) {
     const friendship = new UserFriendRelation(from.id(), target.id());
-    if (friendship.isBlocked()) {
+    if (friendship.blocked()) {
       throw new LyfError(`Got accept request on blocked relationship ${from.id()} + ${target.id()}`, 400);
     }
 

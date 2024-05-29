@@ -14,7 +14,7 @@ export interface ItemUserPrimaryKey {
 
 export interface ItemUserRelations {
   invite_pending: boolean;
-  permission: ItemUserPermission;
+  permission: Permission;
   sorting_rank: number;
   show_in_upcoming?: boolean;
   notification_mins_before?: number;
@@ -27,7 +27,7 @@ export interface ItemUserRelationshipDbObject
 
 // Enums
 
-export enum ItemUserPermission {
+export enum Permission {
   Owner = 'Owner',
   Editor = 'Editor',
   ReadOnly = 'Read Only'

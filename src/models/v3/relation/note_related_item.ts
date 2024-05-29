@@ -9,7 +9,7 @@ import { NoteRelatedItem } from '../../../api/schema/notes';
 import { ItemNoteRepository } from '../../../repository/relation/item_note_repository';
 import { Logger } from '../../../utils/logging';
 import { ItemEntity } from '../entity/item_entity';
-import { BaseRelation } from './base_relation';
+import { BaseRelation } from './_base_relation';
 
 export class NoteItemRelation extends BaseRelation<ItemNoteRelationshipDbObject, ItemEntity> {
   protected logger: Logger = Logger.of(NoteItemRelation);

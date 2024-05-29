@@ -7,9 +7,9 @@ import { ItemUserRepository } from '../../../repository/relation/item_user_repos
 import { Logger } from '../../../utils/logging';
 import { ObjectUtils } from '../../../utils/object';
 import { UserEntity } from '../entity/user_entity';
-import { BaseRelation } from './base_relation';
+import { SocialRelation } from './_social_relation';
 
-export class ItemUserRelation extends BaseRelation<ItemUserRelationshipDbObject, UserEntity> {
+export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObject, UserEntity> {
   protected logger: Logger = Logger.of(ItemUserRelation);
 
   // This should be readonly, updates should be done through the Entity directly
@@ -66,15 +66,7 @@ export class ItemUserRelation extends BaseRelation<ItemUserRelationshipDbObject,
     await this.repository.updateRelation(this._entityId, this._id, this.base!);
   }
 
-  public getPermission() {
-    return this.base!.permission
-  }
-
   public notificationMinsBefore() {
     return this.base!.notification_mins_before
-  }
-
-  public isInvited() {
-    return this.base!.invite_pending
   }
 }

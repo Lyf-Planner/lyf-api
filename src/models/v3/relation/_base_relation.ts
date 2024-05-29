@@ -1,7 +1,7 @@
-import { DbEntityObject, DbObject, DbRelationFields, DbRelationObject } from '../../../api/schema/database';
+import { DbEntityObject, DbRelationObject } from '../../../api/schema/database';
 import { ID } from '../../../api/schema/database/abstract';
-import { BaseModel } from '../base_model';
-import { BaseEntity } from '../entity/base_entity';
+import { BaseModel } from '../_base_model';
+import { BaseEntity } from '../entity/_base_entity';
 
 export abstract class BaseRelation<T extends DbRelationObject, K extends BaseEntity<DbEntityObject>> extends BaseModel<T> {
   protected _entityId: ID;

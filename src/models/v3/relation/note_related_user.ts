@@ -7,13 +7,12 @@ import {
 import { UserDbObject } from '../../../api/schema/database/user';
 import { NoteRelatedUser } from '../../../api/schema/notes';
 import { PublicUser } from '../../../api/schema/user';
-import { UserRepository } from '../../../repository/entity/user_repository';
 import { NoteUserRepository } from '../../../repository/relation/note_user_repository';
 import { Logger } from '../../../utils/logging';
 import { UserEntity } from '../entity/user_entity';
-import { BaseRelation } from './base_relation';
+import { SocialRelation } from './_social_relation';
 
-export class NoteUserRelation extends BaseRelation<NoteUserRelationshipDbObject, UserEntity> {
+export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObject, UserEntity> {
   protected logger: Logger = Logger.of(NoteUserRelation);
 
   protected relatedEntity: UserEntity;
@@ -49,7 +48,7 @@ export class NoteUserRelation extends BaseRelation<NoteUserRelationshipDbObject,
     }
   }
 
-  public async load(relations: object): Promise<void> {
+  public async load(): Promise<void> {
     this.base = await this.repository.findByCompositeId(this._id, this._entityId);
     await this.relatedEntity.load();
   }
@@ -64,13 +63,5 @@ export class NoteUserRelation extends BaseRelation<NoteUserRelationshipDbObject,
 
   public async save(): Promise<void> {
     await this.repository.updateRelation(this._id, this._entityId, this.base!);
-  }
-
-  public getPermission() {
-    return this.base!.permission
-  }
-
-  public isInvited() {
-    return this.base!.invite_pending
   }
 }

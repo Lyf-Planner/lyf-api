@@ -1,4 +1,5 @@
 import { ID, Timestamps } from './abstract';
+import { Permission } from './items_on_users';
 
 // Notes:
 // - primary key: user_id_fk + note_id_fk
@@ -14,7 +15,7 @@ export interface NoteUserPrimaryKey {
 
 export interface NoteUserRelations {
   invite_pending: boolean;
-  permission: NoteUserPermission;
+  permission: Permission;
 }
 
 export interface NoteUserRelationshipDbObject
@@ -23,9 +24,3 @@ export interface NoteUserRelationshipDbObject
     Timestamps {}
 
 // Enums
-
-export enum NoteUserPermission {
-  Owner = 'Owner',
-  Editor = 'Editor',
-  ReadOnly = 'Read Only'
-}
