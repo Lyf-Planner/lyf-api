@@ -73,8 +73,14 @@ export class ItemEntity extends BaseEntity<ItemDbObject> {
     return day && !date && !template_id;
   }
 
-  public getRelations() {
+  getRelations() {
     return this.relations;
+  }
+
+  name() {
+    return this.base 
+      ? `${this.base!.title} (${this._id})`
+      : this._id;
   }
 
   // --- GETTERS --- //

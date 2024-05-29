@@ -1,12 +1,13 @@
-import Expo, { ExpoPushMessage } from 'expo-server-sdk';
+import { ExpoPushMessage } from 'expo-server-sdk';
 import debouncer from 'signature-debouncer';
 
-import { ItemStatus, ListItem } from '../../api/mongo_schema/list';
+import { ItemStatus } from '../../api/schema/database/items';
 import { formatDate, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { ExpoPushService } from './expo_push_service';
 import { UserEntity } from '../../models/v3/entity/user_entity';
 import { ItemEntity } from '../../models/v3/entity/item_entity';
+import { ItemUserRelation } from '../../models/v3/relation/item_related_user';
 
 export enum DebounceSignatures {
   'DateChange' = 'DateChange',
@@ -15,107 +16,58 @@ export enum DebounceSignatures {
 }
 
 export class SocialItemNotifications {
-  static async newItemInvite(to: UserEntity, from: UserEntity, item: ItemEntity) {
-    logger.info(`Notifying user ${to.getId()} of invite to item ${item.displayName()}`);
-
-    const itemContent = item.getContent();
-
-    // Format the message
-    const message = {
-      to: to.getContent().expo_tokens || [],
-      title: `New ${item.getContent().type} Invite`,
-      body: `${from.name()} invited you to ${itemContent.title}`,
-      sound: { critical: true, volume: 1, name: 'default' }
-    } as ExpoPushMessage;
-
-    // Include dates and times if they are set
-    if (itemContent.date && itemContent.time) {
-      message.body += ` at ${TwentyFourHourToAMPM(itemContent.time)} on ${formatDate(
-        itemContent.date
-      )}`;
-    } else if (itemContent.date) {
-      message.body += ` on ${formatDate(itemContent.date)}`;
-    }
-
-    // Send
-    await new ExpoPushService().pushNotificationToExpo([message]);
-  }
-
-  static async newItemUser(from: UserEntity, item: ItemEntity) {
-    logger.info(`Notifying users on item ${item.displayName()} of new user ${from.getId()}`);
-
-    // Notify all users (except the one who joined)
-    const itemContent = item.getContent();
-    const usersToNotify = ItemOperations.usersExceptFrom(from.getId(), itemContent);
-
-    // Get tokens
-    const tokens = await this.groupUserTokens(usersToNotify);
-
-    // Format the message
-    const message = {
-      to: tokens,
-      title: `User Joined your ${item.getContent().type}`,
-      body: `${from.name()} joined ${itemContent.title}`
-    } as ExpoPushMessage;
-
-    // Send
-    await new ExpoPushService().pushNotificationToExpo([message]);
-  }
-
-  public static async dateChanged(from: UserEntity, item: ItemEntity) {
-    const newDate = item.date;
+  static async handleDateChange(from: UserEntity, item: ItemEntity) {
+    const newDate = item.date();
     if (!newDate) {
       return;
     }
 
     logger.info(
-      `Notifying users on item ${item.title} (${
-        item.id
-      }) of date change to ${newDate} from ${from.getId()}`
+      `Notifying users on item ${item.title()} (${
+        item.id()
+      }) of date change to ${newDate} from ${from.id()}`
     );
 
-    const usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
+    const users = await this.getUsersOnItem(item)
 
     // Get tokens
-    const tokens = await this.groupUserTokens(usersToNotify);
+    const tokensToNotify = this.getAllOtherTokens(from, users);
 
     // Format the message
     const message = {
-      to: tokens,
-      title: `${item.type} date updated`,
-      body: `${from.name()} updated the date of ${item.title} to ${formatDate(item.date!)}`,
+      to: tokensToNotify,
+      title: `${item.type()} date updated`,
+      body: `${from.name()} updated the date of ${item.title()} to ${formatDate(item.date()!)}`,
       sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
 
     // Send
     SocialItemNotifications.debounceItemMessage(
       message,
-      item.id,
-      from.getId(),
+      item.id(),
+      from.id(),
       DebounceSignatures.DateChange
     );
   }
 
-  public static async timeChanged(from: UserEntity, item: ItemEntity) {
-    const newTime = item.time;
+  static async handleTimeChange(from: UserEntity, item: ItemEntity) {
+    const newTime = item.time();
     if (!newTime) {
       return;
     }
     logger.info(
-      `Notifying users on item ${item.title} (${
-        item.id
-      }) of time change to ${newTime} from ${from.getId()}`
+      `Notifying users on item ${item.name()} of time change to ${newTime} from ${from.id()}`
     );
 
-    const usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
+    const users = await this.getUsersOnItem(item)
 
     // Get tokens
-    const tokens = await this.groupUserTokens(usersToNotify);
+    const tokensToNotify = this.getAllOtherTokens(from, users);
 
     // Format the message
     const message = {
-      to: tokens,
-      title: `${item.type} time updated`,
+      to: tokensToNotify,
+      title: `${item.type()} time updated`,
       body: `${from.name()} updated the time of ${item.title} to ${TwentyFourHourToAMPM(newTime)}`,
       sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
@@ -123,39 +75,82 @@ export class SocialItemNotifications {
     // Send
     SocialItemNotifications.debounceItemMessage(
       message,
-      item.id,
-      from.getId(),
+      item.id(),
+      from.id(),
       DebounceSignatures.TimeChange
     );
   }
 
-  public static async statusChanged(from: UserEntity, item: ItemEntity) {
-    const newStatus = item.status;
+  static async newItemInvite(to: UserEntity, from: UserEntity, item: ItemEntity) {
+    logger.info(`Notifying user ${to.id()} of invite to item ${item.name()}`);
+
+    // Format the message
+    const message = {
+      to: to.getSensitive(to.id()).expo_tokens,
+      title: `New ${item.type()} Invite`,
+      body: `${from.name()} invited you to ${item.title()}`,
+      sound: { critical: true, volume: 1, name: 'default' }
+    } as ExpoPushMessage;
+
+    // Include dates and times if they are set
+    if (item.isFullyScheduled()) {
+      message.body += ` at ${TwentyFourHourToAMPM(item.time()!)} on ${formatDate(item.date()!)}`;
+    } else if (item.date()) {
+      message.body += ` on ${formatDate(item.date()!)}`;
+    }
+
+    // Send
+    await new ExpoPushService().pushNotificationToExpo([message]);
+  }
+
+  static async newItemUser(from: UserEntity, item: ItemEntity) {
+    logger.info(`Notifying users on item ${item.name()} of new user ${from.id()}`);
+
+    const users = await this.getUsersOnItem(item)
+
+    // Get tokens
+    const tokensToNotify = this.getAllOtherTokens(from, users);
+
+    // Format the message
+    const message = {
+      to: tokensToNotify,
+      title: `User Joined your ${item.type()}`,
+      body: `${from.name()} joined ${item.title()}`
+    } as ExpoPushMessage;
+
+    // Send
+    await new ExpoPushService().pushNotificationToExpo([message]);
+  }
+
+  static async handleStatusChange(from: UserEntity, item: ItemEntity) {
+    const newStatus = item.status();
     if (!newStatus) {
       return;
     }
 
-    const usersToNotify = ItemOperations.usersExceptFrom(from.getId(), item);
-    if (usersToNotify.length === 0) {
+    const statusChangeRelevant = newStatus === ItemStatus.Done || newStatus === ItemStatus.Cancelled;
+    if (!statusChangeRelevant) {
       return;
     }
 
-    logger.info(
-      `Notifying ${usersToNotify.length} other users on item ${item.title} (${
-        item.id
-      }) of status change to ${newStatus} from ${from.getId()}`
-    );
+    const users = await this.getUsersOnItem(item)
 
     // Get tokens
-    const tokens = await this.groupUserTokens(usersToNotify);
+    const tokensToNotify = this.getAllOtherTokens(from, users);
+
+    logger.info(
+      `Notifying ${users} other users on item ${item.title()} (${
+        item.id()
+      }) of status change to ${newStatus} from ${from.id()}`
+    );
 
     // Format the message
     const message = {
-      to: tokens,
-      title: `${item.type} ${item.status === ItemStatus.Done ? 'Completed!' : item.status}`,
+      to: tokensToNotify,
+      title: `${item.type()} ${item.status() === ItemStatus.Done ? 'Completed!' : item.status()}`,
       body: `${from.name()} marked ${item.title} as ${newStatus}`,
       sound: {
-        critical: item.status === ItemStatus.Cancelled,
+        critical: item.status() === ItemStatus.Cancelled,
         volume: 1,
         name: 'default'
       }
@@ -164,32 +159,45 @@ export class SocialItemNotifications {
     // Send
     SocialItemNotifications.debounceItemMessage(
       message,
-      item.id,
-      from.getId(),
+      item.id(),
+      from.id(),
       DebounceSignatures.StatusChange
     );
   }
 
-  // Helpers
-  public static async groupUserTokens(usersToNotify: string[]) {
-    // Get all notified user push tokens
+  // --- HELPERS --- //
+  static getAllOtherTokens(from: UserEntity, users: UserEntity[], ) {
+    // Get the tokens of every user on the item
+    // Except the user who initiated the notification
     let tokens = [] as string[];
-    for (const user_id of usersToNotify) {
-      const user_tokens = await UserOperations.getUserPushTokens(user_id);
+    for (const user of users) {
+      if (user.id() === from.id()) {
+        continue;
+      }
+
+      const user_tokens = user.getSensitive(user.id()).expo_tokens;
       tokens = tokens.concat(user_tokens);
     }
 
-    return tokens;
+    return tokens.flat();
   }
 
-  public static debounceItemMessage(
+  static async getUsersOnItem(item: ItemEntity) {
+    // Notify all users (except the one who joined)
+    await item.fetchRelations("users")
+    await item.load();
+    const itemUsers = item.getRelations().users as ItemUserRelation[];
+    return itemUsers.map((x) => x.getRelatedEntity())
+  }
+
+  static debounceItemMessage(
     message: ExpoPushMessage,
     item_id: string,
     user_id: string,
-    category: DebounceCategories
+    category: DebounceSignatures
   ) {
     debouncer.run(
-      async () => await expoPushService.pushNotificationToExpo([message]),
+      async () => await new ExpoPushService().pushNotificationToExpo([message]),
       {
         item_id,
         user_id,

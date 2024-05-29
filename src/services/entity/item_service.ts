@@ -220,21 +220,19 @@ export class ItemService extends EntityService<ItemDbObject> {
 
       // Notify any other users of a change!
       if (changes.time) {
-        SocialItemNotifications.timeChanged(user, item);
+        SocialItemNotifications.handleTimeChange(user, item);
       }
       if (changes.date) {
-        SocialItemNotifications.dateChanged(user, item);
+        SocialItemNotifications.handleDateChange(user, item);
       }
     }
 
   private handleStatusChanges(changes: Partial<UserRelatedItem>, item: ItemEntity, from: UserEntity) {
     const statusChanged = changes.status;
-    const statusChangeRelevant =
-      changes.status === ItemStatus.Done || changes.status === ItemStatus.Cancelled;
-
+    
     // Notify any other users of a change!
-    if (statusChanged && statusChangeRelevant) {
-      SocialItemNotifications.statusChanged(from, item);
+    if (statusChanged) {
+      SocialItemNotifications.handleStatusChange(from, item);
     }
   }
 
