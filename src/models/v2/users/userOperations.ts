@@ -1,7 +1,7 @@
 import { ID, Time } from '../../../api/mongo_schema/abstract';
 import { User, UserDetails } from '../../../api/mongo_schema/user';
 import db from '../../../db/mongo/mongo_db';
-import authUtils from '../../../utils/authUtils';
+import { AuthService } from '../../../services/auth_service';
 import { Logger } from '../../../utils/logging';
 import { ItemOperations } from '../items/ItemOperations';
 import { SocialUser } from '../social/socialUser';
@@ -40,7 +40,7 @@ export class UserOperations {
 
     var user = {} as any;
     user.id = user_id;
-    user.pass_hash = await authUtils.hashPass(password);
+    user.pass_hash = await AuthService.hashPass(password);
     user.details = {};
     user.timetable = {
       items: [{ id: intro_item_id }],

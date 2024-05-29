@@ -12,6 +12,9 @@ import {
 import { ItemService } from '../../../services/entity/item_service';
 import { Item } from '../../../api/schema/items';
 import { LyfError } from '../../../utils/lyf_error';
+import { SocialItemService } from '../../../services/relation/social_item_service';
+import { SocialUpdate } from '../../../services/relation/_social_service';
+import { ItemDbObject } from '../../../api/schema/database/items';
 
 const itemUpdateQueue = new PQueue({ concurrency: 1 });
 
@@ -40,12 +43,14 @@ export class ItemHandlers {
   }
 
   static async _queuedUpdateItemSocial(req: Request, res: Response) {
-    const update = req.body as updateItemSocialBody;
+    const update = req.body as SocialUpdate;
     const fromId = getMiddlewareVars(res).user_id;
 
+    const socialItemService = new SocialItemService();
+
     try {
-      const social = await SocialItemManager.processUpdate(fromId, update);
-      res.status(200).json(social).end();
+      const item = await socialItemService.processUpdate(fromId, update);
+      res.status(200).json(item).end();
     } catch (err) {
       logger.error(`Returning 400 with message: ${err}`);
       res.status(400).end(`${err}`);
@@ -55,15 +60,15 @@ export class ItemHandlers {
   protected async createItem(req: Request, res: Response) {
     // Users only type a name in a section (implying type) to create an item
     // Should reevaluate this if we ever grant API access!
-    const itemInput = req.body as createItemBody;
+    const input = req.body as any;
     const user_id = getMiddlewareVars(res).user_id;
 
-    logger.debug(`Creating item ${itemInput.title} from user ${user_id}`);
+    logger.debug(`Creating item ${input.item.title} from user ${user_id}`);
 
-    // Instantiate
-    const model = await new ItemService().(itemInput, user_id, true);
+    const service = new ItemService();
+    const item = await service.processCreation(input.item, user_id, input.sorting_rank, input.node_id)
 
-    res.status(201).json(model.export()).end();
+    res.status(201).json(await item.export()).end();
   }
 
   protected async deleteItem(req: Request, res: Response) {
@@ -74,14 +79,9 @@ export class ItemHandlers {
 
     // Authorisation checks
     try {
-      const item = await ItemOperations.retrieveForUser(item_id as string, user_id);
+      const service = new ItemService();
+      await service.processDeletion(item_id as string, user_id);
 
-      const perm = item.requestorPermission();
-      if (!perm || perm !== Permission.Owner) {
-        throw new Error('Items can only be deleted by their owner/creator');
-      }
-
-      await item.delete();
       res.status(204).end();
     } catch (err) {
       logger.error(`User ${user_id} tried to delete ${item_id} without valid permissions`);
@@ -98,25 +98,13 @@ export class ItemHandlers {
 
     // Authorisation checks
     try {
-      const item = await ItemOperations.retrieveForUser(item_id, user_id);
-      res.status(200).json(item!.export()).end();
+      const service = new ItemService();
+      const item = await service.getEntity(item_id);
+      res.status(200).json(item.export(user_id)).end();
     } catch (err) {
       logger.error(`User ${user_id} requested item ${item_id} to which they don't have access`);
       res.status(403).end(`${err}`);
     }
-  }
-
-  protected async getItems(req: Request, res: Response) {
-    const { item_ids } = req.body as getItemsBody;
-    const user_id = getMiddlewareVars(res).user_id;
-
-    logger.debug(`Retreiving ${item_ids.length} items for user ${user_id}`);
-
-    // No auth checks - automatically excludes those without perms
-    const items = await ItemOperations.getRawUserItems(item_ids, user_id, true);
-    logger.debug(`Got ${items.length} items for user`);
-
-    res.status(200).json(items!).end();
   }
 
   protected async updateItem(req: Request, res: Response) {

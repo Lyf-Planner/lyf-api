@@ -1,7 +1,7 @@
 import { ID } from '../../../api/mongo_schema/abstract';
 import { SocialAction } from '../../../api/mongo_schema/social';
 import { updateItemSocialBody } from '../../../controller/validators/itemValidators';
-import { SocialItemNotifications } from '../../../services/notifications/socialItemNotificationService';
+import { SocialItemNotifications } from '../notifications/socialItemNotificationService';
 import { Logger } from '../../../utils/logging';
 import { ItemOperations } from '../items/ItemOperations';
 import { UserOperations } from '../users/userOperations';

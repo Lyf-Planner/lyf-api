@@ -35,7 +35,7 @@ export class ItemService extends EntityService<ItemDbObject> {
     user_id: ID,
     sorting_rank: number,
     note_id?: ID
-  ): Promise<Item> {
+  ) {
     // Create the item, as well as any user relations and note relations
     const item = new ItemEntity(item_input.id);
     await item.create(item_input);
@@ -69,7 +69,8 @@ export class ItemService extends EntityService<ItemDbObject> {
     }
 
     await item.fetchRelations();
-    return await item.export() as Item;
+    await item.load();
+    return item;
   }
 
   async processDeletion(item_id: string, from_id: string) {
@@ -119,11 +120,6 @@ export class ItemService extends EntityService<ItemDbObject> {
 
     await item.save();
     return item;
-  }
-
-  public async retrieveForUser(item_id: ID, include?: string): Promise<Item> {
-    const item = await this.getEntity(item_id, include);
-    return await item.export() as Item
   }
 
   public async createUserIntroItem(user: UserEntity, tz: string) {

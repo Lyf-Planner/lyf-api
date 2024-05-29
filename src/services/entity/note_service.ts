@@ -22,17 +22,7 @@ export class NoteService extends EntityService<NoteDbObject> {
     return note;
   }
 
-  
-  public async retrieveForUser(note_id: ID, requestor_id: ID, include: string): Promise<Note> {
-    const note = new NoteEntity(note_id);
-    await note.fetchRelations(include);
-    await note.load();
-    
-    const retrieved = await note.export(requestor_id) as Note;
-    return retrieved
-  }
-
-  async processCreation(note_input: NoteDbObject, from: ID): Promise<Note> {
+  async processCreation(note_input: NoteDbObject, from: ID) {
     const note = new NoteEntity(note_input.id);
     await note.create(note_input);
 
@@ -41,7 +31,8 @@ export class NoteService extends EntityService<NoteDbObject> {
     await relationship.create(relationshipObject);
 
     await note.fetchRelations();
-    return await note.export() as Note;
+    await note.load();
+    return note;
   }
 
   async processDeletion(note_id: string, from_id: string) {
@@ -63,6 +54,7 @@ export class NoteService extends EntityService<NoteDbObject> {
   async processUpdate(id: ID, changes: Partial<UserRelatedNote>, from: ID) {
     const note = new NoteEntity(id);
 
+    await note.fetchRelations();
     await note.load();
     await note.update(changes);
 
@@ -73,7 +65,7 @@ export class NoteService extends EntityService<NoteDbObject> {
     this.logger.debug(`User ${from} safely updated note ${id}`);
 
     await note.save();
-    return note.export();
+    return note;
   }
 
   private defaultNoteOwner(note_id: ID, user_id: ID): NoteUserRelationshipDbObject {
@@ -88,7 +80,6 @@ export class NoteService extends EntityService<NoteDbObject> {
   }
 
   private async throwIfReadOnly(note: NoteEntity, user_id: ID) {
-    await note.fetchRelations("users");
     const noteUsers = note.getRelations().users as NoteUserRelation[];
 
     const permitted = noteUsers.some((x) => 
