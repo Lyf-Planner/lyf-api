@@ -1,7 +1,7 @@
 import express from 'express';
 
-import { ItemHandlers } from '../handlers/itemHandlers';
-import { validate } from '../middleware/validationMiddleware';
+import { ItemHandlers } from '../handlers/item_handlers';
+import { validate } from '../middleware/validation_middleware';
 import { nSecondLimiter } from '../utils';
 import {
   createItemValidator,
@@ -10,7 +10,7 @@ import {
   getItemValidator,
   updateItemSocialValidator,
   updateItemValidator
-} from '../validators/itemValidators';
+} from '../validators/item_validators';
 
 export class ItemEndpoints extends ItemHandlers {
   constructor(server: express.Application) {

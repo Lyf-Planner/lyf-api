@@ -4,10 +4,10 @@ import { Request, Response } from 'express';
 import express from 'express';
 import bodyParserErrorHandler from 'express-body-parser-error-handler';
 
-import { ItemEndpoints } from './controller/endpoints/itemEndpoints';
-import { NoteEndpoints } from './controller/endpoints/noteEndpoints';
-import { UserEndpoints } from './controller/endpoints/userEndpoints';
-import { authoriseHeader } from './controller/middleware/authMiddleware';
+import { ItemEndpoints } from './controller/routes/item_routes';
+import { NoteEndpoints } from './controller/routes/note_routes';
+import { UserEndpoints } from './controller/routes/user_routes';
+import { authoriseHeader } from './controller/middleware/auth_middleware';
 import mongoDb from './db/mongo/mongo_db';
 import { migrateToLatest } from './db/pg/migration_manager';
 import postgresDb from './db/pg/postgres_db';

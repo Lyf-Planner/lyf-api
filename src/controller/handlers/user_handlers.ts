@@ -13,7 +13,7 @@ import {
   loginQuery,
   updateFriendshipBody,
   updateMeBody
-} from '../validators/userValidators';
+} from '../validators/user_validators';
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {

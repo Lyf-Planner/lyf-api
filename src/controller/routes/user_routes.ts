@@ -1,7 +1,7 @@
 import express from 'express';
 
-import { UserHandlers } from '../handlers/userHandlers';
-import { validate } from '../middleware/validationMiddleware';
+import { UserHandlers } from '../handlers/user_handlers';
+import { validate } from '../middleware/validation_middleware';
 import { nSecondLimiter } from '../utils';
 import {
   autologinValidator,
@@ -12,7 +12,7 @@ import {
   loginValidator,
   updateFriendshipValidator,
   updateMeValidator
-} from '../validators/userValidators';
+} from '../validators/user_validators';
 
 export class UserEndpoints extends UserHandlers {
   constructor(server: express.Application) {
