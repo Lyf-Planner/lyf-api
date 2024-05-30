@@ -1,5 +1,5 @@
-import { NoteType } from '../../../src/api/schema/notes';
-import { NoteRelationshipStatus } from '../../../src/api/schema/notes_on_users';
+import { NoteType } from '../../../src/api/schema/database/notes';
+import { Permission } from '../../../src/api/schema/database/items_on_users';
 
 export const testNoteCreation = {
   title: 'test note',
@@ -9,7 +9,7 @@ export const testNoteCreation = {
 export const testNoteCreatorRelationship = {
   user_id: 'test_user',
   invite_pending: false,
-  status: NoteRelationshipStatus.Owner
+  status: Permission.Owner
 };
 
 export const testNoteExport = {

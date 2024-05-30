@@ -2,10 +2,8 @@ import { Kysely } from 'kysely';
 
 import { Note as MongoNote } from '../api/mongo_schema/notes';
 import { User as MongoUser } from '../api/mongo_schema/user';
-import {
-  NoteRelationshipStatus,
-  NoteUserRelationshipDbObject
-} from '../api/schema/database/notes_on_users';
+import { NoteUserRelationshipDbObject } from '../api/schema/database/notes_on_users';
+import { Permission } from '../api/schema/database/items_on_users';
 import { UserDbObject } from '../api/schema/database/user';
 import mongoDb from '../db/mongo/mongo_db';
 
@@ -48,7 +46,7 @@ const insertAsPgUserNote = async (user: MongoUser, note: MongoNote, db: Kysely<a
     note_id_fk: note.id as any,
     user_id_fk: userNewId as any,
     invite_pending: false,
-    status: NoteRelationshipStatus.Owner
+    permission: Permission.Owner
   };
 
   await db.insertInto('notes_on_users').values(pgUserNote).execute();

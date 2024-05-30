@@ -1,5 +1,5 @@
 import { ItemStatus, ItemType } from '../../../src/api/schema/database/items';
-import { ItemUserPermission } from '../../../src/api/schema/database/items_on_users';
+import { Permission } from '../../../src/api/schema/database/items_on_users';
 import { formatDateData, getDayFromDate } from '../../../src/utils/dates';
 
 const creationDate = new Date();
@@ -25,7 +25,7 @@ export const testDatedItemCreate = {
 export const testDatedItemCreatorRelationship = {
   user_id: 'test_user',
   invite_pending: false,
-  status: ItemUserPermission.Owner
+  status: Permission.Owner
 };
 
 export const testDatedItemExport = {
@@ -69,7 +69,7 @@ export const exampleRoutineItemGet = {
     {
       user_id: 'test_user',
       invite_pending: false,
-      status: ItemUserPermission.Owner
+      status: Permission.Owner
     }
   ]
 };

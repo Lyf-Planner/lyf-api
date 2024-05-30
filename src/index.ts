@@ -12,7 +12,7 @@ import env from './envManager';
 import mongoDb from './db/mongo/mongo_db';
 import { migrateToLatest } from './db/pg/migration_manager';
 import postgresDb from './db/pg/postgres_db';
-import notificationService from './services/notifications/notification_service';
+import reminderService from './services/notifications/reminder_service';
 import { Logger, LoggingLevel } from './utils/logging';
 
 export const server = express();
@@ -46,7 +46,7 @@ export const serverInitialised = new Promise(async (resolve, reject) => {
 
     // Initialise services
     await mongoDb.init();
-    await notificationService.init();
+    await reminderService.init();
     await migrateToLatest();
     resolve(true);
   } catch (err) {
@@ -65,7 +65,7 @@ const startServer = async () => {
 
 // Graceful shutdown
 export async function shutdown() {
-  await notificationService.cleanup();
+  await reminderService.cleanup();
   await mongoDb.close();
   await postgresDb.destroy();
   process.exit(0);

@@ -1,9 +1,9 @@
 import { v4 as uuid } from 'uuid';
 
 import { UserDbObject } from "../../src/api/schema/database/user";
-import authUtils from "../../src/utils/authUtils";
+import { AuthService } from '../../src/services/auth_service';
 import { ItemDbObject, ItemStatus, ItemType } from '../../src/api/schema/database/items';
-import { ItemUserPermission, ItemUserRelationshipDbObject } from '../../src/api/schema/database/items_on_users';
+import { Permission, ItemUserRelationshipDbObject } from '../../src/api/schema/database/items_on_users';
 
 export const createTestUser = async (): Promise<UserDbObject> => {
   const creationTime = new Date();
@@ -14,7 +14,7 @@ export const createTestUser = async (): Promise<UserDbObject> => {
     created: creationTime,
     last_updated: creationTime,
     private: false,
-    pass_hash: await authUtils.hashPass("password"),
+    pass_hash: await AuthService.hashPass("password"),
     expo_tokens: []
   }
 
@@ -45,7 +45,7 @@ export const createItem1Relation = (): ItemUserRelationshipDbObject => {
     created: creationTime,
     last_updated: creationTime,
     invite_pending: false,
-    permission: ItemUserPermission.Owner,
+    permission: Permission.Owner,
     sorting_rank: 0,
   }
 }

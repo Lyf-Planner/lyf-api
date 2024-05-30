@@ -20,7 +20,7 @@ export async function migrateToLatest() {
   });
 
   log.info('Running migrations up to latest');
-  const { error, results } = await migrator.migrateToLatest();
+  const { error, results } = await migrator.migrateTo('20240413_001_create_users_table');
 
   if (results && results.length === 0) {
     log.info('No migrations to run :)');

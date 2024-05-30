@@ -2,9 +2,7 @@ import { ItemStatus, ListItem } from '../../../api/mongo_schema/list';
 import { Permission } from '../../../api/mongo_schema/social';
 import { updateItemBody } from '../../../controller/validators/itemValidators';
 import db from '../../../db/mongo/mongo_db';
-import { SocialItemNotifications } from '../../../services/notifications/socialItemNotificationService';
 import { Logger } from '../../../utils/logging';
-import notificationManager from '../../services/notifications/notificationManager';
 import { RestrictedRemoteObject } from '../abstract/restrictedRemoteObject';
 import { UserModel } from '../users/userModel';
 import { UserOperations } from '../users/userOperations';
@@ -24,7 +22,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   public async delete() {
     if (this.content.notifications) {
       for (const notif of this.content.notifications) {
-        notificationManager.removeEventNotification(this.content, notif.user_id);
+        // notificationManager.removeEventNotification(this.content, notif.user_id);
       }
     }
     await this.deleteFromDb();
@@ -118,11 +116,11 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
 
     if (!oldNotif && newNotif) {
       this.logger.info(`User ${this.requestedBy} set new notification on ${proposed.id}`);
-      notificationManager.setEventNotification(proposed, this.requestedBy);
+      // notificationManager.setEventNotification(proposed, this.requestedBy);
     } else if (oldNotif && newNotif && JSON.stringify(oldNotif) !== JSON.stringify(newNotif)) {
-      notificationManager.updateEventNotification(proposed, this.requestedBy);
+      // notificationManager.updateEventNotification(proposed, this.requestedBy);
     } else if (oldNotif && !newNotif) {
-      notificationManager.removeEventNotification(proposed, this.requestedBy);
+      // notificationManager.removeEventNotification(proposed, this.requestedBy);
     }
   }
 
@@ -136,7 +134,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       for (const notification of this.content.notifications) {
         // Case: date or time was deleted
         if (!proposed.time || !proposed.date) {
-          notificationManager.removeEventNotification(proposed, notification.user_id);
+          // notificationManager.removeEventNotification(proposed, notification.user_id);
           continue;
         }
 
@@ -145,18 +143,18 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
           this.content.notifications &&
           this.content.notifications.find((x) => x.user_id === notification.user_id);
         if (!oldNotif) {
-          notificationManager.setEventNotification(proposed, notification.user_id);
+          // notificationManager.setEventNotification(proposed, notification.user_id);
         } else {
-          notificationManager.updateEventNotification(proposed, notification.user_id);
+          // notificationManager.updateEventNotification(proposed, notification.user_id);
         }
       }
 
       // Notify any other users of a change!
       if (timeChanged) {
-        SocialItemNotifications.timeChanged(from, proposed);
+        // SocialItemNotifications.timeChanged(from, proposed);
       }
       if (dateChanged) {
-        SocialItemNotifications.dateChanged(from, proposed);
+        // SocialItemNotifications.dateChanged(from, proposed);
       }
     }
   }
@@ -168,7 +166,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
 
     // Notify any other users of a change!
     if (statusChanged && statusChangeRelevant) {
-      SocialItemNotifications.statusChanged(from, proposed);
+      // SocialItemNotifications.statusChanged(from, proposed);
     }
   }
 

@@ -16,7 +16,7 @@ import { NoteItemRelation } from '../../models/v3/relation/note_related_item';
 import { ItemNoteRelationshipDbObject } from '../../api/schema/database/items_on_notes';
 import { LyfError } from '../../utils/lyf_error';
 import { UserRelatedItem } from '../../api/schema/user';
-import { NotificationService } from '../notifications/timetable_notifications';
+import reminderService from '../notifications/reminder_service';
 import { SocialItemNotifications } from '../notifications/item_notifications';
 
 export class ItemService extends EntityService<ItemDbObject> {
@@ -197,7 +197,7 @@ export class ItemService extends EntityService<ItemDbObject> {
 
   private handleNotificationChanges(changes: Partial<UserRelatedItem>, item: ItemEntity, user: UserEntity) {
     if (changes.notification_mins_before) {
-      new NotificationService().updateEventNotification(item, user, changes.notification_mins_before);
+      reminderService.updateEventNotification(item, user, changes.notification_mins_before);
     }
   }
 
@@ -236,7 +236,7 @@ export class ItemService extends EntityService<ItemDbObject> {
     await item.fetchRelations("users");
     const users = item.getRelations().users as ItemUserRelation[];
 
-    const service = new NotificationService()
+    const service = reminderService;
     const updateFunc = item.isRoutine() ? service.removeRoutineNotification : service.removeEventNotification;
 
     for (const user of users) {
@@ -267,7 +267,7 @@ export class ItemService extends EntityService<ItemDbObject> {
     await item.fetchRelations("users");
     const users = item.getRelations().users as ItemUserRelation[];
 
-    const service = new NotificationService()
+    const service = reminderService;
     const updateFunc = item.isRoutine() ? service.updateRoutineNotification : service.updateEventNotification;
 
     for (const user of users) {

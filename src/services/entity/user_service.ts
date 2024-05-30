@@ -9,7 +9,7 @@ import { LyfError } from '../../utils/lyf_error';
 import { EntityService } from './_entity_service';
 import { AuthService } from '../auth_service';
 import { ItemService } from './item_service';
-import notificationService from '../notifications/timetable_notifications';
+import reminderService from '../notifications/reminder_service';
 
 export class UserService extends EntityService<UserDbObject> {
   protected logger = Logger.of(UserService);
@@ -168,15 +168,15 @@ export class UserService extends EntityService<UserDbObject> {
     const notificationsTimeChange = changes.daily_notification_time;
 
     if (notificationsTimeChange === undefined) {
-      notificationService.removeDailyNotifications(user);
+      reminderService.removeDailyNotifications(user);
     } else {
-      notificationService.updateDailyNotifications(user, notificationsTimeChange);
+      reminderService.updateDailyNotifications(user, notificationsTimeChange);
     }
   }
 
   private checkTimezoneChange(user: UserEntity, changes: Partial<User>) {
     if (changes.tz) {
-      notificationService.handleUserTzChange(user, changes.tz);
+      reminderService.handleUserTzChange(user, changes.tz);
     }
   }
 }

@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 
-import { Note } from '../../api/mongo_schema/notes';
-import { Permission } from '../../api/mongo_schema/social';
-import { NoteModel } from '../../models/v2/notes/noteModel';
-import { NoteOperations } from '../../models/v2/notes/noteOperations';
-import { Logger } from '../../utils/logging';
-import { getMiddlewareVars } from '../utils';
+import { Note } from '../../../api/mongo_schema/notes';
+import { Permission } from '../../../api/mongo_schema/social';
+import { NoteModel } from '../../../models/v2/notes/noteModel';
+import { NoteOperations } from '../../../models/v2/notes/noteOperations';
+import { Logger } from '../../../utils/logging';
+import { getMiddlewareVars } from '../../utils';
 
 export class NoteHandlers {
   protected async createNote(req: Request, res: Response) {

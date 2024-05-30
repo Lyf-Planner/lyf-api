@@ -22,8 +22,8 @@ const Agenda = require('agenda');
 
 const DEFAULT_MINS_BEFORE = '5';
 
-export class NotificationService {
-  private logger = Logger.of(NotificationService);
+export class ReminderService {
+  private logger = Logger.of(ReminderService);
   private agenda = new Agenda({
     mongo: mongoDb.getDb(),
     db: { collection: 'cron-jobs' },
@@ -382,5 +382,5 @@ export class NotificationService {
   }
 }
 
-const notificationService = new NotificationService();
-export default notificationService;
+const reminderService = new ReminderService();
+export default reminderService;
