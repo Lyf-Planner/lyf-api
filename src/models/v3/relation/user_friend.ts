@@ -19,15 +19,15 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
   protected relatedEntity: UserEntity;
   protected repository = new UserFriendshipRepository();
 
-  constructor(id: ID, entity_id: ID) {
-    super(id, entity_id);
-    this.relatedEntity = new UserEntity(entity_id);
-  }
-
   static filter(object: any): UserFriendshipRelations {
     return {
       status: object.status
-    }
+    };
+  }
+
+  constructor(id: ID, entity_id: ID) {
+    super(id, entity_id);
+    this.relatedEntity = new UserEntity(entity_id);
   }
 
   public async delete(): Promise<void> {
@@ -38,14 +38,14 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
     return {
       ...await this.relatedEntity.extract(false) as UserDbObject,
       ...this.base!
-    }
+    };
   }
 
   public async export(requestor?: string | undefined): Promise<UserFriend> {
     return {
-      ...await this.relatedEntity.export("", false) as PublicUser,
+      ...await this.relatedEntity.export('', false) as PublicUser,
       ...UserFriendRelation.filter(this.base!)
-    }
+    };
   }
 
   public async load(): Promise<void> {
@@ -58,7 +58,7 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
     this.base = {
       ...this.base!,
       ...relationFieldUpdates
-    }
+    };
   }
 
   public async save(): Promise<void> {
@@ -76,7 +76,7 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
       this.base!.status === UserFriendshipStatus.BlockedByFirst ||
       this.base!.status === UserFriendshipStatus.BlockedBySecond ||
       this.base!.status === UserFriendshipStatus.MutualBlock
-    )
+    );
   }
 
   pendingOnFrom() {

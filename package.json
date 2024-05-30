@@ -9,7 +9,7 @@
     "lint": "npx tslint -p tsconfig.json -c tslint.json && npx tsc",
     "lint:fix": "npx tslint -p tsconfig.json -c tslint.json --fix && npx tsc",
     "precommit": "yarn lint:fix",
-    "serve": "npm run build && npm run start",
+    "serve": "rm -rf build && npm run build && npm run start",
     "start": "node ./build/src/index.js",
     "test": "jest --silent"
   },

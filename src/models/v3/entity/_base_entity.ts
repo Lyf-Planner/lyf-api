@@ -1,4 +1,4 @@
-import { Export, Entity } from '../../../api/schema';
+import { Entity } from '../../../api/schema';
 import { DbEntityObject, DbObject, DbRelationObject } from '../../../api/schema/database';
 import { EntityRepository } from '../../../repository/entity/_entity_repository';
 import { LyfError } from '../../../utils/lyf_error';
@@ -7,11 +7,11 @@ import { CommandType } from '../command_types';
 import { BaseRelation } from '../relation/_base_relation';
 
 export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> {
-  protected relations: Record<string, BaseRelation<DbRelationObject, BaseEntity<DbEntityObject>> | 
+  protected relations: Record<string, BaseRelation<DbRelationObject, BaseEntity<DbEntityObject>> |
                                       BaseRelation<DbRelationObject, BaseEntity<DbEntityObject>>[]> = {};
   protected abstract repository: EntityRepository<T>;
 
-  public abstract fetchRelations(include?: string): Promise<void>
+  public abstract fetchRelations(include?: string): Promise<void>;
   public abstract getRelations(): any;
 
   public async delete() {
@@ -24,7 +24,7 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
       return {
         ...this.base!,
         relations: await this.recurseRelations(CommandType.Extract)
-      }
+      };
     }
 
     return this.base!;
@@ -98,7 +98,7 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
   protected parseInclusions(include: string) {
     const parsedString = include.replace('include=', '').split(',');
 
-    const includedRelations: any = []
+    const includedRelations: any = [];
     for (const inclusion of parsedString) {
       includedRelations[inclusion] = {};
     }

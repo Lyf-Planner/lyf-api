@@ -14,10 +14,10 @@ export class UserOperations {
     requestor_id: string,
     social: boolean = false
   ): Promise<UserModel | SocialUser> {
-    var user = (await db.usersCollection().getById(user_id)) as User;
+    const user = (await db.usersCollection().getById(user_id)) as User;
     const user_undiscoverable = user_id !== requestor_id && user.private;
     if (!user || user_undiscoverable) {
-      var logger = Logger.of(UserOperations);
+      const logger = Logger.of(UserOperations);
       logger.error(`User ${user_id} does not exist`);
       throw new Error(`User ${user_id} does not exist`);
     }
@@ -38,7 +38,7 @@ export class UserOperations {
   ): Promise<UserModel> {
     const intro_item_id = await ItemOperations.createUserIntroItem(user_id);
 
-    var user = {} as any;
+    const user = {} as any;
     user.id = user_id;
     user.pass_hash = await AuthService.hashPass(password);
     user.details = {};
@@ -68,7 +68,7 @@ export class UserOperations {
       blocked: []
     };
 
-    var model = new UserModel(user, false, true);
+    const model = new UserModel(user, false, true);
     if (commit) {
       await model.commit();
     }
@@ -77,12 +77,12 @@ export class UserOperations {
   }
 
   public static async getUserPushTokens(user_id: ID) {
-    var user = (await db.usersCollection().getById(user_id)) as User;
+    const user = (await db.usersCollection().getById(user_id)) as User;
     return user.expo_tokens || [];
   }
 
   public static async retrieveManyUsers(user_ids: ID[]) {
-    var users = (await db.usersCollection().getManyById(user_ids, false)) as any[];
+    let users = (await db.usersCollection().getManyById(user_ids, false)) as any[];
     users = users.map((x) => UserOperations.extractUserDetails(x));
 
     return users;

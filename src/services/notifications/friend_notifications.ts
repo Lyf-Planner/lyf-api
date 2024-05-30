@@ -1,9 +1,8 @@
 import { ExpoPushMessage } from 'expo-server-sdk';
 
-import { SocialUser } from '../../models/v2/social/socialUser';
+import { UserEntity } from '../../models/v3/entity/user_entity';
 import { Logger } from '../../utils/logging';
 import { ExpoPushService } from './expo_push_service';
-import { UserEntity } from '../../models/v3/entity/user_entity';
 
 export class FriendNotifications {
   public static async newFriendRequest(to: UserEntity, from: UserEntity) {
@@ -27,7 +26,7 @@ export class FriendNotifications {
       title: 'Friend Request Accepted',
       body: `${from.name()} added you as a friend`
     };
-    
+
     await new ExpoPushService().pushNotificationToExpo([message]);
   }
 }

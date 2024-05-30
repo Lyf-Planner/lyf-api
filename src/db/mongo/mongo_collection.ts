@@ -19,25 +19,25 @@ export class Collection<T extends DBObject> {
   // CRUD Operations
 
   public async create(object: T, checkDuplicate = true): Promise<T> {
-    var duplicateExists = checkDuplicate ? await this.checkDuplicateExists(object.id) : false;
+    const duplicateExists = checkDuplicate ? await this.checkDuplicateExists(object.id) : false;
 
     if (duplicateExists) {
       await this.handleDuplicateExists(object);
     }
 
-    var toInsert = object as any;
+    const toInsert = object as any;
     toInsert._id = object.id; // We don't use Mongo ObjectIds, just UUIDs
     delete toInsert.id;
     toInsert.last_updated = new Date().toISOString();
     toInsert.created = new Date().toISOString();
-    var result = await this.collection.insertOne(object);
+    const result = await this.collection.insertOne(object);
     assert(result.acknowledged);
 
     return this.exportWithoutUnderscoreId(toInsert);
   }
 
   public async findAll() {
-    var results = (await this.collection.find().toArray()) as any;
+    let results = (await this.collection.find().toArray()) as any;
 
     results = results.map((x: any) => this.exportWithoutUnderscoreId(x));
     return results;
@@ -45,7 +45,7 @@ export class Collection<T extends DBObject> {
 
   public async getManyById(ids: ID[], throwOnUnfound = true): Promise<T[]> {
     // This operation looks weird because we want to return in the same order we search
-    var results = (await this.collection
+    let results = (await this.collection
       .aggregate([
         { $match: { _id: { $in: ids } } },
         {
@@ -66,7 +66,7 @@ export class Collection<T extends DBObject> {
   }
 
   public async getById(id: ID, throwOnUnfound = true): Promise<T | null> {
-    var result = (await this.collection.findOne({
+    const result = (await this.collection.findOne({
       _id: id
     })) as T | null;
 
@@ -80,7 +80,7 @@ export class Collection<T extends DBObject> {
     acceptManyResults = false,
     throwOnUnfound = true
   ): Promise<T | T[] | null> {
-    var result = acceptManyResults
+    let result = acceptManyResults
       ? ((await this.collection.find(condition).toArray()) as any)
       : ((await this.collection.findOne(condition)) as any);
 
@@ -98,14 +98,14 @@ export class Collection<T extends DBObject> {
   }
 
   public async update(object: T, upsert = false): Promise<T> {
-    var insert = object as any;
+    const insert = object as any;
     insert._id = object.id;
     delete insert.id;
     insert.last_updated = new Date().toISOString();
     if (!insert.created && upsert) {
       insert.created = new Date().toISOString();
     }
-    var result = await this.collection.updateOne(
+    const result = await this.collection.updateOne(
       { _id: insert._id },
       { $set: { ...insert } },
       {
@@ -120,7 +120,7 @@ export class Collection<T extends DBObject> {
   }
 
   public async delete(id: ID): Promise<boolean> {
-    var result = await this.collection.deleteOne({ _id: id });
+    const result = await this.collection.deleteOne({ _id: id });
     if (result.deletedCount === 0) {
       this.handleDidNotDelete(id);
       return false;
@@ -132,7 +132,7 @@ export class Collection<T extends DBObject> {
   // Helpers
 
   private async checkDuplicateExists(id: ID) {
-    var search = await this.collection.findOne({ _id: id });
+    const search = await this.collection.findOne({ _id: id });
     if (!!search) {
       return true;
     } else {
@@ -168,7 +168,7 @@ export class Collection<T extends DBObject> {
   }
 
   private handleConditionUnfound(condition: Object, throwOnUnfound: boolean) {
-    var message = `No results were found for query of docs where ${condition}`;
+    const message = `No results were found for query of docs where ${condition}`;
     if (throwOnUnfound) {
       this.logger.error(message);
       throw new Error(message);
@@ -178,7 +178,7 @@ export class Collection<T extends DBObject> {
   }
 
   private async handleDuplicateExists(object: T) {
-    var message = `Create was called on object that already exists, ID ${object.id}`;
+    const message = `Create was called on object that already exists, ID ${object.id}`;
     this.logger.error(message);
     throw new Error(message);
   }

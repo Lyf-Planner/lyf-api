@@ -1,4 +1,5 @@
 import moment from 'moment-timezone';
+
 import { LyfError } from './lyf_error';
 
 const oneSecond = 1000;
@@ -6,11 +7,11 @@ const oneMinute = oneSecond * 60;
 const oneHour = oneMinute * 60;
 const oneDay = oneHour * 24;
 
-const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export function TwentyFourHourToAMPM(time: string) {
-  var [hours, mins] = time.split(':');
-  var h = parseInt(hours);
+  const [hours, mins] = time.split(':');
+  const h = parseInt(hours);
   return (h % 12 ? h % 12 : 12) + ':' + mins + (h >= 12 ? 'pm' : 'am');
 }
 
@@ -23,24 +24,24 @@ export function getDayFromDate(date: Date) {
 }
 
 export function parseDateString(date: String) {
-  var data = date.split('-').map((x) => parseInt(x));
+  const data = date.split('-').map((x) => parseInt(x));
   return new Date(data[0], data[1] - 1, data[2]);
 }
 
 export function formatDate(date: string) {
-  var time = parseDateString(date);
+  const time = parseDateString(date);
   return moment(time).format('MMM D');
 }
 
 export function isFutureDate(date: Date, timezone: string) {
     const localTime = moment().tz(timezone).toDate();
-    
+
     return localTime < date;
 }
 
 export function daysInRange(start: string, end: string) {
   const startDate = parseDateString(start);
-  const endDate = parseDateString(end)
+  const endDate = parseDateString(end);
 
   if (startDate.getTime() > endDate.getTime()) {
     throw new LyfError('Invalid order entered to daysInRange util', 500);
@@ -55,9 +56,9 @@ export function daysInRange(start: string, end: string) {
 
   // Else find the combination of days
   let dayIterator = startDate;
-  let days = [];
+  const days = [];
   while (dayIterator.getTime() <= endDate.getTime()) {
-    days.push(getDayFromDate(dayIterator))
+    days.push(getDayFromDate(dayIterator));
     dayIterator = moment(dayIterator).add(1, 'day').toDate();
   }
 

@@ -1,20 +1,13 @@
 import { Request, Response } from 'express';
 import PQueue from 'p-queue';
 
-import { Logger } from '../../../utils/logging';
-import { getMiddlewareVars } from '../../utils';
-import {
-  createItemBody,
-  getItemsBody,
-  updateItemBody,
-  updateItemSocialBody
-} from '../../validators/itemValidators';
-import { ItemService } from '../../../services/entity/item_service';
 import { Item } from '../../../api/schema/items';
-import { LyfError } from '../../../utils/lyf_error';
-import { SocialItemService } from '../../../services/relation/social_item_service';
+import { ItemService } from '../../../services/entity/item_service';
 import { SocialUpdate } from '../../../services/relation/_social_service';
-import { ItemDbObject } from '../../../api/schema/database/items';
+import { SocialItemService } from '../../../services/relation/social_item_service';
+import { Logger } from '../../../utils/logging';
+import { LyfError } from '../../../utils/lyf_error';
+import { getMiddlewareVars } from '../../utils';
 
 const itemUpdateQueue = new PQueue({ concurrency: 1 });
 
@@ -26,18 +19,18 @@ export class ItemHandlers {
 
     logger.debug(`Updating item ${item_id} from user ${user_id}`);
 
-    const itemService = new ItemService();    
+    const itemService = new ItemService();
 
     try {
       if (!item_id) {
-        throw new LyfError(`Update must include item id`, 500)
+        throw new LyfError('Update must include item id', 500);
       }
 
       const item = await itemService.processUpdate(item_id, changes, user_id);
 
       res.status(200).json(item).end();
     } catch (error) {
-      const lyfError = error as LyfError
+      const lyfError = error as LyfError;
       res.status(lyfError.code).end(lyfError.message);
     }
   }
@@ -66,7 +59,7 @@ export class ItemHandlers {
     logger.debug(`Creating item ${input.item.title} from user ${user_id}`);
 
     const service = new ItemService();
-    const item = await service.processCreation(input.item, user_id, input.sorting_rank, input.node_id)
+    const item = await service.processCreation(input.item, user_id, input.sorting_rank, input.node_id);
 
     res.status(201).json(await item.export()).end();
   }

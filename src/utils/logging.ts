@@ -28,7 +28,7 @@ export class Logger {
       return;
     }
 
-    var str = `${new Date().toISOString()} silly [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} silly [${this.name}] ${content}`;
     console.log(str);
   }
 
@@ -36,7 +36,7 @@ export class Logger {
     if (Logger.level > LoggingLevel.DEBUG) {
       return;
     }
-    var str = `${new Date().toISOString()} debug  [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} debug  [${this.name}] ${content}`;
     console.log(str);
   }
 
@@ -44,7 +44,7 @@ export class Logger {
     if (Logger.level > LoggingLevel.INFO) {
       return;
     }
-    var str = `${new Date().toISOString()} info  [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} info  [${this.name}] ${content}`;
     console.log(str);
   }
 
@@ -52,7 +52,7 @@ export class Logger {
     if (Logger.level > LoggingLevel.WARN) {
       return;
     }
-    var str = `${new Date().toISOString()} warn  [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} warn  [${this.name}] ${content}`;
     console.log(str);
   }
 
@@ -60,12 +60,12 @@ export class Logger {
     if (Logger.level > LoggingLevel.ERROR) {
       return;
     }
-    var str = `${new Date().toISOString()} error [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} error [${this.name}] ${content}`;
     console.log(str);
   }
 
   public fatal(content: any) {
-    var str = `${new Date().toISOString()} fatal [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} fatal [${this.name}] ${content}`;
     console.log(str);
   }
 }

@@ -50,7 +50,7 @@ export class MongoDatabase {
 
   public usersCollection = (): Collection<User> => this.initialisedGateway(this.usersCollectionRef);
   public itemsCollection = (): Collection<ListItem> =>
-    this.initialisedGateway(this.itemsCollectionRef);
+    this.initialisedGateway(this.itemsCollectionRef)
   public notesCollection = (): Collection<Note> => this.initialisedGateway(this.notesCollectionRef);
 
   private initialisedGateway(returnObject: any) {

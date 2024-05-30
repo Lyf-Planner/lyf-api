@@ -19,11 +19,6 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
   protected relatedEntity: ItemEntity;
   protected repository = new ItemUserRepository();
 
-  constructor(id: ID, entity_id: ID) {
-    super(id, entity_id);
-    this.relatedEntity = new ItemEntity(entity_id);
-  }
-
   static filter(object: any): ItemUserRelations {
     return {
       invite_pending: object.invite_pending,
@@ -31,7 +26,12 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
       sorting_rank: object.sorting_rank,
       show_in_upcoming: object.show_in_upcoming,
       notification_mins_before: object.notification_mins_before
-    }
+    };
+  }
+
+  constructor(id: ID, entity_id: ID) {
+    super(id, entity_id);
+    this.relatedEntity = new ItemEntity(entity_id);
   }
 
   public async delete(): Promise<void> {
@@ -42,14 +42,14 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
     return {
       ...await this.relatedEntity.extract(false) as ItemDbObject,
       ...this.base!
-    }
+    };
   }
 
   public async export(requestor?: string | undefined): Promise<UserRelatedItem> {
     return {
       ...await this.relatedEntity.export(this._id, true) as Item,
       ...UserItemRelation.filter(this.base!)
-    }
+    };
   }
 
   public async load(relations: object): Promise<void> {
@@ -62,7 +62,7 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
     this.base = {
       ...this.base!,
       ...relationFieldUpdates
-    }
+    };
   }
 
   public async save(): Promise<void> {

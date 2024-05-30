@@ -4,19 +4,18 @@ import moment from 'moment-timezone';
 import { ItemStatus } from '../../api/mongo_schema/list';
 import { DaysOfWeek } from '../../api/mongo_schema/timetable';
 import { ItemType } from '../../api/schema/database/items';
-import { Item } from '../../api/schema/items';
+import mongoDb from '../../db/mongo/mongo_db';
 import { ItemEntity } from '../../models/v3/entity/item_entity';
 import { UserEntity } from '../../models/v3/entity/user_entity';
-import mongoDb from '../../db/mongo/mongo_db';
+import { ItemUserRelation } from '../../models/v3/relation/item_related_user';
+import { UserItemRelation } from '../../models/v3/relation/user_related_item';
 import { formatDateData, isFutureDate, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
+import { LyfError } from '../../utils/lyf_error';
 import { pluralisedQuantity } from '../../utils/text';
 import { ItemService } from '../entity/item_service';
 import { UserService } from '../entity/user_service';
 import { ExpoPushService } from './expo_push_service';
-import { LyfError } from '../../utils/lyf_error';
-import { ItemUserRelation } from '../../models/v3/relation/item_related_user';
-import { UserItemRelation } from '../../models/v3/relation/user_related_item';
 
 const Agenda = require('agenda');
 
@@ -70,7 +69,7 @@ export class ReminderService {
     // Ensure notification is ahead of local time!
     this.logger.debug(`Notification ${id} set for ${setTime}`);
     if (!isFutureDate(setTime, timezone)) {
-      throw new LyfError(`Reminder is scheduled for a time that has already passed!`, 400)
+      throw new LyfError('Reminder is scheduled for a time that has already passed!', 400);
     }
 
     this.logger.info(`Creating event notification ${id} at ${setTime.toUTCString()}`);
@@ -79,7 +78,7 @@ export class ReminderService {
       user_id: user.id(),
       item_id: item.id()
     });
-  };
+  }
 
   public async updateEventNotification(item: ItemEntity, user: UserEntity, mins_before: number) {
     // The package does not offer a direct update method, so just recreate
@@ -219,7 +218,7 @@ export class ReminderService {
         return;
       }
 
-      const expoTokens = user.getSensitive(userId).expo_tokens || []
+      const expoTokens = user.getSensitive(userId).expo_tokens || [];
       const message = this.formatExpoPushMessage(
         expoTokens,
         'Check Your Schedule!',
@@ -235,7 +234,7 @@ export class ReminderService {
   private defineRoutineNotification() {
     this.logger.info('Defining Routine Notifications');
     this.agenda.define('Routine Notification', async (job: any, done: any) => {
-      var { id } = job.attrs.data;
+      const { id } = job.attrs.data;
       await this.sendItemNotification(id);
       done();
     });
@@ -249,7 +248,7 @@ export class ReminderService {
       const item_id = ids[0];
       const user_id = ids[1];
 
-      const item = await new ItemService().getEntity(item_id, "users");
+      const item = await new ItemService().getEntity(item_id, 'users');
       const itemUsers = item.getRelations().users as ItemUserRelation[];
 
       const itemUserRelation = itemUsers.find((x) => x.entityId() === user_id);
@@ -303,11 +302,11 @@ export class ReminderService {
     } catch (err: any) {
       this.logger.warn(`Notification ${id} failed to send: ${err.message}`);
     }
-  };
+  }
 
   private getUniqueJobId = (prefix: string, suffix: string) => {
     return prefix + ':' + suffix;
-  };
+  }
 
   private formatExpoPushMessage(to: string[], title: string, body: string) {
     return {
@@ -323,7 +322,7 @@ export class ReminderService {
     const userDateString = formatDateData(userDate);
 
     await user.fetchItemsInRange(userDateString, userDateString);
-    await user.load()
+    await user.load();
 
     const userItemRelations = user.getRelations().items as UserItemRelation[];
     const userItems = userItemRelations.map((x) => x.getRelatedEntity());
@@ -361,7 +360,7 @@ export class ReminderService {
     const dateArray = itemDate.split('-').map((x) => parseInt(x));
     const timeArray = itemTime.split(':').map((x) => parseInt(x));
     return this.setTimezoneDate(dateArray, timeArray, mins_before, timezone);
-  };
+  }
 
   private setTimezoneDate(
     date_array: number[],

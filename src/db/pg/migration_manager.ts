@@ -14,13 +14,13 @@ export async function migrateToLatest() {
       fs,
       path,
       // This needs to be an absolute path.
-      migrationFolder: path.join(__dirname, '../../../migrations')
+      migrationFolder: path.join(__dirname, '../../migrations')
     }),
     migrationTableName: 'migrations'
   });
 
   log.info('Running migrations up to latest');
-  const { error, results } = await migrator.migrateTo('20240413_001_create_users_table');
+  const { error, results } = await migrator.migrateToLatest();
 
   if (results && results.length === 0) {
     log.info('No migrations to run :)');

@@ -1,10 +1,9 @@
-import { ItemUserRelationshipDbObject } from "../../../api/schema/database/items_on_users";
-import { NoteUserRelationshipDbObject } from "../../../api/schema/database/notes_on_users";
-import { SocialEntity, SocialEntityObject } from "../entity/_social_entity";
-import { UserEntity } from "../entity/user_entity";
-import { BaseRelation } from "./_base_relation";
+import { ItemUserRelationshipDbObject } from '../../../api/schema/database/items_on_users';
+import { NoteUserRelationshipDbObject } from '../../../api/schema/database/notes_on_users';
+import { UserEntity } from '../entity/user_entity';
+import { BaseRelation } from './_base_relation';
 
-export type SocialRelationObject = NoteUserRelationshipDbObject|ItemUserRelationshipDbObject
+export type SocialRelationObject = NoteUserRelationshipDbObject|ItemUserRelationshipDbObject;
 
 export abstract class SocialRelation<
   T extends SocialRelationObject,
@@ -15,7 +14,7 @@ export abstract class SocialRelation<
   }
 
   permission() {
-    return this.base!.permission
+    return this.base!.permission;
   }
-    
+
 }

@@ -2,8 +2,8 @@ import { Kysely } from 'kysely';
 
 import { Note as MongoNote } from '../api/mongo_schema/notes';
 import { User as MongoUser } from '../api/mongo_schema/user';
-import { NoteUserRelationshipDbObject } from '../api/schema/database/notes_on_users';
 import { Permission } from '../api/schema/database/items_on_users';
+import { NoteUserRelationshipDbObject } from '../api/schema/database/notes_on_users';
 import { UserDbObject } from '../api/schema/database/user';
 import mongoDb from '../db/mongo/mongo_db';
 

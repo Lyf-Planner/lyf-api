@@ -17,16 +17,16 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
   protected relatedEntity: NoteEntity;
   protected repository = new NoteUserRepository();
 
-  constructor(id: ID, entity_id: ID) {
-    super(id, entity_id);
-    this.relatedEntity = new NoteEntity(entity_id);
-  }
-
   static filter(object: any): NoteUserRelations {
     return {
       invite_pending: object.invite_pending,
       permission: object.status
-    }
+    };
+  }
+
+  constructor(id: ID, entity_id: ID) {
+    super(id, entity_id);
+    this.relatedEntity = new NoteEntity(entity_id);
   }
 
   public async delete(): Promise<void> {
@@ -37,14 +37,14 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
     return {
       ...await this.relatedEntity.extract(false) as NoteDbObject,
       ...this.base!
-    }
+    };
   }
 
   public async export(requestor?: string | undefined): Promise<UserRelatedNote> {
     return {
       ...await this.relatedEntity.export(this._id, true) as Note,
       ...UserNoteRelation.filter(this.base!)
-    }
+    };
   }
 
   public async load(relations: object): Promise<void> {
@@ -57,7 +57,7 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
     this.base = {
       ...this.base!,
       ...relationFieldUpdates
-    }
+    };
   }
 
   public async save(): Promise<void> {

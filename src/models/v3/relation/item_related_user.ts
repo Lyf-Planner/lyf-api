@@ -16,19 +16,19 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
   protected relatedEntity: UserEntity;
   protected repository = new ItemUserRepository();
 
-  constructor(id: ID, entity_id: ID) {
-    super(id, entity_id);
-    this.relatedEntity = new UserEntity(entity_id);
-  }
-
   static filter(object: any): ItemUserRelations {
     return {
       invite_pending: object.invite_pending,
       permission: object.permission,
       sorting_rank: object.sorting_rank,
       show_in_upcoming: object.show_in_upcoming,
-      notification_mins_before: object.notification_mins_before,
-    }
+      notification_mins_before: object.notification_mins_before
+    };
+  }
+
+  constructor(id: ID, entity_id: ID) {
+    super(id, entity_id);
+    this.relatedEntity = new UserEntity(entity_id);
   }
 
   public async delete(): Promise<void> {
@@ -39,14 +39,14 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
     return {
       ...await this.relatedEntity.extract(false) as UserDbObject,
       ...this.base!
-    }
+    };
   }
 
   public async export(requestor?: string | undefined): Promise<ItemRelatedUser> {
     return {
-      ...await this.relatedEntity.export("", false) as UserPublicFields,
+      ...await this.relatedEntity.export('', false) as UserPublicFields,
       ...ItemUserRelation.filter(this.base!)
-    }
+    };
   }
 
   public async load(): Promise<void> {
@@ -59,7 +59,7 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
     this.base = {
       ...this.base!,
       ...relationFieldUpdates
-    }
+    };
   }
 
   public async save(): Promise<void> {
@@ -67,6 +67,6 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
   }
 
   public notificationMinsBefore() {
-    return this.base!.notification_mins_before
+    return this.base!.notification_mins_before;
   }
 }

@@ -16,7 +16,7 @@ export class TimeOperations {
       (proposed.last_updated && proposed.last_updated !== original.last_updated);
 
     if (modified) {
-      var logger = Logger.of(TimeOperations);
+      const logger = Logger.of(TimeOperations);
       logger.error(`User ${user_id} tried to modify time fields on ${original.id}`);
       throw new Error('Time fields cannot be modified');
     }

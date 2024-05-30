@@ -17,8 +17,8 @@ export class SocialUser extends UserModel {
   // Sending Friend Requests:
 
   public receiveFriendRequest(from: ID) {
-    var requests = this.content.social.requests || [];
-    var friends = this.content.social.friends || [];
+    const requests = this.content.social.requests || [];
+    const friends = this.content.social.friends || [];
 
     // Ensure the user has not already requested
     if (this.userAlreadyPresent(requests, from)) {
@@ -78,7 +78,7 @@ export class SocialUser extends UserModel {
     );
 
     // Ensure they have 'requests' field
-    var requests = this.content.social.requests || [];
+    const requests = this.content.social.requests || [];
     if (!requests) {
       const message = `User ${this.id} has no friend requests to accept/deny`;
       this.logger.warn(message);
@@ -86,7 +86,7 @@ export class SocialUser extends UserModel {
     }
 
     // Ensure they have request from addressed user
-    var fromRequestIndex = requests.findIndex((x) => x === from);
+    const fromRequestIndex = requests.findIndex((x) => x === from);
     if (fromRequestIndex === -1) {
       const message = `Could not find friend request from ${from} on user ${this.id}`;
       this.logger.warn(message);
@@ -107,7 +107,7 @@ export class SocialUser extends UserModel {
 
   public updateOutgoingFriendRequest(to: ID, accepted: boolean) {
     // Ensure they have 'requested' field
-    var requested = this.content.social.requested || [];
+    const requested = this.content.social.requested || [];
     if (!requested) {
       const message = `User ${this.id} has no friend requests to accept/deny`;
       this.logger.warn(message);
@@ -115,7 +115,7 @@ export class SocialUser extends UserModel {
     }
 
     // Ensure they have request from addressed user
-    var fromRequestIndex = requested.findIndex((x) => x === to);
+    const fromRequestIndex = requested.findIndex((x) => x === to);
     if (fromRequestIndex === -1) {
       const message = `Could not find friend request to ${to} on user ${this.id}`;
       this.logger.warn(message);
@@ -164,7 +164,7 @@ export class SocialUser extends UserModel {
       throw new Error('Users must be invited to an item by a friend');
     }
 
-    var invited_items = this.content.timetable.invited_items;
+    const invited_items = this.content.timetable.invited_items;
     // Ensure user does not get multiple invites
     if (invited_items && invited_items.includes(item_id)) {
       return;
@@ -224,7 +224,7 @@ export class SocialUser extends UserModel {
   // Helpers
 
   private isBlocked(other_user: ID) {
-    var blocked = this.content.social.blocked || [];
+    const blocked = this.content.social.blocked || [];
     if (blocked && blocked.includes(other_user)) {
       this.logger.warn(
         `User ${this.id} received friend request a blocked user ${other_user} - ignoring`

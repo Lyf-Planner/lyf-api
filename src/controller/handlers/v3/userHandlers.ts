@@ -1,6 +1,11 @@
 import { Request, Response } from 'express';
 
+import { User } from '../../../api/schema/user';
+import { AuthService } from '../../../services/auth_service';
+import { UserService } from '../../../services/entity/user_service';
+import { FriendshipService } from '../../../services/relation/friendship_service';
 import { Logger } from '../../../utils/logging';
+import { LyfError } from '../../../utils/lyf_error';
 import { getMiddlewareVars } from '../../utils';
 import {
   deleteMeBody,
@@ -9,11 +14,6 @@ import {
   updateFriendshipBody,
   updateMeBody
 } from '../../validators/userValidators';
-import { UserService } from '../../../services/entity/user_service';
-import { User } from '../../../api/schema/user';
-import { AuthService } from '../../../services/auth_service';
-import { FriendshipService } from '../../../services/relation/friendship_service';
-import { LyfError } from '../../../utils/lyf_error';
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
@@ -22,11 +22,11 @@ export class UserHandlers {
     logger.debug(`Received login request for user ${user_id}`);
 
     try {
-      const { user, token } = await AuthService.loginUser(user_id, password)
+      const { user, token } = await AuthService.loginUser(user_id, password);
 
       res.status(200).json({ user, token }).end();
     } catch (error) {
-      const lyfError = error as LyfError
+      const lyfError = error as LyfError;
       res.status(lyfError.code).end(lyfError.message);
     }
   }
@@ -37,13 +37,13 @@ export class UserHandlers {
     // The auth middleware has already done all the work here
     logger.debug(`Authorized autologin for user ${user_id}`);
 
-    const userService = new UserService()
+    const userService = new UserService();
 
     try {
       const user = await userService.retrieveForUser(user_id, user_id);
       res.status(200).json(user).end();
     } catch (error) {
-        const lyfError = error as LyfError
+        const lyfError = error as LyfError;
         res.status(lyfError.code).end(lyfError.message);
     }
   }
@@ -60,7 +60,7 @@ export class UserHandlers {
       const user = await userService.retrieveForUser(user_id as string, requestorId);
       res.status(200).json(user).end();
     } catch (error) {
-      const lyfError = error as LyfError
+      const lyfError = error as LyfError;
       res.status(lyfError.code).end(lyfError.message);
     }
   }
@@ -75,10 +75,10 @@ export class UserHandlers {
 
     try {
       const users = await userService.retrieveManyUsers(user_ids, requestorId);
-      
+
       res.status(200).json(users).end();
     } catch (error) {
-      const lyfError = error as LyfError
+      const lyfError = error as LyfError;
       res.status(lyfError.code).end(lyfError.message);
     }
   }
@@ -94,7 +94,7 @@ export class UserHandlers {
 
       res.status(201).json({ user, token }).end();
     } catch (error) {
-      const lyfError = error as LyfError
+      const lyfError = error as LyfError;
       res.status(lyfError.code).end(lyfError.message);
     }
   }
@@ -113,7 +113,7 @@ export class UserHandlers {
 
       res.status(200).json(updatedUser).end();
     } catch (error) {
-      const lyfError = error as LyfError
+      const lyfError = error as LyfError;
       res.status(lyfError.code).end(lyfError.message);
     }
   }
@@ -127,10 +127,10 @@ export class UserHandlers {
     const userService = new UserService();
 
     try {
-      userService.processDeletion(user_id, password, user_id)
+      userService.processDeletion(user_id, password, user_id);
       res.status(204).end();
     } catch (error) {
-      const lyfError = error as LyfError
+      const lyfError = error as LyfError;
       res.status(lyfError.code).end(lyfError.message);
     }
   }
@@ -145,7 +145,7 @@ export class UserHandlers {
       const friendships = await service.processUpdate(fromId, update);
       res.status(200).json(friendships).end();
     } catch (error) {
-      const lyfError = error as LyfError
+      const lyfError = error as LyfError;
       res.status(lyfError.code).end(lyfError.message);
     }
   }

@@ -1,17 +1,16 @@
-import { BaseService } from "../_base_service";
-import { SocialService, SocialUpdate, SocialAction } from "./_social_service";
-import { ID } from "../../api/mongo_schema/abstract";
-import { ItemService } from "../entity/item_service";
-import { UserService } from "../entity/user_service";
-import { Logger } from "../../utils/logging";
-import { SocialItemNotifications } from "../notifications/item_notifications";
-import { ItemUserRelationshipDbObject, Permission } from "../../api/schema/database/items_on_users";
-import { ItemEntity } from "../../models/v3/entity/item_entity";
-import { UserEntity } from "../../models/v3/entity/user_entity";
-import { ItemUserRelation } from "../../models/v3/relation/item_related_user";
+import { ID } from '../../api/mongo_schema/abstract';
+import { ItemUserRelationshipDbObject, Permission } from '../../api/schema/database/items_on_users';
+import { ItemEntity } from '../../models/v3/entity/item_entity';
+import { UserEntity } from '../../models/v3/entity/user_entity';
+import { ItemUserRelation } from '../../models/v3/relation/item_related_user';
+import { Logger } from '../../utils/logging';
+import { ItemService } from '../entity/item_service';
+import { UserService } from '../entity/user_service';
+import { SocialItemNotifications } from '../notifications/item_notifications';
+import { SocialAction, SocialService, SocialUpdate } from './_social_service';
 
 export class SocialItemService extends SocialService {
-  protected logger = Logger.of(SocialItemService)
+  protected logger = Logger.of(SocialItemService);
 
   protected async createDefaultRelation(id: ID, user_id: ID, permission: Permission, invited: boolean) {
     const relation = new ItemUserRelation(id, user_id);
@@ -23,10 +22,10 @@ export class SocialItemService extends SocialService {
       user_id_fk: user_id,
       invite_pending: invited,
       permission,
-      sorting_rank: 0,
-    }
+      sorting_rank: 0
+    };
 
-    await relation.create(dbObject)
+    await relation.create(dbObject);
     return relation;
   }
 
@@ -34,14 +33,14 @@ export class SocialItemService extends SocialService {
     const relation = new ItemUserRelation(entity.id(), user.id());
     await relation.load();
     return relation;
-  };
+  }
 
   async processUpdate(from: ID, update: SocialUpdate) {
     const itemService = new ItemService();
     const userService = new UserService();
-  
-    const item = await itemService.getEntity(update.entity_id)
-    const fromUser = await userService.getEntity(from)
+
+    const item = await itemService.getEntity(update.entity_id);
+    const fromUser = await userService.getEntity(from);
     const targetUser = await userService.getEntity(update.user_id);
 
     switch (update.action) {

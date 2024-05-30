@@ -1,15 +1,13 @@
-import { NoteDbObject } from '../../api/schema/database/notes';
 import { ID } from '../../api/schema/database/abstract';
-import { NoteEntity } from '../../models/v3/entity/note_entity';
-import { Logger } from '../../utils/logging';
-import { EntityService } from './_entity_service';
-import { Note, NoteRelatedUser } from '../../api/schema/notes';
-import { NoteUserRelation } from '../../models/v3/relation/note_related_user';
 import { Permission } from '../../api/schema/database/items_on_users';
+import { NoteDbObject } from '../../api/schema/database/notes';
 import { NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
-import { LyfError } from '../../utils/lyf_error';
 import { UserRelatedNote } from '../../api/schema/user';
-import { UserEntity } from '../../models/v3/entity/user_entity';
+import { NoteEntity } from '../../models/v3/entity/note_entity';
+import { NoteUserRelation } from '../../models/v3/relation/note_related_user';
+import { Logger } from '../../utils/logging';
+import { LyfError } from '../../utils/lyf_error';
+import { EntityService } from './_entity_service';
 
 export class NoteService extends EntityService<NoteDbObject> {
   protected logger = Logger.of(NoteService);
@@ -18,7 +16,7 @@ export class NoteService extends EntityService<NoteDbObject> {
     const note = new NoteEntity(note_id);
     await note.fetchRelations(include);
     await note.load();
-    
+
     return note;
   }
 
@@ -27,7 +25,7 @@ export class NoteService extends EntityService<NoteDbObject> {
     await note.create(note_input);
 
     const relationship = new NoteUserRelation(note_input.id, from);
-    const relationshipObject = this.defaultNoteOwner(note.id(), from)
+    const relationshipObject = this.defaultNoteOwner(note.id(), from);
     await relationship.create(relationshipObject);
 
     await note.fetchRelations();
@@ -43,11 +41,10 @@ export class NoteService extends EntityService<NoteDbObject> {
     const noteUsers = note.getRelations().users as NoteUserRelation[];
     const noteDeleter = noteUsers.find((x) => x.entityId() === from_id);
 
-
     if (noteDeleter && noteDeleter.permission() === Permission.Owner) {
       await note.delete();
     } else {
-      throw new LyfError(`Notes can only be deleted by their owner`, 403);
+      throw new LyfError('Notes can only be deleted by their owner', 403);
     }
   }
 
@@ -76,17 +73,17 @@ export class NoteService extends EntityService<NoteDbObject> {
       last_updated: new Date(),
       invite_pending: false,
       permission: Permission.Owner
-    }
+    };
   }
 
   private async throwIfReadOnly(note: NoteEntity, user_id: ID) {
     const noteUsers = note.getRelations().users as NoteUserRelation[];
 
-    const permitted = noteUsers.some((x) => 
+    const permitted = noteUsers.some((x) =>
       x.id() === user_id &&
       x.permission() !== Permission.ReadOnly &&
       !x.invited()
-    )
+    );
 
     if (!permitted) {
       throw new LyfError(`User ${user_id} does not have permission to edit item ${note.id()}`, 403);

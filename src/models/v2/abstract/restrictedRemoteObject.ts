@@ -34,8 +34,8 @@ export class RestrictedRemoteObject<T extends Restricted & DBObject> extends Rem
   }
 
   public getUserPermission(user_id: string): Permission | undefined {
-    var perm = this.content.permitted_users?.find((x) => x.user_id === user_id);
-    var invite = this.content.invited_users?.find((x) => x.user_id === user_id);
+    const perm = this.content.permitted_users?.find((x) => x.user_id === user_id);
+    const invite = this.content.invited_users?.find((x) => x.user_id === user_id);
 
     if (!perm && !invite) {
       return;

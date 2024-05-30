@@ -19,12 +19,12 @@ export class ItemOperations {
     checkPermissions = true,
     social = false
   ): Promise<ItemModel> {
-    var result = await db.itemsCollection().getById(id);
-    var item = social
+    const result = await db.itemsCollection().getById(id);
+    const item = social
       ? new SocialItem(result as ListItem, true, user_id)
       : new ItemModel(result as ListItem, true, user_id);
 
-    var permitted = !checkPermissions || !!item.getUserPermission(user_id);
+    const permitted = !checkPermissions || !!item.getUserPermission(user_id);
     if (!permitted) {
       throw new Error(`User ${user_id} is not permitted to access item ${id}`);
     } else {
@@ -38,7 +38,7 @@ export class ItemOperations {
     user_id: string,
     commit = false // Also create in db
   ): Promise<ItemModel> {
-    var model = new ItemModel(itemInput, false, user_id);
+    const model = new ItemModel(itemInput, false, user_id);
     const item = model.getContent();
 
     // Need to ensure we include routine users if it has a template_id!
@@ -66,10 +66,10 @@ export class ItemOperations {
     user_id: string,
     validate_access = true
   ): Promise<ListItem[]> {
-    var results = await db.itemsCollection().getManyById(ids, false);
-    var items = results.map((x) => new ItemModel(x as ListItem, true, user_id));
+    const results = await db.itemsCollection().getManyById(ids, false);
+    const items = results.map((x) => new ItemModel(x as ListItem, true, user_id));
 
-    var filteredResults = items.filter((x) => !validate_access || !!x.getUserPermission(user_id));
+    const filteredResults = items.filter((x) => !validate_access || !!x.getUserPermission(user_id));
 
     if (filteredResults.length !== results.length) {
       const logger = Logger.of(ItemModel);
@@ -91,7 +91,7 @@ export class ItemOperations {
   }
 
   static excludeMetadataFields(item: ListItem): any {
-    var { title, type, status, date, day, desc, time, notifications, ...remaining } = item;
+    const { title, type, status, date, day, desc, time, notifications, ...remaining } = item;
     // Need to validate the excluded items are of type ItemMetadata, so this function will error if that type is changed!
     return remaining;
   }

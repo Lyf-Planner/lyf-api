@@ -6,23 +6,23 @@ import { UserEntity } from '../models/v3/entity/user_entity';
 import { LyfError } from '../utils/lyf_error';
 import { UserService } from './entity/user_service';
 
-export class AuthService {  
+export class AuthService {
   static async loginUser(user_id: string, password: string, include?: string) {
     const userService = new UserService();
-    const user = await userService.getEntity(user_id, include)
+    const user = await userService.getEntity(user_id, include);
 
     const token = await AuthService.authenticateWithUser(user, password);
-    
-    return { 
+
+    return {
       token,
       user: await user.export()
-    }
+    };
   }
 
   static async register(user_id: string, password: string, tz: string) {
-    const userService = new UserService()
+    const userService = new UserService();
 
-    const passHash = await AuthService.hashPass(password)
+    const passHash = await AuthService.hashPass(password);
     const token = await AuthService.authenticate(user_id, password, passHash);
 
     const user = await userService.processCreation(user_id, passHash, tz);
@@ -30,7 +30,7 @@ export class AuthService {
     return {
       token,
       user
-    }
+    };
   }
 
     // Verify password matches user pass_hash, mint token if so
@@ -39,7 +39,7 @@ export class AuthService {
       if (!res) {
         throw new LyfError(`User ${user_id} provided an incorrect password`, 401);
       }
-  
+
       const token = jwt.sign({ user_id }, env.jwtSecret as any, {
         // Caution: Setting an expiry will only work if we encode an object
         // Don't change the content (user_id) back to a string!
@@ -49,13 +49,11 @@ export class AuthService {
     }
 
   static async authenticateWithUser(user: UserEntity, password: string) {
-    const user_id = user.id()
-    const pass_hash = user.getSensitive(user.id()).pass_hash
+    const user_id = user.id();
+    const pass_hash = user.getSensitive(user.id()).pass_hash;
 
-    return await AuthService.authenticate(user_id, password, pass_hash)
+    return await AuthService.authenticate(user_id, password, pass_hash);
   }
-
-
 
   static verifyToken(token: string): jwt.JwtPayload {
     return jwt.verify(token as string, env.jwtSecret as any) as any;

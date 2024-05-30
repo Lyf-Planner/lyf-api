@@ -6,10 +6,10 @@ import { UserRepository } from '../../repository/entity/user_repository';
 import { formatDateData } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
-import { EntityService } from './_entity_service';
 import { AuthService } from '../auth_service';
-import { ItemService } from './item_service';
 import reminderService from '../notifications/reminder_service';
+import { EntityService } from './_entity_service';
+import { ItemService } from './item_service';
 
 export class UserService extends EntityService<UserDbObject> {
   protected logger = Logger.of(UserService);
@@ -25,7 +25,7 @@ export class UserService extends EntityService<UserDbObject> {
     const user = new UserEntity(user_id);
     await user.fetchRelations(include);
     await user.load();
-    
+
     return user;
   }
 
@@ -69,13 +69,13 @@ export class UserService extends EntityService<UserDbObject> {
     }
 
     const user = new UserEntity(user_id);
-    await user.fetchRelations()
+    await user.fetchRelations();
 
     const authenticated = !!await AuthService.authenticateWithUser(user, password);
     if (authenticated) {
-      await user.delete()
+      await user.delete();
     } else {
-      throw new LyfError(`User ${user_id} entered incorrect password when trying to delete self`, 401)
+      throw new LyfError(`User ${user_id} entered incorrect password when trying to delete self`, 401);
     }
   }
 
@@ -99,7 +99,7 @@ export class UserService extends EntityService<UserDbObject> {
   }
 
   public async retrieveForUser(user_id: ID, requestor_id: ID, include?: string): Promise<ExposedUser|PublicUser> {
-    const user = await this.getEntity(user_id, include)
+    const user = await this.getEntity(user_id, include);
 
     return await user.export(requestor_id);
   }
@@ -112,7 +112,7 @@ export class UserService extends EntityService<UserDbObject> {
       .filter((x) => !x.private)
       .map((x) => {
         const user = new UserEntity(x.id, x);
-        return user.export(requestor)
+        return user.export(requestor);
       });
 
     return exportedUsers;

@@ -13,7 +13,7 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
   }
 
   public async safeUpdate(proposed: updateNoteBody, user_id: string) {
-    var perm = this.getUserPermission(user_id);
+    const perm = this.getUserPermission(user_id);
 
     // 1. User cannot be Viewer
     this.throwIfReadOnly(perm);
@@ -27,7 +27,7 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
   }
 
   public export() {
-    var { ...exported } = this.content;
+    const { ...exported } = this.content;
     return exported;
   }
 
@@ -41,8 +41,8 @@ export class NoteModel extends RestrictedRemoteObject<Note> {
 
   private throwIfNonOwnerModifiedPerms(proposed: Note, perm?: Permission) {
     if (perm !== Permission.Owner) {
-      var oldPerms = JSON.stringify(RestrictedRemoteObject.extractPermissionFields(this.content));
-      var newPerms = JSON.stringify(RestrictedRemoteObject.extractPermissionFields(proposed));
+      const oldPerms = JSON.stringify(RestrictedRemoteObject.extractPermissionFields(this.content));
+      const newPerms = JSON.stringify(RestrictedRemoteObject.extractPermissionFields(proposed));
 
       if (newPerms && oldPerms !== newPerms) {
         this.logger.error(`User ${this.requestedBy} tried to modify permissions on ${this.id}`);

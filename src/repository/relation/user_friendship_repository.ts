@@ -15,7 +15,7 @@ export class UserFriendshipRepository extends RelationRepository<UserFriendshipD
   }
 
   public async deleteRelation(user1_id: ID, user2_id: ID) {
-    const [id1, id2] = [user1_id, user2_id].sort()
+    const [id1, id2] = [user1_id, user2_id].sort();
 
     await this.db
       .deleteFrom(this.table_name)
@@ -25,7 +25,7 @@ export class UserFriendshipRepository extends RelationRepository<UserFriendshipD
   }
 
   override async findByCompositeId(user1_id: ID, user2_id: ID): Promise<UserFriendshipDbObject | undefined> {
-    const [id1, id2] = [user1_id, user2_id].sort()
+    const [id1, id2] = [user1_id, user2_id].sort();
 
     const result = await this.db
       .selectFrom(this.table_name)
@@ -56,12 +56,12 @@ export class UserFriendshipRepository extends RelationRepository<UserFriendshipD
   }
 
   async updateRelation(
-    user1_id: ID, 
+    user1_id: ID,
     user2_id: ID,
     changes: Partial<UserFriendshipDbObject>
   ) {
     // Should make the order or args not matter!!
-    const [id1, id2] = [user1_id, user2_id].sort()
+    const [id1, id2] = [user1_id, user2_id].sort();
 
     return await this.db
       .updateTable(TABLE_NAME)

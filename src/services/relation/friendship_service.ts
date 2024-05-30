@@ -3,7 +3,6 @@ import { UserFriendshipDbObject, UserFriendshipStatus } from '../../api/schema/d
 import { ExposedUser } from '../../api/schema/user';
 import { UserEntity } from '../../models/v3/entity/user_entity';
 import { UserFriendRelation } from '../../models/v3/relation/user_friend';
-import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { BaseService } from '../_base_service';
@@ -14,7 +13,7 @@ export enum FriendshipAction {
   Accept = 'Accept',
   Block = 'Block',
   Cancel = 'Cancel',
-  Decline = 'Decline', 
+  Decline = 'Decline',
   Remove = 'Remove',
   Request = 'Request',
   Unblock = 'Unblock'
@@ -57,19 +56,19 @@ export class FriendshipService extends BaseService {
       case FriendshipAction.Cancel:
       case FriendshipAction.Remove:
       case FriendshipAction.Decline:
-        this.logger.info(`User ${from} removing friend request from ${update.user_id}`);      
+        this.logger.info(`User ${from} removing friend request from ${update.user_id}`);
         await this.deleteFriendship(fromUser, targetUser);
         break;
     }
 
     // Return users' new social field
-    await fromUser.fetchRelations("include=users")
-    const exportedUser = await fromUser.export() as ExposedUser
+    await fromUser.fetchRelations('include=users');
+    const exportedUser = await fromUser.export() as ExposedUser;
     return exportedUser.relations.users;
   }
 
   private async createFriendship(friendship: UserFriendRelation, status: UserFriendshipStatus) {
-    const [id1, id2] = friendship.sortedIds()
+    const [id1, id2] = friendship.sortedIds();
 
     const newFriendship: UserFriendshipDbObject = {
       user1_id_fk: id1,
@@ -77,60 +76,60 @@ export class FriendshipService extends BaseService {
       created: new Date(),
       last_updated: new Date(),
       status: status
-    }
+    };
 
     try {
       await friendship.create(newFriendship);
     } catch (e) {
       await friendship.load();
       if (friendship.blocked()) {
-        throw new LyfError(`Relationship is blocked, user ${friendship.entityId()} should not have appeared for ${friendship.id()}`, 500)
+        throw new LyfError(`Relationship is blocked, user ${friendship.entityId()} should not have appeared for ${friendship.id()}`, 500);
       }
-      
-      throw new LyfError(`Some relationship between ${id1} and ${id2} already exists!`, 400)
+
+      throw new LyfError(`Some relationship between ${id1} and ${id2} already exists!`, 400);
     }
-    
+
   }
 
   private async blockUser(from: UserEntity, target: UserEntity) {
     const friendship = new UserFriendRelation(from.id(), target.id());
-    const [id1, _id2] = friendship.sortedIds()
+    const [id1, _id2] = friendship.sortedIds();
 
     const desiredStatus = from.id() === id1
       ? UserFriendshipStatus.BlockedByFirst
-      : UserFriendshipStatus.BlockedBySecond 
+      : UserFriendshipStatus.BlockedBySecond;
 
     try {
       await friendship.load();
-      const status = (await friendship.extract()).status
+      const status = (await friendship.extract()).status;
 
       const requiredForMutualBlock = from.id() === id1
         ? UserFriendshipStatus.BlockedBySecond
-        : UserFriendshipStatus.BlockedByFirst
+        : UserFriendshipStatus.BlockedByFirst;
 
       const shouldMutualBlock = status === requiredForMutualBlock;
 
       if (shouldMutualBlock) {
-        await friendship.update({ status: UserFriendshipStatus.MutualBlock })
+        await friendship.update({ status: UserFriendshipStatus.MutualBlock });
       } else {
-        await friendship.update({ status: desiredStatus })
+        await friendship.update({ status: desiredStatus });
       }
 
     } catch (e) {
-      this.logger.warn("Block status requested on non-existent friendship, creating now")
-      await this.createFriendship(friendship, desiredStatus)
+      this.logger.warn('Block status requested on non-existent friendship, creating now');
+      await this.createFriendship(friendship, desiredStatus);
     }
   }
 
   private async requestFriendship(from: UserEntity, target: UserEntity) {
     const friendship = new UserFriendRelation(from.id(), target.id());
-    const [id1, id2] = friendship.sortedIds()
+    const [id1, id2] = friendship.sortedIds();
 
-    const creationStatus = from.id() === id1 
+    const creationStatus = from.id() === id1
       ? UserFriendshipStatus.PendingSecondAcceptance
-      : UserFriendshipStatus.PendingFirstAcceptance
+      : UserFriendshipStatus.PendingFirstAcceptance;
 
-    await this.createFriendship(friendship, creationStatus)
+    await this.createFriendship(friendship, creationStatus);
   }
 
   private async acceptRequest(from: UserEntity, target: UserEntity) {
@@ -140,7 +139,7 @@ export class FriendshipService extends BaseService {
     }
 
     await friendship.load();
-    
+
     // Want to confirm the request is in a fertile state to be accepted
     if (friendship.pendingOnFrom()) {
       await friendship.update({ status: UserFriendshipStatus.Friends });

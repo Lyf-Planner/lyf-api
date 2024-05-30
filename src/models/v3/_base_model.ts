@@ -18,7 +18,7 @@ export abstract class BaseModel<T extends DbObject> {
     return this._id;
   }
 
-  public async create(db_object: T) {;
+  public async create(db_object: T) {
     const uploaded = await this.repository.create(db_object);
     this.base = uploaded;
   }

@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 
+import { Identifiable } from '../../../api/schema/database/abstract';
 import { NoteDbObject } from '../../../api/schema/database/notes';
+import { NoteService } from '../../../services/entity/note_service';
 import { Logger } from '../../../utils/logging';
 import { getMiddlewareVars } from '../../utils';
-import { NoteService } from '../../../services/entity/note_service';
-import { Identifiable } from '../../../api/schema/database/abstract';
 
 export class NoteHandlers {
   protected async createNote(req: Request, res: Response) {

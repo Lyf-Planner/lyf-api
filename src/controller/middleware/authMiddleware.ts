@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 
 import assert from 'assert';
-import { Logger } from '../../utils/logging';
 import { AuthService } from '../../services/auth_service';
+import { Logger } from '../../utils/logging';
 
 const logger = new Logger('AuthMiddleware');
 const TOKEN_PREFIX = 'Bearer ';

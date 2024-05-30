@@ -2,22 +2,20 @@ import { v4 as uuid } from 'uuid';
 
 import { ID } from '../../api/schema/database/abstract';
 import { ItemDbObject, ItemStatus, ItemType } from '../../api/schema/database/items';
-import { Item, ItemRelatedUser } from '../../api/schema/items';
+import { ItemNoteRelationshipDbObject } from '../../api/schema/database/items_on_notes';
+import { ItemUserRelationshipDbObject, Permission } from '../../api/schema/database/items_on_users';
+import { Item } from '../../api/schema/items';
+import { UserRelatedItem } from '../../api/schema/user';
 import { ItemEntity } from '../../models/v3/entity/item_entity';
 import { UserEntity } from '../../models/v3/entity/user_entity';
-import { UserItemRelation } from '../../models/v3/relation/user_related_item';
-import { ItemRepository } from '../../repository/entity/item_repository';
+import { ItemUserRelation } from '../../models/v3/relation/item_related_user';
+import { NoteItemRelation } from '../../models/v3/relation/note_related_item';
 import { formatDateData } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
-import { EntityService } from './_entity_service';
-import { ItemUserRelation } from '../../models/v3/relation/item_related_user';
-import { Permission, ItemUserRelationshipDbObject } from '../../api/schema/database/items_on_users';
-import { NoteItemRelation } from '../../models/v3/relation/note_related_item';
-import { ItemNoteRelationshipDbObject } from '../../api/schema/database/items_on_notes';
 import { LyfError } from '../../utils/lyf_error';
-import { UserRelatedItem } from '../../api/schema/user';
-import reminderService from '../notifications/reminder_service';
 import { SocialItemNotifications } from '../notifications/item_notifications';
+import reminderService from '../notifications/reminder_service';
+import { EntityService } from './_entity_service';
 
 export class ItemService extends EntityService<ItemDbObject> {
   protected logger = Logger.of(ItemService);
@@ -26,7 +24,7 @@ export class ItemService extends EntityService<ItemDbObject> {
     const item = new ItemEntity(item_id);
     await item.fetchRelations(include);
     await item.load();
-    
+
     return item;
   }
 
@@ -43,9 +41,9 @@ export class ItemService extends EntityService<ItemDbObject> {
     // Need to ensure we attach routine users if it has a template_id!
     if (item.templateId()) {
       const templateItem = new ItemEntity(item.templateId() as string);
-      await templateItem.fetchRelations("users");
-      await templateItem.load()
-      
+      await templateItem.fetchRelations('users');
+      await templateItem.load();
+
       const usersOnTemplate = templateItem.getRelations().users as ItemUserRelation[];
 
       // The creator should be a routine user
@@ -59,8 +57,8 @@ export class ItemService extends EntityService<ItemDbObject> {
     } else {
       // Otherwise just attach the creator
       const ownerRelationship = new ItemUserRelation(item.id(), user_id);
-      const ownerRelationshipObject = this.defaultOwnerRelationship(item.id(), user_id, sorting_rank)
-      await ownerRelationship.create(ownerRelationshipObject)
+      const ownerRelationshipObject = this.defaultOwnerRelationship(item.id(), user_id, sorting_rank);
+      await ownerRelationship.create(ownerRelationshipObject);
     }
 
     // Setup note relation if created on a note
@@ -81,11 +79,10 @@ export class ItemService extends EntityService<ItemDbObject> {
     const itemUsers = item.getRelations().users as ItemUserRelation[];
     const itemDeleter = itemUsers.find((x) => x.entityId() === from_id);
 
-
     if (itemDeleter && itemDeleter.permission() === Permission.Owner) {
       await item.delete();
     } else {
-      throw new LyfError(`Items can only be deleted by their owner`, 403);
+      throw new LyfError('Items can only be deleted by their owner', 403);
     }
   }
 
@@ -93,8 +90,8 @@ export class ItemService extends EntityService<ItemDbObject> {
     const item = new ItemEntity(id);
     await item.load();
 
-    const requestor = new UserEntity(from)
-    await requestor.load()
+    const requestor = new UserEntity(from);
+    await requestor.load();
 
     if (!this.canUpdate(item, from)) {
       throw new LyfError('User does not have permission to update item', 403);
@@ -142,13 +139,13 @@ export class ItemService extends EntityService<ItemDbObject> {
     await item.create(userIntroItem);
 
     const relationship = new ItemUserRelation(userIntroItem.id, user.id());
-    const relationshipObject = this.defaultOwnerRelationship(userIntroItem.id, user.id(), 0)
+    const relationshipObject = this.defaultOwnerRelationship(userIntroItem.id, user.id(), 0);
     await relationship.create(relationshipObject);
   }
 
   private async canUpdate(item: ItemEntity, user_id: ID) {
-    await item.fetchRelations("users");
-    const itemExport = await item.export() as Item
+    await item.fetchRelations('users');
+    const itemExport = await item.export() as Item;
     const users = itemExport.relations.users;
 
     const relevantUser = users?.find((x) => x.id === user_id);
@@ -161,7 +158,7 @@ export class ItemService extends EntityService<ItemDbObject> {
   }
 
   private async copyTemplateRelationship(user: UserEntity, item: ItemEntity, template: ItemEntity) {
-    const existingRelationship = new ItemUserRelation(template.id(), user.id())
+    const existingRelationship = new ItemUserRelation(template.id(), user.id());
     await existingRelationship.load();
 
     const rawObject = existingRelationship.extractRelation();
@@ -178,7 +175,7 @@ export class ItemService extends EntityService<ItemDbObject> {
       note_id_fk: note_id,
       created: new Date(),
       last_updated: new Date()
-    }
+    };
 
     await relationship.create(object);
   }
@@ -192,7 +189,7 @@ export class ItemService extends EntityService<ItemDbObject> {
       invite_pending: false,
       permission: Permission.Owner,
       sorting_rank: rank || 0
-    }
+    };
   }
 
   private handleNotificationChanges(changes: Partial<UserRelatedItem>, item: ItemEntity, user: UserEntity) {
@@ -208,24 +205,24 @@ export class ItemService extends EntityService<ItemDbObject> {
     if (timeChangesDetected) {
         // Case: date or time was deleted
         if (changes.time === null || changes.date === null) {
-          await this.removeAllNotifications(item)
+          await this.removeAllNotifications(item);
         } else {
           await this.updateAllNotifications(item);
         }
       }
 
       // Notify any other users of a change!
-      if (changes.time) {
+    if (changes.time) {
         SocialItemNotifications.handleTimeChange(user, item);
       }
-      if (changes.date) {
+    if (changes.date) {
         SocialItemNotifications.handleDateChange(user, item);
       }
     }
 
   private handleStatusChanges(changes: Partial<UserRelatedItem>, item: ItemEntity, from: UserEntity) {
     const statusChanged = changes.status;
-    
+
     // Notify any other users of a change!
     if (statusChanged) {
       SocialItemNotifications.handleStatusChange(from, item);
@@ -233,30 +230,30 @@ export class ItemService extends EntityService<ItemDbObject> {
   }
 
   private async removeAllNotifications(item: ItemEntity) {
-    await item.fetchRelations("users");
+    await item.fetchRelations('users');
     const users = item.getRelations().users as ItemUserRelation[];
 
     const service = reminderService;
     const updateFunc = item.isRoutine() ? service.removeRoutineNotification : service.removeEventNotification;
 
     for (const user of users) {
-      const notificationMins = user.notificationMinsBefore()
+      const notificationMins = user.notificationMinsBefore();
 
       if (notificationMins) {
-        await updateFunc(item, user.getRelatedEntity() as UserEntity)
+        await updateFunc(item, user.getRelatedEntity() as UserEntity);
       }
     }
   }
 
   private async throwIfReadOnly(item: ItemEntity, user_id: ID) {
-    await item.fetchRelations("users");
+    await item.fetchRelations('users');
     const itemUsers = item.getRelations().users as ItemUserRelation[];
 
-    const permitted = itemUsers.some((x) => 
+    const permitted = itemUsers.some((x) =>
       x.id() === user_id &&
       x.permission() !== Permission.ReadOnly &&
       !x.invited()
-    )
+    );
 
     if (!permitted) {
       throw new LyfError(`User ${user_id} does not have permission to edit item ${item.id()}`, 403);
@@ -264,17 +261,17 @@ export class ItemService extends EntityService<ItemDbObject> {
   }
 
   private async updateAllNotifications(item: ItemEntity) {
-    await item.fetchRelations("users");
+    await item.fetchRelations('users');
     const users = item.getRelations().users as ItemUserRelation[];
 
     const service = reminderService;
     const updateFunc = item.isRoutine() ? service.updateRoutineNotification : service.updateEventNotification;
 
     for (const user of users) {
-      const notificationMins = user.notificationMinsBefore()
+      const notificationMins = user.notificationMinsBefore();
 
       if (notificationMins) {
-        await updateFunc(item, user.getRelatedEntity() as UserEntity, notificationMins)
+        await updateFunc(item, user.getRelatedEntity() as UserEntity, notificationMins);
       }
     }
   }

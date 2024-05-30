@@ -38,26 +38,26 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
         relations: await this.recurseRelations(CommandType.Export)
       };
     } else {
-      return this.base!
-    } 
+      return this.base!;
+    }
   }
 
   public async fetchRelations(include?: string | undefined): Promise<void> {
-    const toLoad = include ? this.parseInclusions(include) : ["items", "users"]
+    const toLoad = include ? this.parseInclusions(include) : ['items', 'users'];
 
-    if (toLoad.includes("items") && this.base?.template_id) {
+    if (toLoad.includes('items') && this.base?.template_id) {
       const template = new ItemEntity(this.base.template_id);
       this.template = template;
     }
 
-    if (toLoad.includes("users")) {
+    if (toLoad.includes('users')) {
       const itemUsersRepo = new ItemUserRepository();
       const relationObjects = await itemUsersRepo.findRelationsByIdA(this._id);
       const userRelations: ItemUserRelation[] = [];
 
       for (const relationObject of relationObjects) {
-        const userRelation = new ItemUserRelation(relationObject.item_id_fk, relationObject.user_id_fk)
-        userRelations.push(userRelation)
+        const userRelation = new ItemUserRelation(relationObject.item_id_fk, relationObject.user_id_fk);
+        userRelations.push(userRelation);
       }
       this.relations.users = userRelations;
     }
@@ -65,11 +65,11 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
 
   // --- HELPERS --- //
   isFullyScheduled() {
-    return this.base!.date && this.base!.time
+    return this.base!.date && this.base!.time;
   }
 
   isRoutine() {
-    const { date, day, template_id } = this.base!
+    const { date, day, template_id } = this.base!;
     return day && !date && !template_id;
   }
 
@@ -78,7 +78,7 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
   }
 
   name() {
-    return this.base 
+    return this.base
       ? `${this.base!.title} (${this._id})`
       : this._id;
   }
@@ -90,15 +90,15 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
   }
 
   day() {
-    return this.base!.day
+    return this.base!.day;
   }
 
   status() {
-    return this.base!.status
+    return this.base!.status;
   }
 
   templateId() {
-    return this.base!.template_id
+    return this.base!.template_id;
   }
 
   time() {
@@ -106,14 +106,14 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
   }
 
   timezone() {
-    return this.base!.tz
+    return this.base!.tz;
   }
 
   title() {
-    return this.base!.title
+    return this.base!.title;
   }
 
   type() {
-    return this.base!.type
+    return this.base!.type;
   }
 }

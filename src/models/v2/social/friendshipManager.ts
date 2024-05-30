@@ -1,7 +1,7 @@
 import { ID } from '../../../api/mongo_schema/abstract';
 import { FriendshipAction, FriendshipUpdate } from '../../../api/mongo_schema/social';
-import { FriendNotifications } from '../notifications/friendNotificationService';
 import { Logger } from '../../../utils/logging';
+import { FriendNotifications } from '../notifications/friendNotificationService';
 import { UserOperations } from '../users/userOperations';
 import { SocialUser } from './socialUser';
 

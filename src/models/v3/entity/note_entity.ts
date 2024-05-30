@@ -30,40 +30,40 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     if (requestor && !relatedUserIds?.includes(requestor)) {
       throw new LyfError('User tried to load an item they should not have access to', 401);
     }
-    
+
     if (with_relations) {
       return {
         ...this.base!,
         relations: await this.recurseRelations(CommandType.Export)
       };
     } else {
-      return this.base!
+      return this.base!;
     }
   }
 
   public async fetchRelations(include?: string | undefined): Promise<void> {
-    const toLoad = include ? this.parseInclusions(include) : ["items", "users"]
+    const toLoad = include ? this.parseInclusions(include) : ['items', 'users'];
 
-    if (toLoad.includes("items")) {
+    if (toLoad.includes('items')) {
       const noteItemsRepo = new ItemNoteRepository();
       const relationObjects = await noteItemsRepo.findRelationsByIdB(this._id);
       const itemRelations: NoteItemRelation[] = [];
 
       for (const relationObject of relationObjects) {
-        const itemRelation = new NoteItemRelation(relationObject.note_id_fk, relationObject.item_id_fk)
-        itemRelations.push(itemRelation)
+        const itemRelation = new NoteItemRelation(relationObject.note_id_fk, relationObject.item_id_fk);
+        itemRelations.push(itemRelation);
       }
       this.relations.items = itemRelations;
     }
 
-    if (toLoad.includes("users")) {
+    if (toLoad.includes('users')) {
       const noteUsersRepo = new NoteUserRepository();
       const relationObjects = await noteUsersRepo.findRelationsByIdA(this._id);
       const userRelations: NoteUserRelation[] = [];
 
       for (const relationObject of relationObjects) {
-        const userRelation = new NoteUserRelation(relationObject.note_id_fk, relationObject.user_id_fk)
-        userRelations.push(userRelation)
+        const userRelation = new NoteUserRelation(relationObject.note_id_fk, relationObject.user_id_fk);
+        userRelations.push(userRelation);
       }
       this.relations.users = userRelations;
     }

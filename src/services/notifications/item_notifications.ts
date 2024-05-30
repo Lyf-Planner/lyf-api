@@ -2,11 +2,11 @@ import { ExpoPushMessage } from 'expo-server-sdk';
 import debouncer from 'signature-debouncer';
 
 import { ItemStatus } from '../../api/schema/database/items';
+import { ItemEntity } from '../../models/v3/entity/item_entity';
+import { UserEntity } from '../../models/v3/entity/user_entity';
 import { formatDate, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { ExpoPushService } from './expo_push_service';
-import { UserEntity } from '../../models/v3/entity/user_entity';
-import { ItemEntity } from '../../models/v3/entity/item_entity';
 
 export enum DebounceSignatures {
   'DateChange' = 'DateChange',
@@ -27,7 +27,7 @@ export class SocialItemNotifications {
       }) of date change to ${newDate} from ${from.id()}`
     );
 
-    const users = await item.getUsers()
+    const users = await item.getUsers();
 
     // Get tokens
     const tokensToNotify = this.getAllOtherTokens(from, users);
@@ -58,7 +58,7 @@ export class SocialItemNotifications {
       `Notifying users on item ${item.name()} of time change to ${newTime} from ${from.id()}`
     );
 
-    const users = await item.getUsers()
+    const users = await item.getUsers();
 
     // Get tokens
     const tokensToNotify = this.getAllOtherTokens(from, users);
@@ -105,7 +105,7 @@ export class SocialItemNotifications {
   static async newItemUser(from: UserEntity, item: ItemEntity) {
     logger.info(`Notifying users on item ${item.name()} of new user ${from.id()}`);
 
-    const users = await item.getUsers()
+    const users = await item.getUsers();
 
     // Get tokens
     const tokensToNotify = this.getAllOtherTokens(from, users);
@@ -132,7 +132,7 @@ export class SocialItemNotifications {
       return;
     }
 
-    const users = await item.getUsers()
+    const users = await item.getUsers();
 
     // Get tokens
     const tokensToNotify = this.getAllOtherTokens(from, users);
@@ -165,7 +165,7 @@ export class SocialItemNotifications {
   }
 
   // --- HELPERS --- //
-  static getAllOtherTokens(from: UserEntity, users: UserEntity[], ) {
+  static getAllOtherTokens(from: UserEntity, users: UserEntity[] ) {
     // Get the tokens of every user on the item
     // Except the user who initiated the notification
     let tokens = [] as string[];

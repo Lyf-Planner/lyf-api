@@ -15,7 +15,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   }
 
   public export() {
-    var { ...exported } = this.content;
+    const { ...exported } = this.content;
     return exported;
   }
 
@@ -31,8 +31,8 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
   // Update and throw if there are any permissions violations
   public async safeUpdate(proposed: updateItemBody, user_id: string): Promise<boolean> {
     // Run through permissions checks for updates
-    var perm = this.getUserPermission(user_id);
-    var fromUser = await UserOperations.retrieveForUser(user_id, user_id);
+    const perm = this.getUserPermission(user_id);
+    const fromUser = await UserOperations.retrieveForUser(user_id, user_id);
 
     // SAFETY CHECKS
     // 1. Cannot update as a Viewer or Invited
@@ -63,7 +63,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
 
   public async clearNotification(user_id: string) {
     this.logger.info(`Clearing notification on item ${this.id} for user ${user_id}`);
-    var newNotifications = this.content.notifications;
+    const newNotifications = this.content.notifications;
     const i = newNotifications.findIndex((x) => x.user_id === user_id);
     newNotifications.splice(i, 1);
     await this.safeUpdate({ ...this.content, notifications: newNotifications }, user_id);
@@ -86,14 +86,14 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
       return;
     }
 
-    var success = true;
+    let success = true;
     if (!this.content.notifications && proposed.notifications) {
       success = !proposed.notifications || proposed.notifications?.length <= 1;
     } else {
-      var old = JSON.stringify(
+      const old = JSON.stringify(
         this.content.notifications.filter((x) => x.user_id !== fromUser.getId())
       );
-      var recent = JSON.stringify(
+      const recent = JSON.stringify(
         proposed.notifications.filter((x) => x.user_id !== fromUser.getId())
       );
       success = old === recent;
@@ -139,7 +139,7 @@ export class ItemModel extends RestrictedRemoteObject<ListItem> {
         }
 
         // Otherwise update them all
-        var oldNotif =
+        const oldNotif =
           this.content.notifications &&
           this.content.notifications.find((x) => x.user_id === notification.user_id);
         if (!oldNotif) {

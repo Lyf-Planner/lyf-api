@@ -47,10 +47,10 @@ export class UserEntity extends BaseEntity<UserDbObject> {
       return {
         ...this.stripSensitiveFields(),
         relations: await this.recurseRelations(CommandType.Export)
-      }
+      };
     }
 
-    return this.stripSensitiveFields()
+    return this.stripSensitiveFields();
   }
 
   // --- Helpers ---
@@ -71,53 +71,34 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     return { expo_tokens: this.base!.expo_tokens, pass_hash: this.base!.pass_hash };
   }
 
-  private async exportAsPublicUser(with_relations = true): Promise<PublicUser|UserPublicFields> {
-    const publicUserFields: UserPublicFields = {
-      created: this.base!.created,
-      last_updated: this.base!.last_updated,
-      id: this.base!.id,
-      display_name: this.base!.display_name,
-      pfp_url: this.base!.pfp_url,
-    }
-
-    if (with_relations) {
-      return {
-        ...publicUserFields,
-        relations: await this.recurseRelations(CommandType.Export)
-      }
-    }
-
-    return publicUserFields
-  }
-
   public async fetchRelations(include?: string | undefined): Promise<void> {
-    const toLoad = include ? this.parseInclusions(include) : ["items", "notes", "users"]
+    const toLoad = include ? this.parseInclusions(include) : ['items', 'notes', 'users'];
 
-    if (toLoad.includes("items")) {
+    if (toLoad.includes('items')) {
       const userItemsRepo = new ItemUserRepository();
       const relationObjects = await userItemsRepo.findRelationsByIdB(this._id);
       const itemRelations: UserItemRelation[] = [];
 
       for (const relationObject of relationObjects) {
-        const itemRelation = new UserItemRelation(relationObject.user_id_fk, relationObject.item_id_fk)
-        itemRelations.push(itemRelation)
+        const itemRelation = new UserItemRelation(relationObject.user_id_fk, relationObject.item_id_fk);
+        itemRelations.push(itemRelation);
       }
       this.relations.items = itemRelations;
     }
 
-    if (toLoad.includes("notes")) {
+    if (toLoad.includes('notes')) {
       const userNotesRepo = new NoteUserRepository();
       const relationObjects = await userNotesRepo.findRelationsByIdB(this._id);
       const noteRelations: UserNoteRelation[] = [];
 
       for (const relationObject of relationObjects) {
-        const noteRelation = new UserNoteRelation(relationObject.user_id_fk, relationObject.note_id_fk)
-        noteRelations.push(noteRelation)
+        const noteRelation = new UserNoteRelation(relationObject.user_id_fk, relationObject.note_id_fk);
+        noteRelations.push(noteRelation);
       }
       this.relations.notes = noteRelations;
     }
 
-    if (toLoad.includes("users")) {
+    if (toLoad.includes('users')) {
       const userFriendsRepo = new UserFriendshipRepository();
       const relationObjects = await userFriendsRepo.findUserFriends(this._id);
       const userRelations: UserFriendRelation[] = [];
@@ -125,12 +106,12 @@ export class UserEntity extends BaseEntity<UserDbObject> {
       for (const relationObject of relationObjects) {
         const otherUserId = relationObject.user1_id_fk === this._id ? relationObject.user2_id_fk : relationObject.user1_id_fk;
 
-        const userRelation = new UserFriendRelation(this._id, otherUserId)
+        const userRelation = new UserFriendRelation(this._id, otherUserId);
         if (userRelation.blocked()) {
           continue;
         }
-        
-        userRelations.push(userRelation)
+
+        userRelations.push(userRelation);
       }
       this.relations.users = userRelations;
     }
@@ -138,20 +119,15 @@ export class UserEntity extends BaseEntity<UserDbObject> {
 
   public async fetchItemsInRange(start: string, end: string): Promise<void> {
     const userItemsRepo = new ItemUserRepository();
-    const relevantDays = daysInRange(start, end)
+    const relevantDays = daysInRange(start, end);
     const relationObjects = await userItemsRepo.findUserFilteredItems(this._id, start, end, relevantDays);
     const itemRelations: UserItemRelation[] = [];
 
     for (const relationObject of relationObjects) {
-      const itemRelation = new UserItemRelation(relationObject.user_id_fk, relationObject.item_id_fk)
-      itemRelations.push(itemRelation)
+      const itemRelation = new UserItemRelation(relationObject.user_id_fk, relationObject.item_id_fk);
+      itemRelations.push(itemRelation);
     }
     this.relations.items = itemRelations;
-  }
-
-  private stripSensitiveFields() {
-    const { pass_hash, expo_tokens, ...exported } = this.base!;
-    return exported;
   }
 
   public getRelations() {
@@ -161,14 +137,38 @@ export class UserEntity extends BaseEntity<UserDbObject> {
   // --- HELPERS --- //
 
   timezone() {
-    return this.base!.tz
+    return this.base!.tz;
   }
 
   dailyNotificationTime() {
-    return this.base!.daily_notification_time
+    return this.base!.daily_notification_time;
   }
 
   persistentNotifications() {
-    return this.base!.persistent_daily_notification
+    return this.base!.persistent_daily_notification;
+  }
+
+  private async exportAsPublicUser(with_relations = true): Promise<PublicUser|UserPublicFields> {
+    const publicUserFields: UserPublicFields = {
+      created: this.base!.created,
+      last_updated: this.base!.last_updated,
+      id: this.base!.id,
+      display_name: this.base!.display_name,
+      pfp_url: this.base!.pfp_url
+    };
+
+    if (with_relations) {
+      return {
+        ...publicUserFields,
+        relations: await this.recurseRelations(CommandType.Export)
+      };
+    }
+
+    return publicUserFields;
+  }
+
+  private stripSensitiveFields() {
+    const { pass_hash, expo_tokens, ...exported } = this.base!;
+    return exported;
   }
 }

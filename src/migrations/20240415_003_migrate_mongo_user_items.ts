@@ -3,8 +3,8 @@ import { Kysely } from 'kysely';
 import { ListItem as MongoItem } from '../api/mongo_schema/list';
 import { Permission, UserAccess } from '../api/mongo_schema/social';
 import {
-  Permission as ItemUserPermission,
-  ItemUserRelationshipDbObject
+  ItemUserRelationshipDbObject,
+  Permission as ItemUserPermission
 } from '../api/schema/database/items_on_users';
 import { UserDbObject } from '../api/schema/database/user';
 import mongoDb from '../db/mongo/mongo_db';

@@ -62,11 +62,11 @@ export class UserModel extends RemoteObject<User> {
   }
 
   private checkDailyNotifications(proposed: User) {
-    var oldEnabled = this.content.premium?.notifications?.daily_notifications;
-    var newEnabled = proposed.premium?.notifications?.daily_notifications;
+    const oldEnabled = this.content.premium?.notifications?.daily_notifications;
+    const newEnabled = proposed.premium?.notifications?.daily_notifications;
 
-    var oldTime = this.content.premium?.notifications?.daily_notification_time;
-    var newTime = proposed.premium?.notifications?.daily_notification_time;
+    const oldTime = this.content.premium?.notifications?.daily_notification_time;
+    const newTime = proposed.premium?.notifications?.daily_notification_time;
 
     if (!oldEnabled && newEnabled) {
       notificationManager.setDailyNotifications({ ...proposed });

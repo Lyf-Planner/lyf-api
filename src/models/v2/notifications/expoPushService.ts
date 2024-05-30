@@ -11,7 +11,7 @@ export class ExpoPushService {
   }
 
   public async pushNotificationToExpo(messages: ExpoPushMessage[]) {
-    for (var message of messages) {
+    for (const message of messages) {
       // Each push token looks like ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]
       // Check that all your push tokens appear to be valid Expo push tokens
       for (const token of message.to) {
@@ -43,7 +43,7 @@ export class ExpoPushService {
   }
 }
 
-var expo = new Expo();
+const expo = new Expo();
 const expoPushService = new ExpoPushService(expo);
 
 export default expoPushService;

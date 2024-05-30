@@ -1,16 +1,16 @@
-import { SocialService, SocialUpdate, SocialAction } from "./_social_service";
-import { ID } from "../../api/mongo_schema/abstract";
-import { UserService } from "../entity/user_service";
-import { Logger } from "../../utils/logging";
-import { Permission } from "../../api/schema/database/items_on_users";
-import { UserEntity } from "../../models/v3/entity/user_entity";
-import { NoteUserRelation } from "../../models/v3/relation/note_related_user";
-import { NoteUserRelationshipDbObject } from "../../api/schema/database/notes_on_users";
-import { NoteEntity } from "../../models/v3/entity/note_entity";
-import { NoteService } from "../entity/note_service";
+import { ID } from '../../api/mongo_schema/abstract';
+import { Permission } from '../../api/schema/database/items_on_users';
+import { NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
+import { NoteEntity } from '../../models/v3/entity/note_entity';
+import { UserEntity } from '../../models/v3/entity/user_entity';
+import { NoteUserRelation } from '../../models/v3/relation/note_related_user';
+import { Logger } from '../../utils/logging';
+import { NoteService } from '../entity/note_service';
+import { UserService } from '../entity/user_service';
+import { SocialAction, SocialService, SocialUpdate } from './_social_service';
 
 export class SocialNoteService extends SocialService {
-  protected logger = Logger.of(SocialNoteService)
+  protected logger = Logger.of(SocialNoteService);
 
   protected async createDefaultRelation(id: ID, user_id: ID, permission: Permission, invited: boolean) {
     const relation = new NoteUserRelation(id, user_id);
@@ -22,9 +22,9 @@ export class SocialNoteService extends SocialService {
       user_id_fk: user_id,
       invite_pending: invited,
       permission
-    }
+    };
 
-    await relation.create(dbObject)
+    await relation.create(dbObject);
     return relation;
   }
 
@@ -32,14 +32,14 @@ export class SocialNoteService extends SocialService {
     const relation = new NoteUserRelation(entity.id(), user.id());
     await relation.load();
     return relation;
-  };
+  }
 
   async processUpdate(from: ID, update: SocialUpdate) {
     const noteService = new NoteService();
     const userService = new UserService();
-  
-    const note = await noteService.getEntity(update.entity_id)
-    const fromUser = await userService.getEntity(from)
+
+    const note = await noteService.getEntity(update.entity_id);
+    const fromUser = await userService.getEntity(from);
     const targetUser = await userService.getEntity(update.user_id);
 
     switch (update.action) {

@@ -17,13 +17,13 @@ export class NoteItemRelation extends BaseRelation<ItemNoteRelationshipDbObject,
   protected relatedEntity: ItemEntity;
   protected repository = new ItemNoteRepository();
 
+  static filter(object: any): ItemNoteRelations {
+    return {};
+  }
+
   constructor(id: ID, entity_id: ID) {
     super(id, entity_id);
     this.relatedEntity = new ItemEntity(entity_id);
-  }
-
-  static filter(object: any): ItemNoteRelations {
-    return {}
   }
 
   public async delete(): Promise<void> {
@@ -34,14 +34,14 @@ export class NoteItemRelation extends BaseRelation<ItemNoteRelationshipDbObject,
     return {
       ...await this.relatedEntity.extract(false) as ItemDbObject,
       ...this.base!
-    }
+    };
   }
 
   public async export(requestor?: string | undefined): Promise<NoteRelatedItem> {
     return {
-      ...await this.relatedEntity.export("", false) as ItemDbObject,
+      ...await this.relatedEntity.export('', false) as ItemDbObject,
       ...NoteItemRelation.filter(this.base!)
-    }
+    };
   }
 
   public async load(relations: object): Promise<void> {
@@ -54,10 +54,10 @@ export class NoteItemRelation extends BaseRelation<ItemNoteRelationshipDbObject,
     this.base = {
       ...this.base!,
       ...relationFieldUpdates
-    }
+    };
   }
 
   public async save(): Promise<void> {
-    await this.repository.updateRelation(this._entityId, this._id, this.base!)
+    await this.repository.updateRelation(this._entityId, this._id, this.base!);
   }
 }
