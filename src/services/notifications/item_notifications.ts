@@ -2,8 +2,8 @@ import { ExpoPushMessage } from 'expo-server-sdk';
 import debouncer from 'signature-debouncer';
 
 import { ItemStatus } from '../../api/schema/database/items';
-import { ItemEntity } from '../../models/v3/entity/item_entity';
-import { UserEntity } from '../../models/v3/entity/user_entity';
+import { ItemEntity } from '../../models/entity/item_entity';
+import { UserEntity } from '../../models/entity/user_entity';
 import { formatDate, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { ExpoPushService } from './expo_push_service';

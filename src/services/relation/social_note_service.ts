@@ -1,9 +1,9 @@
 import { ID } from '../../api/mongo_schema/abstract';
 import { Permission } from '../../api/schema/database/items_on_users';
 import { NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
-import { NoteEntity } from '../../models/v3/entity/note_entity';
-import { UserEntity } from '../../models/v3/entity/user_entity';
-import { NoteUserRelation } from '../../models/v3/relation/note_related_user';
+import { NoteEntity } from '../../models/entity/note_entity';
+import { UserEntity } from '../../models/entity/user_entity';
+import { NoteUserRelation } from '../../models/relation/note_related_user';
 import { Logger } from '../../utils/logging';
 import { NoteService } from '../entity/note_service';
 import { UserService } from '../entity/user_service';

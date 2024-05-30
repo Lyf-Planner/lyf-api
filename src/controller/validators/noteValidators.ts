@@ -1,8 +1,9 @@
 import { body, query } from 'express-validator';
 
-import { ID } from '../../api/mongo_schema/abstract';
-import { Note, NoteType } from '../../api/mongo_schema/notes';
-import { Permission } from '../../api/mongo_schema/social';
+import { ID } from '../../api/schema/database/abstract';
+import { Permission } from '../../api/schema/database/items_on_users';
+import { NoteType } from '../../api/schema/database/notes';
+import { Note } from '../../api/schema/notes';
 
 // GET
 

@@ -1,15 +1,9 @@
 import Expo from 'expo-server-sdk';
 import { body, query } from 'express-validator';
 
-import { ID } from '../../api/mongo_schema/abstract';
-import { Notes } from '../../api/mongo_schema/notes';
-import { Premium } from '../../api/mongo_schema/premium';
-import {
-  FriendshipAction,
-  FriendshipUpdate
-} from '../../api/mongo_schema/social';
-import { Timetable } from '../../api/mongo_schema/timetable';
-import { UserDetails } from '../../api/mongo_schema/user';
+import { ID } from '../../api/schema/database/abstract';
+import { Note } from '../../api/schema/notes';
+import { FriendshipAction, FriendshipUpdate } from '../../services/relation/friendship_service';
 import { isValidTimeZone } from './utils';
 
 // GET
@@ -101,12 +95,12 @@ export const updateMeValidator = [
 ];
 
 export type updateMeBody = {
-  details?: UserDetails;
-  expo_tokens?: string[];
-  timezone?: string;
-  premium?: Premium;
-  timetable: Timetable;
-  notes: Notes;
+  // details?: UserDetails;
+  // expo_tokens?: string[];
+  // timezone?: string;
+  // premium?: Premium;
+  // timetable: Timetable;
+  // notes: Notes;
 };
 
 export const deleteMeValidator = [

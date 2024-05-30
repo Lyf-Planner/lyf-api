@@ -1,6 +1,6 @@
 import { ExpoPushMessage } from 'expo-server-sdk';
 
-import { UserEntity } from '../../models/v3/entity/user_entity';
+import { UserEntity } from '../../models/entity/user_entity';
 import { Logger } from '../../utils/logging';
 import { ExpoPushService } from './expo_push_service';
 

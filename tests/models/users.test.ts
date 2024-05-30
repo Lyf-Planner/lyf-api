@@ -1,7 +1,7 @@
-import { ItemEntity } from '../../src/models/v3/entity/item_entity';
-import { UserEntity } from '../../src/models/v3/entity/user_entity';
-import { ItemUserRelation } from '../../src/models/v3/relation/item_related_user';
-import { UserItemRelation } from '../../src/models/v3/relation/user_related_item';
+import { ItemEntity } from '../../src/models/entity/item_entity';
+import { UserEntity } from '../../src/models/entity/user_entity';
+import { ItemUserRelation } from '../../src/models/relation/item_related_user';
+import { UserItemRelation } from '../../src/models/relation/user_related_item';
 import { createItem1Relation, createTestItem1, createTestUser, item1_id } from './data';
 
 describe('user model tests', () => {

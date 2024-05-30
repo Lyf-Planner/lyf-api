@@ -1,13 +1,13 @@
-import { DbRelationFields, DbRelationObject } from '../../../api/schema/database';
-import { ID } from '../../../api/schema/database/abstract';
-import { ItemUserRelations } from '../../../api/schema/database/items_on_users';
-import { NoteDbObject } from '../../../api/schema/database/notes';
-import { NoteUserRelations, NoteUserRelationshipDbObject } from '../../../api/schema/database/notes_on_users';
-import { Note } from '../../../api/schema/notes';
-import { UserRelatedNote } from '../../../api/schema/user';
-import { NoteRepository } from '../../../repository/entity/note_repository';
-import { NoteUserRepository } from '../../../repository/relation/note_user_repository';
-import { Logger } from '../../../utils/logging';
+import { DbRelationFields, DbRelationObject } from '../../api/schema/database';
+import { ID } from '../../api/schema/database/abstract';
+import { ItemUserRelations } from '../../api/schema/database/items_on_users';
+import { NoteDbObject } from '../../api/schema/database/notes';
+import { NoteUserRelations, NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
+import { Note } from '../../api/schema/notes';
+import { UserRelatedNote } from '../../api/schema/user';
+import { NoteRepository } from '../../repository/entity/note_repository';
+import { NoteUserRepository } from '../../repository/relation/note_user_repository';
+import { Logger } from '../../utils/logging';
 import { NoteEntity } from '../entity/note_entity';
 import { BaseRelation } from './_base_relation';
 

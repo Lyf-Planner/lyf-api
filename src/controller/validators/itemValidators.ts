@@ -1,13 +1,12 @@
 import { body, query } from 'express-validator';
 
-import { ID } from '../../api/mongo_schema/abstract';
+import { ID } from '../../api/schema/database/abstract';
 import {
-  ItemStatus,
-  ListItem,
-  ListItemTypes
-} from '../../api/mongo_schema/list';
-import { Permission, SocialAction } from '../../api/mongo_schema/social';
-import { DaysOfWeek } from '../../api/mongo_schema/timetable';
+  ItemStatus, ItemType
+} from '../../api/schema/database/items';
+import { Item } from '../../api/schema/items';
+import { SocialAction } from '../../services/relation/_social_service';
+import { daysOfWeek } from '../../utils/dates';
 import { isValidTimeZone } from './utils';
 
 // GET
@@ -23,12 +22,12 @@ export const createItemValidator = [
   body('id').isString(),
   body('template_id').isString().optional({ nullable: true }),
   body('title').isString(),
-  body('type').custom((perm) => Object.values(ListItemTypes).includes(perm)),
+  body('type').custom((perm) => Object.values(ItemType).includes(perm)),
   body('status').custom((status) => Object.values(ItemStatus).includes(status)),
   // Item extra details
   body('date').isDate({ format: 'YYYY-MM-DD' }).optional({ nullable: true }),
   body('day')
-    .custom((status) => Object.values(DaysOfWeek).includes(status))
+    .custom((status) => daysOfWeek.includes(status))
     .optional({ nullable: true }),
   body('time').isTime({ hourFormat: 'hour24' }).optional({ nullable: true }),
   body('end_time')
@@ -44,14 +43,14 @@ export const createItemValidator = [
   body('notification_mins_before').isString().optional({ nullable: true })
 ];
 
-export type createItemBody = ListItem;
+export type createItemBody = Item;
 
 export const updateItemValidator = [
   // Essentials
   body('id').isString(),
   body('title').isString().optional(),
   body('type')
-    .custom((perm) => Object.values(ListItemTypes).includes(perm))
+    .custom((perm) => Object.values(ItemType).includes(perm))
     .optional(),
   body('status')
     .custom((status) => Object.values(ItemStatus).includes(status))
@@ -59,7 +58,7 @@ export const updateItemValidator = [
   // Item extra details
   body('date').isDate({ format: 'YYYY-MM-DD' }).optional({ nullable: true }),
   body('day')
-    .custom((status) => Object.values(DaysOfWeek).includes(status))
+    .custom((status) => daysOfWeek.includes(status))
     .optional({ nullable: true }),
   body('time').isTime({ hourFormat: 'hour24' }).optional({ nullable: true }),
   body('end_time')
@@ -75,7 +74,7 @@ export const updateItemValidator = [
   body('notification_mins_before').isString().optional({ nullable: true })
 ];
 
-export type updateItemBody = ListItem;
+export type updateItemBody = Item;
 
 export const getItemsValidator = [
   body('item_ids').isArray(),

@@ -1,7 +1,7 @@
-import { Entity } from '../../../api/schema';
-import { DbEntityObject, DbObject, DbRelationObject } from '../../../api/schema/database';
-import { EntityRepository } from '../../../repository/entity/_entity_repository';
-import { LyfError } from '../../../utils/lyf_error';
+import { Entity } from '../../api/schema';
+import { DbEntityObject, DbObject, DbRelationObject } from '../../api/schema/database';
+import { EntityRepository } from '../../repository/entity/_entity_repository';
+import { LyfError } from '../../utils/lyf_error';
 import { BaseModel } from '../_base_model';
 import { CommandType } from '../command_types';
 import { BaseRelation } from '../relation/_base_relation';

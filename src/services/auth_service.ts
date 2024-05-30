@@ -2,7 +2,7 @@ import { compare, hash } from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 
 import env from '../envManager';
-import { UserEntity } from '../models/v3/entity/user_entity';
+import { UserEntity } from '../models/entity/user_entity';
 import { LyfError } from '../utils/lyf_error';
 import { UserService } from './entity/user_service';
 

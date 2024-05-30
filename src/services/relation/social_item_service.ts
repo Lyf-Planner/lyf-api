@@ -1,8 +1,8 @@
 import { ID } from '../../api/mongo_schema/abstract';
 import { ItemUserRelationshipDbObject, Permission } from '../../api/schema/database/items_on_users';
-import { ItemEntity } from '../../models/v3/entity/item_entity';
-import { UserEntity } from '../../models/v3/entity/user_entity';
-import { ItemUserRelation } from '../../models/v3/relation/item_related_user';
+import { ItemEntity } from '../../models/entity/item_entity';
+import { UserEntity } from '../../models/entity/user_entity';
+import { ItemUserRelation } from '../../models/relation/item_related_user';
 import { Logger } from '../../utils/logging';
 import { ItemService } from '../entity/item_service';
 import { UserService } from '../entity/user_service';

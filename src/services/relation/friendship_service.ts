@@ -1,8 +1,8 @@
 import { ID } from '../../api/schema/database/abstract';
 import { UserFriendshipDbObject, UserFriendshipStatus } from '../../api/schema/database/user_friendships';
 import { ExposedUser } from '../../api/schema/user';
-import { UserEntity } from '../../models/v3/entity/user_entity';
-import { UserFriendRelation } from '../../models/v3/relation/user_friend';
+import { UserEntity } from '../../models/entity/user_entity';
+import { UserFriendRelation } from '../../models/relation/user_friend';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { BaseService } from '../_base_service';

@@ -1,18 +1,18 @@
-import { ID } from '../../../api/schema/database/abstract';
-import { UserDbObject, UserExposedFields, UserPublicFields, UserSensitiveFields } from '../../../api/schema/database/user';
-import { UserFriendshipStatus } from '../../../api/schema/database/user_friendships';
+import { ID } from '../../api/schema/database/abstract';
+import { UserDbObject, UserExposedFields, UserPublicFields, UserSensitiveFields } from '../../api/schema/database/user';
+import { UserFriendshipStatus } from '../../api/schema/database/user_friendships';
 import {
   ExposedUser,
   PublicUser,
   User
-} from '../../../api/schema/user';
-import { UserRepository } from '../../../repository/entity/user_repository';
-import { ItemUserRepository } from '../../../repository/relation/item_user_repository';
-import { NoteUserRepository } from '../../../repository/relation/note_user_repository';
-import { UserFriendshipRepository } from '../../../repository/relation/user_friendship_repository';
-import { daysInRange } from '../../../utils/dates';
-import { Logger } from '../../../utils/logging';
-import { LyfError } from '../../../utils/lyf_error';
+} from '../../api/schema/user';
+import { UserRepository } from '../../repository/entity/user_repository';
+import { ItemUserRepository } from '../../repository/relation/item_user_repository';
+import { NoteUserRepository } from '../../repository/relation/note_user_repository';
+import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
+import { daysInRange } from '../../utils/dates';
+import { Logger } from '../../utils/logging';
+import { LyfError } from '../../utils/lyf_error';
 import { CommandType } from '../command_types';
 import { UserFriendRelation } from '../relation/user_friend';
 import { UserItemRelation } from '../relation/user_related_item';

@@ -111,7 +111,6 @@
         "avoid-escape",
         "avoid-template"
       ],
-      "radix": true,
       "semicolon": [
         true,
         "always"

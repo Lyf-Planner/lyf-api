@@ -1,13 +1,13 @@
-import { DbRelationFields, DbRelationObject } from '../../../api/schema/database';
-import { ID } from '../../../api/schema/database/abstract';
-import { ItemDbObject } from '../../../api/schema/database/items';
+import { DbRelationFields, DbRelationObject } from '../../api/schema/database';
+import { ID } from '../../api/schema/database/abstract';
+import { ItemDbObject } from '../../api/schema/database/items';
 import {
   ItemNoteRelations,
   ItemNoteRelationshipDbObject
-} from '../../../api/schema/database/items_on_notes';
-import { NoteRelatedItem } from '../../../api/schema/notes';
-import { ItemNoteRepository } from '../../../repository/relation/item_note_repository';
-import { Logger } from '../../../utils/logging';
+} from '../../api/schema/database/items_on_notes';
+import { NoteRelatedItem } from '../../api/schema/notes';
+import { ItemNoteRepository } from '../../repository/relation/item_note_repository';
+import { Logger } from '../../utils/logging';
 import { ItemEntity } from '../entity/item_entity';
 import { BaseRelation } from './_base_relation';
 

@@ -1,15 +1,15 @@
-import { DbRelationFields, DbRelationObject } from '../../../api/schema/database';
-import { ID } from '../../../api/schema/database/abstract';
-import { ItemDbObject } from '../../../api/schema/database/items';
+import { DbRelationFields, DbRelationObject } from '../../api/schema/database';
+import { ID } from '../../api/schema/database/abstract';
+import { ItemDbObject } from '../../api/schema/database/items';
 import {
   ItemUserRelations,
   ItemUserRelationshipDbObject
-} from '../../../api/schema/database/items_on_users';
-import { Item } from '../../../api/schema/items';
-import { UserRelatedItem } from '../../../api/schema/user';
-import { ItemRepository } from '../../../repository/entity/item_repository';
-import { ItemUserRepository } from '../../../repository/relation/item_user_repository';
-import { Logger } from '../../../utils/logging';
+} from '../../api/schema/database/items_on_users';
+import { Item } from '../../api/schema/items';
+import { UserRelatedItem } from '../../api/schema/user';
+import { ItemRepository } from '../../repository/entity/item_repository';
+import { ItemUserRepository } from '../../repository/relation/item_user_repository';
+import { Logger } from '../../utils/logging';
 import { ItemEntity } from '../entity/item_entity';
 import { BaseRelation } from './_base_relation';
 

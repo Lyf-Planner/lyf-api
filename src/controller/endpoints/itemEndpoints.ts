@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { ItemHandlers } from '../handlers/v2/itemHandlers';
+import { ItemHandlers } from '../handlers/itemHandlers';
 import { validate } from '../middleware/validationMiddleware';
 import { nSecondLimiter } from '../utils';
 import {
@@ -22,7 +22,6 @@ export class ItemEndpoints extends ItemHandlers {
       this.createItem
     );
     server.post('/updateItem', validate(updateItemValidator), this.updateItem);
-    server.post('/getItems', validate(getItemsValidator), this.getItems);
     server.get('/deleteItem', validate(deleteItemValidator), this.deleteItem);
     server.get('/getItem', validate(getItemValidator), this.getItem);
 

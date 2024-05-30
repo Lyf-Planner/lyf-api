@@ -1,7 +1,7 @@
 import { ID } from '../../api/schema/database/abstract';
 import { UserDbObject } from '../../api/schema/database/user';
 import { ExposedUser, PublicUser, User } from '../../api/schema/user';
-import { UserEntity } from '../../models/v3/entity/user_entity';
+import { UserEntity } from '../../models/entity/user_entity';
 import { UserRepository } from '../../repository/entity/user_repository';
 import { formatDateData } from '../../utils/dates';
 import { Logger } from '../../utils/logging';

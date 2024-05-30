@@ -1,19 +1,19 @@
 import { Request, Response } from 'express';
 
-import { User } from '../../../api/schema/user';
-import { AuthService } from '../../../services/auth_service';
-import { UserService } from '../../../services/entity/user_service';
-import { FriendshipService } from '../../../services/relation/friendship_service';
-import { Logger } from '../../../utils/logging';
-import { LyfError } from '../../../utils/lyf_error';
-import { getMiddlewareVars } from '../../utils';
+import { User } from '../../api/schema/user';
+import { AuthService } from '../../services/auth_service';
+import { UserService } from '../../services/entity/user_service';
+import { FriendshipService } from '../../services/relation/friendship_service';
+import { Logger } from '../../utils/logging';
+import { LyfError } from '../../utils/lyf_error';
+import { getMiddlewareVars } from '../utils';
 import {
   deleteMeBody,
   getUserQuery,
   loginQuery,
   updateFriendshipBody,
   updateMeBody
-} from '../../validators/userValidators';
+} from '../validators/userValidators';
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {

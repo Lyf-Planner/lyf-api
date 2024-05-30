@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { NoteHandlers } from '../handlers/v2/noteHandlers';
+import { NoteHandlers } from '../handlers/noteHandlers';
 import { validate } from '../middleware/validationMiddleware';
 import {
   createNoteValidator,
@@ -15,7 +15,6 @@ export class NoteEndpoints extends NoteHandlers {
     super();
     server.post('/createNote', validate(createNoteValidator), this.createNote);
     server.post('/updateNote', validate(updateNoteValidator), this.updateNote);
-    server.post('/getNotes', validate(getNotesValidator), this.getNotes);
     server.get('/getNote', validate(getNoteValidator), this.getNote);
     server.get('/deleteNote', validate(deleteNoteValidator), this.deleteNote);
 

@@ -6,10 +6,10 @@ import { ItemNoteRelationshipDbObject } from '../../api/schema/database/items_on
 import { ItemUserRelationshipDbObject, Permission } from '../../api/schema/database/items_on_users';
 import { Item } from '../../api/schema/items';
 import { UserRelatedItem } from '../../api/schema/user';
-import { ItemEntity } from '../../models/v3/entity/item_entity';
-import { UserEntity } from '../../models/v3/entity/user_entity';
-import { ItemUserRelation } from '../../models/v3/relation/item_related_user';
-import { NoteItemRelation } from '../../models/v3/relation/note_related_item';
+import { ItemEntity } from '../../models/entity/item_entity';
+import { UserEntity } from '../../models/entity/user_entity';
+import { ItemUserRelation } from '../../models/relation/item_related_user';
+import { NoteItemRelation } from '../../models/relation/note_related_item';
 import { formatDateData } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';

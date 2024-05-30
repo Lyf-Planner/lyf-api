@@ -1,14 +1,14 @@
-import { DbRelationFields, DbRelationObject } from '../../../api/schema/database';
-import { ID } from '../../../api/schema/database/abstract';
+import { DbRelationFields, DbRelationObject } from '../../api/schema/database';
+import { ID } from '../../api/schema/database/abstract';
 import {
   NoteUserRelations,
   NoteUserRelationshipDbObject
-} from '../../../api/schema/database/notes_on_users';
-import { UserDbObject } from '../../../api/schema/database/user';
-import { NoteRelatedUser } from '../../../api/schema/notes';
-import { PublicUser } from '../../../api/schema/user';
-import { NoteUserRepository } from '../../../repository/relation/note_user_repository';
-import { Logger } from '../../../utils/logging';
+} from '../../api/schema/database/notes_on_users';
+import { UserDbObject } from '../../api/schema/database/user';
+import { NoteRelatedUser } from '../../api/schema/notes';
+import { PublicUser } from '../../api/schema/user';
+import { NoteUserRepository } from '../../repository/relation/note_user_repository';
+import { Logger } from '../../utils/logging';
 import { UserEntity } from '../entity/user_entity';
 import { SocialRelation } from './_social_relation';
 

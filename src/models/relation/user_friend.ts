@@ -1,15 +1,15 @@
-import { DbRelationFields, DbRelationObject } from '../../../api/schema/database';
-import { ID } from '../../../api/schema/database/abstract';
-import { UserDbObject } from '../../../api/schema/database/user';
+import { DbRelationFields, DbRelationObject } from '../../api/schema/database';
+import { ID } from '../../api/schema/database/abstract';
+import { UserDbObject } from '../../api/schema/database/user';
 import {
   UserFriendshipDbObject,
   UserFriendshipRelations,
   UserFriendshipStatus
-} from '../../../api/schema/database/user_friendships';
-import { PublicUser, UserFriend } from '../../../api/schema/user';
-import { UserRepository } from '../../../repository/entity/user_repository';
-import { UserFriendshipRepository } from '../../../repository/relation/user_friendship_repository';
-import { Logger } from '../../../utils/logging';
+} from '../../api/schema/database/user_friendships';
+import { PublicUser, UserFriend } from '../../api/schema/user';
+import { UserRepository } from '../../repository/entity/user_repository';
+import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
+import { Logger } from '../../utils/logging';
 import { UserEntity } from '../entity/user_entity';
 import { BaseRelation } from './_base_relation';
 
