@@ -8,12 +8,15 @@ import { SocialItemService } from '../../services/relation/social_item_service';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { getMiddlewareVars } from '../utils';
+import { UserRelatedItem } from '../../api/schema/user';
+import { ItemDbObject } from '../../api/schema/database/items';
+import { ID, Identifiable } from '../../api/schema/database/abstract';
 
 const itemUpdateQueue = new PQueue({ concurrency: 1 });
 
 export class ItemHandlers {
   static async _queuedUpdateItem(req: Request, res: Response) {
-    const changes = req.body as Partial<Item>;
+    const changes = req.body as Partial<UserRelatedItem> & Identifiable;
     const item_id = changes.id;
     const user_id = getMiddlewareVars(res).user_id;
 
@@ -53,19 +56,19 @@ export class ItemHandlers {
   protected async createItem(req: Request, res: Response) {
     // Users only type a name in a section (implying type) to create an item
     // Should reevaluate this if we ever grant API access!
-    const input = req.body as any;
+    const input = req.body as ItemDbObject & { sorting_rank: number, note_id: ID };
     const user_id = getMiddlewareVars(res).user_id;
 
-    logger.debug(`Creating item ${input.item.title} from user ${user_id}`);
+    logger.debug(`Creating item ${input.title} from user ${user_id}`);
 
     const service = new ItemService();
-    const item = await service.processCreation(input.item, user_id, input.sorting_rank, input.node_id);
+    const item = await service.processCreation(input, user_id, input.sorting_rank, input.note_id);
 
     res.status(201).json(await item.export()).end();
   }
 
   protected async deleteItem(req: Request, res: Response) {
-    const { item_id } = req.query;
+    const { item_id } = req.query as { item_id: string };
     const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Deleting item ${item_id} as requested by ${user_id}`);
@@ -73,7 +76,7 @@ export class ItemHandlers {
     // Authorisation checks
     try {
       const service = new ItemService();
-      await service.processDeletion(item_id as string, user_id);
+      await service.processDeletion(item_id, user_id);
 
       res.status(204).end();
     } catch (err) {

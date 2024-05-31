@@ -19,26 +19,23 @@ export class UserEndpoints extends UserHandlers {
     super();
     server.get(
       '/login',
-      validate(loginValidator),
       nSecondLimiter(2),
       this.login
     );
-    server.get('/autoLogin', validate(autologinValidator), this.autoLogin);
+    server.get('/autoLogin', this.autoLogin);
 
-    server.get('/getUser', validate(getUserValidator), this.getUser);
-    server.post('/getUsers', validate(getUsersValidator), this.getUsers);
+    server.get('/getUser', this.getUser);
+    server.post('/getUsers', this.getUsers);
     server.post(
       '/createUser',
-      creationValidator,
       nSecondLimiter(20),
       this.createUser
     );
-    server.post('/updateMe', validate(updateMeValidator), this.updateMe);
-    server.post('/deleteMe', validate(deleteMeValidator), this.deleteMe);
+    server.post('/updateMe', this.updateMe);
+    server.post('/deleteMe', this.deleteMe);
 
     server.post(
       '/updateFriendship',
-      validate(updateFriendshipValidator),
       this.updateFriendship
     );
   }

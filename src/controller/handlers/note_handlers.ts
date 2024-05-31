@@ -5,6 +5,7 @@ import { NoteDbObject } from '../../api/schema/database/notes';
 import { NoteService } from '../../services/entity/note_service';
 import { Logger } from '../../utils/logging';
 import { getMiddlewareVars } from '../utils';
+import { UserRelatedNote } from '../../api/schema/user';
 
 export class NoteHandlers {
   protected async createNote(req: Request, res: Response) {
@@ -20,7 +21,7 @@ export class NoteHandlers {
   }
 
   protected async updateNote(req: Request, res: Response) {
-    const noteChanges = req.body as Partial<NoteDbObject> & Identifiable;
+    const noteChanges = req.body as Partial<UserRelatedNote> & Identifiable;
     const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Updating note ${noteChanges.id} from user ${user_id}`);
@@ -37,14 +38,14 @@ export class NoteHandlers {
   }
 
   protected async deleteNote(req: Request, res: Response) {
-    const { note_id } = req.query;
+    const { note_id } = req.query as { note_id: string };
     const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Deleting note ${note_id} as requested by ${user_id}`);
 
     try {
       const service = new NoteService();
-      await service.processDeletion(note_id as string, user_id);
+      await service.processDeletion(note_id, user_id);
 
       res.status(204).end();
     } catch (err) {
@@ -54,7 +55,7 @@ export class NoteHandlers {
   }
 
   protected async getNote(req: Request, res: Response) {
-    const { note_id } = req.body;
+    const { note_id } = req.body as { note_id: string };
     const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Retreiving note ${note_id} for user ${user_id}`);

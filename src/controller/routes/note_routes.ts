@@ -13,10 +13,10 @@ import {
 export class NoteEndpoints extends NoteHandlers {
   constructor(server: express.Application) {
     super();
-    server.post('/createNote', validate(createNoteValidator), this.createNote);
-    server.post('/updateNote', validate(updateNoteValidator), this.updateNote);
-    server.get('/getNote', validate(getNoteValidator), this.getNote);
-    server.get('/deleteNote', validate(deleteNoteValidator), this.deleteNote);
+    server.post('/createNote', this.createNote);
+    server.post('/updateNote', this.updateNote);
+    server.get('/getNote', this.getNote);
+    server.get('/deleteNote', this.deleteNote);
 
     // server.post("/addressNoteInvite");
     // server.post("/inviteNoteUser");

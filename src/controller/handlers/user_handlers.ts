@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { User } from '../../api/schema/user';
 import { AuthService } from '../../services/auth_service';
 import { UserService } from '../../services/entity/user_service';
-import { FriendshipService } from '../../services/relation/friendship_service';
+import { FriendshipService, FriendshipUpdate } from '../../services/relation/friendship_service';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { getMiddlewareVars } from '../utils';
@@ -14,6 +14,7 @@ import {
   updateFriendshipBody,
   updateMeBody
 } from '../validators/user_validators';
+import { UserDbObject } from '../../api/schema/database/user';
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
@@ -43,8 +44,8 @@ export class UserHandlers {
       const user = await userService.retrieveForUser(user_id, user_id);
       res.status(200).json(user).end();
     } catch (error) {
-        const lyfError = error as LyfError;
-        res.status(lyfError.code).end(lyfError.message);
+      const lyfError = error as LyfError;
+      res.status(lyfError.code).end(lyfError.message);
     }
   }
 
@@ -102,7 +103,7 @@ export class UserHandlers {
   // Update user identified in header.
   // This endpoint should not permit Premium updates in future
   protected async updateMe(req: Request, res: Response) {
-    const user = req.body as User;
+    const user = req.body as UserDbObject;
     const userId = getMiddlewareVars(res).user_id;
 
     const userService = new UserService();
@@ -136,7 +137,7 @@ export class UserHandlers {
   }
 
   protected async updateFriendship(req: Request, res: Response) {
-    const update = req.body as updateFriendshipBody;
+    const update = req.body as FriendshipUpdate;
     const fromId = getMiddlewareVars(res).user_id;
 
     const service = new FriendshipService();
