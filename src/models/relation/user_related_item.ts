@@ -33,7 +33,7 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
     };
   }
 
-  constructor(id: ID, entity_id: ID, object: ItemUserRelationshipDbObject & ItemDbObject) {
+  constructor(id: ID, entity_id: ID, object?: ItemUserRelationshipDbObject & ItemDbObject) {
     super(id, entity_id);
     this.base = UserItemRelation.filter(object);
     this.relatedEntity = new ItemEntity(entity_id, ItemEntity.filter(object));
@@ -51,8 +51,13 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
   }
 
   public async export(requestor?: string | undefined): Promise<UserRelatedItem> {
+    // We want the users on the item in addition to just the item
+    await this.relatedEntity.fetchRelations("users");
+
     return {
-      ...await this.relatedEntity.export(this._id, true) as Item,
+      // No need to add the requestor
+      // The permission is implied by the relationship existing at all
+      ...await this.relatedEntity.export(undefined, true) as Item,
       ...UserItemRelation.filter(this.base!)
     };
   }

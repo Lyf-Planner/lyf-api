@@ -17,16 +17,21 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
   protected relatedEntity: NoteEntity;
   protected repository = new NoteUserRepository();
 
-  static filter(object: any): NoteUserRelations {
+  static filter(object: any): NoteUserRelationshipDbObject {
     return {
+      note_id_fk: object.note_id_fk,
+      user_id_fk: object.user_id_fk,
+      created: object.created,
+      last_updated: object.last_updated,
       invite_pending: object.invite_pending,
       permission: object.status
     };
   }
 
-  constructor(id: ID, entity_id: ID) {
+  constructor(id: ID, entity_id: ID, object?: NoteUserRelationshipDbObject & NoteDbObject) {
     super(id, entity_id);
-    this.relatedEntity = new NoteEntity(entity_id);
+    this.base = UserNoteRelation.filter(object);
+    this.relatedEntity = new NoteEntity(entity_id, NoteEntity.filter(object));
   }
 
   public async delete(): Promise<void> {

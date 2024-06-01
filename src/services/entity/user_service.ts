@@ -14,10 +14,6 @@ import { ItemService } from './item_service';
 export class UserService extends EntityService<UserDbObject> {
   protected logger = Logger.of(UserService);
 
-  constructor() {
-    super();
-  }
-
   // --- USERS --- //
 
   async getEntity(user_id: string, include?: string) {

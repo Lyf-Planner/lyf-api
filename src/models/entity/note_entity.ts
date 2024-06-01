@@ -39,7 +39,7 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     const relatedUserIds = relatedUsers?.map((x) => x.id());
 
     if (requestor && !relatedUserIds?.includes(requestor)) {
-      throw new LyfError('User tried to load an item they should not have access to', 401);
+      throw new LyfError('User tried to load a note they should not have access to', 401);
     }
 
     if (with_relations) {

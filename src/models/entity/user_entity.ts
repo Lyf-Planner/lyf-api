@@ -55,10 +55,10 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     const relatedUserIds = relatedUsers?.map((x) => x.id());
 
     if (requestor && !relatedUserIds?.includes(requestor)) {
-      throw new LyfError('User tried to load an item they should not have access to', 401);
+      throw new LyfError('User tried to load another user they should not have access to', 401);
     }
 
-    if (requestor !== this._id) {
+    if (requestor && requestor !== this._id) {
       return await this.exportAsPublicUser();
     }
 
@@ -95,7 +95,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
 
     if (toLoad.includes('items')) {
       const userItemsRepo = new ItemUserRepository();
-      const relationObjects = await userItemsRepo.findRelationsByIdB(this._id);
+      const relationObjects = await userItemsRepo.findUserRelatedItems(this._id);
       const itemRelations: UserItemRelation[] = [];
 
       for (const relationObject of relationObjects) {
@@ -107,11 +107,11 @@ export class UserEntity extends BaseEntity<UserDbObject> {
 
     if (toLoad.includes('notes')) {
       const userNotesRepo = new NoteUserRepository();
-      const relationObjects = await userNotesRepo.findRelationsByIdB(this._id);
+      const relationObjects = await userNotesRepo.findUserRelatedNotes(this._id);
       const noteRelations: UserNoteRelation[] = [];
 
       for (const relationObject of relationObjects) {
-        const noteRelation = new UserNoteRelation(relationObject.user_id_fk, relationObject.note_id_fk);
+        const noteRelation = new UserNoteRelation(relationObject.user_id_fk, relationObject.note_id_fk, relationObject);
         noteRelations.push(noteRelation);
       }
       this.relations.notes = noteRelations;
@@ -149,7 +149,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     const itemRelations: UserItemRelation[] = [];
 
     for (const relationObject of relationObjects) {
-      const itemRelation = new UserItemRelation(relationObject.user_id_fk, relationObject.item_id_fk);
+      const itemRelation = new UserItemRelation(relationObject.user_id_fk, relationObject.item_id_fk, relationObject);
       itemRelations.push(itemRelation);
     }
     this.relations.items = itemRelations;
