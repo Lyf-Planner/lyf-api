@@ -9,9 +9,14 @@ import { UserService } from './entity/user_service';
 export class AuthService {
   static async loginUser(user_id: string, password: string, include?: string) {
     const userService = new UserService();
+    console.log("fetching user", user_id);
+
     const user = await userService.getEntity(user_id, include);
 
+    console.log("getting token")
     const token = await AuthService.authenticateWithUser(user, password);
+
+    console.log("got token")
 
     return {
       token,
@@ -40,7 +45,7 @@ export class AuthService {
         throw new LyfError(`User ${user_id} provided an incorrect password`, 401);
       }
 
-      const token = jwt.sign({ user_id }, env.jwtSecret as any, {
+      const token = jwt.sign({ user_id }, env.jwtSecret!, {
         // Caution: Setting an expiry will only work if we encode an object
         // Don't change the content (user_id) back to a string!
         expiresIn: '1y'
@@ -56,7 +61,7 @@ export class AuthService {
   }
 
   static verifyToken(token: string): jwt.JwtPayload {
-    return jwt.verify(token as string, env.jwtSecret as any) as any;
+    return jwt.verify(token as string, env.jwtSecret!) as jwt.JwtPayload;
   }
 
   static async hashPass(password: string) {

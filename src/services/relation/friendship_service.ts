@@ -59,6 +59,8 @@ export class FriendshipService extends BaseService {
         this.logger.info(`User ${from} removing friend request from ${update.user_id}`);
         await this.deleteFriendship(fromUser, targetUser);
         break;
+      default:
+        throw new LyfError(`Invalid friendship update - action was ${update.action}`, 400);
     }
 
     // Return users' new social field

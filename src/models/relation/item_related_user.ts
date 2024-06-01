@@ -16,8 +16,12 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
   protected relatedEntity: UserEntity;
   protected repository = new ItemUserRepository();
 
-  static filter(object: any): ItemUserRelations {
+  static filter(object: any): ItemUserRelationshipDbObject {
     return {
+      created: object.created,
+      last_updated: object.last_updated,
+      item_id_fk: object.item_id_fk,
+      user_id_fk: object.user_id_fk,
       invite_pending: object.invite_pending,
       permission: object.permission,
       sorting_rank: object.sorting_rank,

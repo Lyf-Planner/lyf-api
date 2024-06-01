@@ -19,8 +19,12 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
   protected relatedEntity: ItemEntity;
   protected repository = new ItemUserRepository();
 
-  static filter(object: any): ItemUserRelations {
+  static filter(object: any): ItemUserRelationshipDbObject {
     return {
+      created: object.created,
+      last_updated: object.last_updated,
+      item_id_fk: object.item_id_fk,
+      user_id_fk: object.user_id_fk,
       invite_pending: object.invite_pending,
       permission: object.permission,
       sorting_rank: object.sorting_rank,
@@ -29,9 +33,10 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
     };
   }
 
-  constructor(id: ID, entity_id: ID) {
+  constructor(id: ID, entity_id: ID, object: ItemUserRelationshipDbObject & ItemDbObject) {
     super(id, entity_id);
-    this.relatedEntity = new ItemEntity(entity_id);
+    this.base = UserItemRelation.filter(object);
+    this.relatedEntity = new ItemEntity(entity_id, ItemEntity.filter(object));
   }
 
   public async delete(): Promise<void> {

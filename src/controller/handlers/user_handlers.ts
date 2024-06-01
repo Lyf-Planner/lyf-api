@@ -27,6 +27,7 @@ export class UserHandlers {
 
       res.status(200).json({ user, token }).end();
     } catch (error) {
+      console.log(JSON.stringify({ error }));
       const lyfError = error as LyfError;
       res.status(lyfError.code).end(lyfError.message);
     }

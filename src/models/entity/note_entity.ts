@@ -23,7 +23,18 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
   protected relations: Partial<NoteModelRelations> = {};
 
-  public async export(requestor?: ID, with_relations = true): Promise<Note|NoteDbObject> {
+  static filter(object: any): NoteDbObject {
+    return {
+      id: object.id,
+      created: object.created,
+      last_updated: object.last_updated,
+      title: object.title,
+      type: object.type,
+      content: object.content
+    }
+  }
+
+  public async export(requestor?: ID, with_relations: boolean = true): Promise<Note|NoteDbObject> {
     const relatedUsers = this.relations.users;
     const relatedUserIds = relatedUsers?.map((x) => x.id());
 

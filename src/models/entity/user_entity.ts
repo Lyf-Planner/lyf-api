@@ -31,7 +31,26 @@ export class UserEntity extends BaseEntity<UserDbObject> {
 
   protected relations: Partial<UserModelRelations> = {};
 
-  public async export(requestor?: ID, with_relations = true): Promise<ExposedUser|PublicUser|UserExposedFields|UserPublicFields> {
+  static filter(object: any): UserDbObject {
+    return {
+      id: object.id,
+      created: object.created,
+      last_updated: object.last_updated,
+      display_name: object.display_name,
+      pfp_url: object.pfp_url,
+      private: object.private,
+      tz: object.tz,
+      first_day: object.first_day,
+      daily_notification_time: object.daily_notification_time,
+      persistent_daily_notification: object.persistent_daily_notification,
+      event_notifications_enabled: object.event_notifications_enabled,
+      event_notification_minutes_before: object.event_notification_minutes_before,
+      pass_hash: object.pass_hash,
+      expo_tokens: object.expo_tokens
+    }
+  }
+
+  public async export(requestor?: ID, with_relations: boolean = true): Promise<ExposedUser|PublicUser|UserExposedFields|UserPublicFields> {
     const relatedUsers = this.relations.users;
     const relatedUserIds = relatedUsers?.map((x) => x.id());
 
@@ -80,7 +99,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
       const itemRelations: UserItemRelation[] = [];
 
       for (const relationObject of relationObjects) {
-        const itemRelation = new UserItemRelation(relationObject.user_id_fk, relationObject.item_id_fk);
+        const itemRelation = new UserItemRelation(relationObject.user_id_fk, relationObject.item_id_fk, relationObject);
         itemRelations.push(itemRelation);
       }
       this.relations.items = itemRelations;
@@ -99,18 +118,24 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     }
 
     if (toLoad.includes('users')) {
+      console.log("finding friends")
       const userFriendsRepo = new UserFriendshipRepository();
       const relationObjects = await userFriendsRepo.findUserFriends(this._id);
       const userRelations: UserFriendRelation[] = [];
+      console.log("found relations:", relationObjects);
 
       for (const relationObject of relationObjects) {
         const otherUserId = relationObject.user1_id_fk === this._id ? relationObject.user2_id_fk : relationObject.user1_id_fk;
 
         const userRelation = new UserFriendRelation(this._id, otherUserId);
+        await userRelation.load()
+
+        console.log("created relation model, checking if blocked")
         if (userRelation.blocked()) {
           continue;
         }
 
+        console.log("pushing relation model")
         userRelations.push(userRelation);
       }
       this.relations.users = userRelations;
@@ -148,7 +173,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     return this.base!.persistent_daily_notification;
   }
 
-  private async exportAsPublicUser(with_relations = true): Promise<PublicUser|UserPublicFields> {
+  private async exportAsPublicUser(with_relations: boolean = true): Promise<PublicUser|UserPublicFields> {
     const publicUserFields: UserPublicFields = {
       created: this.base!.created,
       last_updated: this.base!.last_updated,

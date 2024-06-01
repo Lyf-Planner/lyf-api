@@ -45,8 +45,8 @@ export const serverInitialised = new Promise(async (resolve, reject) => {
     new NoteEndpoints(server);
 
     // Initialise services
-    await mongoDb.init();
-    await reminderService.init();
+    // await mongoDb.init();
+    // await reminderService.init();
     await migrateToLatest();
     resolve(true);
   } catch (err) {

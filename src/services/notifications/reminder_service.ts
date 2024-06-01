@@ -17,13 +17,11 @@ import { ItemService } from '../entity/item_service';
 import { UserService } from '../entity/user_service';
 import { ExpoPushService } from './expo_push_service';
 
-const Agenda = require('agenda');
-
-const DEFAULT_MINS_BEFORE = '5';
+const agenda = require('agenda');
 
 export class ReminderService {
   private logger = Logger.of(ReminderService);
-  private agenda = new Agenda({
+  private agendaInstance = new agenda({
     mongo: mongoDb.getDb(),
     db: { collection: 'cron-jobs' },
     processEvery: '1 minute',
@@ -38,13 +36,13 @@ export class ReminderService {
     this.defineDailyNotification();
 
     this.logger.info('Starting Agenda...');
-    await this.agenda.start();
+    await this.agendaInstance.start();
     this.logger.info('Agenda started.');
   }
 
   public async cleanup() {
-    this.logger.info('Cleaning up NotificationManager');
-    await this.agenda.stop();
+    this.logger.info('Cleaning up ReminderService');
+    await this.agendaInstance.stop();
   }
 
   // --- EVENTS --- //
@@ -73,7 +71,7 @@ export class ReminderService {
     }
 
     this.logger.info(`Creating event notification ${id} at ${setTime.toUTCString()}`);
-    await this.agenda.schedule(setTime, 'Event Notification', {
+    await this.agendaInstance.schedule(setTime, 'Event Notification', {
       id,
       user_id: user.id(),
       item_id: item.id()
@@ -90,7 +88,7 @@ export class ReminderService {
   public async removeEventNotification(item: ItemEntity, user: UserEntity) {
     this.logger.info(`Removing event notification ${item.id()}:${user.id()}`);
     const id = this.getUniqueJobId(item.id(), user.id());
-    await this.agenda.cancel({ 'data.id': id });
+    await this.agendaInstance.cancel({ 'data.id': id });
   }
 
   // --- DAILY --- //
@@ -99,7 +97,7 @@ export class ReminderService {
     this.logger.info(`Setting up daily notification for ${user.id()}`);
 
     const timeArray = daily_time.split(':');
-    const job = this.agenda.create('Daily Notification', {
+    const job = this.agendaInstance.create('Daily Notification', {
       user_id: user.id()
     });
 
@@ -116,7 +114,7 @@ export class ReminderService {
 
   public async removeDailyNotifications(user: UserEntity) {
     this.logger.info(`Removing daily notifications for user ${user.id()}`);
-    await this.agenda.cancel({ 'data.user_id': user.id() });
+    await this.agendaInstance.cancel({ 'data.user_id': user.id() });
   }
 
   // --- ROUTINES --- //
@@ -125,7 +123,7 @@ export class ReminderService {
     this.logger.info(`Setting up routine notification for ${user.id()}`);
 
     const id = this.getUniqueJobId(item.id(), user.id());
-    const job = this.agenda.create('Routine Notification', {
+    const job = this.agendaInstance.create('Routine Notification', {
       id,
       user_id: user.id(),
       item_id: item.id()
@@ -154,7 +152,7 @@ export class ReminderService {
   public async removeRoutineNotification(item: ItemEntity, user: UserEntity) {
     this.logger.info(`Removing routine ${item.id()}:${user.id()}`);
     const id = this.getUniqueJobId(item.id(), user.id());
-    await this.agenda.cancel({ 'data.id': id });
+    await this.agendaInstance.cancel({ 'data.id': id });
   }
 
   // TIMEZONE CHANGE HANDLER
@@ -195,7 +193,7 @@ export class ReminderService {
 
   private defineEventNotification() {
     this.logger.info('Defining Event Notifications');
-    this.agenda.define('Event Notification', async (job: any, done: any) => {
+    this.agendaInstance.define('Event Notification', async (job: any, done: () => void) => {
       const { id } = job.attrs.data;
       await this.sendItemNotification(id, true);
       done();
@@ -206,7 +204,7 @@ export class ReminderService {
 
   private defineDailyNotification() {
     this.logger.info('Defining Daily Notifications');
-    this.agenda.define('Daily Notification', async (job: any, done: any) => {
+    this.agendaInstance.define('Daily Notification', async (job: any, done: () => void) => {
       const { userId } = job.attrs.data;
 
       const user = await new UserService().getEntity(userId);
@@ -233,7 +231,7 @@ export class ReminderService {
 
   private defineRoutineNotification() {
     this.logger.info('Defining Routine Notifications');
-    this.agenda.define('Routine Notification', async (job: any, done: any) => {
+    this.agendaInstance.define('Routine Notification', async (job: any, done: () => void) => {
       const { id } = job.attrs.data;
       await this.sendItemNotification(id);
       done();
@@ -254,8 +252,9 @@ export class ReminderService {
       const itemUserRelation = itemUsers.find((x) => x.entityId() === user_id);
 
       if (!item || !itemUserRelation) {
-        throw new Error(
-          `Cannot send item ${item_id} notification to ${user_id} - one of item, user or relation was deleted`
+        throw new LyfError(
+          `Cannot send item ${item_id} notification to ${user_id} - one of item, user or relation was deleted`,
+          400
         );
       }
 
@@ -268,7 +267,7 @@ export class ReminderService {
 
       if (status === ItemStatus.Cancelled) {
         this.logger.warn(`Cancelling notification for ${id} as event was cancelled`);
-        await this.agenda.cancel({ 'data.id': id });
+        await this.agendaInstance.cancel({ 'data.id': id });
         return;
       }
 
@@ -276,7 +275,7 @@ export class ReminderService {
 
       if (!time) {
         this.logger.warn(`Cancelling notification for ${id} as item no longer has time`);
-        await this.agenda.cancel({ 'data.id': id });
+        await this.agendaInstance.cancel({ 'data.id': id });
         return;
       }
 
@@ -293,14 +292,15 @@ export class ReminderService {
 
       const message = this.formatExpoPushMessage(to, title, subtext);
       await new ExpoPushService().pushNotificationToExpo([message]);
-      await this.agenda.cancel({ 'data.id': id });
+      await this.agendaInstance.cancel({ 'data.id': id });
 
       if (clearFromRelation) {
         await itemUserRelation.update({ notification_mins_before: undefined });
         await itemUserRelation.save();
       }
-    } catch (err: any) {
-      this.logger.warn(`Notification ${id} failed to send: ${err.message}`);
+    } catch (error) {
+      const lyfError = error as LyfError;
+      this.logger.warn(`Notification ${id} failed to send: ${lyfError.message}`);
     }
   }
 

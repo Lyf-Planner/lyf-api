@@ -5,6 +5,7 @@ import { NoteEntity } from '../../models/entity/note_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { NoteUserRelation } from '../../models/relation/note_related_user';
 import { Logger } from '../../utils/logging';
+import { LyfError } from '../../utils/lyf_error';
 import { NoteService } from '../entity/note_service';
 import { UserService } from '../entity/user_service';
 import { SocialAction, SocialService, SocialUpdate } from './_social_service';
@@ -64,6 +65,8 @@ export class SocialNoteService extends SocialService {
         );
         // await this.removeUser(item, targetUser, fromUser);
         break;
+      default:
+        throw new LyfError(`Invalid social note update - action was ${update.action}`, 400);
     }
 
     await note.fetchRelations();

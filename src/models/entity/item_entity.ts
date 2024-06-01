@@ -24,7 +24,29 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
   protected relations: Partial<ItemModelRelations> = {};
   protected template?: ItemEntity; // TODO: Proper item-to-item relation
 
-  public async export(requestor?: ID, with_relations = true): Promise<Item|ItemDbObject> {
+  static filter(object: any): ItemDbObject {
+    return {
+      id: object.id,
+      created: object.created,
+      last_updated: object.last_updated,
+      title: object.title,
+      type: object.type,
+      status: object.status,
+      tz: object.tz,
+      date: object.date,
+      day: object.day,
+      desc: object.desc,
+      time: object.time,
+      end_time: object.end_time,
+      template_id: object.template_id,
+      url: object.url,
+      location: object.location,
+      show_in_upcoming: object.show_in_upcoming,
+      notification_mins_before: object.show_in_upcoming,
+    }
+  }
+
+  public async export(requestor?: ID, with_relations: boolean = true): Promise<Item|ItemDbObject> {
     const relatedUsers = this.relations.users;
     const relatedUserIds = relatedUsers?.map((x) => x.id());
 

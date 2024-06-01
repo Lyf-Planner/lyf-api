@@ -6,9 +6,12 @@ import { BaseModel } from '../_base_model';
 import { CommandType } from '../command_types';
 import { BaseRelation } from '../relation/_base_relation';
 
+type EntityRelations = Record<string, BaseRelation<DbRelationObject, BaseEntity<DbEntityObject>> |
+                                      BaseRelation<DbRelationObject, BaseEntity<DbEntityObject>>[]> 
+
+
 export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> {
-  protected relations: Record<string, BaseRelation<DbRelationObject, BaseEntity<DbEntityObject>> |
-                                      BaseRelation<DbRelationObject, BaseEntity<DbEntityObject>>[]> = {};
+  protected relations: EntityRelations = {};
   protected abstract repository: EntityRepository<T>;
 
   public abstract fetchRelations(include?: string): Promise<void>;
@@ -37,7 +40,6 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
     }
 
     this.base = dbObject;
-    await this.recurseRelations(CommandType.Load);
   }
 
   // Should be called by each of the major commands
@@ -96,13 +98,6 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
   }
 
   protected parseInclusions(include: string) {
-    const parsedString = include.replace('include=', '').split(',');
-
-    const includedRelations: any = [];
-    for (const inclusion of parsedString) {
-      includedRelations[inclusion] = {};
-    }
-
-    return includedRelations;
+    return include.split(',');
   }
 }
