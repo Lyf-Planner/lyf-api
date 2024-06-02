@@ -18,24 +18,24 @@ export class UserEndpoints extends UserHandlers {
   constructor(server: express.Application) {
     super();
     server.get(
-      '/login',
+      '/user/login',
       nSecondLimiter(2),
       this.login
     );
-    server.get('/autoLogin', this.autoLogin);
+    server.get('/user/autoLogin', this.autoLogin);
 
-    server.get('/getUser', this.getUser);
-    server.post('/getUsers', this.getUsers);
+    server.get('/user/get', this.getUser);
+    server.post('/user/getUsers', this.getUsers);
     server.post(
-      '/createUser',
+      '/user/create',
       nSecondLimiter(20),
       this.createUser
     );
-    server.post('/updateMe', this.updateMe);
-    server.post('/deleteMe', this.deleteMe);
+    server.post('/user/update', this.updateMe);
+    server.post('/user/delete', this.deleteMe);
 
     server.post(
-      '/updateFriendship',
+      '/user/updateFriendship',
       this.updateFriendship
     );
   }

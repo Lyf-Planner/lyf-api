@@ -16,16 +16,16 @@ export class ItemEndpoints extends ItemHandlers {
   constructor(server: Application) {
     super();
     server.post(
-      '/createItem',
+      '/item/create',
       nSecondLimiter(30, 60),
       this.createItem
     );
-    server.post('/updateItem', this.updateItem);
-    server.get('/deleteItem', this.deleteItem);
-    server.get('/getItem', this.getItem);
+    server.post('/item/update', this.updateItem);
+    server.get('/item/delete', this.deleteItem);
+    server.get('/item/get', this.getItem);
 
     server.post(
-      '/updateItemSocial',
+      '/item/updateSocial',
       this.updateItemSocial
     );
     // server.post("/addressItemSuggestion");
