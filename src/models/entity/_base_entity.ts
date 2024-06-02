@@ -18,8 +18,8 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
   public abstract getRelations(): any;
 
   public async delete() {
-    await this.repository.delete(this._id);
     await this.recurseRelations(CommandType.Delete);
+    await this.repository.delete(this._id);
   }
 
   public async extract(with_relations = true): Promise<Entity|T> {
@@ -91,10 +91,7 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
       throw new LyfError('Model was updated before being loaded', 500);
     }
 
-    const { relations, ...baseChanges } = changes;
-    this.base = { ...this.base, ...baseChanges };
-
-    await this.recurseRelations(CommandType.Update, relations);
+    this.base = { ...this.base, ...changes };
   }
 
   protected parseInclusions(include: string) {

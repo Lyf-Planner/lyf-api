@@ -56,7 +56,7 @@ export class UserService extends EntityService<UserDbObject> {
 
     await new ItemService().createUserIntroItem(user, tz);
 
-    await user.fetchRelations();
+    await user.fetchRelations("items");
     await user.load();
 
     return await user.export() as ExposedUser;
@@ -71,6 +71,7 @@ export class UserService extends EntityService<UserDbObject> {
     }
 
     const user = new UserEntity(user_id);
+    await user.load()
     await user.fetchRelations();
 
     const authenticated = !!await AuthService.authenticateWithUser(user, password);

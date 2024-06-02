@@ -89,14 +89,14 @@ export class UserHandlers {
   // Update user identified in header.
   // This endpoint should not permit Premium updates in future
   protected async updateMe(req: Request, res: Response) {
-    const user = req.body as UserDbObject;
+    const user = req.body as Partial<UserDbObject>;
     const userId = getMiddlewareVars(res).user_id;
 
     const userService = new UserService();
 
     try {
       // The work in terms of data safety is done by the validators
-      const updatedUser = await userService.processUpdate(user.id, user, userId);
+      const updatedUser = await userService.processUpdate(userId, user, userId);
 
       res.status(200).json(updatedUser).end();
     } catch (error) {

@@ -10,6 +10,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('type', 'text', (col) => col.notNull())
     .addColumn('status', 'text', (col) => col.notNull())
     .addColumn('tz', 'text', (col) => col.notNull())
+    .addColumn('collaborative', 'boolean', (col) => col.notNull())
     .addColumn('date', 'date')
     .addColumn('day', 'text')
     .addColumn('desc', 'text')
