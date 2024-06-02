@@ -126,6 +126,7 @@ export class ItemService extends EntityService<ItemDbObject> {
       created: creationDate,
       last_updated: creationDate,
       id: uuid(),
+      collaborative: false,
       title: 'Swipe Me Left!',
       tz,
       type: ItemType.Event,

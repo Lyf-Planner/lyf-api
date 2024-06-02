@@ -6,7 +6,7 @@ import { UserService } from '../../services/entity/user_service';
 import { FriendshipService, FriendshipUpdate } from '../../services/relation/friendship_service';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
-import { getMiddlewareVars } from '../utils';
+import { InclusionString, getMiddlewareVars } from '../utils';
 import {
   deleteMeBody,
   getUserQuery,
@@ -19,11 +19,11 @@ import { UserDbObject } from '../../api/schema/database/user';
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
     // This endpoint is excluded from the auth middleware
-    const { user_id, password } = req.query as loginQuery;
+    const { user_id, password, include } = req.query as loginQuery & InclusionString;
     logger.debug(`Received login request for user ${user_id}`);
 
     try {
-      const { user, token } = await AuthService.loginUser(user_id, password);
+      const { user, token } = await AuthService.loginUser(user_id, password, include || "");
 
       res.status(200).json({ user, token }).end();
     } catch (error) {
@@ -34,6 +34,7 @@ export class UserHandlers {
   }
 
   protected async autoLogin(req: Request, res: Response) {
+    const { include } = req.query as InclusionString
     const user_id = getMiddlewareVars(res).user_id;
 
     // The auth middleware has already done all the work here
@@ -42,10 +43,11 @@ export class UserHandlers {
     const userService = new UserService();
 
     try {
-      const user = await userService.retrieveForUser(user_id, user_id);
+      const user = await userService.retrieveForUser(user_id, user_id, include || "");
       res.status(200).json(user).end();
     } catch (error) {
       const lyfError = error as LyfError;
+      logger.error(lyfError.message);
       res.status(lyfError.code).end(lyfError.message);
     }
   }
@@ -59,26 +61,9 @@ export class UserHandlers {
     const userService = new UserService();
 
     try {
-      const user = await userService.retrieveForUser(user_id as string, requestorId);
+      const user = await userService.retrieveForUser(user_id as string, requestorId, "users");
+
       res.status(200).json(user).end();
-    } catch (error) {
-      const lyfError = error as LyfError;
-      res.status(lyfError.code).end(lyfError.message);
-    }
-  }
-
-  protected async getUsers(req: Request, res: Response) {
-    const { user_ids } = req.body;
-    const requestorId = getMiddlewareVars(res).user_id;
-
-    logger.debug(`Received request for user ids ${user_ids} from "${requestorId}"`);
-
-    const userService = new UserService();
-
-    try {
-      const users = await userService.retrieveManyUsers(user_ids, requestorId);
-
-      res.status(200).json(users).end();
     } catch (error) {
       const lyfError = error as LyfError;
       res.status(lyfError.code).end(lyfError.message);

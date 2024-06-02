@@ -4,7 +4,8 @@ import { UserFriendshipStatus } from '../../api/schema/database/user_friendships
 import {
   ExposedUser,
   PublicUser,
-  User
+  User,
+  UserFriend
 } from '../../api/schema/user';
 import { UserRepository } from '../../repository/entity/user_repository';
 import { ItemUserRepository } from '../../repository/relation/item_user_repository';
@@ -51,17 +52,12 @@ export class UserEntity extends BaseEntity<UserDbObject> {
   }
 
   public async export(requestor?: ID, with_relations: boolean = true): Promise<ExposedUser|PublicUser|UserExposedFields|UserPublicFields> {
-    const relatedUsers = this.relations.users;
-    const relatedUserIds = relatedUsers?.map((x) => x.id());
+    const selfRequested = requestor === this._id
 
-    if (requestor && !relatedUserIds?.includes(requestor)) {
-      throw new LyfError('User tried to load another user they should not have access to', 401);
-    }
-
-    if (requestor && requestor !== this._id) {
+    if (requestor && !selfRequested) {
       return await this.exportAsPublicUser();
     }
-
+    
     if (with_relations) {
       return {
         ...this.stripSensitiveFields(),
@@ -91,7 +87,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
   }
 
   public async fetchRelations(include?: string | undefined): Promise<void> {
-    const toLoad = include ? this.parseInclusions(include) : ['items', 'notes', 'users'];
+    const toLoad = include !== undefined ? this.parseInclusions(include) : ['items', 'notes', 'users'];
 
     if (toLoad.includes('items')) {
       const userItemsRepo = new ItemUserRepository();
@@ -127,8 +123,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
       for (const relationObject of relationObjects) {
         const otherUserId = relationObject.user1_id_fk === this._id ? relationObject.user2_id_fk : relationObject.user1_id_fk;
 
-        const userRelation = new UserFriendRelation(this._id, otherUserId);
-        await userRelation.load()
+        const userRelation = new UserFriendRelation(this._id, otherUserId, relationObject);
 
         console.log("created relation model, checking if blocked")
         if (userRelation.blocked()) {
@@ -183,9 +178,16 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     };
 
     if (with_relations) {
+      // Only expose friends when exporting a public user!
+      const { users }: { users?: UserFriend[]} = await this.recurseRelations(CommandType.Export)
+    
+      const relations = users ? {
+          users: users?.filter((x) => x.status === UserFriendshipStatus.Friends)
+        } : {};
+
       return {
         ...publicUserFields,
-        relations: await this.recurseRelations(CommandType.Export)
+        relations
       };
     }
 

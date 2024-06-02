@@ -19,15 +19,25 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
   protected relatedEntity: UserEntity;
   protected repository = new UserFriendshipRepository();
 
-  static filter(object: any): UserFriendshipRelations {
+  static filter(object: any): UserFriendshipDbObject {
     return {
+      user1_id_fk: object.user1_id_fk,
+      user2_id_fk: object.user2_id_fk,
+      created: object.created,
+      last_updated: object.last_updated,
       status: object.status
     };
   }
 
-  constructor(id: ID, entity_id: ID) {
+  constructor(id: ID, entity_id: ID, object?: UserFriendshipDbObject & UserDbObject) {
     super(id, entity_id);
-    this.relatedEntity = new UserEntity(entity_id);
+
+    if (object) {
+      this.base = UserFriendRelation.filter(object);
+      this.relatedEntity = new UserEntity(entity_id, UserEntity.filter(object));
+    } else {
+      this.relatedEntity = new UserEntity(entity_id);
+    }
   }
 
   public async delete(): Promise<void> {
@@ -42,9 +52,13 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
   }
 
   public async export(requestor?: string | undefined): Promise<UserFriend> {
+    const relationFields: UserFriendshipRelations = {
+      status: this.base!.status
+    }
+
     return {
-      ...await this.relatedEntity.export('', false) as PublicUser,
-      ...UserFriendRelation.filter(this.base!)
+      ...await this.relatedEntity.export(this._id, false) as PublicUser,
+      ...relationFields
     };
   }
 

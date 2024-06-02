@@ -34,6 +34,7 @@ const insertAsPgItem = async (item: MongoItem, db: Kysely<any>) => {
     id: item.id as any,
     created: item.created,
     last_updated: item.last_updated,
+    collaborative: false,
     title: item.title,
     type: item.type === ListItemTypes.Item ? ItemType.Task : (item.type as any) || ItemType.Task,
     status: item.status || ItemStatus.Upcoming,

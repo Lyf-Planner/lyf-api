@@ -57,11 +57,11 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
     if (toLoad.includes('items')) {
       const noteItemsRepo = new ItemNoteRepository();
-      const relationObjects = await noteItemsRepo.findRelationsByIdB(this._id);
+      const relationObjects = await noteItemsRepo.findNoteRelatedItems(this._id);
       const itemRelations: NoteItemRelation[] = [];
 
       for (const relationObject of relationObjects) {
-        const itemRelation = new NoteItemRelation(relationObject.note_id_fk, relationObject.item_id_fk);
+        const itemRelation = new NoteItemRelation(relationObject.note_id_fk, relationObject.item_id_fk, relationObject);
         itemRelations.push(itemRelation);
       }
       this.relations.items = itemRelations;
@@ -69,11 +69,11 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
     if (toLoad.includes('users')) {
       const noteUsersRepo = new NoteUserRepository();
-      const relationObjects = await noteUsersRepo.findRelationsByIdA(this._id);
+      const relationObjects = await noteUsersRepo.findNoteRelatedUsers(this._id);
       const userRelations: NoteUserRelation[] = [];
 
       for (const relationObject of relationObjects) {
-        const userRelation = new NoteUserRelation(relationObject.note_id_fk, relationObject.user_id_fk);
+        const userRelation = new NoteUserRelation(relationObject.note_id_fk, relationObject.user_id_fk, relationObject);
         userRelations.push(userRelation);
       }
       this.relations.users = userRelations;

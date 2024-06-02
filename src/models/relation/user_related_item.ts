@@ -7,7 +7,6 @@ import {
 } from '../../api/schema/database/items_on_users';
 import { Item } from '../../api/schema/items';
 import { UserRelatedItem } from '../../api/schema/user';
-import { ItemRepository } from '../../repository/entity/item_repository';
 import { ItemUserRepository } from '../../repository/relation/item_user_repository';
 import { Logger } from '../../utils/logging';
 import { ItemEntity } from '../entity/item_entity';
@@ -35,8 +34,14 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
 
   constructor(id: ID, entity_id: ID, object?: ItemUserRelationshipDbObject & ItemDbObject) {
     super(id, entity_id);
-    this.base = UserItemRelation.filter(object);
-    this.relatedEntity = new ItemEntity(entity_id, ItemEntity.filter(object));
+
+    if (object) {
+      this.base = UserItemRelation.filter(object);
+      this.relatedEntity = new ItemEntity(entity_id, ItemEntity.filter(object));
+    } else {
+      this.relatedEntity = new ItemEntity(entity_id);
+    }
+    
   }
 
   public async delete(): Promise<void> {
@@ -51,14 +56,19 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
   }
 
   public async export(requestor?: string | undefined): Promise<UserRelatedItem> {
-    // We want the users on the item in addition to just the item
-    await this.relatedEntity.fetchRelations("users");
-
+    const relationFields: ItemUserRelations = {
+      invite_pending: this.base!.invite_pending,
+      permission: this.base!.permission,
+      sorting_rank: this.base!.sorting_rank,
+      show_in_upcoming: this.base!.show_in_upcoming,
+      notification_mins_before: this.base!.notification_mins_before
+    }
+      
     return {
       // No need to add the requestor
       // The permission is implied by the relationship existing at all
       ...await this.relatedEntity.export(undefined, true) as Item,
-      ...UserItemRelation.filter(this.base!)
+      ...relationFields
     };
   }
 

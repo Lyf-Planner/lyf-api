@@ -24,14 +24,20 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
       created: object.created,
       last_updated: object.last_updated,
       invite_pending: object.invite_pending,
-      permission: object.status
+      permission: object.permission
     };
   }
 
   constructor(id: ID, entity_id: ID, object?: NoteUserRelationshipDbObject & NoteDbObject) {
     super(id, entity_id);
-    this.base = UserNoteRelation.filter(object);
-    this.relatedEntity = new NoteEntity(entity_id, NoteEntity.filter(object));
+
+    if (object) {
+      this.base = UserNoteRelation.filter(object);
+      this.relatedEntity = new NoteEntity(entity_id, NoteEntity.filter(object));
+    } else {
+      this.relatedEntity = new NoteEntity(entity_id);
+    }
+    
   }
 
   public async delete(): Promise<void> {
@@ -46,9 +52,14 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
   }
 
   public async export(requestor?: string | undefined): Promise<UserRelatedNote> {
+    const relationFields: NoteUserRelations = {
+      invite_pending: this.base!.invite_pending,
+      permission: this.base!.permission
+    }
+
     return {
       ...await this.relatedEntity.export(this._id, true) as Note,
-      ...UserNoteRelation.filter(this.base!)
+      ...relationFields
     };
   }
 

@@ -11,6 +11,11 @@ export interface ItemDbObject extends DbEntry {
   type: ItemType;
   status: ItemStatus;
   tz: string;
+
+  // This indicates whether the item uses the user permissions table - when false, Owner permission is implied.
+  // Provides a huge optimisation timetable queries and massively reduces data for notes.
+  collaborative: boolean;
+
   date?: string; // yyyy-mm-dd
   day?: string;
   desc?: string;

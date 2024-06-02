@@ -30,9 +30,15 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
     };
   }
 
-  constructor(id: ID, entity_id: ID) {
+  constructor(id: ID, entity_id: ID, object?: ItemUserRelationshipDbObject & UserDbObject) {
     super(id, entity_id);
-    this.relatedEntity = new UserEntity(entity_id);
+
+    if (object) {
+      this.base = ItemUserRelation.filter(object);
+      this.relatedEntity = new UserEntity(entity_id, UserEntity.filter(object));
+    } else {
+      this.relatedEntity = new UserEntity(entity_id);
+    }
   }
 
   public async delete(): Promise<void> {
@@ -47,9 +53,17 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
   }
 
   public async export(requestor?: string | undefined): Promise<ItemRelatedUser> {
+    const relationFields: ItemUserRelations = {
+      invite_pending: this.base!.invite_pending,
+      permission: this.base!.permission,
+      sorting_rank: this.base!.sorting_rank,
+      show_in_upcoming: this.base!.show_in_upcoming,
+      notification_mins_before: this.base!.notification_mins_before
+    }
+
     return {
       ...await this.relatedEntity.export('', false) as UserPublicFields,
-      ...ItemUserRelation.filter(this.base!)
+      ...relationFields
     };
   }
 

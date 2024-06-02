@@ -1,5 +1,6 @@
 import { ID } from '../../api/schema/database/abstract';
 import { UserDbObject } from '../../api/schema/database/user';
+import { UserFriendshipStatus } from '../../api/schema/database/user_friendships';
 import { ExposedUser, PublicUser, User } from '../../api/schema/user';
 import { UserEntity } from '../../models/entity/user_entity';
 import { UserRepository } from '../../repository/entity/user_repository';
@@ -21,6 +22,7 @@ export class UserService extends EntityService<UserDbObject> {
     const user = new UserEntity(user_id);
     console.log("fetching relations");
     await user.fetchRelations(include);
+    console.log("got relations", user.getRelations());
     console.log("fetching user");
     await user.load();
 
@@ -99,6 +101,11 @@ export class UserService extends EntityService<UserDbObject> {
   }
 
   public async retrieveForUser(user_id: ID, requestor_id: ID, include?: string): Promise<ExposedUser|PublicUser> {
+    // Get friend relations on other users
+    if (user_id !== requestor_id) {
+      include = "users"
+    }
+
     const user = await this.getEntity(user_id, include);
 
     return await user.export(requestor_id);

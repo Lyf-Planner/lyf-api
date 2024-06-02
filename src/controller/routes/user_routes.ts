@@ -23,9 +23,8 @@ export class UserEndpoints extends UserHandlers {
       this.login
     );
     server.get('/user/autoLogin', this.autoLogin);
-
     server.get('/user/get', this.getUser);
-    server.post('/user/getUsers', this.getUsers);
+
     server.post(
       '/user/create',
       nSecondLimiter(20),

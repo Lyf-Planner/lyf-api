@@ -32,6 +32,7 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
       title: object.title,
       type: object.type,
       status: object.status,
+      collaborative: object.collaborative,
       tz: object.tz,
       date: object.date,
       day: object.day,
@@ -70,16 +71,17 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
 
     if (toLoad.includes('items') && this.base?.template_id) {
       const template = new ItemEntity(this.base.template_id);
+      await template.load();
       this.template = template;
     }
 
     if (toLoad.includes('users')) {
       const itemUsersRepo = new ItemUserRepository();
-      const relationObjects = await itemUsersRepo.findRelationsByIdA(this._id);
+      const relationObjects = await itemUsersRepo.findItemRelatedUsers(this._id);
       const userRelations: ItemUserRelation[] = [];
 
       for (const relationObject of relationObjects) {
-        const userRelation = new ItemUserRelation(relationObject.item_id_fk, relationObject.user_id_fk);
+        const userRelation = new ItemUserRelation(relationObject.item_id_fk, relationObject.user_id_fk, relationObject);
         userRelations.push(userRelation);
       }
       this.relations.users = userRelations;

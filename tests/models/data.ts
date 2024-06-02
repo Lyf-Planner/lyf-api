@@ -27,6 +27,7 @@ export const createTestItem1 = (): ItemDbObject => {
 
   return {
     id: item1_id,
+    collaborative: false,
     created: creationTime,
     last_updated: creationTime,
     title: 'Test Event',

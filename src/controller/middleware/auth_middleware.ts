@@ -7,7 +7,7 @@ import { LyfError } from '../../utils/lyf_error';
 
 const logger = new Logger('AuthMiddleware');
 const TOKEN_PREFIX = 'Bearer ';
-const EXCLUDED_ENDPOINTS = ['/login', '/createUser'];
+const EXCLUDED_ENDPOINTS = ['/user/login', '/user/create'];
 
 export const authoriseHeader = (
   req: Request,
