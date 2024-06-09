@@ -1,0 +1,3 @@
+[submodule "src/api/schema"]
+	path = src/api/schema
+	url = https://github.com/Lyf-Planner/lyf-schema.git
