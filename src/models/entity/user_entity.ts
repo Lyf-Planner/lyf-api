@@ -1,10 +1,10 @@
+import moment from 'moment-timezone';
 import { ID } from '../../api/schema/database/abstract';
 import { UserDbObject, UserExposedFields, UserPublicFields, UserSensitiveFields } from '../../api/schema/database/user';
 import { UserFriendshipStatus } from '../../api/schema/database/user_friendships';
 import {
   ExposedUser,
   PublicUser,
-  User,
   UserFriend
 } from '../../api/schema/user';
 import { UserRepository } from '../../repository/entity/user_repository';
@@ -13,7 +13,6 @@ import { NoteUserRepository } from '../../repository/relation/note_user_reposito
 import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
 import { daysInRange } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
 import { CommandType } from '../command_types';
 import { UserFriendRelation } from '../relation/user_friend';
 import { UserItemRelation } from '../relation/user_related_item';
@@ -140,6 +139,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
   public async fetchItemsInRange(start: string, end: string): Promise<void> {
     const userItemsRepo = new ItemUserRepository();
     const relevantDays = daysInRange(start, end);
+
     const relationObjects = await userItemsRepo.findUserFilteredItems(this._id, start, end, relevantDays);
     const itemRelations: UserItemRelation[] = [];
 
@@ -147,6 +147,21 @@ export class UserEntity extends BaseEntity<UserDbObject> {
       const itemRelation = new UserItemRelation(relationObject.user_id_fk, relationObject.item_id_fk, relationObject);
       itemRelations.push(itemRelation);
     }
+
+    this.relations.items = itemRelations;
+  }
+
+  public async fetchItemsInFuture(start_date: string): Promise<void> {
+    const userItemsRepo = new ItemUserRepository();
+
+    const relationObjects = await userItemsRepo.findUserFutureItems(this._id, start_date);
+    const itemRelations: UserItemRelation[] = [];
+
+    for (const relationObject of relationObjects) {
+      const itemRelation = new UserItemRelation(relationObject.user_id_fk, relationObject.item_id_fk, relationObject);
+      itemRelations.push(itemRelation);
+    }
+
     this.relations.items = itemRelations;
   }
 

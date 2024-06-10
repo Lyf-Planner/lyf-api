@@ -2,6 +2,7 @@ import { ID } from '../../api/mongo_schema/abstract';
 import { ItemDbObject } from '../../api/schema/database/items';
 import { ItemUserRelationshipDbObject } from '../../api/schema/database/items_on_users';
 import { UserDbObject } from '../../api/schema/database/user';
+import { daysOfWeek } from '../../utils/dates';
 import { RelationRepository } from './_relation_repository';
 
 const TABLE_NAME = 'items_on_users';
@@ -91,6 +92,22 @@ export class ItemUserRepository extends RelationRepository<ItemUserRelationshipD
       .selectAll()
       .where('user_id_fk', '=', user_id)
       .where((eb) => eb.or([eb.between('date', start_date, end_date), eb('day', 'in', days)]))
+      .execute();
+
+    return result;
+  }
+
+  // Items filtered by future
+  async findUserFutureItems(
+    user_id: ID,
+    start_date: string,
+  ): Promise<(ItemDbObject & ItemUserRelationshipDbObject)[]> {
+    const result = await this.db
+      .selectFrom('items')
+      .innerJoin(TABLE_NAME, 'items.id', 'items_on_users.item_id_fk')
+      .selectAll()
+      .where('user_id_fk', '=', user_id)
+      .where((eb) => eb.or([eb('date', '>=', start_date), eb('date', 'is', undefined), eb('day', 'in', daysOfWeek)]))
       .execute();
 
     return result;

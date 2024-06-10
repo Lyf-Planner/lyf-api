@@ -16,6 +16,7 @@ import { LyfError } from '../../utils/lyf_error';
 import { SocialItemNotifications } from '../notifications/item_notifications';
 import reminderService from '../notifications/reminder_service';
 import { EntityService } from './_entity_service';
+import { UserService } from './user_service';
 
 export class ItemService extends EntityService<ItemDbObject> {
   protected logger = Logger.of(ItemService);
@@ -26,6 +27,31 @@ export class ItemService extends EntityService<ItemDbObject> {
     await item.load();
 
     return item;
+  }
+
+  async getTimetable(user_id: ID, requestor_id: ID, start_date: string) {
+    // Validate the requestor has permission - must be themselves or a Best Friend
+    const user = await new UserService().getEntity(user_id, "");
+    if (user_id !== requestor_id) {
+      await user.fetchRelations("users")
+      const friends = user.getRelations().users || [];
+      const friendIds = friends.map((friendEntity) => friendEntity.id())
+      
+      if (!friendIds.includes(requestor_id)) {
+        throw new LyfError('You must be BFFs to view a users timetable', 403);
+      } 
+    }
+
+    await user.fetchItemsInFuture(start_date);
+    const timetableItems = user.getRelations().items || [];
+    const exportedTimetable = [];
+
+    for (const item of timetableItems) {
+      // TODO: Rework the synchronous command types to not return promises
+      exportedTimetable.push(await item.export())
+    }
+
+    return exportedTimetable;
   }
 
   async processCreation(

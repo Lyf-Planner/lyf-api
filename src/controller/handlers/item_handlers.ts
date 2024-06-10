@@ -103,6 +103,24 @@ export class ItemHandlers {
     }
   }
 
+  protected async getTimetable(req: Request, res: Response) {
+    const { user_id, start_date } = req.query as { user_id: string, start_date: string };
+    const requestor_id = getMiddlewareVars(res).user_id;
+
+    logger.debug(`Retreiving timetable of ${user_id} for user ${requestor_id}`);
+
+    // Authorisation checks
+    try {
+      const service = new ItemService();
+      const timetable = await service.getTimetable(user_id, requestor_id, start_date);
+
+      res.status(200).json(timetable).end();
+    } catch (err) {
+      logger.error(`User ${requestor_id} requested timetable of ${user_id}, to which they don't have access`);
+      res.status(403).end(`${err}`);
+    }
+  }
+
   protected async updateItem(req: Request, res: Response) {
     itemUpdateQueue.add(async () => await ItemHandlers._queuedUpdateItem(req, res));
   }

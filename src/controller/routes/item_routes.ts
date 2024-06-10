@@ -15,15 +15,16 @@ import {
 export class ItemEndpoints extends ItemHandlers {
   constructor(server: Application) {
     super();
+    server.get('/item/get', this.getItem);
+    server.get('/item/delete', this.deleteItem);
+    server.get('/item/timetable', this.getTimetable)
+
     server.post(
       '/item/create',
       nSecondLimiter(30, 60),
       this.createItem
     );
     server.post('/item/update', this.updateItem);
-    server.get('/item/delete', this.deleteItem);
-    server.get('/item/get', this.getItem);
-
     server.post(
       '/item/updateSocial',
       this.updateItemSocial
