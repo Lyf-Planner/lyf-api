@@ -5,7 +5,7 @@ import { ID } from '../../api/schema/database/abstract';
 import { Note } from '../../api/schema/notes';
 import { FriendshipUpdate } from '../../services/relation/friendship_service';
 import { isValidTimeZone } from './utils';
-import { FriendshipAction } from '../../api/schema/social';
+import { FriendshipAction } from '../../api/schema/util/social';
 
 // GET
 

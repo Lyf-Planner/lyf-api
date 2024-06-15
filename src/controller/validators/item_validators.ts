@@ -7,7 +7,7 @@ import {
 import { Item } from '../../api/schema/items';
 import { daysOfWeek } from '../../utils/dates';
 import { isValidTimeZone } from './utils';
-import { SocialAction } from '../../api/schema/social';
+import { SocialAction } from '../../api/schema/util/social';
 
 // GET
 

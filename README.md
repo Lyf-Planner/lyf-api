@@ -133,6 +133,10 @@ There is a linter available by running `yarn lint:fix` which will apply the stan
 
 Alternatively, you can setup a linting precommit hook if you set the environment variable `export PRECOMMIT=true`. Using this is optional in case you need to quickly transfer changes between devices, but is *highly recommended* otherwise
 
+### Common Issues
+
+- If submodule imports get broken, make sure to checkout to latest master in submodule branch, and then commit this to your lyf-api branch. Will only work after commit, not after pull!
+
 ## Deployments
 
 Once a new version of the API is finished, it should be merged first into the `production` branch, where it will be automatically deployed by [Railway](https://railway.app/project/f775ac44-eda0-44f0-9299-df915e4b8f20/service/ec403ab7-ec5e-4902-81ac-74f195778b7a) to our production API server at [this endpoint](https://lyf-api-production.up.railway.app)

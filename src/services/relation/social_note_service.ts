@@ -1,7 +1,7 @@
 import { ID } from '../../api/mongo_schema/abstract';
 import { Permission } from '../../api/schema/database/items_on_users';
 import { NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
-import { SocialAction } from '../../api/schema/social';
+import { SocialAction } from '../../api/schema/util/social';
 import { NoteEntity } from '../../models/entity/note_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { NoteUserRelation } from '../../models/relation/note_related_user';

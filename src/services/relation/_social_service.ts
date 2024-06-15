@@ -2,7 +2,7 @@ import { ID } from '../../api/schema/database/abstract';
 import { ItemDbObject } from '../../api/schema/database/items';
 import { Permission } from '../../api/schema/database/items_on_users';
 import { NoteDbObject } from '../../api/schema/database/notes';
-import { SocialAction } from '../../api/schema/social';
+import { SocialAction } from '../../api/schema/util/social';
 import { SocialEntity, SocialRelation } from '../../models/entity/_social_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { UserFriendRelation } from '../../models/relation/user_friend';

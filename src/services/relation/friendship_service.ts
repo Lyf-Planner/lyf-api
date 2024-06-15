@@ -1,6 +1,6 @@
 import { ID } from '../../api/schema/database/abstract';
 import { UserFriendshipDbObject, UserFriendshipStatus } from '../../api/schema/database/user_friendships';
-import { FriendshipAction } from '../../api/schema/social';
+import { FriendshipAction } from '../../api/schema/util/social';
 import { ExposedUser } from '../../api/schema/user';
 import { UserEntity } from '../../models/entity/user_entity';
 import { UserFriendRelation } from '../../models/relation/user_friend';
