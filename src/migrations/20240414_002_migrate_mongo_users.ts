@@ -1,5 +1,4 @@
 import { Kysely } from 'kysely';
-import { v4 as uuid } from 'uuid';
 
 import { User as MongoUser } from '../api/mongo_schema/user';
 import { UserDbObject as PostgresUser } from '../api/schema/database/user';

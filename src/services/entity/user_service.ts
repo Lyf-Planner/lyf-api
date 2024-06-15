@@ -18,15 +18,10 @@ export class UserService extends EntityService<UserDbObject> {
   // --- USERS --- //
 
   async getEntity(user_id: string, include?: string) {
-    // TODO: Eventually get rid of this method to keep things more self contained
+    this.logger.info('getting user ' + user_id)
     const user = new UserEntity(user_id);
-    console.log("fetching relations");
     await user.fetchRelations(include);
-    console.log("got relations", user.getRelations());
-    console.log("fetching user");
     await user.load();
-
-    console.log("got loaded user");
 
     return user;
   }

@@ -3,8 +3,9 @@ import { body, query } from 'express-validator';
 
 import { ID } from '../../api/schema/database/abstract';
 import { Note } from '../../api/schema/notes';
-import { FriendshipAction, FriendshipUpdate } from '../../services/relation/friendship_service';
+import { FriendshipUpdate } from '../../services/relation/friendship_service';
 import { isValidTimeZone } from './utils';
+import { FriendshipAction } from '../../api/schema/social';
 
 // GET
 

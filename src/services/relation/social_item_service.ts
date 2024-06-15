@@ -1,5 +1,6 @@
 import { ID } from '../../api/mongo_schema/abstract';
 import { ItemUserRelationshipDbObject, Permission } from '../../api/schema/database/items_on_users';
+import { SocialAction } from '../../api/schema/social';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { ItemUserRelation } from '../../models/relation/item_related_user';
@@ -8,7 +9,7 @@ import { LyfError } from '../../utils/lyf_error';
 import { ItemService } from '../entity/item_service';
 import { UserService } from '../entity/user_service';
 import { SocialItemNotifications } from '../notifications/item_notifications';
-import { SocialAction, SocialService, SocialUpdate } from './_social_service';
+import { SocialService, SocialUpdate } from './_social_service';
 
 export class SocialItemService extends SocialService {
   protected logger = Logger.of(SocialItemService);

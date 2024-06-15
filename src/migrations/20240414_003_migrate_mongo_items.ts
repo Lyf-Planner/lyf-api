@@ -18,6 +18,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute();
 
   for (const item of mongoItems) {
+    // Template items are handled in the subsequent migration
     if (!item.template_id) {
       await insertAsPgItem(item, db);
     }

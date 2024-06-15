@@ -11,14 +11,14 @@ export async function up(db: Kysely<any>): Promise<void> {
   const mongoNotes: MongoNote[] = await notesCollection.findAll();
 
   for (const note of mongoNotes) {
+    await insertAsPgNote(note, db);
+
     // Upload all it's items first
     if (note.type === MongoNoteType.List) {
       for (const item of note.content as MongoItem[]) {
-        await insertAsPgItem(item, db);
+        await insertAsPgItem(item, note.id, db);
       }
     }
-
-    await insertAsPgNote(note, db);
   }
 }
 
@@ -26,7 +26,7 @@ export async function down(db: Kysely<any>): Promise<void> {
   await db.deleteFrom('notes').execute();
 }
 
-const insertAsPgItem = async (item: MongoItem, db: Kysely<any>) => {
+const insertAsPgItem = async (item: MongoItem, note_id: string, db: Kysely<any>) => {
   const owner = await mongoDb.usersCollection().getById(item.permitted_users[0].user_id, false);
   const intendedTimezone = owner?.timezone || 'Australia/Melbourne';
 
@@ -44,6 +44,7 @@ const insertAsPgItem = async (item: MongoItem, db: Kysely<any>) => {
     desc: item.desc,
     time: item.time, // hh:mm
     end_time: item.end_time,
+    note_id: note_id,
     template_id: undefined,
     url: item.url,
     location: item.location,

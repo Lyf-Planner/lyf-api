@@ -1,6 +1,7 @@
 import { ID } from '../../api/mongo_schema/abstract';
 import { Permission } from '../../api/schema/database/items_on_users';
 import { NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
+import { SocialAction } from '../../api/schema/social';
 import { NoteEntity } from '../../models/entity/note_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { NoteUserRelation } from '../../models/relation/note_related_user';
@@ -8,7 +9,7 @@ import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { NoteService } from '../entity/note_service';
 import { UserService } from '../entity/user_service';
-import { SocialAction, SocialService, SocialUpdate } from './_social_service';
+import { SocialService, SocialUpdate } from './_social_service';
 
 export class SocialNoteService extends SocialService {
   protected logger = Logger.of(SocialNoteService);

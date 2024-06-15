@@ -10,7 +10,6 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('invite_pending', 'boolean', (col) => col.notNull())
     .addColumn('permission', 'text', (col) => col.notNull())
     .addPrimaryKeyConstraint('pk_note_user', ['user_id_fk', 'note_id_fk'])
-    .addCheckConstraint('check_permission', sql`permission IN (\'Owner\', \'Editor\', \'Read Only\')`)
     .execute();
 
   await db.schema

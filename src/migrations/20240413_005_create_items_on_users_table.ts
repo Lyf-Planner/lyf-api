@@ -11,7 +11,6 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('permission', 'text', (col) => col.notNull())
     .addColumn('sorting_rank', 'decimal', (col) => col.notNull())
     .addPrimaryKeyConstraint('pk_item_user', ['item_id_fk', 'user_id_fk'])
-    .addCheckConstraint('check_permission', sql`permission IN (\'Owner\', \'Editor\', \'Read Only\')`)
     .execute();
 
   await db.schema.createIndex('item_user_item_id_index').on('items_on_users').column('item_id_fk').execute();

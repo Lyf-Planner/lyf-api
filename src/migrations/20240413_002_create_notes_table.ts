@@ -9,7 +9,6 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('title', 'varchar(80)', (col) => col.notNull())
     .addColumn('type', 'text', (col) => col.notNull())
     .addColumn('content', 'text')
-    .addCheckConstraint('check_type', sql`type IN (\'List Only\', \'Note Only\', \'Multiple\')`)
     .execute();
 }
 

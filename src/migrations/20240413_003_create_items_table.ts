@@ -16,16 +16,12 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('desc', 'text')
     .addColumn('time', 'time')
     .addColumn('end_time', 'time')
+    .addColumn('note_id', 'uuid', (col) => col.references('notes.id'))
     .addColumn('template_id', 'uuid', (col) => col.references('items.id'))
     .addColumn('url', 'text')
     .addColumn('location', 'text')
     .addColumn('show_in_upcoming', 'boolean')
     .addColumn('notification_mins_before', 'integer')
-    .addCheckConstraint('check_type', sql`type IN (\'Event\', \'Task\')`)
-    .addCheckConstraint(
-      'check_status',
-      sql`status IN (\'Cancelled\', \'Tentative\', \'Upcoming\', \'InProgress\', \'Done\')`
-    )
     .execute();
 
   await db.schema.createIndex('item_date_index').on('items').column('date desc').execute();

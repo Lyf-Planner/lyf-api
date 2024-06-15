@@ -2,14 +2,12 @@ import { v4 as uuid } from 'uuid';
 
 import { ID } from '../../api/schema/database/abstract';
 import { ItemDbObject, ItemStatus, ItemType } from '../../api/schema/database/items';
-import { ItemNoteRelationshipDbObject } from '../../api/schema/database/items_on_notes';
 import { ItemUserRelationshipDbObject, Permission } from '../../api/schema/database/items_on_users';
 import { Item } from '../../api/schema/items';
 import { UserRelatedItem } from '../../api/schema/user';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { ItemUserRelation } from '../../models/relation/item_related_user';
-import { NoteItemRelation } from '../../models/relation/note_related_item';
 import { formatDateData } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
@@ -58,7 +56,6 @@ export class ItemService extends EntityService<ItemDbObject> {
     item_input: ItemDbObject,
     user_id: ID,
     sorting_rank: number,
-    note_id?: ID
   ) {
     // Create the item, as well as any user relations and note relations
     const item = new ItemEntity(item_input.id);
@@ -85,11 +82,6 @@ export class ItemService extends EntityService<ItemDbObject> {
       const ownerRelationship = new ItemUserRelation(item.id(), user_id);
       const ownerRelationshipObject = this.defaultOwnerRelationship(item.id(), user_id, sorting_rank);
       await ownerRelationship.create(ownerRelationshipObject);
-    }
-
-    // Setup note relation if created on a note
-    if (note_id) {
-      await this.createOnNote(note_id, item.id());
     }
 
     await item.fetchRelations();
@@ -193,18 +185,6 @@ export class ItemService extends EntityService<ItemDbObject> {
 
     const newRelationship = new ItemUserRelation(item.id(), user.id());
     await newRelationship.create(rawObject);
-  }
-
-  private async createOnNote(note_id: ID, item_id: ID) {
-    const relationship = new NoteItemRelation(note_id, item_id);
-    const object: ItemNoteRelationshipDbObject = {
-      item_id_fk: item_id,
-      note_id_fk: note_id,
-      created: new Date(),
-      last_updated: new Date()
-    };
-
-    await relationship.create(object);
   }
 
   private defaultOwnerRelationship(item_id: ID, user_id: ID, rank?: number): ItemUserRelationshipDbObject {

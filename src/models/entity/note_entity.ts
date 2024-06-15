@@ -1,19 +1,18 @@
 import { ID } from '../../api/schema/database/abstract';
 import { NoteDbObject } from '../../api/schema/database/notes';
 import { Note } from '../../api/schema/notes';
+import { ItemRepository } from '../../repository/entity/item_repository';
 import { NoteRepository } from '../../repository/entity/note_repository';
-import { ItemNoteRepository } from '../../repository/relation/item_note_repository';
-import { ItemUserRepository } from '../../repository/relation/item_user_repository';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { CommandType } from '../command_types';
-import { NoteItemRelation } from '../relation/note_related_item';
 import { NoteUserRelation } from '../relation/note_related_user';
 import { SocialEntity } from './_social_entity';
+import { ItemEntity } from './item_entity';
 
 export type NoteModelRelations = {
-  items: NoteItemRelation[];
+  items: ItemEntity[];
   users: NoteUserRelation[];
 };
 
@@ -56,12 +55,12 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     const toLoad = include ? this.parseInclusions(include) : ['items', 'users'];
 
     if (toLoad.includes('items')) {
-      const noteItemsRepo = new ItemNoteRepository();
-      const relationObjects = await noteItemsRepo.findNoteRelatedItems(this._id);
-      const itemRelations: NoteItemRelation[] = [];
+      const itemsRepo = new ItemRepository();
+      const itemObjects = await itemsRepo.findByNoteId(this._id);
+      const itemRelations: ItemEntity[] = [];
 
-      for (const relationObject of relationObjects) {
-        const itemRelation = new NoteItemRelation(relationObject.note_id_fk, relationObject.item_id_fk, relationObject);
+      for (const itemObject of itemObjects) {
+        const itemRelation = new ItemEntity(itemObject.id, itemObject);
         itemRelations.push(itemRelation);
       }
       this.relations.items = itemRelations;

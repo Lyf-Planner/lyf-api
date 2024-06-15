@@ -10,10 +10,6 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('status', 'text', (col) => col.notNull())
     .addPrimaryKeyConstraint('pk_user_friendships', ['user1_id_fk', 'user2_id_fk'])
     .addCheckConstraint('user_id_order', sql`user1_id_fk < user2_id_fk`)
-    .addCheckConstraint(
-      'check_status',
-      sql`status IN (\'Pending First\', \'Pending Second\', \'Friends'\, \'Blocked By First\', \'Blocked By Second\', \'Mutually Blocked\')`
-    )
     .execute();
 
   await db.schema.createIndex('user1_index').on('user_friendships').column('user1_id_fk').execute();

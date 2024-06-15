@@ -5,9 +5,9 @@ import {
   ItemStatus, ItemType
 } from '../../api/schema/database/items';
 import { Item } from '../../api/schema/items';
-import { SocialAction } from '../../services/relation/_social_service';
 import { daysOfWeek } from '../../utils/dates';
 import { isValidTimeZone } from './utils';
+import { SocialAction } from '../../api/schema/social';
 
 // GET
 

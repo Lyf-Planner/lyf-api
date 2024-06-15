@@ -56,13 +56,13 @@ export class ItemHandlers {
   protected async createItem(req: Request, res: Response) {
     // Users only type a name in a section (implying type) to create an item
     // Should reevaluate this if we ever grant API access!
-    const input = req.body as ItemDbObject & { sorting_rank: number, note_id: ID };
+    const input = req.body as UserRelatedItem;
     const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Creating item ${input.title} from user ${user_id}`);
 
     const service = new ItemService();
-    const item = await service.processCreation(input, user_id, input.sorting_rank, input.note_id);
+    const item = await service.processCreation(input, user_id, input.sorting_rank);
 
     res.status(201).json(await item.export()).end();
   }

@@ -1,13 +1,12 @@
 import { Entity } from '../../api/schema';
-import { DbEntityObject, DbObject, DbRelationObject } from '../../api/schema/database';
+import { DbEntityObject, DbObject } from '../../api/schema/database';
 import { EntityRepository } from '../../repository/entity/_entity_repository';
 import { LyfError } from '../../utils/lyf_error';
 import { BaseModel } from '../_base_model';
 import { CommandType } from '../command_types';
 import { BaseRelation } from '../relation/_base_relation';
 
-type EntityRelations = Record<string, BaseRelation<DbRelationObject, BaseEntity<DbEntityObject>> |
-                                      BaseRelation<DbRelationObject, BaseEntity<DbEntityObject>>[]> 
+type EntityRelations = Record<string, BaseModel<DbObject> | BaseModel<DbObject>[]> 
 
 
 export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> {

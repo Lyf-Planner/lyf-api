@@ -2,6 +2,7 @@ import { ID } from '../../api/schema/database/abstract';
 import { ItemDbObject } from '../../api/schema/database/items';
 import { Permission } from '../../api/schema/database/items_on_users';
 import { NoteDbObject } from '../../api/schema/database/notes';
+import { SocialAction } from '../../api/schema/social';
 import { SocialEntity, SocialRelation } from '../../models/entity/_social_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { UserFriendRelation } from '../../models/relation/user_friend';
@@ -10,13 +11,6 @@ import { BaseService } from '../_base_service';
 
 type AnySocialObject = ItemDbObject|NoteDbObject;
 
-export enum SocialAction {
-  Invite = 'Invite',
-  Cancel = 'Cancel',
-  Accept = 'Accept',
-  Decline = 'Decline',
-  Remove = 'Remove'
-}
 
 export type SocialUpdate = {
   entity_id: ID;
