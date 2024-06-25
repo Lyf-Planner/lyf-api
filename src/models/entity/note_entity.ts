@@ -6,6 +6,7 @@ import { NoteRepository } from '../../repository/entity/note_repository';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
+import { ObjectUtils } from '../../utils/object';
 import { CommandType } from '../command_types';
 import { NoteUserRelation } from '../relation/note_related_user';
 import { SocialEntity } from './_social_entity';
@@ -23,14 +24,14 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
   protected relations: Partial<NoteModelRelations> = {};
 
   static filter(object: any): NoteDbObject {
-    return {
+    return ObjectUtils.stripKeys({
       id: object.id,
       created: object.created,
       last_updated: object.last_updated,
       title: object.title,
       type: object.type,
       content: object.content
-    }
+    }, Object.keys(object))
   }
 
   public async export(requestor?: ID, with_relations: boolean = true): Promise<Note|NoteDbObject> {

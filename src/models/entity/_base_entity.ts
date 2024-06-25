@@ -2,6 +2,7 @@ import { Entity } from '../../api/schema';
 import { DbEntityObject, DbObject } from '../../api/schema/database';
 import { EntityRepository } from '../../repository/entity/_entity_repository';
 import { LyfError } from '../../utils/lyf_error';
+import { ObjectUtils } from '../../utils/object';
 import { BaseModel } from '../_base_model';
 import { CommandType } from '../command_types';
 import { BaseRelation } from '../relation/_base_relation';
@@ -77,19 +78,19 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
   }
 
   public async save() {
-    if (!this.base) {
-      throw new LyfError('Model was saved before being loaded', 500);
+    if (!ObjectUtils.isEmpty(this.changes)) {
+      await this.repository.update(this._id, this.changes);
     }
 
-    await this.repository.update(this._id, this.base);
     await this.recurseRelations(CommandType.Save);
   }
 
-  public async update(changes: Partial<Entity>) {
+  public async update(changes: Partial<T>) {
     if (!this.base) {
       throw new LyfError('Model was updated before being loaded', 500);
     }
 
+    this.changes = changes;
     this.base = { ...this.base, ...changes };
   }
 

@@ -31,7 +31,7 @@ export class ItemHandlers {
 
       const item = await itemService.processUpdate(item_id, changes, user_id);
 
-      res.status(200).json(item).end();
+      res.status(200).json(await item.export()).end();
     } catch (error) {
       const lyfError = error as LyfError;
       res.status(lyfError.code).end(lyfError.message);
@@ -104,6 +104,7 @@ export class ItemHandlers {
   }
 
   protected async getTimetable(req: Request, res: Response) {
+    console.log('query is', req.query)
     const { user_id, start_date } = req.query as { user_id: string, start_date: string };
     const requestor_id = getMiddlewareVars(res).user_id;
 

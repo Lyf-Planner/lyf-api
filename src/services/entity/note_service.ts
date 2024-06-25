@@ -80,7 +80,7 @@ export class NoteService extends EntityService<NoteDbObject> {
     const noteUsers = note.getRelations().users as NoteUserRelation[];
 
     const permitted = noteUsers.some((x) =>
-      x.id() === user_id &&
+      x.entityId() === user_id &&
       x.permission() !== Permission.ReadOnly &&
       !x.invited()
     );

@@ -18,6 +18,7 @@ import { UserFriendRelation } from '../relation/user_friend';
 import { UserItemRelation } from '../relation/user_related_item';
 import { UserNoteRelation } from '../relation/user_related_note';
 import { BaseEntity } from './_base_entity';
+import { ObjectUtils } from '../../utils/object';
 
 export type UserModelRelations = {
   items: UserItemRelation[];
@@ -32,7 +33,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
   protected relations: Partial<UserModelRelations> = {};
 
   static filter(object: any): UserDbObject {
-    return {
+    return ObjectUtils.stripKeys({
       id: object.id,
       created: object.created,
       last_updated: object.last_updated,
@@ -47,7 +48,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
       event_notification_minutes_before: object.event_notification_minutes_before,
       pass_hash: object.pass_hash,
       expo_tokens: object.expo_tokens
-    }
+    }, Object.keys(object))
   }
 
   public async export(requestor?: ID, with_relations: boolean = true): Promise<ExposedUser|PublicUser|UserExposedFields|UserPublicFields> {

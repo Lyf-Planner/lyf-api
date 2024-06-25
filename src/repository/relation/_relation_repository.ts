@@ -9,7 +9,7 @@ export abstract class RelationRepository<T extends DbRelationObject> extends Bas
 
   protected abstract deleteRelation(...args: any[]): Promise<void>;
 
-  async findByCompositeId(id_a: ID, id_b: ID): Promise<T|undefined> {
+  async findByCompositeId(id_a: ID, id_b: ID): Promise<T | undefined> {
     const result = await this.db
       .selectFrom(this.table_name)
       .selectAll()

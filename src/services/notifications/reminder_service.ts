@@ -169,7 +169,7 @@ export class ReminderService {
 
     if (oldOffset === newOffset) {
       this.logger.info(
-        `User ${user.id} changed timezone but offset is equivalent - won't update notifications`
+        `User ${user.id()} changed timezone but offset is equivalent - won't update notifications`
       );
       return;
     }

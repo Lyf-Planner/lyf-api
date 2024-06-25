@@ -9,6 +9,7 @@ export abstract class BaseModel<T extends DbObject> {
   protected _id: ID;
 
   protected base?: T;
+  protected changes: Partial<T> = {};
 
   protected abstract logger: Logger;
   protected abstract repository: BaseRepository<T>;
@@ -17,7 +18,11 @@ export abstract class BaseModel<T extends DbObject> {
     return this._id;
   }
 
-  public async create(db_object: T) {
+  public async create(db_object: T, filter?: (object: any) => T) {
+    if (filter) {
+      db_object = filter(db_object);
+    }
+
     const uploaded = await this.repository.create(db_object);
     this.base = uploaded;
   }

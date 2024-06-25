@@ -8,6 +8,7 @@ import { UserRelatedNote } from '../../api/schema/user';
 import { NoteRepository } from '../../repository/entity/note_repository';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
+import { ObjectUtils } from '../../utils/object';
 import { NoteEntity } from '../entity/note_entity';
 import { BaseRelation } from './_base_relation';
 
@@ -18,14 +19,14 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
   protected repository = new NoteUserRepository();
 
   static filter(object: any): NoteUserRelationshipDbObject {
-    return {
+    return ObjectUtils.stripKeys({
       note_id_fk: object.note_id_fk,
       user_id_fk: object.user_id_fk,
       created: object.created,
       last_updated: object.last_updated,
       invite_pending: object.invite_pending,
       permission: object.permission
-    };
+    }, Object.keys(object));
   }
 
   constructor(id: ID, entity_id: ID, object?: NoteUserRelationshipDbObject & NoteDbObject) {
@@ -70,13 +71,19 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
 
   public async update(changes: Partial<UserRelatedNote>): Promise<void> {
     const relationFieldUpdates = UserNoteRelation.filter(changes);
+    const entityUpdates = NoteEntity.filter(changes);
+
+    this.changes = relationFieldUpdates;
     this.base = {
       ...this.base!,
       ...relationFieldUpdates
     };
+    this.relatedEntity.update(entityUpdates);
   }
 
   public async save(): Promise<void> {
-    await this.repository.updateRelation(this._entityId, this._id, this.base!);
+    if (!ObjectUtils.isEmpty(this.changes)) {
+      await this.repository.updateRelation(this._entityId, this._id, this.changes);
+    }
   }
 }

@@ -17,7 +17,7 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
   protected repository = new ItemUserRepository();
 
   static filter(object: any): ItemUserRelationshipDbObject {
-    return {
+    return ObjectUtils.stripKeys({
       created: object.created,
       last_updated: object.last_updated,
       item_id_fk: object.item_id_fk,
@@ -27,7 +27,7 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
       sorting_rank: object.sorting_rank,
       show_in_upcoming: object.show_in_upcoming,
       notification_mins_before: object.notification_mins_before
-    };
+    }, Object.keys(object));
   }
 
   constructor(id: ID, entity_id: ID, object?: ItemUserRelationshipDbObject & UserDbObject) {
@@ -74,6 +74,8 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
 
   public async update(changes: Partial<ItemRelatedUser>): Promise<void> {
     const relationFieldUpdates = ItemUserRelation.filter(changes);
+
+    this.changes = relationFieldUpdates;
     this.base = {
       ...this.base!,
       ...relationFieldUpdates
@@ -81,7 +83,9 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
   }
 
   public async save(): Promise<void> {
-    await this.repository.updateRelation(this._entityId, this._id, this.base!);
+    if (!ObjectUtils.isEmpty(this.changes)) {
+      await this.repository.updateRelation(this._entityId, this._id, this.changes);
+    }
   }
 
   public notificationMinsBefore() {

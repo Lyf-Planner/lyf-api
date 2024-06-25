@@ -9,6 +9,7 @@ import { Item } from '../../api/schema/items';
 import { UserRelatedItem } from '../../api/schema/user';
 import { ItemUserRepository } from '../../repository/relation/item_user_repository';
 import { Logger } from '../../utils/logging';
+import { ObjectUtils } from '../../utils/object';
 import { ItemEntity } from '../entity/item_entity';
 import { BaseRelation } from './_base_relation';
 
@@ -19,7 +20,7 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
   protected repository = new ItemUserRepository();
 
   static filter(object: any): ItemUserRelationshipDbObject {
-    return {
+    return ObjectUtils.stripKeys({
       created: object.created,
       last_updated: object.last_updated,
       item_id_fk: object.item_id_fk,
@@ -29,7 +30,7 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
       sorting_rank: object.sorting_rank,
       show_in_upcoming: object.show_in_upcoming,
       notification_mins_before: object.notification_mins_before
-    };
+    }, Object.keys(object));
   }
 
   constructor(id: ID, entity_id: ID, object?: ItemUserRelationshipDbObject & ItemDbObject) {
@@ -72,20 +73,31 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
     };
   }
 
-  public async load(relations: object): Promise<void> {
+  public async load(): Promise<void> {
     this.base = await this.repository.findByCompositeId(this._entityId, this._id);
     await this.relatedEntity.load();
   }
 
   public async update(changes: Partial<UserRelatedItem>): Promise<void> {
     const relationFieldUpdates = UserItemRelation.filter(changes);
+    const entityUpdates = ItemEntity.filter(changes);
+
+    this.changes = relationFieldUpdates
     this.base = {
       ...this.base!,
       ...relationFieldUpdates
     };
+
+    this.relatedEntity.update(entityUpdates);
   }
 
   public async save(): Promise<void> {
-    await this.repository.updateRelation(this._entityId, this._id, this.base!);
+    if (!ObjectUtils.isEmpty(this.changes)) {
+      await this.repository.updateRelation(this._entityId, this._id, this.changes);
+    }
+  }
+
+  public permission() {
+    return this.base?.permission;
   }
 }

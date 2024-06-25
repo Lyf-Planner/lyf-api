@@ -5,12 +5,11 @@ import { Item } from '../../api/schema/items';
 import { Note } from '../../api/schema/notes';
 import { ItemRepository } from '../../repository/entity/item_repository';
 import { ItemUserRepository } from '../../repository/relation/item_user_repository';
-import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
+import { ObjectUtils } from '../../utils/object';
 import { CommandType } from '../command_types';
 import { ItemUserRelation } from '../relation/item_related_user';
-import { UserFriendRelation } from '../relation/user_friend';
 import { SocialEntity } from './_social_entity';
 
 export type ItemModelRelations = {
@@ -25,7 +24,7 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
   protected template?: ItemEntity; // TODO: Proper item-to-item relation
 
   static filter(object: any): ItemDbObject {
-    return {
+    return ObjectUtils.stripKeys({
       id: object.id,
       created: object.created,
       last_updated: object.last_updated,
@@ -44,7 +43,7 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
       location: object.location,
       show_in_upcoming: object.show_in_upcoming,
       notification_mins_before: object.show_in_upcoming,
-    }
+    }, Object.keys(object))
   }
 
   public async export(requestor?: ID, with_relations: boolean = true): Promise<Item|ItemDbObject> {
