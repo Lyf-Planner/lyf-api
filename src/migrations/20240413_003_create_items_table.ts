@@ -11,17 +11,18 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('status', 'text', (col) => col.notNull())
     .addColumn('tz', 'text', (col) => col.notNull())
     .addColumn('collaborative', 'boolean', (col) => col.notNull())
-    .addColumn('date', 'text')
+    .addColumn('date', 'varchar(10)')
     .addColumn('day', 'text')
     .addColumn('desc', 'text')
-    .addColumn('time', 'time')
-    .addColumn('end_time', 'time')
+    .addColumn('time', 'varchar(5)')
+    .addColumn('end_time', 'varchar(5)')
     .addColumn('note_id', 'uuid', (col) => col.references('notes.id'))
     .addColumn('template_id', 'uuid', (col) => col.references('items.id'))
     .addColumn('url', 'text')
     .addColumn('location', 'text')
-    .addColumn('show_in_upcoming', 'boolean')
-    .addColumn('notification_mins_before', 'integer')
+    .addColumn('default_show_in_upcoming', 'boolean')
+    .addColumn('default_notification_mins', 'integer')
+    .addColumn('default_sorting_rank', 'decimal')
     .execute();
 
   await db.schema.createIndex('item_date_index').on('items').column('date desc').execute();

@@ -17,7 +17,7 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
   protected repository = new ItemUserRepository();
 
   static filter(object: any): ItemUserRelationshipDbObject {
-    return ObjectUtils.stripKeys({
+    const objectFilter: Required<ItemUserRelationshipDbObject> = {
       created: object.created,
       last_updated: object.last_updated,
       item_id_fk: object.item_id_fk,
@@ -26,8 +26,10 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
       permission: object.permission,
       sorting_rank: object.sorting_rank,
       show_in_upcoming: object.show_in_upcoming,
-      notification_mins_before: object.notification_mins_before
-    }, Object.keys(object));
+      notification_mins: object.notification_mins
+    };
+
+    return ObjectUtils.stripUndefinedFields(objectFilter);
   }
 
   constructor(id: ID, entity_id: ID, object?: ItemUserRelationshipDbObject & UserDbObject) {
@@ -58,7 +60,7 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
       permission: this.base!.permission,
       sorting_rank: this.base!.sorting_rank,
       show_in_upcoming: this.base!.show_in_upcoming,
-      notification_mins_before: this.base!.notification_mins_before
+      notification_mins: this.base!.notification_mins
     }
 
     return {
@@ -89,6 +91,6 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
   }
 
   public notificationMinsBefore() {
-    return this.base!.notification_mins_before;
+    return this.base!.notification_mins;
   }
 }

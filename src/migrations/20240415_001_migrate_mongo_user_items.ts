@@ -13,12 +13,6 @@ export async function up(db: Kysely<any>): Promise<void> {
   const itemsCollection = mongoDb.itemsCollection();
   const mongoItems: MongoItem[] = await itemsCollection.findAll();
 
-  await db.schema
-    .alterTable('items_on_users')
-    .addColumn('show_in_upcoming', 'boolean')
-    .addColumn('notification_mins_before', 'integer')
-    .execute();
-
   for (const item of mongoItems) {
     const users = item.permitted_users;
     const invitedUsers = item.invited_users ? item.invited_users : [];
@@ -62,7 +56,7 @@ const insertAsPgUserItem = async (user_access: UserAccess, item: MongoItem, db: 
   }
 
   const oldUserNotification = item.notifications.find((x) => x.user_id === user_access.user_id);
-  const notification_mins_before = oldUserNotification
+  const notification_mins = oldUserNotification
     ? parseInt(oldUserNotification.minutes_before)
     : undefined;
 
@@ -77,7 +71,7 @@ const insertAsPgUserItem = async (user_access: UserAccess, item: MongoItem, db: 
         ? ItemUserPermission.Editor
         : (user_access.permissions as any),
     show_in_upcoming,
-    notification_mins_before,
+    notification_mins,
     sorting_rank
   };
 

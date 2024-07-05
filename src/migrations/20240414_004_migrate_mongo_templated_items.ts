@@ -54,8 +54,8 @@ const insertAsPgItem = async (item: MongoItem, db: Kysely<any>) => {
     template_id: uploaded_template_id,
     url: item.url,
     location: item.location,
-    show_in_upcoming: item.show_in_upcoming,
-    notification_mins_before: undefined
+    default_show_in_upcoming: item.show_in_upcoming,
+    default_notification_mins: undefined
   };
 
   await db.insertInto('items').values(pgItem).execute();

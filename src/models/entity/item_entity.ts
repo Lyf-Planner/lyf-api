@@ -24,7 +24,7 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
   protected template?: ItemEntity; // TODO: Proper item-to-item relation
 
   static filter(object: any): ItemDbObject {
-    return ObjectUtils.stripKeys({
+    const objectFilter: Required<ItemDbObject> = {
       id: object.id,
       created: object.created,
       last_updated: object.last_updated,
@@ -39,11 +39,15 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
       time: object.time,
       end_time: object.end_time,
       template_id: object.template_id,
+      note_id: object.note_id,
       url: object.url,
       location: object.location,
-      show_in_upcoming: object.show_in_upcoming,
-      notification_mins_before: object.show_in_upcoming,
-    }, Object.keys(object))
+      default_show_in_upcoming: object.show_in_upcoming,
+      default_notification_mins: object.show_in_upcoming,
+      default_sorting_rank: object.default_sorting_rank,
+    };
+
+    return ObjectUtils.stripUndefinedFields(objectFilter);
   }
 
   public async export(requestor?: ID, with_relations: boolean = true): Promise<Item|ItemDbObject> {

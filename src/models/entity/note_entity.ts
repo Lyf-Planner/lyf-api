@@ -24,14 +24,17 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
   protected relations: Partial<NoteModelRelations> = {};
 
   static filter(object: any): NoteDbObject {
-    return ObjectUtils.stripKeys({
+    const objectFilter: Required<NoteDbObject> = {
       id: object.id,
       created: object.created,
       last_updated: object.last_updated,
       title: object.title,
       type: object.type,
-      content: object.content
-    }, Object.keys(object))
+      content: object.content,
+      collaborative: object.collaborative
+    };
+
+    return ObjectUtils.stripUndefinedFields(objectFilter);
   }
 
   public async export(requestor?: ID, with_relations: boolean = true): Promise<Note|NoteDbObject> {

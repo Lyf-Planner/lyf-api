@@ -20,14 +20,16 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
   protected repository = new NoteUserRepository();
 
   static filter(object: any): NoteUserRelationshipDbObject {
-    return ObjectUtils.stripKeys({
+    const objectFilter: Required<NoteUserRelationshipDbObject> = {
       note_id_fk: object.note_id_fk,
       user_id_fk: object.user_id_fk,
       created: object.created,
       last_updated: object.last_updated,
       invite_pending: object.invite_pending,
       permission: object.status
-    }, Object.keys(object));
+    };
+    
+    return ObjectUtils.stripUndefinedFields(objectFilter);
   }
 
   constructor(id: ID, entity_id: ID, object?: NoteUserRelationshipDbObject & UserDbObject) {

@@ -34,7 +34,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
   protected relations: Partial<UserModelRelations> = {};
 
   static filter(object: any): UserDbObject {
-    return ObjectUtils.stripKeys({
+    const objectFilter: Required<UserDbObject> = {
       id: object.id,
       created: object.created,
       last_updated: object.last_updated,
@@ -45,11 +45,12 @@ export class UserEntity extends BaseEntity<UserDbObject> {
       first_day: object.first_day,
       daily_notification_time: object.daily_notification_time,
       persistent_daily_notification: object.persistent_daily_notification,
-      event_notifications_enabled: object.event_notifications_enabled,
-      event_notification_minutes_before: object.event_notification_minutes_before,
+      event_notification_mins: object.event_notification_mins,
       pass_hash: object.pass_hash,
       expo_tokens: object.expo_tokens
-    }, Object.keys(object))
+    };
+
+    return ObjectUtils.stripUndefinedFields(objectFilter);
   }
 
   public async export(requestor?: ID, with_relations: boolean = true): Promise<ExposedUser|PublicUser|UserExposedFields|UserPublicFields> {

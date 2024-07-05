@@ -3,13 +3,8 @@ export class ObjectUtils {
     return Object.keys(obj).length === 0 && obj.constructor === Object;
   }
 
-  static stripKeys(obj: any, keys: string[]) {
-    return Object.keys(obj).reduce((acc, key) => {
-      if (keys.includes(key)) {
-        acc[key] = obj[key]
-      }
-  
-      return acc
-    }, {} as any)
+  static stripUndefinedFields(obj: object) {
+    // Utilise the often annoying fact JSON.stringify always strips undefined when parsing ;)
+    return JSON.parse(JSON.stringify(obj))
   }
 }

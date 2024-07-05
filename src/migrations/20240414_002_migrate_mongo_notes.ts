@@ -15,8 +15,10 @@ export async function up(db: Kysely<any>): Promise<void> {
 
     // Upload all it's items first
     if (note.type === MongoNoteType.List) {
+      let i = 0;
       for (const item of note.content as MongoItem[]) {
-        await insertAsPgItem(item, note.id, db);
+        await insertAsPgItem(item, note.id, i, db);
+        i++;
       }
     }
   }
@@ -26,7 +28,7 @@ export async function down(db: Kysely<any>): Promise<void> {
   await db.deleteFrom('notes').execute();
 }
 
-const insertAsPgItem = async (item: MongoItem, note_id: string, db: Kysely<any>) => {
+const insertAsPgItem = async (item: MongoItem, note_id: string, rank: number, db: Kysely<any>) => {
   const owner = await mongoDb.usersCollection().getById(item.permitted_users[0].user_id, false);
   const intendedTimezone = owner?.timezone || 'Australia/Melbourne';
 
@@ -48,8 +50,9 @@ const insertAsPgItem = async (item: MongoItem, note_id: string, db: Kysely<any>)
     template_id: undefined,
     url: item.url,
     location: item.location,
-    show_in_upcoming: undefined,
-    notification_mins_before: undefined
+    default_sorting_rank: rank,
+    default_show_in_upcoming: undefined,
+    default_notification_mins: undefined
   };
 
   await db.insertInto('items').values(pgItem).execute();

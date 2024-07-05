@@ -198,9 +198,9 @@ export class ItemService extends EntityService<ItemDbObject> {
   }
 
   private async handleNotificationChanges(changes: Partial<UserRelatedItem>, item: ItemEntity, user: UserEntity) {
-    if (changes.notification_mins_before) {
+    if (changes.notification_mins) {
       this.logger.debug("Handling notification changes to item");
-      await reminderService.updateEventNotification(item, user, changes.notification_mins_before);
+      await reminderService.updateEventNotification(item, user, changes.notification_mins);
     }
   }
 

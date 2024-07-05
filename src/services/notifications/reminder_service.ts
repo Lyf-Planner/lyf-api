@@ -296,7 +296,7 @@ export class ReminderService {
       await this.agendaInstance.cancel({ 'data.id': id });
 
       if (clearFromRelation) {
-        await itemUserRelation.update({ notification_mins_before: undefined });
+        await itemUserRelation.update({ notification_mins: undefined });
         await itemUserRelation.save();
       }
     } catch (error) {

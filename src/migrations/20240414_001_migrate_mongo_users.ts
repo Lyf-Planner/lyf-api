@@ -31,10 +31,9 @@ const transformToPgUser = (user: MongoUser) => {
     pfp_url: user.details.pfp_url,
     daily_notification_time: user.premium?.notifications?.daily_notification_time,
     persistent_daily_notification: user.premium?.notifications?.persistent_daily_notification,
-    event_notifications_enabled: user.premium?.notifications?.event_notifications_enabled,
-    event_notification_minutes_before: user.premium?.notifications
-      ?.event_notification_minutes_before
-      ? parseInt(user.premium?.notifications?.event_notification_minutes_before, 10)
+    event_notification_mins:
+      user.premium?.notifications?.event_notifications_enabled
+      ? parseInt(user.premium?.notifications?.event_notification_minutes_before || '5', 10)
       : undefined
     // Since 'id', 'created', and 'last_updated' are auto-generated, they are omitted
   };

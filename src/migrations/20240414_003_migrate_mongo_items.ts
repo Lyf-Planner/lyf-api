@@ -8,15 +8,6 @@ export async function up(db: Kysely<any>): Promise<void> {
   const itemsCollection = mongoDb.itemsCollection();
   const mongoItems: MongoItem[] = await itemsCollection.findAll();
 
-  await db.schema
-    .alterTable('items')
-    .alterColumn('time', (col) => col.setDataType('varchar(5)'))
-    .execute();
-  await db.schema
-    .alterTable('items')
-    .alterColumn('end_time', (col) => col.setDataType('varchar(5)'))
-    .execute();
-
   for (const item of mongoItems) {
     // Template items are handled in the subsequent migration
     if (!item.template_id) {
@@ -50,8 +41,9 @@ const insertAsPgItem = async (item: MongoItem, db: Kysely<any>) => {
     template_id: undefined,
     url: item.url,
     location: item.location,
-    show_in_upcoming: item.show_in_upcoming,
-    notification_mins_before: undefined
+    default_sorting_rank: undefined,
+    default_show_in_upcoming: item.show_in_upcoming,
+    default_notification_mins: undefined
   };
 
   await db.insertInto('items').values(pgItem).execute();

@@ -21,13 +21,15 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
   protected repository = new UserFriendshipRepository();
 
   static filter(object: any): UserFriendshipDbObject {
-    return ObjectUtils.stripKeys({
+    const objectFilter: Required<UserFriendshipDbObject> = {
       user1_id_fk: object.user1_id_fk,
       user2_id_fk: object.user2_id_fk,
       created: object.created,
       last_updated: object.last_updated,
       status: object.status
-    }, Object.keys(object));
+    };
+
+    return ObjectUtils.stripUndefinedFields(objectFilter);
   }
 
   constructor(id: ID, entity_id: ID, object?: UserFriendshipDbObject & UserDbObject) {
