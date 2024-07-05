@@ -38,7 +38,7 @@ export abstract class SocialService extends BaseService {
       inviterRelation.invited() ||
       inviterRelation.permission() !== Permission.Owner
     ) {
-      throw new Error('You must be the creator of this task/event to add other users');
+      throw new LyfError('You must be the creator of this task/event to add other users', 403);
     }
 
     await inviter.fetchRelations('users');
@@ -48,7 +48,7 @@ export abstract class SocialService extends BaseService {
     const userFriendship = inviterFriends.find((x) => x.entityId() === invited_user.id());
 
     if (!userFriendship?.friends()) {
-      throw new Error('You can only invite friends to your items!');
+      throw new LyfError('You can only invite friends to your items!', 403);
     }
 
     // Add the user to the invite list

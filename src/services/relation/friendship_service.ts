@@ -21,7 +21,7 @@ export class FriendshipService extends BaseService {
   async processUpdate(from: ID, update: FriendshipUpdate) {
     // Can't address yourself
     if (from === update.user_id) {
-      throw new Error('You cannot friend yourself');
+      throw new LyfError('You cannot friend yourself', 400);
     }
 
     const userService = new UserService();

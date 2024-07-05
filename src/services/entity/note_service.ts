@@ -8,6 +8,7 @@ import { NoteUserRelation } from '../../models/relation/note_related_user';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { EntityService } from './_entity_service';
+import { UserService } from './user_service';
 
 export class NoteService extends EntityService<NoteDbObject> {
   protected logger = Logger.of(NoteService);
@@ -63,6 +64,20 @@ export class NoteService extends EntityService<NoteDbObject> {
 
     await note.save();
     return note;
+  }
+
+  async getUserNotes(user_id: ID) {
+    // Validate the requestor has permission - must be themselves or a Best Friend
+    const user = await new UserService().getEntity(user_id, "notes");
+    const userRelatedNotes = user.getRelations().notes || [];
+    const exportedNotes = [];
+
+    for (const note of userRelatedNotes) {
+      // TODO: Rework the synchronous command types to not return promises
+      exportedNotes.push(await note.export())
+    }
+
+    return exportedNotes;
   }
 
   private defaultNoteOwner(note_id: ID, user_id: ID): NoteUserRelationshipDbObject {

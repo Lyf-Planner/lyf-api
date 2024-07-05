@@ -17,9 +17,12 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
   public abstract fetchRelations(include?: string): Promise<void>;
   public abstract getRelations(): any;
 
-  public async delete() {
+  public async delete(softDelete = false) {
     await this.recurseRelations(CommandType.Delete);
-    await this.repository.delete(this._id);
+
+    if (!softDelete) {
+      await this.repository.delete(this._id);
+    }
   }
 
   public async extract(with_relations = true): Promise<Entity|T> {

@@ -6,6 +6,7 @@ import { NoteService } from '../../services/entity/note_service';
 import { Logger } from '../../utils/logging';
 import { getMiddlewareVars } from '../utils';
 import { UserRelatedNote } from '../../api/schema/user';
+import { LyfError } from '../../utils/lyf_error';
 
 export class NoteHandlers {
   protected async createNote(req: Request, res: Response) {
@@ -14,10 +15,16 @@ export class NoteHandlers {
 
     logger.debug(`Creating note ${noteInput.title} from user ${user_id}`);
 
-    const service = new NoteService();
-    const note = await service.processCreation(noteInput, user_id);
+    try {
+      const service = new NoteService();
+      const note = await service.processCreation(noteInput, user_id);
 
-    res.status(201).json(await note.export(user_id)).end();
+      res.status(201).json(await note.export(user_id)).end();
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error(lyfError.code + " - " + lyfError.message);
+      res.status(lyfError.code).end(lyfError.message);
+    }
   }
 
   protected async updateNote(req: Request, res: Response) {
@@ -31,9 +38,10 @@ export class NoteHandlers {
       const note = await service.processUpdate(noteChanges.id, noteChanges, user_id);
 
       res.status(200).json(await note.export()).end();
-    } catch (err) {
-      logger.error(`User ${user_id} did not safely update note ${noteChanges.id}`);
-      res.status(403).end(`${err}`);
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error(lyfError.code + " - " + lyfError.message);
+      res.status(lyfError.code).end(lyfError.message);
     }
   }
 
@@ -48,9 +56,10 @@ export class NoteHandlers {
       await service.processDeletion(note_id, user_id);
 
       res.status(204).end();
-    } catch (err) {
-      logger.error(`User ${user_id} tried to delete ${note_id} without valid permissions`);
-      res.status(403).end(`${err}`);
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error(lyfError.code + " - " + lyfError.message);
+      res.status(lyfError.code).end(lyfError.message);
     }
   }
 
@@ -64,9 +73,28 @@ export class NoteHandlers {
       const service = new NoteService();
       const note = await service.getEntity(note_id, user_id);
       res.status(200).json(await note.export(user_id)).end();
-    } catch (err) {
-      logger.error(`User ${user_id} requested item ${note_id} to which they don't have access`);
-      res.status(403).end(`${err}`);
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error(lyfError.code + " - " + lyfError.message);
+      res.status(lyfError.code).end(lyfError.message);
+    }
+  }
+
+  protected async getUserNotes(req: Request, res: Response) {
+    const user_id = getMiddlewareVars(res).user_id;
+
+    logger.debug(`Retreiving notes of ${user_id}`);
+
+    // Authorisation checks
+    try {
+      const service = new NoteService();
+      const notes = await service.getUserNotes(user_id);
+
+      res.status(200).json(notes).end();
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error(lyfError.code + " - " + lyfError.message);
+      res.status(lyfError.code).end(lyfError.message);
     }
   }
 }

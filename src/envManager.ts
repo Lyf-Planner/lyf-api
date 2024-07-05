@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { LyfError } from './utils/lyf_error';
 dotenv.config();
 
 const VERSION = '2.2.4';
@@ -21,7 +22,7 @@ const missingVars = Object.entries(env)
   .map((x) => x[0]);
 
 if (missingVars.length > 0) {
-  throw new Error(`Missing environment variables: ${missingVars}`);
+  throw new LyfError(`Missing environment variables: ${missingVars}`, 500);
 }
 
 export default env;

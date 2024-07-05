@@ -62,6 +62,7 @@ const insertAsPgNote = async (note: MongoNote, db: Kysely<any>) => {
     last_updated: note.last_updated,
     title: note.title,
     type: note.type === MongoNoteType.List ? PgNoteType.ListOnly : (PgNoteType.NoteOnly as any),
+    collaborative: false,
     content: note.type === MongoNoteType.Text ? (note.content as string) : undefined
   };
 

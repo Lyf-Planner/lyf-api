@@ -34,6 +34,7 @@ export class ItemHandlers {
       res.status(200).json(await item.export()).end();
     } catch (error) {
       const lyfError = error as LyfError;
+      logger.error(lyfError.code + " - " + lyfError.message);
       res.status(lyfError.code).end(lyfError.message);
     }
   }
@@ -47,9 +48,10 @@ export class ItemHandlers {
     try {
       const item = await socialItemService.processUpdate(fromId, update);
       res.status(200).json(item).end();
-    } catch (err) {
-      logger.error(`Returning 400 with message: ${err}`);
-      res.status(400).end(`${err}`);
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error(lyfError.code + " - " + lyfError.message);
+      res.status(lyfError.code).end(lyfError.message);
     }
   }
 
@@ -61,10 +63,16 @@ export class ItemHandlers {
 
     logger.debug(`Creating item ${input.title} from user ${user_id}`);
 
-    const service = new ItemService();
-    const item = await service.processCreation(input, user_id, input.sorting_rank);
+    try {
+      const service = new ItemService();
+      const item = await service.processCreation(input, user_id, input.sorting_rank);
 
-    res.status(201).json(await item.export()).end();
+      res.status(201).json(await item.export()).end();
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error(lyfError.code + " - " + lyfError.message);
+      res.status(lyfError.code).end(lyfError.message);
+    }
   }
 
   protected async deleteItem(req: Request, res: Response) {
@@ -79,10 +87,10 @@ export class ItemHandlers {
       await service.processDeletion(item_id, user_id);
 
       res.status(204).end();
-    } catch (err) {
-      logger.error(`User ${user_id} tried to delete ${item_id} without valid permissions`);
-      res.status(403).end(`${err}`);
-      return;
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error(lyfError.code + " - " + lyfError.message);
+      res.status(lyfError.code).end(lyfError.message);
     }
   }
 
@@ -97,14 +105,14 @@ export class ItemHandlers {
       const service = new ItemService();
       const item = await service.getEntity(item_id);
       res.status(200).json(item.export(user_id)).end();
-    } catch (err) {
-      logger.error(`User ${user_id} requested item ${item_id} to which they don't have access`);
-      res.status(403).end(`${err}`);
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error(lyfError.code + " - " + lyfError.message);
+      res.status(lyfError.code).end(lyfError.message);
     }
   }
 
   protected async getTimetable(req: Request, res: Response) {
-    console.log('query is', req.query)
     const { user_id, start_date } = req.query as { user_id: string, start_date: string };
     const requestor_id = getMiddlewareVars(res).user_id;
 
@@ -116,9 +124,10 @@ export class ItemHandlers {
       const timetable = await service.getTimetable(user_id, requestor_id, start_date);
 
       res.status(200).json(timetable).end();
-    } catch (err) {
-      logger.error(`User ${requestor_id} requested timetable of ${user_id}, to which they don't have access`);
-      res.status(403).end(`${err}`);
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error(lyfError.code + " - " + lyfError.message);
+      res.status(lyfError.code).end(lyfError.message);
     }
   }
 

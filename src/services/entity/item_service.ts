@@ -72,8 +72,8 @@ export class ItemService extends EntityService<ItemDbObject> {
       const usersOnTemplate = templateItem.getRelations().users as ItemUserRelation[];
 
       // The creator should be a routine user
-      if (!usersOnTemplate.map((x) => x.id()).includes(user_id)) {
-        throw new Error('User does not have permission to create an instance of this routine');
+      if (!usersOnTemplate.map((x) => x.entityId()).includes(user_id)) {
+        throw new LyfError('User does not have permission to create an instance of this routine', 403);
       }
 
       for (const itemUser of usersOnTemplate) {
@@ -101,13 +101,15 @@ export class ItemService extends EntityService<ItemDbObject> {
     const itemDeleter = itemUsers.find((x) => x.entityId() === from_id);
 
     if (itemDeleter && itemDeleter.permission() === Permission.Owner) {
-      await item.delete();
+      await item.delete(item.isRoutine());
     } else {
       throw new LyfError('Items can only be deleted by their owner', 403);
     }
   }
 
   async processUpdate(id: ID, changes: Partial<UserRelatedItem>, from: ID) {
+    this.logger.info(`Processing changeset ${JSON.stringify(changes)} on item ${id}`);
+
     const itemRelation = new UserItemRelation(from, id);
     await itemRelation.load();
 
@@ -123,13 +125,13 @@ export class ItemService extends EntityService<ItemDbObject> {
 
     // PRE-COMMIT TASKS
     // 1. Action any notification updates
-    this.handleNotificationChanges(changes, itemRelation.getRelatedEntity(), requestor);
+    await this.handleNotificationChanges(changes, itemRelation.getRelatedEntity(), requestor);
 
     // 2. Handle any time changes
-    this.handleTimeChanges(changes, itemRelation.getRelatedEntity(), requestor);
+    await this.handleTimeChanges(changes, itemRelation.getRelatedEntity(), requestor);
 
     // 3. Handle any status changes
-    this.handleStatusChanges(changes, itemRelation.getRelatedEntity(), requestor);
+    await this.handleStatusChanges(changes, itemRelation.getRelatedEntity(), requestor);
 
     this.logger.debug(`User ${from} safely updated item ${id}`);
 
@@ -195,10 +197,10 @@ export class ItemService extends EntityService<ItemDbObject> {
     };
   }
 
-  private handleNotificationChanges(changes: Partial<UserRelatedItem>, item: ItemEntity, user: UserEntity) {
+  private async handleNotificationChanges(changes: Partial<UserRelatedItem>, item: ItemEntity, user: UserEntity) {
     if (changes.notification_mins_before) {
       this.logger.debug("Handling notification changes to item");
-      reminderService.updateEventNotification(item, user, changes.notification_mins_before);
+      await reminderService.updateEventNotification(item, user, changes.notification_mins_before);
     }
   }
 
@@ -218,20 +220,20 @@ export class ItemService extends EntityService<ItemDbObject> {
 
       // Notify any other users of a change!
     if (changes.time) {
-      SocialItemNotifications.handleTimeChange(user, item);
+      await SocialItemNotifications.handleTimeChange(user, item);
     }
     if (changes.date) {
-      SocialItemNotifications.handleDateChange(user, item);
+      await SocialItemNotifications.handleDateChange(user, item);
     }
   }
 
-  private handleStatusChanges(changes: Partial<UserRelatedItem>, item: ItemEntity, from: UserEntity) {
+  private async handleStatusChanges(changes: Partial<UserRelatedItem>, item: ItemEntity, from: UserEntity) {
     const statusChanged = changes.status;
 
     // Notify any other users of a change!
     if (statusChanged) {
       this.logger.debug("Handling status change to item");
-      SocialItemNotifications.handleStatusChange(from, item);
+      await SocialItemNotifications.handleStatusChange(from, item);
     }
   }
 
@@ -251,19 +253,11 @@ export class ItemService extends EntityService<ItemDbObject> {
     }
   }
 
-  private async throwIfReadOnly(item: ItemEntity, user_id: ID) {
-    await item.fetchRelations('users');
-    const itemUsers = item.getRelations().users as ItemUserRelation[];
-
-    
-  }
-
   private async updateAllNotifications(item: ItemEntity) {
     await item.fetchRelations('users');
     const users = item.getRelations().users as ItemUserRelation[];
 
-    const service = reminderService;
-    const updateFunc = item.isRoutine() ? service.updateRoutineNotification : service.updateEventNotification;
+    const updateFunc = item.isRoutine() ? reminderService.updateRoutineNotification : reminderService.updateEventNotification;
 
     for (const user of users) {
       const notificationMins = user.notificationMinsBefore();

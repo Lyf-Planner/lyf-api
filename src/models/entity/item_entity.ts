@@ -94,7 +94,7 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
 
   isRoutine() {
     const { date, day, template_id } = this.base!;
-    return day && !date && !template_id;
+    return !!day && !date && !template_id;
   }
 
   getRelations() {

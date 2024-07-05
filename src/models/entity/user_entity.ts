@@ -19,6 +19,7 @@ import { UserItemRelation } from '../relation/user_related_item';
 import { UserNoteRelation } from '../relation/user_related_note';
 import { BaseEntity } from './_base_entity';
 import { ObjectUtils } from '../../utils/object';
+import { LyfError } from '../../utils/lyf_error';
 
 export type UserModelRelations = {
   items: UserItemRelation[];
@@ -80,7 +81,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
 
   public getSensitive(requestor: ID): UserSensitiveFields {
     if (requestor !== this._id) {
-      throw new Error('User tried to retrieve sensitive fields on another user');
+      throw new LyfError('User tried to retrieve sensitive fields on another user', 403);
     }
 
     return { expo_tokens: this.base!.expo_tokens, pass_hash: this.base!.pass_hash };

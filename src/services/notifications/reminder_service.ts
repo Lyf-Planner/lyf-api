@@ -30,7 +30,7 @@ export class ReminderService {
     }
   });
 
-  public async init() {
+  public init = async () => {
     this.defineEventNotification();
     this.defineRoutineNotification();
     this.defineDailyNotification();
@@ -40,7 +40,7 @@ export class ReminderService {
     this.logger.info('Agenda started.');
   }
 
-  public async cleanup() {
+  public cleanup = async () => {
     this.logger.info('Cleaning up ReminderService');
     await this.agendaInstance.stop();
   }
@@ -67,7 +67,8 @@ export class ReminderService {
     // Ensure notification is ahead of local time!
     this.logger.debug(`Notification ${id} set for ${setTime}`);
     if (!isFutureDate(setTime, timezone)) {
-      throw new LyfError('Reminder is scheduled for a time that has already passed!', 400);
+      this.logger.warn('Reminder is scheduled for a time that has already passed! Returning early');
+      return;
     }
 
     this.logger.info(`Creating event notification ${id} at ${setTime.toUTCString()}`);
@@ -78,14 +79,14 @@ export class ReminderService {
     });
   }
 
-  public async updateEventNotification(item: ItemEntity, user: UserEntity, mins_before: number) {
+  public updateEventNotification = async (item: ItemEntity, user: UserEntity, mins_before: number) => {
     // The package does not offer a direct update method, so just recreate
     await this.removeEventNotification(item, user);
     await this.setEventNotification(item, user, mins_before);
     return;
   }
 
-  public async removeEventNotification(item: ItemEntity, user: UserEntity) {
+  public removeEventNotification = async (item: ItemEntity, user: UserEntity) => {
     this.logger.info(`Removing event notification ${item.id()}:${user.id()}`);
     const id = this.getUniqueJobId(item.id(), user.id());
     await this.agendaInstance.cancel({ 'data.id': id });
@@ -93,7 +94,7 @@ export class ReminderService {
 
   // --- DAILY --- //
 
-  public async setDailyNotifications(user: UserEntity, daily_time: string) {
+  public setDailyNotifications = async (user: UserEntity, daily_time: string) => {
     this.logger.info(`Setting up daily notification for ${user.id()}`);
 
     const timeArray = daily_time.split(':');
@@ -107,19 +108,19 @@ export class ReminderService {
     await job.save();
   }
 
-  public async updateDailyNotifications(user: UserEntity, new_daily_time: string) {
+  public updateDailyNotifications = async (user: UserEntity, new_daily_time: string) => {
     await this.removeDailyNotifications(user);
     await this.setDailyNotifications(user, new_daily_time);
   }
 
-  public async removeDailyNotifications(user: UserEntity) {
+  public removeDailyNotifications = async (user: UserEntity) => {
     this.logger.info(`Removing daily notifications for user ${user.id()}`);
     await this.agendaInstance.cancel({ 'data.user_id': user.id() });
   }
 
   // --- ROUTINES --- //
 
-  public async setRoutineNotification(item: ItemEntity, user: UserEntity) {
+  public setRoutineNotification = async (item: ItemEntity, user: UserEntity) => {
     this.logger.info(`Setting up routine notification for ${user.id()}`);
 
     const id = this.getUniqueJobId(item.id(), user.id());
@@ -131,7 +132,7 @@ export class ReminderService {
 
     const itemTime = item.time();
     if (!itemTime) {
-      throw new Error(`Cannot set routine notification on item ${item.id()}, it has no set time.`);
+      throw new LyfError(`Cannot set routine notification on item ${item.id()}, it has no set time.`, 422);
     }
 
     const timeArray = itemTime.split(':');
@@ -144,12 +145,12 @@ export class ReminderService {
     await job.save();
   }
 
-  public async updateRoutineNotification(item: ItemEntity, user: UserEntity) {
+  public updateRoutineNotification = async (item: ItemEntity, user: UserEntity) => {
     await this.removeRoutineNotification(item, user);
     await this.setRoutineNotification(item, user);
   }
 
-  public async removeRoutineNotification(item: ItemEntity, user: UserEntity) {
+  public removeRoutineNotification = async (item: ItemEntity, user: UserEntity) => {
     this.logger.info(`Removing routine ${item.id()}:${user.id()}`);
     const id = this.getUniqueJobId(item.id(), user.id());
     await this.agendaInstance.cancel({ 'data.id': id });
@@ -157,7 +158,7 @@ export class ReminderService {
 
   // TIMEZONE CHANGE HANDLER
 
-  public async handleUserTzChange(user: UserEntity, new_tz: string) {
+  public handleUserTzChange = async (user: UserEntity, new_tz: string) => {
     const dailyNotificationTime = user.dailyNotificationTime();
 
     if (!dailyNotificationTime) {
@@ -352,8 +353,8 @@ export class ReminderService {
     const itemTime = item.time();
 
     if (!itemDate || !itemTime) {
-      throw new Error(
-        `Cannot set an event notification without a time and date on item ${item.id()} `
+      throw new LyfError(
+        `Cannot set an event notification without a time and date on item ${item.title()}`, 422
       );
     }
 
