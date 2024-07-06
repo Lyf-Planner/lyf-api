@@ -9,15 +9,18 @@ import {
   getNoteValidator,
   updateNoteValidator
 } from '../validators/note_validators';
+import { API_PREFIX } from '../utils';
+
+const ROUTE_PREFIX = API_PREFIX + '/notes'
 
 export class NoteEndpoints extends NoteHandlers {
   constructor(server: express.Application) {
     super();
-    server.post('/note/create', this.createNote);
-    server.post('/note/update', this.updateNote);
-    server.get('/note/get', this.getNote);
-    server.get('note/myNotes', this.getUserNotes)
-    server.get('/note/delete', this.deleteNote);
+    server.post(ROUTE_PREFIX + '/create', this.createNote);
+    server.post(ROUTE_PREFIX + '/update', this.updateNote);
+    server.get(ROUTE_PREFIX + '/get', this.getNote);
+    server.get(ROUTE_PREFIX + '/myNotes', this.getUserNotes)
+    server.get(ROUTE_PREFIX + '/delete', this.deleteNote);
 
     // server.post("/addressNoteInvite");
     // server.post("/inviteNoteUser");

@@ -12,3 +12,5 @@ export const nSecondLimiter = (n: number, requests = 1) =>
 export const getMiddlewareVars = (res: Response) => {
   return res.locals;
 };
+
+export const API_PREFIX = '/api/v1'
