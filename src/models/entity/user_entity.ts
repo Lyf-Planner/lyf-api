@@ -174,6 +174,26 @@ export class UserEntity extends BaseEntity<UserDbObject> {
 
   // --- HELPERS --- //
 
+  blocksMe(user_id: string) {
+    if (!this.relations.users) {
+      throw new LyfError('checked blocked on a user without loading relations', 500);
+    }
+
+    return this.relations.users.some((x) => {
+      x.entityId() === user_id && x.blockedByEntity()
+    })
+  }
+
+  blockedByMe(user_id: string) {
+    if (!this.relations.users) {
+      throw new LyfError('checked blocked on a user without loading relations', 500);
+    }
+
+    return this.relations.users.some((x) => {
+      x.entityId() === user_id && x.blockedByMe()
+    })
+  }
+
   timezone() {
     return this.base!.tz;
   }

@@ -39,7 +39,7 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
   public async load() {
     const dbObject = await this.repository.findById(this._id) as T;
     if (!dbObject) {
-      throw new LyfError(`Model with id ${this._id} does not have a database entry in ${this.repository}`, 500);
+      throw new LyfError(`${this._id} does not exist`, 404);
     }
 
     this.base = dbObject;

@@ -39,7 +39,7 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
   public async export(requestor?: ID, with_relations: boolean = true): Promise<Note|NoteDbObject> {
     const relatedUsers = this.relations.users;
-    const relatedUserIds = relatedUsers?.map((x) => x.id());
+    const relatedUserIds = relatedUsers?.map((x) => x.entityId());
 
     if (requestor && !relatedUserIds?.includes(requestor)) {
       throw new LyfError('User tried to load a note they should not have access to', 401);

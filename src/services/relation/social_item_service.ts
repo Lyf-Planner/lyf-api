@@ -27,7 +27,7 @@ export class SocialItemService extends SocialService {
       sorting_rank: 0
     };
 
-    await relation.create(dbObject);
+    await relation.create(dbObject, ItemUserRelation.filter);
     return relation;
   }
 

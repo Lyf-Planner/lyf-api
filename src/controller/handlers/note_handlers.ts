@@ -19,7 +19,7 @@ export class NoteHandlers {
       const service = new NoteService();
       const note = await service.processCreation(noteInput, user_id);
 
-      res.status(201).json(await note.export(user_id)).end();
+      res.status(201).json(await note.export()).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error(lyfError.code + " - " + lyfError.message);
@@ -64,14 +64,14 @@ export class NoteHandlers {
   }
 
   protected async getNote(req: Request, res: Response) {
-    const { note_id } = req.body as { note_id: string };
+    const { id } = req.query as { id: string };
     const user_id = getMiddlewareVars(res).user_id;
 
-    logger.debug(`Retreiving note ${note_id} for user ${user_id}`);
+    logger.debug(`Retreiving note ${id} for user ${user_id}`);
 
     try {
       const service = new NoteService();
-      const note = await service.getEntity(note_id, user_id);
+      const note = await service.getEntity(id);
       res.status(200).json(await note.export(user_id)).end();
     } catch (error) {
       const lyfError = error as LyfError;

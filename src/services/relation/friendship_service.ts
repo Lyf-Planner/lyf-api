@@ -72,7 +72,7 @@ export class FriendshipService extends BaseService {
     };
 
     try {
-      await friendship.create(newFriendship);
+      await friendship.create(newFriendship, UserFriendRelation.filter);
     } catch (e) {
       await friendship.load();
       if (friendship.blocked()) {

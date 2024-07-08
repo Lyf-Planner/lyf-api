@@ -52,7 +52,7 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
 
   public async export(requestor?: ID, with_relations: boolean = true): Promise<Item|ItemDbObject> {
     const relatedUsers = this.relations.users;
-    const relatedUserIds = relatedUsers?.map((x) => x.id());
+    const relatedUserIds = relatedUsers?.map((x) => x.entityId());
 
     if (requestor && !relatedUserIds?.includes(requestor)) {
       console.log("got requestor", requestor)

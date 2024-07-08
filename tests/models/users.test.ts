@@ -13,15 +13,15 @@ describe('user model tests', () => {
     // Setup suite context data
     user = new UserEntity('test');
     const initialData = await createTestUser();
-    await user.create(initialData);
+    await user.create(initialData, UserEntity.filter);
 
     item = new ItemEntity(item1_id);
     const initialItem = createTestItem1();
-    await item.create(initialItem);
+    await item.create(initialItem, ItemEntity.filter);
 
     itemRelation = new UserItemRelation('test', item1_id);
     const initialRelation = createItem1Relation();
-    itemRelation.create(initialRelation);
+    itemRelation.create(initialRelation, UserItemRelation.filter);
   });
 
   afterAll(async () => {

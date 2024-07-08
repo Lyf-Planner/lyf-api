@@ -83,7 +83,7 @@ export class ItemService extends EntityService<ItemDbObject> {
       // Otherwise just attach the creator
       const ownerRelationship = new ItemUserRelation(item.id(), user_id);
       const ownerRelationshipObject = this.defaultOwnerRelationship(item.id(), user_id, sorting_rank);
-      await ownerRelationship.create(ownerRelationshipObject);
+      await ownerRelationship.create(ownerRelationshipObject, ItemUserRelation.filter);
     }
 
     console.log("loading relation");
@@ -158,11 +158,11 @@ export class ItemService extends EntityService<ItemDbObject> {
     };
 
     const item = new ItemEntity(userIntroItem.id);
-    await item.create(userIntroItem);
+    await item.create(userIntroItem, ItemEntity.filter);
 
     const relationship = new ItemUserRelation(userIntroItem.id, user.id());
     const relationshipObject = this.defaultOwnerRelationship(userIntroItem.id, user.id(), 0);
-    await relationship.create(relationshipObject);
+    await relationship.create(relationshipObject, ItemUserRelation.filter);
   }
 
   private async canUpdate(item: UserItemRelation) {
@@ -182,7 +182,7 @@ export class ItemService extends EntityService<ItemDbObject> {
     rawObject.item_id_fk = item.id();
 
     const newRelationship = new ItemUserRelation(item.id(), user.id());
-    await newRelationship.create(rawObject);
+    await newRelationship.create(rawObject, ItemUserRelation.filter);
   }
 
   private defaultOwnerRelationship(item_id: ID, user_id: ID, rank?: number): ItemUserRelationshipDbObject {

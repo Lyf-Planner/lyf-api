@@ -26,7 +26,7 @@ export class SocialNoteService extends SocialService {
       permission
     };
 
-    await relation.create(dbObject);
+    await relation.create(dbObject, NoteUserRelation.filter);
     return relation;
   }
 

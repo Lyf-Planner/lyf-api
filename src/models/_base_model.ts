@@ -18,7 +18,7 @@ export abstract class BaseModel<T extends DbObject> {
     return this._id;
   }
 
-  public async create(db_object: T, filter?: (object: any) => T) {
+  public async create(db_object: T, filter: (object: any) => T) {
     if (filter) {
       db_object = filter(db_object);
     }

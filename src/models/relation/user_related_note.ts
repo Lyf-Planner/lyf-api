@@ -61,7 +61,7 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
     }
 
     return {
-      ...await this.relatedEntity.export(this._id, true) as Note,
+      ...await this.relatedEntity.export(undefined, true) as Note,
       ...relationFields
     };
   }

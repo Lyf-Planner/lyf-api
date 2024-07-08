@@ -23,11 +23,11 @@ export class NoteService extends EntityService<NoteDbObject> {
 
   async processCreation(note_input: NoteDbObject, from: ID) {
     const note = new NoteEntity(note_input.id);
-    await note.create(note_input);
+    await note.create(note_input, NoteEntity.filter);
 
     const relationship = new NoteUserRelation(note_input.id, from);
     const relationshipObject = this.defaultNoteOwner(note.id(), from);
-    await relationship.create(relationshipObject);
+    await relationship.create(relationshipObject, NoteUserRelation.filter);
 
     await note.fetchRelations();
     await note.load();

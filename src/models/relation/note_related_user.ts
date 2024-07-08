@@ -26,7 +26,7 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
       created: object.created,
       last_updated: object.last_updated,
       invite_pending: object.invite_pending,
-      permission: object.status
+      permission: object.permission
     };
     
     return ObjectUtils.stripUndefinedFields(objectFilter);

@@ -46,7 +46,7 @@ export class UserService extends EntityService<UserDbObject> {
     };
 
     const user = new UserEntity(userCreationData.id);
-    await user.create(userCreationData);
+    await user.create(userCreationData, UserEntity.filter);
 
     await new ItemService().createUserIntroItem(user, tz);
 
@@ -95,13 +95,16 @@ export class UserService extends EntityService<UserDbObject> {
     return user.export(from);
   }
 
-  public async retrieveForUser(user_id: ID, requestor_id: ID, include?: string): Promise<ExposedUser|PublicUser> {
+  public async retrieveForUser(user_id: ID, requestor_id: ID, include?: string): Promise<ExposedUser | PublicUser> {
     // Get friend relations on other users
     if (user_id !== requestor_id) {
       include = "users"
     }
 
     const user = await this.getEntity(user_id, include);
+    if (user_id !== requestor_id && user.blockedByMe(requestor_id)) {
+      throw new LyfError(`${user_id} does not exist`, 404);
+    }
 
     return await user.export(requestor_id);
   }

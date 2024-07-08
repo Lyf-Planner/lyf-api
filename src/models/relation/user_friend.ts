@@ -100,6 +100,24 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
     );
   }
 
+  blockedByMe() {
+    const [id1, _id2] = this.sortedIds();
+    if (id1 === this._id) {
+      return this.base!.status === UserFriendshipStatus.BlockedByFirst;
+    } else {
+      return this.base!.status === UserFriendshipStatus.BlockedBySecond;
+    }
+  }
+
+  blockedByEntity() {
+    const [id1, _id2] = this.sortedIds();
+    if (id1 === this._id) {
+      return this.base!.status === UserFriendshipStatus.BlockedBySecond;
+    } else {
+      return this.base!.status === UserFriendshipStatus.BlockedByFirst;
+    }
+  }
+
   pendingOnFrom() {
     return (
       this.base!.user1_id_fk === this._id && this.base!.status === UserFriendshipStatus.PendingFirstAcceptance ||
