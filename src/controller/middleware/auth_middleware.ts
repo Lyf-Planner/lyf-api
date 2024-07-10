@@ -4,10 +4,11 @@ import assert from 'assert';
 import { AuthService } from '../../services/auth_service';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
+import { API_PREFIX } from '../utils';
 
 const logger = new Logger('AuthMiddleware');
 const TOKEN_PREFIX = 'Bearer ';
-const EXCLUDED_ENDPOINTS = ['/user/login', '/user/create'];
+const EXCLUDED_ENDPOINTS = ['/users/login', '/users/create'].map((x) => API_PREFIX + x);
 
 export const authoriseHeader = (
   req: Request,

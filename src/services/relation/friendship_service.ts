@@ -92,11 +92,12 @@ export class FriendshipService extends BaseService {
       const shouldMutualBlock = status === requiredForMutualBlock;
 
       if (shouldMutualBlock) {
-        await friendship.update({ status: UserFriendshipStatus.MutualBlock });
+        friendship.update({ status: UserFriendshipStatus.MutualBlock });
       } else {
-        await friendship.update({ status: desiredStatus });
+        friendship.update({ status: desiredStatus });
       }
 
+      await friendship.save()
     } catch (e) {
       this.logger.warn('Block status requested on non-existent friendship, creating now');
       await this.createFriendship(friendship, desiredStatus);
