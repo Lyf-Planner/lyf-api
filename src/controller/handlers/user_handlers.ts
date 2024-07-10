@@ -53,7 +53,7 @@ export class UserHandlers {
   }
 
   protected async getUser(req: Request, res: Response) {
-    const { user_id } = req.query as getUserQuery;
+    const { user_id, include } = req.query as getUserQuery;
     const requestorId = getMiddlewareVars(res).user_id;
 
     logger.debug(`Received request for user ${user_id} from "${requestorId}"`);
@@ -61,7 +61,7 @@ export class UserHandlers {
     const userService = new UserService();
 
     try {
-      const user = await userService.retrieveForUser(user_id as string, requestorId, "users");
+      const user = await userService.retrieveForUser(user_id as string, requestorId, include);
 
       res.status(200).json(user).end();
     } catch (error) {
@@ -133,8 +133,8 @@ export class UserHandlers {
     const service = new FriendshipService();
 
     try {
-      const friendships = await service.processUpdate(fromId, update);
-      res.status(200).json(friendships).end();
+      const friendship = await service.processUpdate(fromId, update);
+      res.status(200).json(friendship).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error(lyfError.code + " - " + lyfError.message);

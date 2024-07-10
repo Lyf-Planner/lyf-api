@@ -22,7 +22,7 @@ export const getUserValidator = [
   query('user_id', 'User ID cannot be empty').not().isEmpty()
 ];
 
-export type getUserQuery = { user_id: string };
+export type getUserQuery = { user_id: string, include: string };
 
 // POST
 

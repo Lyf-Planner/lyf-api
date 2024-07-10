@@ -116,23 +116,19 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     }
 
     if (toLoad.includes('users')) {
-      console.log("finding friends")
       const userFriendsRepo = new UserFriendshipRepository();
       const relationObjects = await userFriendsRepo.findUserFriends(this._id);
-      const userRelations: UserFriendRelation[] = [];
-      console.log("found relations:", relationObjects);
+      const userRelations: UserFriendRelation[] = [];      
 
       for (const relationObject of relationObjects) {
         const otherUserId = relationObject.user1_id_fk === this._id ? relationObject.user2_id_fk : relationObject.user1_id_fk;
 
         const userRelation = new UserFriendRelation(this._id, otherUserId, relationObject);
 
-        console.log("created relation model, checking if blocked")
         if (userRelation.blocked()) {
           continue;
         }
 
-        console.log("pushing relation model")
         userRelations.push(userRelation);
       }
       this.relations.users = userRelations;

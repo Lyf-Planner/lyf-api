@@ -135,4 +135,8 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
   sortedIds() {
     return [this._entityId, this._id].sort();
   }
+
+  static sortedIds(id1: ID, id2: ID) {
+    return [id1, id2].sort();
+  }
 }

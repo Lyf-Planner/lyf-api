@@ -18,7 +18,6 @@ export class UserService extends EntityService<UserDbObject> {
   // --- USERS --- //
 
   async getEntity(user_id: string, include?: string) {
-    this.logger.info('getting user ' + user_id)
     const user = new UserEntity(user_id);
     await user.fetchRelations(include);
     await user.load();
@@ -95,16 +94,8 @@ export class UserService extends EntityService<UserDbObject> {
     return user.export(from);
   }
 
-  public async retrieveForUser(user_id: ID, requestor_id: ID, include?: string): Promise<ExposedUser | PublicUser> {
-    // Get friend relations on other users
-    if (user_id !== requestor_id) {
-      include = "users"
-    }
-
-    const user = await this.getEntity(user_id, include);
-    if (user_id !== requestor_id && user.blockedByMe(requestor_id)) {
-      throw new LyfError(`${user_id} does not exist`, 404);
-    }
+  public async retrieveForUser(user_id: ID, requestor_id: ID, include?: string): Promise<ExposedUser | PublicUser> {    
+    const user = await this.getEntity(user_id, include || '');
 
     return await user.export(requestor_id);
   }
