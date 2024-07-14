@@ -61,7 +61,6 @@ export class ItemService extends EntityService<ItemDbObject> {
     // Create the item, as well as any user relations and note relations
     const item = new ItemEntity(item_input.id);
     await item.create(item_input, ItemEntity.filter);
-    console.log('created item');
 
     // Need to ensure we attach routine users if it has a template_id!
     if (item.templateId()) {
@@ -86,7 +85,6 @@ export class ItemService extends EntityService<ItemDbObject> {
       await ownerRelationship.create(ownerRelationshipObject, ItemUserRelation.filter);
     }
 
-    console.log("loading relation");
     await item.fetchRelations();
     await item.load();
     return item;

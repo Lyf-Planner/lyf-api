@@ -55,7 +55,6 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
     const relatedUserIds = relatedUsers?.map((x) => x.entityId());
 
     if (requestor && !relatedUserIds?.includes(requestor)) {
-      console.log("got requestor", requestor)
       throw new LyfError('User tried to load an item they should not have access to', 401);
     }
 

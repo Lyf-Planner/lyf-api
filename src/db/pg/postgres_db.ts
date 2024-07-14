@@ -27,7 +27,7 @@ logger.info('Initialising Kysely Postgres interface');
 
 export const postgresDb = new Kysely<Database>({
   dialect,
-  log: ['query', 'error']
+  log: ['error']
 });
 
 logger.info('Kysely PostgresDb initialised!');

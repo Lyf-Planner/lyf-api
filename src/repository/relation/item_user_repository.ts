@@ -118,8 +118,6 @@ export class ItemUserRepository extends RelationRepository<ItemUserRelationshipD
     user_id_fk: ID,
     changes: Partial<ItemUserRelationshipDbObject>
   ) {
-    console.log("updating remote item", item_id_fk, "relation with user", user_id_fk, "with changes", changes);
-
     return await this.db
       .updateTable(TABLE_NAME)
       .where((eb) => eb.and([

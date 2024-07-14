@@ -3,6 +3,7 @@ import { ItemUserRelationshipDbObject, Permission } from '../../api/schema/datab
 import { SocialAction } from '../../api/schema/util/social';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';
+import { SocialRelation } from '../../models/relation/_social_relation';
 import { ItemUserRelation } from '../../models/relation/item_related_user';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
@@ -38,41 +39,51 @@ export class SocialItemService extends SocialService {
   }
 
   async processUpdate(from: ID, update: SocialUpdate) {
-    const itemService = new ItemService();
-    const userService = new UserService();
+    const fromUser = new ItemUserRelation(update.entity_id, from);
+    await fromUser.load()
 
-    const item = await itemService.getEntity(update.entity_id);
-    const fromUser = await userService.getEntity(from);
-    const targetUser = await userService.getEntity(update.user_id);
+    let modifiedRelation;
 
     switch (update.action) {
       case SocialAction.Invite:
         this.logger.info(`User ${update.user_id} invited to item ${update.entity_id} by ${from}`);
-        await this.inviteUser(item, targetUser, fromUser, update.permission!);
-        await SocialItemNotifications.newItemInvite(targetUser, fromUser, item);
+        modifiedRelation = await this.inviteUser(update.user_id, fromUser, update.permission!);
+        // SocialItemNotifications.newItemInvite(targetUser, fromUser, item);
         break;
       case SocialAction.Accept:
         this.logger.info(`User ${from} accepted invitation to item ${update.entity_id}`);
-        await this.acceptInvite(item, targetUser);
-        await SocialItemNotifications.newItemUser(fromUser, item);
+        modifiedRelation = await this.acceptInvite(fromUser);
+        // SocialItemNotifications.newItemUser(fromUser, item);
         break;
       case SocialAction.Decline:
         this.logger.info(`User ${from} declined invitation to item ${update.entity_id}`);
-        await this.removeUser(item, targetUser, targetUser);
+        modifiedRelation = await this.removeUser(update.user_id, fromUser);
         break;
       case SocialAction.Cancel:
       case SocialAction.Remove:
         this.logger.info(
           `User ${from} removing user ${update.user_id} from item ${update.entity_id}`
         );
-        await this.removeUser(item, targetUser, fromUser);
+        modifiedRelation = await this.removeUser(update.user_id, fromUser);
         break;
       default:
         throw new LyfError(`Invalid social item update - action was ${update.action}`, 400);
     }
 
-    await item.fetchRelations();
-    await item.load();
-    return item;
+    this.updateIsCollaborative(update.entity_id)
+    return modifiedRelation;
+  }
+
+  protected async updateIsCollaborative(item_id: ID) {
+    try {
+      const item = new ItemEntity(item_id);
+      await item.fetchRelations("users");
+
+      const numUsers = item.getRelations().users?.length
+      const collaborative = !!numUsers && numUsers > 1
+      await item.directlyModify({ collaborative })
+    } catch (error) {
+      this.logger.error(`Failed to update collaborative flag on item ${item_id}`)
+    }
   }
 }

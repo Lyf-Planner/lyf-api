@@ -28,8 +28,8 @@ export class UserHandlers {
       res.status(200).json({ user, token }).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
@@ -47,8 +47,8 @@ export class UserHandlers {
       res.status(200).json(user).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
@@ -66,8 +66,8 @@ export class UserHandlers {
       res.status(200).json(user).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
@@ -83,8 +83,8 @@ export class UserHandlers {
       res.status(201).json({ user, token }).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
@@ -103,8 +103,8 @@ export class UserHandlers {
       res.status(200).json(updatedUser).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
@@ -121,8 +121,8 @@ export class UserHandlers {
       res.status(204).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
@@ -137,8 +137,8 @@ export class UserHandlers {
       res.status(200).json(friendship).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 }

@@ -97,6 +97,12 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
     this.base = { ...this.base, ...changes };
   }
 
+  // Modify, unlike update which makes a local change, or save which pushes changes,
+  // Just makes a modification straight to the database without loading.
+  public async directlyModify(changes: Partial<T>) {
+    await this.repository.update(this._id, changes);
+  }
+
   protected parseInclusions(include: string) {
     return include.split(',');
   }

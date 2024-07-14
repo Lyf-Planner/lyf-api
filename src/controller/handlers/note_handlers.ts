@@ -22,8 +22,8 @@ export class NoteHandlers {
       res.status(201).json(await note.export()).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
@@ -40,8 +40,8 @@ export class NoteHandlers {
       res.status(200).json(await note.export()).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
@@ -58,8 +58,8 @@ export class NoteHandlers {
       res.status(204).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
@@ -75,8 +75,8 @@ export class NoteHandlers {
       res.status(200).json(await note.export(user_id)).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
@@ -93,8 +93,8 @@ export class NoteHandlers {
       res.status(200).json(notes).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 }

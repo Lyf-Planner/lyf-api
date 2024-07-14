@@ -34,8 +34,8 @@ export class ItemHandlers {
       res.status(200).json(await item.export()).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
@@ -46,12 +46,15 @@ export class ItemHandlers {
     const socialItemService = new SocialItemService();
 
     try {
-      const item = await socialItemService.processUpdate(fromId, update);
-      res.status(200).json(item).end();
+      const resultingRelation = await socialItemService.processUpdate(fromId, update);
+      res.status(200).json(resultingRelation
+        ? await resultingRelation.export()
+        : null)
+      .end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
@@ -70,8 +73,8 @@ export class ItemHandlers {
       res.status(201).json(await item.export()).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
@@ -89,26 +92,28 @@ export class ItemHandlers {
       res.status(204).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
   protected async getItem(req: Request, res: Response) {
-    const { item_id } = req.query as { item_id: string };
+    const { id, include } = req.query as { id: string, include: string };
     const user_id = getMiddlewareVars(res).user_id;
 
-    logger.debug(`Retreiving item ${item_id} for user ${user_id}`);
+    logger.debug(`Retrieving item ${id} for user ${user_id}`);
 
     // Authorisation checks
     try {
       const service = new ItemService();
-      const item = await service.getEntity(item_id);
-      res.status(200).json(item.export(user_id)).end();
+      const item = await service.getEntity(id, include);
+      const result = await item.export(user_id);
+
+      res.status(200).json(result).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
@@ -126,8 +131,8 @@ export class ItemHandlers {
       res.status(200).json(timetable).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error(lyfError.code + " - " + lyfError.message);
-      res.status(lyfError.code).end(lyfError.message);
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 

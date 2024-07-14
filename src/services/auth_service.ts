@@ -9,14 +9,10 @@ import { UserService } from './entity/user_service';
 export class AuthService {
   static async loginUser(user_id: string, password: string, include?: string) {
     const userService = new UserService();
-    console.log("fetching user", user_id);
 
     const user = await userService.getEntity(user_id, include);
 
-    console.log("getting token")
     const token = await AuthService.authenticateWithUser(user, password);
-
-    console.log("got token")
 
     return {
       token,

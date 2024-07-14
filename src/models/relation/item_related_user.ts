@@ -86,7 +86,7 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
 
   public async save(): Promise<void> {
     if (!ObjectUtils.isEmpty(this.changes)) {
-      await this.repository.updateRelation(this._entityId, this._id, this.changes);
+      await this.repository.updateRelation(this._id, this._entityId, this.changes);
     }
   }
 
