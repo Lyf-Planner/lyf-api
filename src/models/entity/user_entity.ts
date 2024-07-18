@@ -57,7 +57,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     const selfRequested = requestor === this._id
 
     if (requestor && !selfRequested) {
-      return await this.exportAsPublicUser();
+      return await this.exportAsPublicUser(requestor);
     }
     
     if (with_relations) {
@@ -118,7 +118,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     if (toLoad.includes('users')) {
       const userFriendsRepo = new UserFriendshipRepository();
       const relationObjects = await userFriendsRepo.findUserFriends(this._id);
-      const userRelations: UserFriendRelation[] = [];      
+      const userRelations: UserFriendRelation[] = [];
 
       for (const relationObject of relationObjects) {
         const otherUserId = relationObject.user1_id_fk === this._id ? relationObject.user2_id_fk : relationObject.user1_id_fk;
@@ -202,7 +202,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     return this.base!.persistent_daily_notification;
   }
 
-  private async exportAsPublicUser(with_relations: boolean = true): Promise<PublicUser|UserPublicFields> {
+  private async exportAsPublicUser(requestor_id: ID, with_relations: boolean = true): Promise<PublicUser|UserPublicFields> {
     const publicUserFields: UserPublicFields = {
       created: this.base!.created,
       last_updated: this.base!.last_updated,
@@ -212,12 +212,13 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     };
 
     if (with_relations) {
-      // Only expose friends when exporting a public user!
-      const { users }: { users?: UserFriend[]} = await this.recurseRelations(CommandType.Export)
+      // When exporting a public user, expose only a users friends when requested by a friend
+      const { users } = await this.recurseRelations(CommandType.Export) as { users?: UserFriend[] }
     
-      const relations = users ? {
-          users: users?.filter((x) => x.status === UserFriendshipStatus.Friends)
-        } : {};
+      const requestorIsFriend = users && users.some((x) => x.id === requestor_id);
+      const relations = requestorIsFriend ? {
+        users: users.filter((x) => x.status === UserFriendshipStatus.Friends)
+      } : {};
 
       return {
         ...publicUserFields,

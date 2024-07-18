@@ -107,7 +107,7 @@ export class ItemUserRepository extends RelationRepository<ItemUserRelationshipD
       .innerJoin(TABLE_NAME, 'items.id', 'items_on_users.item_id_fk')
       .selectAll()
       .where('user_id_fk', '=', user_id)
-      .where((eb) => eb.or([eb('date', '>=', start_date), eb('day', 'in', daysOfWeek)]))
+      .where((eb) => eb.or([eb('date', '>=', start_date), eb('date', 'is', null), eb('day', 'in', daysOfWeek)]))
       .execute();
 
     return result;

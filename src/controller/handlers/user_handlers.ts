@@ -43,8 +43,10 @@ export class UserHandlers {
     const userService = new UserService();
 
     try {
-      const user = await userService.retrieveForUser(user_id, user_id, include || "");
-      res.status(200).json(user).end();
+      const user = await userService.getEntity(user_id, include);
+      user.directlyModify({ last_updated: new Date() });
+
+      res.status(200).json(await user.export()).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);
