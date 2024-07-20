@@ -7,6 +7,7 @@ import { UserEntity } from '../../models/entity/user_entity';
 import { formatDate, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { ExpoPushService } from './expo_push_service';
+import { NotificationType } from '../../api/schema/database/notifications';
 
 export enum DebounceSignatures {
   'DateChange' = 'DateChange',
@@ -29,24 +30,32 @@ export class SocialItemNotifications {
 
     const users = await item.getUsers();
 
-    // Get tokens
-    const tokensToNotify = this.getAllOtherTokens(from, users);
+    users.forEach(async (user) => {
+      if (user.id() === from.id()) {
+        return;
+      }
 
-    // Format the message
-    const message = {
-      to: tokensToNotify,
-      title: `${item.type()} date updated`,
-      body: `${from.name()} updated the date of ${item.title()} to ${formatDate(item.date()!)}`,
-      sound: { critical: true, volume: 1, name: 'default' }
-    } as ExpoPushMessage;
+      const message = {
+        to: user.getSensitive(user.id()).expo_tokens,
+        title: `${item.type()} date updated`,
+        body: `${from.name()} updated the date of ${item.title()} to ${formatDate(item.date()!)}`,
+        sound: { critical: true, volume: 1, name: 'default' }
+      } as ExpoPushMessage;
 
-    // Send
-    SocialItemNotifications.debounceItemMessage(
-      message,
-      item.id(),
-      from.id(),
-      DebounceSignatures.DateChange
-    );
+      const func = async () => await new ExpoPushService().pushNotificationToExpo(
+        [message],
+        NotificationType.ItemSocial,
+        user.id(),
+        from.id()
+      );
+
+      SocialItemNotifications.debounceItemMessage(
+        func,
+        item.id(),
+        from.id(),
+        DebounceSignatures.TimeChange
+      );
+    })
   }
 
   static async handleTimeChange(from: UserEntity, item: ItemEntity) {
@@ -60,24 +69,32 @@ export class SocialItemNotifications {
 
     const users = await item.getUsers();
 
-    // Get tokens
-    const tokensToNotify = this.getAllOtherTokens(from, users);
+    users.forEach(async (user) => {
+      if (user.id() === from.id()) {
+        return;
+      }
 
-    // Format the message
-    const message = {
-      to: tokensToNotify,
-      title: `${item.type()} time updated`,
-      body: `${from.name()} updated the time of ${item.title()} to ${TwentyFourHourToAMPM(newTime)}`,
-      sound: { critical: true, volume: 1, name: 'default' }
-    } as ExpoPushMessage;
+      const message = {
+        to: user.getSensitive(user.id()).expo_tokens,
+        title: `${item.type()} time updated`,
+        body: `${from.name()} updated the time of ${item.title()} to ${TwentyFourHourToAMPM(newTime)}`,
+        sound: { critical: true, volume: 1, name: 'default' }
+      } as ExpoPushMessage;
 
-    // Send
-    SocialItemNotifications.debounceItemMessage(
-      message,
-      item.id(),
-      from.id(),
-      DebounceSignatures.TimeChange
-    );
+      const func = async () => await new ExpoPushService().pushNotificationToExpo(
+        [message],
+        NotificationType.ItemSocial,
+        user.id(),
+        from.id()
+      );
+
+      SocialItemNotifications.debounceItemMessage(
+        func,
+        item.id(),
+        from.id(),
+        DebounceSignatures.TimeChange
+      );
+    })
   }
 
   static async newItemInvite(to: UserEntity, from: UserEntity, item: ItemEntity) {
@@ -99,7 +116,12 @@ export class SocialItemNotifications {
     }
 
     // Send
-    await new ExpoPushService().pushNotificationToExpo([message]);
+    await new ExpoPushService().pushNotificationToExpo(
+      [message],
+      NotificationType.ItemSocial,
+      to.id(),
+      from.id()
+    );
   }
 
   static async newItemUser(from: UserEntity, item: ItemEntity) {
@@ -107,18 +129,20 @@ export class SocialItemNotifications {
 
     const users = await item.getUsers();
 
-    // Get tokens
-    const tokensToNotify = this.getAllOtherTokens(from, users);
+    users.forEach(async (user) => {
+      const message = {
+        to: user.getSensitive(user.id()).expo_tokens,
+        title: `User Joined your ${item.type()}`,
+        body: `${from.name()} joined ${item.title()}`
+      } as ExpoPushMessage;
 
-    // Format the message
-    const message = {
-      to: tokensToNotify,
-      title: `User Joined your ${item.type()}`,
-      body: `${from.name()} joined ${item.title()}`
-    } as ExpoPushMessage;
-
-    // Send
-    await new ExpoPushService().pushNotificationToExpo([message]);
+      await new ExpoPushService().pushNotificationToExpo(
+        [message],
+        NotificationType.ItemSocial,
+        user.id(),
+        from.id()
+      );
+    })
   }
 
   static async handleStatusChange(from: UserEntity, item: ItemEntity) {
@@ -134,61 +158,48 @@ export class SocialItemNotifications {
 
     const users = await item.getUsers();
 
-    // Get tokens
-    const tokensToNotify = this.getAllOtherTokens(from, users);
-
     logger.info(
       `Notifying ${users} other users on item ${item.title()} (${
         item.id()
       }) of status change to ${newStatus} from ${from.id()}`
     );
 
-    // Format the message
-    const message = {
-      to: tokensToNotify,
-      title: `${item.type()} ${item.status()}`,
-      body: `${from.name()} marked ${item.title()} as ${newStatus}`,
-      sound: {
-        critical: item.status() === ItemStatus.Cancelled,
-        volume: 1,
-        name: 'default'
-      }
-    } as ExpoPushMessage;
-
-    // Send
-    SocialItemNotifications.debounceItemMessage(
-      message,
-      item.id(),
-      from.id(),
-      DebounceSignatures.StatusChange
-    );
-  }
-
-  // --- HELPERS --- //
-  static getAllOtherTokens(from: UserEntity, users: UserEntity[] ) {
-    // Get the tokens of every user on the item
-    // Except the user who initiated the notification
-    let tokens = [] as string[];
-    for (const user of users) {
+    users.forEach(async (user) => {
       if (user.id() === from.id()) {
-        continue;
+        return;
       }
 
-      const user_tokens = user.getSensitive(user.id()).expo_tokens;
-      tokens = tokens.concat(user_tokens);
-    }
+      const message = {
+        to: user.getSensitive(user.id()).expo_tokens,
+        title: `${item.type()} ${item.status()}`,
+        body: `${from.name()} marked ${item.title()} as ${newStatus}`,
+        sound: { critical: true, volume: 1, name: 'default' }
+      } as ExpoPushMessage;
 
-    return tokens.flat();
+      const func = async () => await new ExpoPushService().pushNotificationToExpo(
+        [message],
+        NotificationType.ItemSocial,
+        user.id(),
+        from.id()
+      );
+
+      SocialItemNotifications.debounceItemMessage(
+        func,
+        item.id(),
+        from.id(),
+        DebounceSignatures.TimeChange
+      );
+    })
   }
 
   static debounceItemMessage(
-    message: ExpoPushMessage,
+    func: () => Promise<void>,
     item_id: string,
     user_id: string,
     category: DebounceSignatures
   ) {
     debouncer.run(
-      async () => await new ExpoPushService().pushNotificationToExpo([message]),
+      async () => await func(),
       {
         item_id,
         user_id,

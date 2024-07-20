@@ -5,6 +5,7 @@ import { Logger } from '../../utils/logging';
 import { ExpoPushService } from './expo_push_service';
 import { ID } from '../../api/schema/database/abstract';
 import { UserFriendRelation } from '../../models/relation/user_friend';
+import { NotificationType } from '../../api/schema/database/notifications';
 
 export class FriendNotifications {
   public static async newFriendRequest(friendship: UserFriendRelation) {
@@ -22,7 +23,12 @@ export class FriendNotifications {
       sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
 
-    await new ExpoPushService().pushNotificationToExpo([message]);
+    await new ExpoPushService().pushNotificationToExpo(
+      [message],
+      NotificationType.UserSocial,
+      toUser.id(),
+      fromUser.id()
+    );
   }
 
   public static async newFriend(friendship: UserFriendRelation) {
@@ -39,7 +45,12 @@ export class FriendNotifications {
       body: `${fromUser.name()} added you as a friend`
     };
 
-    await new ExpoPushService().pushNotificationToExpo([message]);
+    await new ExpoPushService().pushNotificationToExpo(
+      [message],
+      NotificationType.UserSocial,
+      toUser.id(),
+      fromUser.id()
+    );
   }
 }
 

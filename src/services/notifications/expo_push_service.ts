@@ -1,40 +1,49 @@
 import { Expo, ExpoPushMessage } from 'expo-server-sdk';
+import { v4 as uuid } from 'uuid';
 
 import { Logger } from '../../utils/logging';
+import { ID } from '../../api/schema/database/abstract';
+import { NotificationService } from '../entity/notification_service';
+import { NotificationType } from '../../api/schema/database/notifications';
 
 export class ExpoPushService {
   private expo: Expo = new Expo();
   private logger = Logger.of(ExpoPushService);
 
-  public async pushNotificationToExpo(messages: ExpoPushMessage[]) {
-    for (const message of messages) {
-      // Each push token looks like ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]
-      // Check that all your push tokens appear to be valid Expo push tokens
-      for (const token of message.to) {
-        if (!Expo.isExpoPushToken(token)) {
-          this.logger.error(`Push token ${token} is not a valid Expo push token`);
-          continue;
-        }
+  public async pushNotificationToExpo(messages: ExpoPushMessage[], type: NotificationType, to_id: ID, from_id?: ID) {
+    const chunks = this.expo.chunkPushNotifications(messages);
+    const tickets = [];
+
+    for (const chunk of chunks) {
+      try {
+        const ticketChunk = await this.expo.sendPushNotificationsAsync(chunk);
+        this.logger.info(`Sent message and received ticket ${JSON.stringify(ticketChunk)}`);
+        tickets.push(...ticketChunk);
+      } catch (error) {
+        console.error(error);
       }
-
-      const chunks = this.expo.chunkPushNotifications(messages);
-      const tickets = [];
-
-      for (const chunk of chunks) {
-        try {
-          const ticketChunk = await this.expo.sendPushNotificationsAsync(chunk);
-          this.logger.info(`Sent message and received ticket ${JSON.stringify(ticketChunk)}`);
-          tickets.push(...ticketChunk);
-          // NOTE: If a ticket contains an error code in ticket.details.error, you
-          // must handle it appropriately. The error codes are listed in the Expo
-          // documentation:
-          // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
-        } catch (error) {
-          console.error(error);
-        }
-      }
-
-      // STORE TICKETS!
     }
+
+    // Store the notification event
+    const sendingSuccess = tickets.every((x) => x.status === 'ok');
+    const commonTitle = messages[0].title || '';
+    const commonBody = messages[0].body || '';
+    if (!sendingSuccess) {
+      console.warn(`Sending notification to ${to_id} failed.`)
+    }
+
+    const notificationService = new NotificationService();
+    await notificationService.processCreation({
+      id: uuid(),
+      created: new Date(),
+      last_updated: new Date(),
+      to: to_id,
+      from: from_id,
+      title: commonTitle,
+      message: commonBody,
+      type,
+      seen: false,
+      received: sendingSuccess
+    })
   }
 }

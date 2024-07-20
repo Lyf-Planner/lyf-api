@@ -16,6 +16,7 @@ import { pluralisedQuantity } from '../../utils/text';
 import { ItemService } from '../entity/item_service';
 import { UserService } from '../entity/user_service';
 import { ExpoPushService } from './expo_push_service';
+import { NotificationType } from '../../api/schema/database/notifications';
 
 const agenda = require('agenda');
 
@@ -223,7 +224,7 @@ export class ReminderService {
         'Check Your Schedule!',
         '(Daily Reminder) ' + subtext
       );
-      await new ExpoPushService().pushNotificationToExpo([message]);
+      await new ExpoPushService().pushNotificationToExpo([message], NotificationType.ItemReminder, userId);
       done();
     });
   }
@@ -243,7 +244,7 @@ export class ReminderService {
 
   private sendItemNotification = async (id: string, clearFromRelation = true) => {
     try {
-      const ids = id.split(':');
+      const ids = id.split(':'); // IDs are stored like `${item_id}:${user_id}`
       const item_id = ids[0];
       const user_id = ids[1];
 
@@ -292,7 +293,7 @@ export class ReminderService {
       this.logger.info(`Sending scheduled notification ${id} to ${user_id}`);
 
       const message = this.formatExpoPushMessage(to, title, subtext);
-      await new ExpoPushService().pushNotificationToExpo([message]);
+      await new ExpoPushService().pushNotificationToExpo([message], NotificationType.ItemReminder, user_id);
       await this.agendaInstance.cancel({ 'data.id': id });
 
       if (clearFromRelation) {

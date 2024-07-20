@@ -15,6 +15,9 @@ import {
   updateMeBody
 } from '../validators/user_validators';
 import { UserDbObject } from '../../api/schema/database/user';
+import { ID, Identifiable } from '../../api/schema/database/abstract';
+import { NotificationService } from '../../services/entity/notification_service';
+import { NotificationDbObject } from '../../api/schema/database/notifications';
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
@@ -66,6 +69,45 @@ export class UserHandlers {
       const user = await userService.retrieveForUser(user_id as string, requestorId, include);
 
       res.status(200).json(user).end();
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
+    }
+  }
+
+  protected async getUserNotifications(req: Request, res: Response) {
+    const { limit } = req.query as { limit: string };
+    const requestorId = getMiddlewareVars(res).user_id;
+
+    logger.debug(`Received request for user ${requestorId} notifications"`);
+
+    const notificationService = new NotificationService();
+
+    try {
+      const notifications = await notificationService.getUserNotifications(requestorId, Number(limit));
+      console.log('notifications', notifications)
+
+      res.status(200).json(notifications).end();
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
+    }
+  }
+
+  protected async updateNotification(req: Request, res: Response) {
+    const changes = req.body as Partial<NotificationDbObject> & Identifiable;
+    const requestorId = getMiddlewareVars(res).user_id;
+
+    logger.debug(`Received request for user ${requestorId} notifications"`);
+
+    const notificationService = new NotificationService();
+
+    try {
+      const notifications = await notificationService.processUpdate(changes.id, changes, requestorId);
+
+      res.status(200).json(notifications).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);

@@ -5,7 +5,8 @@ import { UserFriendshipStatus } from '../../api/schema/database/user_friendships
 import {
   ExposedUser,
   PublicUser,
-  UserFriend
+  UserFriend,
+  UserNotification
 } from '../../api/schema/user';
 import { UserRepository } from '../../repository/entity/user_repository';
 import { ItemUserRepository } from '../../repository/relation/item_user_repository';
@@ -20,10 +21,14 @@ import { UserNoteRelation } from '../relation/user_related_note';
 import { BaseEntity } from './_base_entity';
 import { ObjectUtils } from '../../utils/object';
 import { LyfError } from '../../utils/lyf_error';
+import { NotificationRepository } from '../../repository/entity/notification_repository';
+import { NotificationEntity } from './notification_entity';
+import { Notification } from '../../api/schema/notifications';
 
 export type UserModelRelations = {
   items: UserItemRelation[];
   notes: UserNoteRelation[];
+  notifications: NotificationEntity[];
   users: UserFriendRelation[];
 };
 
@@ -88,8 +93,8 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     return { expo_tokens: this.base!.expo_tokens, pass_hash: this.base!.pass_hash };
   }
 
-  public async fetchRelations(include?: string | undefined): Promise<void> {
-    const toLoad = include !== undefined ? this.parseInclusions(include) : ['items', 'notes', 'users'];
+  public async fetchRelations(include?: string | undefined, limit?: number): Promise<void> {
+    const toLoad = include !== undefined ? this.parseInclusions(include) : ['items', 'notes', 'users', 'notifications'];
 
     if (toLoad.includes('items')) {
       const userItemsRepo = new ItemUserRepository();
@@ -132,6 +137,12 @@ export class UserEntity extends BaseEntity<UserDbObject> {
         userRelations.push(userRelation);
       }
       this.relations.users = userRelations;
+    }
+
+    if (toLoad.includes('notifications')) {
+      const notificationsRepo = new NotificationRepository();
+      const notificationObjects = await notificationsRepo.findByTo(this._id, limit);
+      this.relations.notifications = notificationObjects.map((x) => new NotificationEntity(x.id, x));
     }
   }
 
