@@ -9,7 +9,7 @@ import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { SocialService, SocialUpdate } from './_social_service';
 
-export class SocialNoteService extends SocialService {
+export class SocialNoteService extends SocialService<NoteUserRelation> {
   protected logger = Logger.of(SocialNoteService);
 
   protected async createDefaultRelation(id: ID, user_id: ID, permission: Permission, invited: boolean) {

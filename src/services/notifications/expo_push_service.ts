@@ -4,13 +4,20 @@ import { v4 as uuid } from 'uuid';
 import { Logger } from '../../utils/logging';
 import { ID } from '../../api/schema/database/abstract';
 import { NotificationService } from '../entity/notification_service';
-import { NotificationType } from '../../api/schema/database/notifications';
+import { NotificationDbObject, NotificationRelatedData, NotificationType } from '../../api/schema/database/notifications';
 
 export class ExpoPushService {
   private expo: Expo = new Expo();
   private logger = Logger.of(ExpoPushService);
 
-  public async pushNotificationToExpo(messages: ExpoPushMessage[], type: NotificationType, to_id: ID, from_id?: ID) {
+  public async pushNotificationToExpo(
+    messages: ExpoPushMessage[], 
+    type: NotificationType, 
+    to_id: ID, 
+    from_id?: ID,
+    related_data?: NotificationRelatedData,
+    related_id?: ID,
+    ) {
     const chunks = this.expo.chunkPushNotifications(messages);
     const tickets = [];
 
@@ -33,7 +40,7 @@ export class ExpoPushService {
     }
 
     const notificationService = new NotificationService();
-    await notificationService.processCreation({
+    const dbObject: NotificationDbObject = {
       id: uuid(),
       created: new Date(),
       last_updated: new Date(),
@@ -43,7 +50,10 @@ export class ExpoPushService {
       message: commonBody,
       type,
       seen: false,
-      received: sendingSuccess
-    })
+      received: sendingSuccess,
+      related_data,
+      related_id
+    }
+    await notificationService.processCreation(dbObject)
   }
 }

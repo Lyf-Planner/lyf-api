@@ -16,7 +16,7 @@ import { pluralisedQuantity } from '../../utils/text';
 import { ItemService } from '../entity/item_service';
 import { UserService } from '../entity/user_service';
 import { ExpoPushService } from './expo_push_service';
-import { NotificationType } from '../../api/schema/database/notifications';
+import { NotificationRelatedData, NotificationType } from '../../api/schema/database/notifications';
 
 const agenda = require('agenda');
 
@@ -224,7 +224,11 @@ export class ReminderService {
         'Check Your Schedule!',
         '(Daily Reminder) ' + subtext
       );
-      await new ExpoPushService().pushNotificationToExpo([message], NotificationType.ItemReminder, userId);
+      await new ExpoPushService().pushNotificationToExpo(
+        [message],
+        NotificationType.ItemReminder, 
+        userId
+      );
       done();
     });
   }

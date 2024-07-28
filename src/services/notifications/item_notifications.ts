@@ -7,7 +7,9 @@ import { UserEntity } from '../../models/entity/user_entity';
 import { formatDate, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { ExpoPushService } from './expo_push_service';
-import { NotificationType } from '../../api/schema/database/notifications';
+import { NotificationRelatedData, NotificationType } from '../../api/schema/database/notifications';
+import { ItemUserRelation } from '../../models/relation/item_related_user';
+import { SocialUpdate } from '../relation/_social_service';
 
 export enum DebounceSignatures {
   'DateChange' = 'DateChange',
@@ -46,7 +48,9 @@ export class SocialItemNotifications {
         [message],
         NotificationType.ItemSocial,
         user.id(),
-        from.id()
+        from.id(),
+        NotificationRelatedData.Item,
+        item.id(),
       );
 
       SocialItemNotifications.debounceItemMessage(
@@ -85,7 +89,9 @@ export class SocialItemNotifications {
         [message],
         NotificationType.ItemSocial,
         user.id(),
-        from.id()
+        from.id(),
+        NotificationRelatedData.Item,
+        item.id()
       );
 
       SocialItemNotifications.debounceItemMessage(
@@ -97,14 +103,19 @@ export class SocialItemNotifications {
     })
   }
 
-  static async newItemInvite(to: UserEntity, from: UserEntity, item: ItemEntity) {
-    logger.info(`Notifying user ${to.id()} of invite to item ${item.name()}`);
+  static async newItemInvite(fromRelation: ItemUserRelation, toRelation: ItemUserRelation) {
+    const fromUser = fromRelation.getRelatedEntity();
+    const toUser = toRelation.getRelatedEntity();
+    const item = new ItemEntity(fromRelation.id());
+    await item.load();
+
+    logger.info(`Notifying user ${toUser.id()} of invite to item ${item.id()}`);
 
     // Format the message
     const message = {
-      to: to.getSensitive(to.id()).expo_tokens,
+      to: toUser.getSensitive(toUser.id()).expo_tokens,
       title: `New ${item.type()} Invite`,
-      body: `${from.name()} invited you to ${item.title()}`,
+      body: `${fromUser.name()} invited you to ${item.title()}`,
       sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
 
@@ -119,28 +130,40 @@ export class SocialItemNotifications {
     await new ExpoPushService().pushNotificationToExpo(
       [message],
       NotificationType.ItemSocial,
-      to.id(),
-      from.id()
+      toUser.id(),
+      fromUser.id(),
+      NotificationRelatedData.Item,
+      item.id()
     );
   }
 
-  static async newItemUser(from: UserEntity, item: ItemEntity) {
-    logger.info(`Notifying users on item ${item.name()} of new user ${from.id()}`);
+  static async newItemUser(fromRelation: ItemUserRelation, _toRelation: ItemUserRelation) {
+    const fromUser = fromRelation.getRelatedEntity();
+    const item = new ItemEntity(fromRelation.id());
+    await item.load();
+
+    logger.info(`Notifying users on item ${item.name()} of new user ${fromUser.id()}`);
 
     const users = await item.getUsers();
 
     users.forEach(async (user) => {
+      if (user.id() === fromUser.id()) {
+        return;
+      }
+
       const message = {
         to: user.getSensitive(user.id()).expo_tokens,
         title: `User Joined your ${item.type()}`,
-        body: `${from.name()} joined ${item.title()}`
+        body: `${fromUser.name()} joined ${item.title()}`
       } as ExpoPushMessage;
 
       await new ExpoPushService().pushNotificationToExpo(
         [message],
         NotificationType.ItemSocial,
         user.id(),
-        from.id()
+        fromUser.id(),
+        NotificationRelatedData.Item,
+        item.id()
       );
     })
   }
@@ -180,7 +203,9 @@ export class SocialItemNotifications {
         [message],
         NotificationType.ItemSocial,
         user.id(),
-        from.id()
+        from.id(),
+        NotificationRelatedData.Item,
+        item.id(),
       );
 
       SocialItemNotifications.debounceItemMessage(

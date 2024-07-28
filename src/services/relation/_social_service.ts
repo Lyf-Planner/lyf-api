@@ -22,13 +22,17 @@ export type SocialUpdate = {
   permission: Permission
 };
 
-export abstract class SocialService extends BaseService {
-  protected abstract createDefaultRelation(id: ID, user_id: ID, permission: Permission, invited: boolean): Promise<SocialRelation>;
-  protected abstract getRelation(entity: SocialEntity<AnySocialObject>, user: UserEntity): Promise<SocialRelation>;
+export abstract class SocialService<T extends SocialRelation> extends BaseService {
+  protected abstract createDefaultRelation(id: ID, user_id: ID, permission: Permission, invited: boolean): Promise<T>;
+  protected abstract getRelation(entity: SocialEntity<AnySocialObject>, user: UserEntity): Promise<T>;
   protected abstract updateIsCollaborative(entity_id: ID): Promise<void>;
-  public abstract processUpdate(from: ID, update: SocialUpdate): Promise<SocialRelation | null>;
+  public abstract processUpdate(from: ID, update: SocialUpdate): Promise<T | null>;
 
-  public async inviteUser(invited_user: ID, inviter_relation: SocialRelation, permission: Permission) {
+  public async inviteUser(
+    invited_user: ID, 
+    inviter_relation: T, 
+    permission: Permission
+    ): Promise<T> {
     // User must be the owner or editor to do this! (currently)
     if (
       !inviter_relation ||
@@ -57,7 +61,7 @@ export abstract class SocialService extends BaseService {
     }
   }
 
-  public async acceptInvite(item_relation: SocialRelation) {
+  public async acceptInvite(item_relation: T) {
     if (!item_relation.invited()) {
       throw new LyfError(`There is no invite pending for user ${item_relation.entityId()} on entity ${item_relation.id()}`, 500);
     }
@@ -67,11 +71,12 @@ export abstract class SocialService extends BaseService {
     return item_relation;
   }
 
-  public async removeUser(removed_user: ID, remover_relation: SocialRelation) {
+  public async removeUser(removed_user: ID, remover_relation: T) {
     if (remover_relation.entityId() !== removed_user && remover_relation.permission() !== Permission.Owner) {
       throw new LyfError('You must be the Owner to remove another user!', 403);
     }
   
+    // TODO: Will this mess up Note user removing
     const deletedRelation = new ItemUserRelation(remover_relation.id(), removed_user);
     await deletedRelation.delete();
     return null;

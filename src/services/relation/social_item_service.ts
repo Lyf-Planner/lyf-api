@@ -12,7 +12,7 @@ import { UserService } from '../entity/user_service';
 import { SocialItemNotifications } from '../notifications/item_notifications';
 import { SocialService, SocialUpdate } from './_social_service';
 
-export class SocialItemService extends SocialService {
+export class SocialItemService extends SocialService<ItemUserRelation> {
   protected logger = Logger.of(SocialItemService);
 
   protected async createDefaultRelation(id: ID, user_id: ID, permission: Permission, invited: boolean) {
@@ -48,12 +48,12 @@ export class SocialItemService extends SocialService {
       case SocialAction.Invite:
         this.logger.info(`User ${update.user_id} invited to item ${update.entity_id} by ${from}`);
         modifiedRelation = await this.inviteUser(update.user_id, fromUser, update.permission!);
-        // SocialItemNotifications.newItemInvite(targetUser, fromUser, item);
+        SocialItemNotifications.newItemInvite(fromUser, modifiedRelation);
         break;
       case SocialAction.Accept:
         this.logger.info(`User ${from} accepted invitation to item ${update.entity_id}`);
         modifiedRelation = await this.acceptInvite(fromUser);
-        // SocialItemNotifications.newItemUser(fromUser, item);
+        SocialItemNotifications.newItemUser(fromUser, modifiedRelation);
         break;
       case SocialAction.Decline:
         this.logger.info(`User ${from} declined invitation to item ${update.entity_id}`);
