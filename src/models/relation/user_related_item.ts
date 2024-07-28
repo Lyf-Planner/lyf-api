@@ -29,7 +29,7 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
       permission: object.permission,
       sorting_rank: object.sorting_rank,
       show_in_upcoming: object.show_in_upcoming,
-      notification_mins: object.notification_mins_before
+      notification_mins: object.notification_mins
     }
 
     return ObjectUtils.stripUndefinedFields(objectFilter);

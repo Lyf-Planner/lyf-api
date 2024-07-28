@@ -86,7 +86,6 @@ export class UserHandlers {
 
     try {
       const notifications = await notificationService.getUserNotifications(requestorId, Number(limit));
-      console.log('notifications', notifications)
 
       res.status(200).json(notifications).end();
     } catch (error) {
