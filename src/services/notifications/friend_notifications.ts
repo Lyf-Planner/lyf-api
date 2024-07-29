@@ -23,14 +23,14 @@ export class FriendNotifications {
       sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
 
-    await new ExpoPushService().pushNotificationToExpo(
-      [message],
-      NotificationType.UserSocial,
-      toUser.id(),
-      fromUser.id(),
-      NotificationRelatedData.User,
-      fromUser.id(),
-    );
+    await new ExpoPushService().pushNotificationToExpo({
+      messages: [message],
+      type: NotificationType.UserSocial,
+      to_id: toUser.id(),
+      from_id: fromUser.id(),
+      related_data: NotificationRelatedData.User,
+      related_id: fromUser.id(),
+    });
   }
 
   public static async newFriend(friendship: UserFriendRelation) {
@@ -47,14 +47,14 @@ export class FriendNotifications {
       body: `${fromUser.name()} added you as a friend`
     };
 
-    await new ExpoPushService().pushNotificationToExpo(
-      [message],
-      NotificationType.UserSocial,
-      toUser.id(),
-      fromUser.id(),
-      NotificationRelatedData.User,
-      fromUser.id(),
-    );
+    await new ExpoPushService().pushNotificationToExpo({
+      messages: [message],
+      type: NotificationType.UserSocial,
+      to_id: toUser.id(),
+      from_id: fromUser.id(),
+      related_data: NotificationRelatedData.User,
+      related_id: fromUser.id(),
+    });
   }
 }
 

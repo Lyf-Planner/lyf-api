@@ -44,14 +44,14 @@ export class SocialItemNotifications {
         sound: { critical: true, volume: 1, name: 'default' }
       } as ExpoPushMessage;
 
-      const func = async () => await new ExpoPushService().pushNotificationToExpo(
-        [message],
-        NotificationType.ItemSocial,
-        user.id(),
-        from.id(),
-        NotificationRelatedData.Item,
-        item.id(),
-      );
+      const func = async () => await new ExpoPushService().pushNotificationToExpo({
+        messages: [message],
+        type: NotificationType.ItemSocial,
+        to_id: user.id(),
+        from_id: from.id(),
+        related_data: NotificationRelatedData.Item,
+        related_id: item.id()
+      });
 
       SocialItemNotifications.debounceItemMessage(
         func,
@@ -85,14 +85,14 @@ export class SocialItemNotifications {
         sound: { critical: true, volume: 1, name: 'default' }
       } as ExpoPushMessage;
 
-      const func = async () => await new ExpoPushService().pushNotificationToExpo(
-        [message],
-        NotificationType.ItemSocial,
-        user.id(),
-        from.id(),
-        NotificationRelatedData.Item,
-        item.id()
-      );
+      const func = async () => await new ExpoPushService().pushNotificationToExpo({
+        messages: [message],
+        type: NotificationType.ItemSocial,
+        to_id: user.id(),
+        from_id: from.id(),
+        related_data: NotificationRelatedData.Item,
+        related_id: item.id()
+      });
 
       SocialItemNotifications.debounceItemMessage(
         func,
@@ -127,14 +127,14 @@ export class SocialItemNotifications {
     }
 
     // Send
-    await new ExpoPushService().pushNotificationToExpo(
-      [message],
-      NotificationType.ItemSocial,
-      toUser.id(),
-      fromUser.id(),
-      NotificationRelatedData.Item,
-      item.id()
-    );
+    await new ExpoPushService().pushNotificationToExpo({
+      messages: [message],
+      type: NotificationType.ItemSocial,
+      to_id: toUser.id(),
+      from_id: fromUser.id(),
+      related_data: NotificationRelatedData.Item,
+      related_id: item.id()
+    });    
   }
 
   static async newItemUser(fromRelation: ItemUserRelation, _toRelation: ItemUserRelation) {
@@ -157,14 +157,14 @@ export class SocialItemNotifications {
         body: `${fromUser.name()} joined ${item.title()}`
       } as ExpoPushMessage;
 
-      await new ExpoPushService().pushNotificationToExpo(
-        [message],
-        NotificationType.ItemSocial,
-        user.id(),
-        fromUser.id(),
-        NotificationRelatedData.Item,
-        item.id()
-      );
+      await new ExpoPushService().pushNotificationToExpo({
+        messages: [message],
+        type: NotificationType.ItemSocial,
+        to_id: user.id(),
+        from_id: fromUser.id(),
+        related_data: NotificationRelatedData.Item,
+        related_id: item.id()
+      });
     })
   }
 
@@ -199,14 +199,16 @@ export class SocialItemNotifications {
         sound: { critical: true, volume: 1, name: 'default' }
       } as ExpoPushMessage;
 
-      const func = async () => await new ExpoPushService().pushNotificationToExpo(
-        [message],
-        NotificationType.ItemSocial,
-        user.id(),
-        from.id(),
-        NotificationRelatedData.Item,
-        item.id(),
-      );
+      const func = async () => await new ExpoPushService().pushNotificationToExpo({
+        messages: [message],
+        type: NotificationType.ItemSocial,
+        to_id: user.id(),
+        from_id: from.id(),
+        related_data: NotificationRelatedData.Item,
+        related_id: item.id()
+      });
+
+      
 
       SocialItemNotifications.debounceItemMessage(
         func,

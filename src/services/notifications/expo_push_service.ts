@@ -6,18 +6,29 @@ import { ID } from '../../api/schema/database/abstract';
 import { NotificationService } from '../entity/notification_service';
 import { NotificationDbObject, NotificationRelatedData, NotificationType } from '../../api/schema/database/notifications';
 
+type PushNotificationParams = {
+  messages: ExpoPushMessage[],
+  type: NotificationType,
+  to_id: ID,
+  from_id?: ID,
+  related_data?: NotificationRelatedData,
+  related_id?: ID,
+  save?: boolean
+}
+
 export class ExpoPushService {
   private expo: Expo = new Expo();
   private logger = Logger.of(ExpoPushService);
 
-  public async pushNotificationToExpo(
-    messages: ExpoPushMessage[], 
-    type: NotificationType, 
-    to_id: ID, 
-    from_id?: ID,
-    related_data?: NotificationRelatedData,
-    related_id?: ID,
-    ) {
+  public async pushNotificationToExpo({
+    messages,
+    type,
+    to_id,
+    from_id,
+    related_data,
+    related_id,
+    save = true
+  }: PushNotificationParams) {
     const chunks = this.expo.chunkPushNotifications(messages);
     const tickets = [];
 
@@ -39,21 +50,23 @@ export class ExpoPushService {
       console.warn(`Sending notification to ${to_id} failed.`)
     }
 
-    const notificationService = new NotificationService();
-    const dbObject: NotificationDbObject = {
-      id: uuid(),
-      created: new Date(),
-      last_updated: new Date(),
-      to: to_id,
-      from: from_id,
-      title: commonTitle,
-      message: commonBody,
-      type,
-      seen: false,
-      received: sendingSuccess,
-      related_data,
-      related_id
+    if (save) {
+      const notificationService = new NotificationService();
+      const dbObject: NotificationDbObject = {
+        id: uuid(),
+        created: new Date(),
+        last_updated: new Date(),
+        to: to_id,
+        from: from_id,
+        title: commonTitle,
+        message: commonBody,
+        type,
+        seen: false,
+        received: sendingSuccess,
+        related_data,
+        related_id
+      }
+      await notificationService.processCreation(dbObject)
     }
-    await notificationService.processCreation(dbObject)
   }
 }

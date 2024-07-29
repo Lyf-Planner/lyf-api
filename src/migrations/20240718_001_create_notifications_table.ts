@@ -13,7 +13,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('type', 'text', (col) => col.notNull())
     .addColumn('seen', 'boolean', (col) => col.notNull())
     .addColumn('received', 'boolean', (col) => col.notNull())
-    .addColumn('related_data', 'text')
+    .addColumn('related_data', 'text', (col) => col.notNull())
     .addColumn('related_id', 'text')
     .execute();
 

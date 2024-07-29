@@ -224,11 +224,12 @@ export class ReminderService {
         'Check Your Schedule!',
         '(Daily Reminder) ' + subtext
       );
-      await new ExpoPushService().pushNotificationToExpo(
-        [message],
-        NotificationType.ItemReminder, 
-        userId
-      );
+      await new ExpoPushService().pushNotificationToExpo({
+        messages: [message],
+        type: NotificationType.ItemReminder, 
+        to_id: userId,
+        save: false // these have no real data, saving these would just be noise
+      });
       done();
     });
   }
@@ -297,7 +298,13 @@ export class ReminderService {
       this.logger.info(`Sending scheduled notification ${id} to ${user_id}`);
 
       const message = this.formatExpoPushMessage(to, title, subtext);
-      await new ExpoPushService().pushNotificationToExpo([message], NotificationType.ItemReminder, user_id);
+      await new ExpoPushService().pushNotificationToExpo({
+        messages: [message], 
+        type: NotificationType.ItemReminder, 
+        to_id: user_id,
+        related_data: NotificationRelatedData.Item,
+        related_id: item_id
+      });
       await this.agendaInstance.cancel({ 'data.id': id });
 
       if (clearFromRelation) {
