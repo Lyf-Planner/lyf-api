@@ -1,6 +1,7 @@
 import moment from 'moment-timezone';
 
 import { LyfError } from './lyf_error';
+import { DateString } from '../api/schema/util/dates';
 
 const oneSecond = 1000;
 const oneMinute = oneSecond * 60;
@@ -37,6 +38,30 @@ export function isFutureDate(date: Date, timezone: string) {
     const localTime = moment().tz(timezone).toDate();
 
     return localTime < date;
+}
+
+export const daysDifferenceBetween = (start: DateString, end: DateString) => {
+  const a = moment(start);
+  const b = moment(end);
+  // Add 1 <==> inclusive of the end
+  return b.diff(a, 'days') + 1;
+}
+
+export const allDatesBetween = (start: DateString, end: DateString, excludeFinal = false) => {
+  // Note: is inclusive of both start and end date
+
+  if (end.localeCompare(start) < 0) { 
+    return [];
+  }
+
+  let dates: string[] = [];
+  let shiftingDate = start;
+  while (shiftingDate.localeCompare(end) <= 0) {
+    dates.push(shiftingDate);
+    shiftingDate = formatDateData(moment(shiftingDate).add(1, 'day').toDate());
+  }
+
+  return excludeFinal ? dates.slice(0,-1) : dates;
 }
 
 export function daysInRange(start: string, end: string) {

@@ -52,7 +52,8 @@ export class UserEntity extends BaseEntity<UserDbObject> {
       persistent_daily_notification: object.persistent_daily_notification,
       event_notification_mins: object.event_notification_mins,
       pass_hash: object.pass_hash,
-      expo_tokens: object.expo_tokens
+      expo_tokens: object.expo_tokens,
+      weather_data: object.weather_data
     };
 
     return ObjectUtils.stripUndefinedFields(objectFilter);
@@ -211,6 +212,10 @@ export class UserEntity extends BaseEntity<UserDbObject> {
 
   persistentNotifications() {
     return this.base!.persistent_daily_notification;
+  }
+
+  weatherLocation() {
+    return this.base!.weather_data;
   }
 
   private async exportAsPublicUser(requestor_id: ID, with_relations: boolean = true): Promise<PublicUser|UserPublicFields> {

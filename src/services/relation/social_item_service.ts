@@ -9,7 +9,7 @@ import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { ItemService } from '../entity/item_service';
 import { UserService } from '../entity/user_service';
-import { SocialItemNotifications } from '../notifications/item_notifications';
+import { SocialItemNotifications } from '../../modules/notifications/item_notifications';
 import { SocialService, SocialUpdate } from './_social_service';
 
 export class SocialItemService extends SocialService<ItemUserRelation> {

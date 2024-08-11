@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 
 import { Logger } from '../../utils/logging';
 import { ID } from '../../api/schema/database/abstract';
-import { NotificationService } from '../entity/notification_service';
+import { NotificationService } from '../../services/entity/notification_service';
 import { NotificationDbObject, NotificationRelatedData, NotificationType } from '../../api/schema/database/notifications';
 
 type PushNotificationParams = {

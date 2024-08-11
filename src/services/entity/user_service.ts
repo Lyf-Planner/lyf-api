@@ -1,6 +1,5 @@
 import { ID } from '../../api/schema/database/abstract';
 import { UserDbObject } from '../../api/schema/database/user';
-import { UserFriendshipStatus } from '../../api/schema/database/user_friendships';
 import { ExposedUser, PublicUser, User } from '../../api/schema/user';
 import { UserEntity } from '../../models/entity/user_entity';
 import { UserRepository } from '../../repository/entity/user_repository';
@@ -8,7 +7,7 @@ import { formatDateData } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { AuthService } from '../auth_service';
-import reminderService from '../notifications/reminder_service';
+import reminderService from '../../modules/notifications/reminder_service';
 import { EntityService } from './_entity_service';
 import { ItemService } from './item_service';
 

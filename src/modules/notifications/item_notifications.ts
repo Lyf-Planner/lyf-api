@@ -9,7 +9,7 @@ import { Logger } from '../../utils/logging';
 import { ExpoPushService } from './expo_push_service';
 import { NotificationRelatedData, NotificationType } from '../../api/schema/database/notifications';
 import { ItemUserRelation } from '../../models/relation/item_related_user';
-import { SocialUpdate } from '../relation/_social_service';
+import { SocialUpdate } from '../../services/relation/_social_service';
 
 export enum DebounceSignatures {
   'DateChange' = 'DateChange',

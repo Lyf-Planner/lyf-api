@@ -3852,6 +3852,11 @@ onetime@^5.1.2:
   dependencies:
     mimic-fn "^2.1.0"
 
+openweather-api-node@^3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/openweather-api-node/-/openweather-api-node-3.1.4.tgz#e6efb68c9762293a5b981fc203bddca0fdf89e61"
+  integrity sha512-ggLnhaAMc0ONgWN/CucGX4YeUJh1Zwsokri0SQ+XYRZbqs8rPtaI7QlaecZ6eGT31JHUw+utavfb2uVEfAdcog==
+
 p-finally@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/p-finally/-/p-finally-1.0.0.tgz#3fbcfb15b899a44123b34b6dcc18b724336a2cae"

@@ -1,13 +1,13 @@
 import { Kysely } from 'kysely';
 
-import { ListItem as MongoItem } from '../api/mongo_schema/list';
-import { Permission, UserAccess } from '../api/mongo_schema/social';
+import { ListItem as MongoItem } from '../../api/mongo_schema/list';
+import { Permission, UserAccess } from '../../api/mongo_schema/social';
 import {
   ItemUserRelationshipDbObject,
   Permission as ItemUserPermission
-} from '../api/schema/database/items_on_users';
-import { UserDbObject } from '../api/schema/database/user';
-import mongoDb from '../db/mongo/mongo_db';
+} from '../../api/schema/database/items_on_users';
+import { UserDbObject } from '../../api/schema/database/user';
+import mongoDb from '../mongo/mongo_db';
 
 export async function up(db: Kysely<any>): Promise<void> {
   const itemsCollection = mongoDb.itemsCollection();

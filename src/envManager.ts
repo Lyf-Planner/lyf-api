@@ -6,11 +6,12 @@ const VERSION = '2.2.4';
 
 // Expose this layer to access env vars throughout the app
 const env = {
-  nodeEnv: process.env.NODE_ENV,
+  jwtSecret: process.env.JWT_SECRET,
   mongoUrl: process.env.MONGO_URL,
   mongoDb: process.env.MONGO_DB,
+  nodeEnv: process.env.NODE_ENV,
+  openWeatherApiKey: process.env.OPEN_WEATHER_API_KEY,
   pgConnectionUrl: process.env.PG_CONNECTION_URL,
-  jwtSecret: process.env.JWT_SECRET,
   // expoNotificationToken: process.env.EXPO_NOTIFICATION_TOKEN,
   version: VERSION,
   port: process.env.PORT || 8000

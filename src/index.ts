@@ -12,7 +12,7 @@ import mongoDb from './db/mongo/mongo_db';
 import { migrateToLatest } from './db/pg/migration_manager';
 import postgresDb from './db/pg/postgres_db';
 import env from './envManager';
-import reminderService from './services/notifications/reminder_service';
+import reminderService from './modules/notifications/reminder_service';
 import { Logger, LoggingLevel } from './utils/logging';
 
 export const server = express();

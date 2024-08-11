@@ -11,6 +11,8 @@ import { getMiddlewareVars } from '../utils';
 import { UserRelatedItem } from '../../api/schema/user';
 import { ItemDbObject } from '../../api/schema/database/items';
 import { ID, Identifiable } from '../../api/schema/database/abstract';
+import { UserService } from '../../services/entity/user_service';
+import { WeatherService } from '../../modules/weather/weather_service';
 
 const itemUpdateQueue = new PQueue({ concurrency: 1 });
 
@@ -129,6 +131,30 @@ export class ItemHandlers {
       const timetable = await service.getTimetable(user_id, requestor_id, start_date);
 
       res.status(200).json(timetable).end();
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
+    }
+  }
+
+  protected async getTimetableWeather(req: Request, res: Response) {
+    const { start_date, end_date, lat, lon } = req.query as { start_date: string, end_date: string, lat: string, lon: string };
+    const requestor_id = getMiddlewareVars(res).user_id;
+
+    logger.debug(`Retreiving weather of ${requestor_id} for range ${start_date}-${end_date}`);
+
+    try {
+      const coordinates = {
+        lat: parseFloat(lat),
+        lon: parseFloat(lon)
+      }
+
+      const user = await new UserService().getEntity(requestor_id, "");
+
+      const weatherData = await WeatherService.getWeather(user, start_date, end_date, coordinates);
+      
+      res.status(200).json(weatherData).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);

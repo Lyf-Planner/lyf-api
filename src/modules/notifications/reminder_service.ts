@@ -13,8 +13,8 @@ import { formatDateData, isFutureDate, TwentyFourHourToAMPM } from '../../utils/
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { pluralisedQuantity } from '../../utils/text';
-import { ItemService } from '../entity/item_service';
-import { UserService } from '../entity/user_service';
+import { ItemService } from '../../services/entity/item_service';
+import { UserService } from '../../services/entity/user_service';
 import { ExpoPushService } from './expo_push_service';
 import { NotificationRelatedData, NotificationType } from '../../api/schema/database/notifications';
 
