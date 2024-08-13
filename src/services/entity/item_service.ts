@@ -173,7 +173,7 @@ export class ItemService extends EntityService<ItemDbObject> {
       status: ItemStatus.Upcoming,
       date: formatDateData(getStartOfCurrentWeek(tz)),
       day: undefined,
-      desc: "- Open my Routine, enter everything I do each week\n- Move back to my Calendar\n- Add all the events I have planned, and any tasks I need to do"
+      desc: "- Open my Routine, enter everything I do each week\n- Move back to my Calendar\n- Add all the events I have planned, and any tasks I need to do\n  - If unsure on a date, add to Upcoming Events or To Do List"
     };
 
     const timetableItem = new ItemEntity(userIntroItem.id);
