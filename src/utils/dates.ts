@@ -89,3 +89,21 @@ export function daysInRange(start: string, end: string) {
 
   return days;
 }
+
+export function getStartOfCurrentWeek(tz: string) {
+  const now = new Date();
+
+  // This sets the first day of the week to Monday. For some reason not a default
+  moment.updateLocale('en', {
+    week: {
+      dow: 1
+    }
+  });
+
+  const start = moment(now)
+    .tz(tz)
+    .startOf('week')
+    .toDate()
+    .setHours(0, 0, 0, 0);
+  return new Date(start);
+}

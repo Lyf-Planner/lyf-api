@@ -46,7 +46,7 @@ export class UserService extends EntityService<UserDbObject> {
     const user = new UserEntity(userCreationData.id);
     await user.create(userCreationData, UserEntity.filter);
 
-    await new ItemService().createUserIntroItem(user, tz);
+    await new ItemService().createUserIntroItems(user, tz);
 
     await user.fetchRelations("items");
     await user.load();

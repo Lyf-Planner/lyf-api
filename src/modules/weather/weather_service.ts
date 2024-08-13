@@ -20,9 +20,6 @@ export class WeatherService {
     const today = formatDateData(moment().tz(user.timezone()).toDate());
     const historicDates = new Date(start_date) < new Date(today) ? allDatesBetween(start_date, today, true) : [];
 
-    console.log('historic dates are', historicDates);
-    console.log('requesting with coordinates', { coordinates });
-
     const relevantDates = (await Promise.all([
       ...historicDates.map((date) => weatherInterface.getHistory(date, { coordinates })),
       weatherInterface.getDailyForecast(limit, true, { coordinates })

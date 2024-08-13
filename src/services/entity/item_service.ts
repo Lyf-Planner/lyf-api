@@ -8,7 +8,7 @@ import { UserRelatedItem } from '../../api/schema/user';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { ItemUserRelation } from '../../models/relation/item_related_user';
-import { formatDateData } from '../../utils/dates';
+import { formatDateData, getStartOfCurrentWeek } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { SocialItemNotifications } from '../../modules/notifications/item_notifications';
@@ -138,7 +138,7 @@ export class ItemService extends EntityService<ItemDbObject> {
     return itemRelation;
   }
 
-  public async createUserIntroItem(user: UserEntity, tz: string) {
+  public async createUserIntroItems(user: UserEntity, tz: string) {
     const creationDate = new Date();
 
     const userIntroItem: ItemDbObject = {
@@ -150,17 +150,38 @@ export class ItemService extends EntityService<ItemDbObject> {
       tz,
       type: ItemType.Event,
       status: ItemStatus.Upcoming,
-      date: formatDateData(new Date()),
+      date: formatDateData(getStartOfCurrentWeek(tz)),
       day: undefined,
-      desc: 'This is your first item!\nTo create another like it, type it into the desired day\nTo delete this, hold it down'
+      desc: "- Swipe Left to open any task or event\n- Tap to mark as done\n- Hold down to delete\n\nLet's continue by setting up your schedule!"
     };
 
-    const item = new ItemEntity(userIntroItem.id);
-    await item.create(userIntroItem, ItemEntity.filter);
+    const introItem = new ItemEntity(userIntroItem.id);
+    await introItem.create(userIntroItem, ItemEntity.filter);
 
-    const relationship = new ItemUserRelation(userIntroItem.id, user.id());
-    const relationshipObject = this.defaultOwnerRelationship(userIntroItem.id, user.id(), 0);
-    await relationship.create(relationshipObject, ItemUserRelation.filter);
+    const introRelationship = new ItemUserRelation(userIntroItem.id, user.id());
+    const introRelationshipObject = this.defaultOwnerRelationship(userIntroItem.id, user.id(), 0);
+    await introRelationship.create(introRelationshipObject, ItemUserRelation.filter);
+
+    const userTimetableItem: ItemDbObject = {
+      created: creationDate,
+      last_updated: creationDate,
+      id: uuid(),
+      collaborative: false,
+      title: 'Setup My Lyf Timetable',
+      tz,
+      type: ItemType.Task,
+      status: ItemStatus.Upcoming,
+      date: formatDateData(getStartOfCurrentWeek(tz)),
+      day: undefined,
+      desc: "- Open my Routine, enter everything I do each week\n- Move back to my Calendar\n- Add all the events I have planned, and any tasks I need to do"
+    };
+
+    const timetableItem = new ItemEntity(userIntroItem.id);
+    await timetableItem.create(userTimetableItem, ItemEntity.filter);
+
+    const timetableRelationship = new ItemUserRelation(userTimetableItem.id, user.id());
+    const timetableRelationshipObject = this.defaultOwnerRelationship(userTimetableItem.id, user.id(), 0);
+    await timetableRelationship.create(timetableRelationshipObject, ItemUserRelation.filter);
   }
 
   private async canUpdate(item: UserItemRelation) {
