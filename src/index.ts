@@ -14,6 +14,7 @@ import postgresDb from './db/pg/postgres_db';
 import env from './envManager';
 import reminderService from './modules/notifications/reminder_service';
 import { Logger, LoggingLevel } from './utils/logging';
+import { seedLatest } from './db/pg/seed_manager';
 
 export const server = express();
 
@@ -48,6 +49,8 @@ export const serverInitialised = new Promise(async (resolve, reject) => {
     await mongoDb.init();
     await reminderService.init();
     await migrateToLatest();
+    await seedLatest();
+
     resolve(true);
   } catch (err) {
     reject(err);
