@@ -3,7 +3,6 @@ import { v4 as uuid } from 'uuid';
 import { ID } from '../../api/schema/database/abstract';
 import { ItemDbObject, ItemStatus, ItemType } from '../../api/schema/database/items';
 import { ItemUserRelationshipDbObject, Permission } from '../../api/schema/database/items_on_users';
-import { Item } from '../../api/schema/items';
 import { UserRelatedItem } from '../../api/schema/user';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';

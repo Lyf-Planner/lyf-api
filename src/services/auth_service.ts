@@ -1,4 +1,4 @@
-import { compare, hash } from 'bcrypt';
+import { compare, hash } from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 
 import env from '../envManager';
