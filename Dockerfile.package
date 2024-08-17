@@ -10,7 +10,7 @@ RUN git config --global --add safe.directory .
 # Install app dependencies
 COPY package.json yarn.lock ./
 
-RUN yarn install --production --frozen-lockfile
+RUN yarn install --frozen-lockfile
 
 COPY . .
 
