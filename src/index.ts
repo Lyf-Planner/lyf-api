@@ -49,7 +49,11 @@ export const serverInitialised = new Promise(async (resolve, reject) => {
     await mongoDb.init();
     await reminderService.init();
     await migrateToLatest();
-    await seedLatest();
+
+    // TODO: LYFAPI-326 Seed prod when 2.0 is deployed
+    // if (env.nodeEnv !== 'production') {
+    //   await seedLatest();
+    // }
 
     resolve(true);
   } catch (err) {
@@ -61,7 +65,7 @@ const startServer = async () => {
   if (env.nodeEnv !== 'test') {
     await serverInitialised;
     server.listen(PORT, () => {
-      console.log(`server started at http://localhost:${PORT}`);
+      console.log(`server started in ${env.nodeEnv} env at http://localhost:${PORT}`);
     });
   }
 };
