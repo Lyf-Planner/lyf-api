@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import { LyfError } from './utils/lyf_error';
 dotenv.config();
 
-const VERSION = '2.2.4';
+const VERSION = '3.0.0-beta.1';
 
 // Expose this layer to access env vars throughout the app
 const env = {
