@@ -18,7 +18,7 @@ export class WeatherService {
     const limit = daysDifferenceBetween(start_date, end_date);
 
     const today = formatDateData(moment().tz(user.timezone()).toDate());
-    const historicDates = new Date(start_date) < new Date(today) ? allDatesBetween(start_date, today, true) : [];
+    const historicDates = new Date(start_date) < new Date(today) ? allDatesBetween(start_date, today) : [];
 
     const relevantDates = (await Promise.all([
       ...historicDates.map((date) => weatherInterface.getHistory(date, { coordinates })),
