@@ -1,10 +1,10 @@
 import { Kysely } from 'kysely';
 
-import { Note as MongoNote } from '../../api/mongo_schema/notes';
-import { User as MongoUser } from '../../api/mongo_schema/user';
-import { Permission } from '../../api/schema/database/items_on_users';
-import { NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
-import { UserDbObject } from '../../api/schema/database/user';
+import { Note as MongoNote } from '../../types/mongo_schema/notes';
+import { User as MongoUser } from '../../types/mongo_schema/user';
+import { Permission } from '../../types/schema/database/items_on_users';
+import { NoteUserRelationshipDbObject } from '../../types/schema/database/notes_on_users';
+import { UserDbObject } from '../../types/schema/database/user';
 import mongoDb from '../mongo/mongo_db';
 
 export async function up(db: Kysely<any>): Promise<void> {

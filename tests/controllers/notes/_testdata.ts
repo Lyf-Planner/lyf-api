@@ -1,5 +1,5 @@
-import { Permission } from '../../../src/api/schema/database/items_on_users';
-import { NoteType } from '../../../src/api/schema/database/notes';
+import { Permission } from '../../../src/types/schema/database/items_on_users';
+import { NoteType } from '../../../src/types/schema/database/notes';
 
 export const testNoteCreation = {
   title: 'test note',

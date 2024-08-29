@@ -1,9 +1,9 @@
 import { OpenWeatherAPI } from "openweather-api-node";
 
-import { DateString } from "../../api/schema/util/dates";
+import { DateString } from "../../types/schema/util/dates";
 import env from "../../envManager";
 import { allDatesBetween, daysDifferenceBetween, formatDateData } from "../../utils/dates";
-import { Coordinates } from "../../api/schema/util/weather";
+import { Coordinates } from "../../types/schema/util/weather";
 import { UserEntity } from "../../models/entity/user_entity";
 import moment from "moment-timezone";
 import { Logger } from "../../utils/logging";

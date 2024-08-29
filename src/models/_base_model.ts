@@ -1,6 +1,6 @@
-import { Export } from '../api/schema';
-import { DbObject } from '../api/schema/database';
-import { ID } from '../api/schema/database/abstract';
+import { Export } from '../types/schema';
+import { DbObject } from '../types/schema/database';
+import { ID } from '../types/schema/database/abstract';
 import { BaseRepository } from '../repository/_base_repository';
 import { Logger } from '../utils/logging';
 import { CommandType } from './command_types';

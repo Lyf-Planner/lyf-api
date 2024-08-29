@@ -1,5 +1,5 @@
-import { DatabaseEntities, DbEntityObject } from '../../api/schema/database';
-import { ID } from '../../api/schema/database/abstract';
+import { DatabaseEntities, DbEntityObject } from '../../types/schema/database';
+import { ID } from '../../types/schema/database/abstract';
 import { LyfError } from '../../utils/lyf_error';
 import { BaseRepository } from '../_base_repository';
 

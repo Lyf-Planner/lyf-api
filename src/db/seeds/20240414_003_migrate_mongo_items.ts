@@ -1,7 +1,7 @@
 import { Kysely } from 'kysely';
 
-import { ListItem as MongoItem, ListItemTypes } from '../../api/mongo_schema/list';
-import { ItemDbObject as PostgresItem, ItemType } from '../../api/schema/database/items';
+import { ListItem as MongoItem, ListItemTypes } from '../../types/mongo_schema/list';
+import { ItemDbObject as PostgresItem, ItemType } from '../../types/schema/database/items';
 import mongoDb from '../mongo/mongo_db';
 
 export async function up(db: Kysely<any>): Promise<void> {

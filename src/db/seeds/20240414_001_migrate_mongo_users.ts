@@ -1,7 +1,7 @@
 import { Kysely } from 'kysely';
 
-import { User as MongoUser } from '../../api/mongo_schema/user';
-import { UserDbObject as PostgresUser } from '../../api/schema/database/user';
+import { User as MongoUser } from '../../types/mongo_schema/user';
+import { UserDbObject as PostgresUser } from '../../types/schema/database/user';
 import mongoDb from '../mongo/mongo_db';
 
 export async function up(db: Kysely<any>): Promise<void> {

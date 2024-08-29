@@ -1,8 +1,8 @@
 import { Db, MongoClient, ServerApiVersion } from 'mongodb';
 
-import { ListItem } from '../../api/mongo_schema/list';
-import { Note } from '../../api/mongo_schema/notes';
-import { User } from '../../api/mongo_schema/user';
+import { ListItem } from '../../types/mongo_schema/list';
+import { Note } from '../../types/mongo_schema/notes';
+import { User } from '../../types/mongo_schema/user';
 import env from '../../envManager';
 import { Logger } from '../../utils/logging';
 import { Collection } from './mongo_collection';

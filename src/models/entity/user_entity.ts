@@ -1,13 +1,13 @@
 import moment from 'moment-timezone';
-import { ID } from '../../api/schema/database/abstract';
-import { UserDbObject, UserExposedFields, UserPublicFields, UserSensitiveFields } from '../../api/schema/database/user';
-import { UserFriendshipStatus } from '../../api/schema/database/user_friendships';
+import { ID } from '../../types/schema/database/abstract';
+import { UserDbObject, UserExposedFields, UserPublicFields, UserSensitiveFields } from '../../types/schema/database/user';
+import { UserFriendshipStatus } from '../../types/schema/database/user_friendships';
 import {
   ExposedUser,
   PublicUser,
   UserFriend,
   UserNotification
-} from '../../api/schema/user';
+} from '../../types/schema/user';
 import { UserRepository } from '../../repository/entity/user_repository';
 import { ItemUserRepository } from '../../repository/relation/item_user_repository';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
@@ -23,7 +23,7 @@ import { ObjectUtils } from '../../utils/object';
 import { LyfError } from '../../utils/lyf_error';
 import { NotificationRepository } from '../../repository/entity/notification_repository';
 import { NotificationEntity } from './notification_entity';
-import { Notification } from '../../api/schema/notifications';
+import { Notification } from '../../types/schema/notifications';
 
 export type UserModelRelations = {
   items: UserItemRelation[];

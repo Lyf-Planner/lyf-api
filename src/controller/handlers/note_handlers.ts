@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 
-import { Identifiable } from '../../api/schema/database/abstract';
-import { NoteDbObject } from '../../api/schema/database/notes';
+import { Identifiable } from '../../types/schema/database/abstract';
+import { NoteDbObject } from '../../types/schema/database/notes';
 import { NoteService } from '../../services/entity/note_service';
 import { Logger } from '../../utils/logging';
 import { getMiddlewareVars } from '../utils';
-import { UserRelatedNote } from '../../api/schema/user';
+import { UserRelatedNote } from '../../types/schema/user';
 import { LyfError } from '../../utils/lyf_error';
 
 export class NoteHandlers {

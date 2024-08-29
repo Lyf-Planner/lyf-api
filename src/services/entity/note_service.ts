@@ -1,8 +1,8 @@
-import { ID } from '../../api/schema/database/abstract';
-import { Permission } from '../../api/schema/database/items_on_users';
-import { NoteDbObject } from '../../api/schema/database/notes';
-import { NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
-import { UserRelatedNote } from '../../api/schema/user';
+import { ID } from '../../types/schema/database/abstract';
+import { Permission } from '../../types/schema/database/items_on_users';
+import { NoteDbObject } from '../../types/schema/database/notes';
+import { NoteUserRelationshipDbObject } from '../../types/schema/database/notes_on_users';
+import { UserRelatedNote } from '../../types/schema/user';
 import { NoteEntity } from '../../models/entity/note_entity';
 import { NoteUserRelation } from '../../models/relation/note_related_user';
 import { Logger } from '../../utils/logging';

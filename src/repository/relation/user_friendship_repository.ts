@@ -1,6 +1,6 @@
-import { ID } from '../../api/schema/database/abstract';
-import { UserDbObject } from '../../api/schema/database/user';
-import { UserFriendshipDbObject } from '../../api/schema/database/user_friendships';
+import { ID } from '../../types/schema/database/abstract';
+import { UserDbObject } from '../../types/schema/database/user';
+import { UserFriendshipDbObject } from '../../types/schema/database/user_friendships';
 import { ObjectUtils } from '../../utils/object';
 import { RelationRepository } from './_relation_repository';
 

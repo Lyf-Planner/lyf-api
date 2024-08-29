@@ -1,5 +1,5 @@
-import { DbPrimaryKey, DbRelationObject } from '../../api/schema/database';
-import { ID } from '../../api/schema/database/abstract';
+import { DbPrimaryKey, DbRelationObject } from '../../types/schema/database';
+import { ID } from '../../types/schema/database/abstract';
 import { BaseRepository } from '../_base_repository';
 
 export abstract class RelationRepository<T extends DbRelationObject> extends BaseRepository<T> {

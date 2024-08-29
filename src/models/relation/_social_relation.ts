@@ -1,5 +1,5 @@
-import { ItemUserRelationshipDbObject } from '../../api/schema/database/items_on_users';
-import { NoteUserRelationshipDbObject } from '../../api/schema/database/notes_on_users';
+import { ItemUserRelationshipDbObject } from '../../types/schema/database/items_on_users';
+import { NoteUserRelationshipDbObject } from '../../types/schema/database/notes_on_users';
 import { UserEntity } from '../entity/user_entity';
 import { BaseRelation } from './_base_relation';
 

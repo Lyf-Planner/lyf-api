@@ -1,9 +1,9 @@
 import { Kysely } from 'kysely';
 
-import { ListItem as MongoItem, ListItemTypes } from '../../api/mongo_schema/list';
-import { Note as MongoNote, NoteType as MongoNoteType } from '../../api/mongo_schema/notes';
-import { ItemDbObject as PostgresItem, ItemStatus, ItemType } from '../../api/schema/database/items';
-import { NoteDbObject as PostgresNote, NoteType as PgNoteType } from '../../api/schema/database/notes';
+import { ListItem as MongoItem, ListItemTypes } from '../../types/mongo_schema/list';
+import { Note as MongoNote, NoteType as MongoNoteType } from '../../types/mongo_schema/notes';
+import { ItemDbObject as PostgresItem, ItemStatus, ItemType } from '../../types/schema/database/items';
+import { NoteDbObject as PostgresNote, NoteType as PgNoteType } from '../../types/schema/database/notes';
 import mongoDb from '../mongo/mongo_db';
 
 export async function up(db: Kysely<any>): Promise<void> {

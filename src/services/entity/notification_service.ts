@@ -1,6 +1,6 @@
-import { ID } from '../../api/schema/database/abstract';
-import { NotificationDbObject } from '../../api/schema/database/notifications';
-import { Notification } from '../../api/schema/notifications';
+import { ID } from '../../types/schema/database/abstract';
+import { NotificationDbObject } from '../../types/schema/database/notifications';
+import { Notification } from '../../types/schema/notifications';
 import { NotificationEntity } from '../../models/entity/notification_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { Logger } from '../../utils/logging';

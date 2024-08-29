@@ -1,7 +1,7 @@
 import { Collection as mongoCollection, Db } from 'mongodb';
 
 import assert from 'assert';
-import { DBObject, ID } from '../../api/mongo_schema/abstract';
+import { DBObject, ID } from '../../types/mongo_schema/abstract';
 import { Logger } from '../../utils/logging';
 
 // Note:

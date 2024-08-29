@@ -1,6 +1,6 @@
-import { ID } from '../../api/schema/database/abstract';
-import { NoteDbObject } from '../../api/schema/database/notes';
-import { Note } from '../../api/schema/notes';
+import { ID } from '../../types/schema/database/abstract';
+import { NoteDbObject } from '../../types/schema/database/notes';
+import { Note } from '../../types/schema/notes';
 import { ItemRepository } from '../../repository/entity/item_repository';
 import { NoteRepository } from '../../repository/entity/note_repository';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';

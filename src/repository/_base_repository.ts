@@ -1,6 +1,6 @@
 import { Kysely } from 'kysely';
 
-import { Database, DbObject } from '../api/schema/database';
+import { Database, DbObject } from '../types/schema/database';
 import postgresDb from '../db/pg/postgres_db';
 
 /**

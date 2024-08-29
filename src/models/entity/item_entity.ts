@@ -1,8 +1,8 @@
-import { ID } from '../../api/schema/database/abstract';
-import { ItemDbObject } from '../../api/schema/database/items';
-import { NoteDbObject } from '../../api/schema/database/notes';
-import { Item } from '../../api/schema/items';
-import { Note } from '../../api/schema/notes';
+import { ID } from '../../types/schema/database/abstract';
+import { ItemDbObject } from '../../types/schema/database/items';
+import { NoteDbObject } from '../../types/schema/database/notes';
+import { Item } from '../../types/schema/items';
+import { Note } from '../../types/schema/notes';
 import { ItemRepository } from '../../repository/entity/item_repository';
 import { ItemUserRepository } from '../../repository/relation/item_user_repository';
 import { Logger } from '../../utils/logging';

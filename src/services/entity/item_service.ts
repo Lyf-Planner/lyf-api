@@ -1,9 +1,9 @@
 import { v4 as uuid } from 'uuid';
 
-import { ID } from '../../api/schema/database/abstract';
-import { ItemDbObject, ItemStatus, ItemType } from '../../api/schema/database/items';
-import { ItemUserRelationshipDbObject, Permission } from '../../api/schema/database/items_on_users';
-import { UserRelatedItem } from '../../api/schema/user';
+import { ID } from '../../types/schema/database/abstract';
+import { ItemDbObject, ItemStatus, ItemType } from '../../types/schema/database/items';
+import { ItemUserRelationshipDbObject, Permission } from '../../types/schema/database/items_on_users';
+import { UserRelatedItem } from '../../types/schema/user';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { ItemUserRelation } from '../../models/relation/item_related_user';

@@ -1,12 +1,12 @@
-import { DbRelationFields, DbRelationObject } from '../../api/schema/database';
-import { ID } from '../../api/schema/database/abstract';
-import { ItemDbObject } from '../../api/schema/database/items';
+import { DbRelationFields, DbRelationObject } from '../../types/schema/database';
+import { ID } from '../../types/schema/database/abstract';
+import { ItemDbObject } from '../../types/schema/database/items';
 import {
   ItemUserRelations,
   ItemUserRelationshipDbObject
-} from '../../api/schema/database/items_on_users';
-import { Item } from '../../api/schema/items';
-import { UserRelatedItem } from '../../api/schema/user';
+} from '../../types/schema/database/items_on_users';
+import { Item } from '../../types/schema/items';
+import { UserRelatedItem } from '../../types/schema/user';
 import { ItemUserRepository } from '../../repository/relation/item_user_repository';
 import { Logger } from '../../utils/logging';
 import { ObjectUtils } from '../../utils/object';

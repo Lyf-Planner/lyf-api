@@ -1,13 +1,13 @@
 import { body, query } from 'express-validator';
 
-import { ID } from '../../api/schema/database/abstract';
+import { ID } from '../../types/schema/database/abstract';
 import {
   ItemStatus, ItemType
-} from '../../api/schema/database/items';
-import { Item } from '../../api/schema/items';
+} from '../../types/schema/database/items';
+import { Item } from '../../types/schema/items';
 import { daysOfWeek } from '../../utils/dates';
 import { isValidTimeZone } from './utils';
-import { SocialAction } from '../../api/schema/util/social';
+import { SocialAction } from '../../types/schema/util/social';
 
 // GET
 

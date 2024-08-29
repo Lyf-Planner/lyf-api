@@ -1,12 +1,12 @@
-import { DbRelationFields, DbRelationObject } from '../../api/schema/database';
-import { ID } from '../../api/schema/database/abstract';
+import { DbRelationFields, DbRelationObject } from '../../types/schema/database';
+import { ID } from '../../types/schema/database/abstract';
 import {
   NoteUserRelations,
   NoteUserRelationshipDbObject
-} from '../../api/schema/database/notes_on_users';
-import { UserDbObject } from '../../api/schema/database/user';
-import { NoteRelatedUser } from '../../api/schema/notes';
-import { PublicUser } from '../../api/schema/user';
+} from '../../types/schema/database/notes_on_users';
+import { UserDbObject } from '../../types/schema/database/user';
+import { NoteRelatedUser } from '../../types/schema/notes';
+import { PublicUser } from '../../types/schema/user';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
 import { ObjectUtils } from '../../utils/object';

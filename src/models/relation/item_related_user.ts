@@ -1,8 +1,8 @@
-import { DbRelationFields, DbRelationObject } from '../../api/schema/database';
-import { ID } from '../../api/schema/database/abstract';
-import { ItemUserRelations, ItemUserRelationshipDbObject } from '../../api/schema/database/items_on_users';
-import { UserDbObject, UserPublicFields } from '../../api/schema/database/user';
-import { ItemRelatedUser } from '../../api/schema/items';
+import { DbRelationFields, DbRelationObject } from '../../types/schema/database';
+import { ID } from '../../types/schema/database/abstract';
+import { ItemUserRelations, ItemUserRelationshipDbObject } from '../../types/schema/database/items_on_users';
+import { UserDbObject, UserPublicFields } from '../../types/schema/database/user';
+import { ItemRelatedUser } from '../../types/schema/items';
 import { ItemUserRepository } from '../../repository/relation/item_user_repository';
 import { Logger } from '../../utils/logging';
 import { ObjectUtils } from '../../utils/object';

@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
 import PQueue from 'p-queue';
 
-import { Item } from '../../api/schema/items';
+import { Item } from '../../types/schema/items';
 import { ItemService } from '../../services/entity/item_service';
 import { SocialUpdate } from '../../services/relation/_social_service';
 import { SocialItemService } from '../../services/relation/social_item_service';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { getMiddlewareVars } from '../utils';
-import { UserRelatedItem } from '../../api/schema/user';
-import { ItemDbObject } from '../../api/schema/database/items';
-import { ID, Identifiable } from '../../api/schema/database/abstract';
+import { UserRelatedItem } from '../../types/schema/user';
+import { ItemDbObject } from '../../types/schema/database/items';
+import { ID, Identifiable } from '../../types/schema/database/abstract';
 import { UserService } from '../../services/entity/user_service';
 import { WeatherService } from '../../modules/weather/weather_service';
 

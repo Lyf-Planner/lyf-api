@@ -1,9 +1,9 @@
 import { ExpoPushMessage } from 'expo-server-sdk';
 import moment from 'moment-timezone';
 
-import { ItemStatus } from '../../api/mongo_schema/list';
-import { DaysOfWeek } from '../../api/mongo_schema/timetable';
-import { ItemType } from '../../api/schema/database/items';
+import { ItemStatus } from '../../types/mongo_schema/list';
+import { DaysOfWeek } from '../../types/mongo_schema/timetable';
+import { ItemType } from '../../types/schema/database/items';
 import mongoDb from '../../db/mongo/mongo_db';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';
@@ -16,7 +16,7 @@ import { pluralisedQuantity } from '../../utils/text';
 import { ItemService } from '../../services/entity/item_service';
 import { UserService } from '../../services/entity/user_service';
 import { ExpoPushService } from './expo_push_service';
-import { NotificationRelatedData, NotificationType } from '../../api/schema/database/notifications';
+import { NotificationRelatedData, NotificationType } from '../../types/schema/database/notifications';
 
 const agenda = require('agenda');
 

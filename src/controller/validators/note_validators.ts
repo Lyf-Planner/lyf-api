@@ -1,9 +1,9 @@
 import { body, query } from 'express-validator';
 
-import { ID } from '../../api/schema/database/abstract';
-import { Permission } from '../../api/schema/database/items_on_users';
-import { NoteType } from '../../api/schema/database/notes';
-import { Note } from '../../api/schema/notes';
+import { ID } from '../../types/schema/database/abstract';
+import { Permission } from '../../types/schema/database/items_on_users';
+import { NoteType } from '../../types/schema/database/notes';
+import { Note } from '../../types/schema/notes';
 
 // GET
 

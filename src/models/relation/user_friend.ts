@@ -1,12 +1,12 @@
-import { DbRelationFields, DbRelationObject } from '../../api/schema/database';
-import { ID } from '../../api/schema/database/abstract';
-import { UserDbObject } from '../../api/schema/database/user';
+import { DbRelationFields, DbRelationObject } from '../../types/schema/database';
+import { ID } from '../../types/schema/database/abstract';
+import { UserDbObject } from '../../types/schema/database/user';
 import {
   UserFriendshipDbObject,
   UserFriendshipRelations,
   UserFriendshipStatus
-} from '../../api/schema/database/user_friendships';
-import { PublicUser, UserFriend } from '../../api/schema/user';
+} from '../../types/schema/database/user_friendships';
+import { PublicUser, UserFriend } from '../../types/schema/user';
 import { UserRepository } from '../../repository/entity/user_repository';
 import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
 import { Logger } from '../../utils/logging';
