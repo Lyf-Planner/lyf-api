@@ -43,7 +43,7 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
       url: object.url,
       location: object.location,
       default_show_in_upcoming: object.show_in_upcoming,
-      default_notification_mins: object.show_in_upcoming,
+      default_notification_mins: object.default_notification_mins,
       default_sorting_rank: object.default_sorting_rank,
     };
 
