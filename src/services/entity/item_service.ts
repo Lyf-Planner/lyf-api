@@ -27,18 +27,9 @@ export class ItemService extends EntityService<ItemDbObject> {
     return item;
   }
 
-  async getTimetable(user_id: ID, requestor_id: ID, start_date: string) {
+  async getTimetable(user_id: ID, start_date: string) {
     // Validate the requestor has permission - must be themselves or a Best Friend
     const user = await new UserService().getEntity(user_id, "");
-    if (user_id !== requestor_id) {
-      await user.fetchRelations("users")
-      const friends = user.getRelations().users || [];
-      const friendIds = friends.map((friendEntity) => friendEntity.id())
-      
-      if (!friendIds.includes(requestor_id)) {
-        throw new LyfError('You must be BFFs to view a users timetable', 403);
-      } 
-    }
 
     await user.fetchItemsInFuture(start_date);
     const timetableItems = user.getRelations().items || [];
@@ -59,7 +50,12 @@ export class ItemService extends EntityService<ItemDbObject> {
   ) {
     // Create the item, as well as any user relations and note relations
     const item = new ItemEntity(item_input.id);
-    await item.create(item_input, ItemEntity.filter);
+    try {
+      await item.create(item_input, ItemEntity.filter);
+    } catch {
+      this.logger.warn(`Item ${item_input.id} already exists, updating`);
+      return await this.processUpdate(item_input.id, item_input, user_id);
+    }
 
     // Need to ensure we attach routine users if it has a template_id!
     if (item.templateId()) {

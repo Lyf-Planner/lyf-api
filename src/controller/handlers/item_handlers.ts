@@ -120,15 +120,15 @@ export class ItemHandlers {
   }
 
   protected async getTimetable(req: Request, res: Response) {
-    const { user_id, start_date } = req.query as { user_id: string, start_date: string };
+    const { start_date } = req.query as { start_date: string };
     const requestor_id = getMiddlewareVars(res).user_id;
 
-    logger.debug(`Retreiving timetable of ${user_id} for user ${requestor_id}`);
+    logger.debug(`Retreiving timetable of ${requestor_id} for user ${requestor_id}`);
 
     // Authorisation checks
     try {
       const service = new ItemService();
-      const timetable = await service.getTimetable(user_id, requestor_id, start_date);
+      const timetable = await service.getTimetable(requestor_id, start_date);
 
       res.status(200).json(timetable).end();
     } catch (error) {
