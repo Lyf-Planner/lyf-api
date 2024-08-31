@@ -73,7 +73,7 @@ export class ItemService extends EntityService<ItemDbObject> {
       for (const itemUser of usersOnTemplate) {
         await this.copyTemplateRelationship(itemUser.getRelatedEntity(), item, templateItem);
       }
-    } else {
+    } else if (!item.noteId()) {
       // Otherwise just attach the creator
       const ownerRelationship = new ItemUserRelation(item.id(), user_id);
       const ownerRelationshipObject = this.defaultOwnerRelationship(item.id(), user_id, sorting_rank);
@@ -93,7 +93,7 @@ export class ItemService extends EntityService<ItemDbObject> {
     const itemUsers = item.getRelations().users as ItemUserRelation[];
     const itemDeleter = itemUsers.find((x) => x.entityId() === from_id);
 
-    if (itemDeleter && itemDeleter.permission() === Permission.Owner) {
+    if (itemDeleter && itemDeleter.permission() === Permission.Owner || item.noteId()) {
       await item.delete(item.isRoutine());
     } else {
       throw new LyfError('Items can only be deleted by their owner', 403);
@@ -110,7 +110,7 @@ export class ItemService extends EntityService<ItemDbObject> {
     await requestor.load();
 
     // SAFETY CHECKS
-    if (!this.canUpdate(itemRelation)) {
+    if (!this.canUpdate(itemRelation) && !itemRelation.getRelatedEntity().noteId()) {
       throw new LyfError('User does not have permission to update item', 403);
     }
 

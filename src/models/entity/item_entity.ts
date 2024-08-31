@@ -143,4 +143,8 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
   type() {
     return this.base!.type;
   }
+  
+  noteId() {
+    return this.base!.note_id;
+  }
 }
