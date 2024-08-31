@@ -37,6 +37,21 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     return ObjectUtils.stripUndefinedFields(objectFilter);
   }
 
+  // We override deletion because Items are referenced directly instead of via a relation
+  // We need to call delete on those items so they delete their relations first!
+  public async delete(softDelete = false) {
+    for (const item of this.relations.items || []) {
+      await item.fetchRelations();
+      await item.delete();
+    }
+
+    await this.recurseRelations(CommandType.Delete, ['items']);
+
+    if (!softDelete) {
+      await this.repository.delete(this._id);
+    }
+  }
+
   public async export(requestor?: ID, with_relations: boolean = true): Promise<Note|NoteDbObject> {
     const relatedUsers = this.relations.users;
     const relatedUserIds = relatedUsers?.map((x) => x.entityId());
