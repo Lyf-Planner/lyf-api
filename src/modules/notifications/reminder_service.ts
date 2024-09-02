@@ -221,8 +221,8 @@ export class ReminderService {
       const expoTokens = user.getSensitive(userId).expo_tokens || [];
       const message = this.formatExpoPushMessage(
         expoTokens,
-        'Check Your Schedule!',
-        '(Daily Reminder) ' + subtext
+        'Check Lyf',
+        subtext
       );
       await new ExpoPushService().pushNotificationToExpo({
         messages: [message],
