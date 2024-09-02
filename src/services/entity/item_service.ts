@@ -147,7 +147,7 @@ export class ItemService extends EntityService<ItemDbObject> {
       status: ItemStatus.Upcoming,
       date: formatDateData(getStartOfCurrentWeek(tz)),
       day: undefined,
-      desc: "- Swipe Left to open any task or event\n- Tap to mark as done\n- Hold down to delete\n\nLet's continue by setting up your schedule!"
+      desc: "Tap the leaf icon in the top corner for guides and tips on getting started.\n\nLet's setup your timetable!"
     };
 
     const introItem = new ItemEntity(userIntroItem.id);
