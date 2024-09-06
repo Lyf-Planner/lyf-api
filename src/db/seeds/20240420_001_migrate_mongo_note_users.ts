@@ -35,7 +35,7 @@ export async function down(db: Kysely<any>): Promise<void> {
 }
 
 const insertAsPgUserNote = async (user: MongoUser, note: MongoNote, db: Kysely<any>) => {
-  const userNewId = await getUserNewId(user.id, db);
+  const userNewId = user.id;
   if (!userNewId) {
     throw new Error('Previous migrations failed to upload users!');
   }
@@ -49,22 +49,6 @@ const insertAsPgUserNote = async (user: MongoUser, note: MongoNote, db: Kysely<a
     permission: Permission.Owner
   };
 
+  console.log("Inserting note-user relationship", note.id, user.id);
   await db.insertInto('notes_on_users').values(pgUserNote).execute();
-};
-
-const getUserNewId = async (user_id: string, db: Kysely<any>) => {
-  const result = await db.selectFrom('users').selectAll().where('id', '=', user_id).execute();
-  if (result.length !== 1) {
-    console.log('user_id', user_id, 'does not exist anymore!! Ignoring');
-    return;
-  }
-
-  const pgUser = result[0] as UserDbObject;
-  if (!pgUser.id) {
-    console.log('Couldnt migrate user', user_id, 'with pg entry', JSON.stringify(pgUser));
-    throw new Error('Wtf');
-  }
-
-  console.log('got user', user_id, 'new id', pgUser.id);
-  return pgUser.id;
 };

@@ -25,6 +25,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
+  await db.deleteFrom('items').execute();
   await db.deleteFrom('notes').execute();
 }
 
@@ -55,6 +56,7 @@ const insertAsPgItem = async (item: MongoItem, note_id: string, rank: number, db
     default_notification_mins: undefined
   };
 
+  console.log("Inserting item", item.id);
   await db.insertInto('items').values(pgItem).execute();
 };
 
@@ -69,5 +71,6 @@ const insertAsPgNote = async (note: MongoNote, db: Kysely<any>) => {
     content: note.type === MongoNoteType.Text ? (note.content as string) : undefined
   };
 
+  console.log("Inserting note", note.id);
   await db.insertInto('notes').values(pgNote).execute();
 };

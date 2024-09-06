@@ -50,10 +50,9 @@ export const serverInitialised = new Promise(async (resolve, reject) => {
     await reminderService.init();
     await migrateToLatest();
 
-    // TODO: LYFAPI-326 Seed prod when 2.0 is deployed
-    // if (env.nodeEnv !== 'production') {
-    //   await seedLatest();
-    // }
+    if (env.nodeEnv !== 'production') {
+      await seedLatest();
+    }
 
     resolve(true);
   } catch (err) {

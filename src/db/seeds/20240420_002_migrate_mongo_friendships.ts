@@ -19,7 +19,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   const mongoUsers: MongoUser[] = await usersCollection.findAll();
 
   for (const user of mongoUsers) {
-    const user1NewId = await getUserNewId(user.id, db);
+    const user1NewId = user.id;
     if (!user1NewId) {
       console.error('User', user.id, 'missing in new db');
       continue;
@@ -40,7 +40,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     const relationships = [...friends, ...requests_incoming, ...requests_outgoing];
 
     for (const relationship of relationships) {
-      const targetUserNewId = await getUserNewId(relationship.user_id, db);
+      const targetUserNewId = relationship.user_id;
       if (!targetUserNewId) {
         console.error('User', relationship.user_id, 'missing in new db');
         continue;
@@ -51,7 +51,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       };
 
       // Satisfy user1_id_fk < user2_id_fk
-      if (user1NewId < updatedIdRelationship.user_id) {
+      if (user1NewId.localeCompare(updatedIdRelationship.user_id) < 0) {
         await transformToPgUserRelationship(user1NewId, updatedIdRelationship, db);
       }
     }
@@ -73,22 +73,6 @@ const transformToPgUserRelationship = async (
     status: relationship.status
   };
 
+  console.log("Inserting friendship between", user1_id, relationship.user_id);
   await db.insertInto('user_friendships').values(pgUserRelationship).execute();
-};
-
-const getUserNewId = async (user_id: string, db: Kysely<any>) => {
-  const result = await db.selectFrom('users').selectAll().where('id', '=', user_id).execute();
-  if (result.length !== 1) {
-    console.log('user_id', user_id, 'does not exist anymore!! Ignoring');
-    return;
-  }
-
-  const pgUser = result[0] as UserDbObject;
-  if (!pgUser.id) {
-    console.log('Couldnt migrate user', user_id, 'with pg entry', JSON.stringify(pgUser));
-    throw new Error('Wtf');
-  }
-
-  console.log('got user', user_id, 'new id', pgUser.id);
-  return pgUser.id;
 };

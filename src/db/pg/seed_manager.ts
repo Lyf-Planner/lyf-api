@@ -23,7 +23,7 @@ export async function seedLatest() {
   });
 
   log.info('Running seeds up to latest');
-  const { error, results } = await migrator.migrateToLatest();
+  const { error, results } = await migrator.migrateTo('20240420_002_migrate_mongo_friendships');
 
   if (results && results.length === 0) {
     log.info('No data to seed :)');

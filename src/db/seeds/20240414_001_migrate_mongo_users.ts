@@ -9,6 +9,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   const mongoUsers: MongoUser[] = await usersCollection.findAll();
 
   for (const user of mongoUsers) {
+    console.log("Transforming user", user.id);
     await db.insertInto('users').values(transformToPgUser(user)).execute();
   }
 }
@@ -27,14 +28,13 @@ const transformToPgUser = (user: MongoUser) => {
     private: false,
     tz: user.timezone || 'Australia/Melbourne',
     first_day: user.timetable.first_day,
-    display_name: user.details.name,
-    pfp_url: user.details.pfp_url,
+    display_name: user.details?.name,
+    pfp_url: user.details?.pfp_url,
     daily_notification_time: user.premium?.notifications?.daily_notification_time,
     persistent_daily_notification: user.premium?.notifications?.persistent_daily_notification,
     event_notification_mins: user.premium?.notifications?.event_notifications_enabled
       ? parseInt(user.premium?.notifications?.event_notification_minutes_before || '5', 10)
       : undefined,
-    // Since 'id', 'created', and 'last_updated' are auto-generated, they are omitted
   };
 
   return pgUser;
