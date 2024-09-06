@@ -50,10 +50,6 @@ export const serverInitialised = new Promise(async (resolve, reject) => {
     await reminderService.init();
     await migrateToLatest();
 
-    if (env.nodeEnv !== 'production') {
-      await seedLatest();
-    }
-
     resolve(true);
   } catch (err) {
     reject(err);

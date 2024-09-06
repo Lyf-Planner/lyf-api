@@ -15,7 +15,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await db.deleteFrom('users').execute();
+  // await db.deleteFrom('users').execute();
 }
 
 const transformToPgUser = (user: MongoUser) => {

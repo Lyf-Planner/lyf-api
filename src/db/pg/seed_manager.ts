@@ -7,8 +7,11 @@ import postgresDb from './postgres_db';
 
 const log = new Logger('KyselyMigrator');
 
-// To be run only at the start of the databases lifecycle,
-// should only ever run once.
+// Only to be run when there is data to inject into the db
+// We use a migrator model to retain information about what has been seeded
+//
+// The seeds directory itself should contain files that never delete data, only create it
+// This creation needs to be idempotent from 3.0.0+
 
 export async function seedLatest() {
   const migrator = new Migrator({

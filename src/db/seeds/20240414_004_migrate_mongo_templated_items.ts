@@ -31,8 +31,8 @@ export async function up(db: Kysely<any>): Promise<void> {
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await db.deleteFrom('items').execute();
-  await db.deleteFrom('items_on_users').execute();
+  // await db.deleteFrom('items').execute();
+  // await db.deleteFrom('items_on_users').execute();
 }
 
 const insertAsPgItem = async (item: MongoItem, db: Kysely<any>) => {

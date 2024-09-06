@@ -59,7 +59,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await db.deleteFrom('user_friendships').execute();
+  // await db.deleteFrom('user_friendships').execute();
 }
 
 const transformToPgUserRelationship = async (
