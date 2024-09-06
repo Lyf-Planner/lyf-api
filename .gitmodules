@@ -1,0 +1,3 @@
+[submodule "src/types/schema"]
+	path = src/types/schema
+	url = https://github.com/Lyf-Planner/lyf-schema.git

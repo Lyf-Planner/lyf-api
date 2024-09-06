@@ -1,6 +1,6 @@
 // jest.teardown.js
 
-import { exit } from "process";
+import { exit } from 'process';
 
 export default async () => {
   // Needs to be here to close the jest session properly

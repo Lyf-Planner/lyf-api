@@ -1,0 +1,28 @@
+FROM node:18-alpine AS base
+
+RUN apk --no-cache update && \
+    apk --no-cache upgrade && \
+    apk --no-cache add git
+
+# Install app dependencies + compile
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+
+COPY src ./src
+COPY tsconfig.json ./tsconfig.json
+
+  # Clone submodules - couldn't figure out `git submodule update --init --recursive`
+RUN git config --global url."https://178695055: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@github.com/".insteadOf "https://github.com/"
+RUN rm -rf ./src/types/schema && git clone https://github.com/Lyf-Planner/lyf-schema.git ./src/types/schema
+
+RUN yarn build
+
+# Start production image build
+FROM node:18-alpine
+
+COPY --from=base ./node_modules ./node_modules
+COPY --from=base ./build/src ./src
+
+EXPOSE 8000
+
+CMD [ "node", "src/index.js" ]

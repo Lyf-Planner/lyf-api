@@ -1,5 +1,5 @@
 export enum LoggingLevel {
-  SILLY = 0,
+  VERBOSE = 0,
   DEBUG = 1,
   INFO = 2,
   WARN = 3,
@@ -8,12 +8,8 @@ export enum LoggingLevel {
 }
 
 export class Logger {
-  private name: string;
   static level: LoggingLevel = LoggingLevel.DEBUG;
-
-  constructor(name: string) {
-    this.name = name;
-  }
+  private name: string;
 
   public static setLevel(level: LoggingLevel) {
     this.level = level;
@@ -23,49 +19,53 @@ export class Logger {
     return new Logger(arg.name);
   }
 
-  public silly(content: any) {
-    if (Logger.level > LoggingLevel.SILLY) {
+  constructor(name: string) {
+    this.name = name;
+  }
+
+  public verbose(content: string) {
+    if (Logger.level > LoggingLevel.VERBOSE) {
       return;
     }
 
-    var str = `${new Date().toISOString()} silly [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} verbose [${this.name}] ${content}`;
     console.log(str);
   }
 
-  public debug(content: any) {
+  public debug(content: string) {
     if (Logger.level > LoggingLevel.DEBUG) {
       return;
     }
-    var str = `${new Date().toISOString()} debug  [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} debug  [${this.name}] ${content}`;
     console.log(str);
   }
 
-  public info(content: any) {
+  public info(content: string) {
     if (Logger.level > LoggingLevel.INFO) {
       return;
     }
-    var str = `${new Date().toISOString()} info  [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} info  [${this.name}] ${content}`;
     console.log(str);
   }
 
-  public warn(content: any) {
+  public warn(content: string) {
     if (Logger.level > LoggingLevel.WARN) {
       return;
     }
-    var str = `${new Date().toISOString()} warn  [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} warn  [${this.name}] ${content}`;
     console.log(str);
   }
 
-  public error(content: any) {
+  public error(content: string) {
     if (Logger.level > LoggingLevel.ERROR) {
       return;
     }
-    var str = `${new Date().toISOString()} error [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} error [${this.name}] ${content}`;
     console.log(str);
   }
 
-  public fatal(content: any) {
-    var str = `${new Date().toISOString()} fatal [${this.name}] ${content}`;
+  public fatal(content: string) {
+    const str = `${new Date().toISOString()} fatal [${this.name}] ${content}`;
     console.log(str);
   }
 }
