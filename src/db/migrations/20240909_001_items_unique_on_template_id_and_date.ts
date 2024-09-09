@@ -10,14 +10,19 @@ export async function up(db: Kysely<any>): Promise<void> {
     .having(db.fn.count('id'), '>', 1)
     .execute();
 
-  // Step 2: For each duplicate pair, delete only one record
+  // Step 2: For each duplicate pair, find and delete only one record using a subquery
   for (const duplicate of duplicates) {
-    await db
-      .deleteFrom('items')
+    const subquery = db
+      .selectFrom('items')
+      .select('id')
       .where('template_id', '=', duplicate.template_id)
       .where('date', '=', duplicate.date)
       .orderBy('id')
-      .limit(1)
+      .limit(1);
+
+    await db
+      .deleteFrom('items')
+      .where('id', '=', subquery)
       .execute();
   }
 
