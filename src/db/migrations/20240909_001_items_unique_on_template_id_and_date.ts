@@ -16,7 +16,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       .deleteFrom('items')
       .where('template_id', '=', duplicate.template_id)
       .where('date', '=', duplicate.date)
-      .orderBy('created_by', 'desc')
+      .orderBy('id')
       .limit(1)
       .execute();
   }
