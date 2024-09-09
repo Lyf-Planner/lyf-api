@@ -21,6 +21,11 @@ export async function up(db: Kysely<any>): Promise<void> {
       .limit(1);
 
     await db
+    .deleteFrom('items_on_users')
+    .where('item_id_fk', '=', subquery)
+    .execute();
+
+    await db
       .deleteFrom('items')
       .where('id', '=', subquery)
       .execute();
