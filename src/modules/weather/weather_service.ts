@@ -28,7 +28,9 @@ export class WeatherService {
 
     // PATCH: API Missing rain weather
     relevantDates.forEach((data) => {
-      if (!data.weather.rain) data.weather.rain = 0;
+      if (data.weather.rain === undefined) {
+        data.weather.rain = 0;
+      }
     })
 
     if (relevantDates.length < limit) {
