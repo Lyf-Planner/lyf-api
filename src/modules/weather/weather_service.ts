@@ -26,6 +26,11 @@ export class WeatherService {
       weatherInterface.getDailyForecast(limit, true, { coordinates })
     ])).flat()
 
+    // PATCH: API Missing rain weather
+    relevantDates.forEach((data) => {
+      if (!data.weather.rain) data.weather.rain = 0;
+    })
+
     if (relevantDates.length < limit) {
       new Logger('WeatherService').error(`low number of results - ${({ relevantDates })}`)
     }
