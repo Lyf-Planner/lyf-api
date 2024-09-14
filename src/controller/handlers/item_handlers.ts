@@ -123,7 +123,7 @@ export class ItemHandlers {
     const { start_date } = req.query as { start_date: string };
     const requestor_id = getMiddlewareVars(res).user_id;
 
-    logger.debug(`Retreiving timetable of ${requestor_id} for user ${requestor_id}`);
+    logger.debug(`Retreiving timetable of ${requestor_id}`);
 
     // Authorisation checks
     try {

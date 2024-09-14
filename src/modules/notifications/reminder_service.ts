@@ -286,14 +286,12 @@ export class ReminderService {
         return;
       }
 
-      const isEvent = item.type() === ItemType.Event;
-
       const subtext = mins_before
-        ? `${isEvent ? 'Starting in' : 'In'} ${pluralisedQuantity(
+        ? `In ${pluralisedQuantity(
             mins_before,
             'minute'
           )} (at ${TwentyFourHourToAMPM(time)})`
-        : `${isEvent ? 'Starting now' : 'Now'} (${TwentyFourHourToAMPM(time)})`;
+        : `Now (${TwentyFourHourToAMPM(time)})`;
 
       this.logger.info(`Sending scheduled notification ${id} to ${user_id}`);
 

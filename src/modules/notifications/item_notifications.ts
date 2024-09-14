@@ -114,14 +114,14 @@ export class SocialItemNotifications {
     // Format the message
     const message = {
       to: toUser.getSensitive(toUser.id()).expo_tokens,
-      title: `New ${item.type()} Invite`,
+      title: `${item.title()}`,
       body: `${fromUser.name()} invited you to ${item.title()}`,
       sound: { critical: true, volume: 1, name: 'default' }
     } as ExpoPushMessage;
 
     // Include dates and times if they are set
     if (item.isFullyScheduled()) {
-      message.body += ` at ${TwentyFourHourToAMPM(item.time()!)} on ${formatDate(item.date()!)}`;
+      message.body += ` @ ${TwentyFourHourToAMPM(item.time()!)} on ${formatDate(item.date()!)}`;
     } else if (item.date()) {
       message.body += ` on ${formatDate(item.date()!)}`;
     }

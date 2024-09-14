@@ -80,7 +80,7 @@ export class UserHandlers {
     const { limit } = req.query as { limit: string };
     const requestorId = getMiddlewareVars(res).user_id;
 
-    logger.debug(`Received request for user ${requestorId} notifications"`);
+    logger.debug(`Retreiving notifications of ${requestorId}`);
 
     const notificationService = new NotificationService();
 
