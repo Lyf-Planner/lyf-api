@@ -113,58 +113,16 @@ export class UserService extends EntityService<UserDbObject> {
     return exportedUsers;
   }
 
-  // --- FRIENDS --- //
-
-  async createFriendship(id: ID, changes: Partial<User>, from: ID) {
-    if (id !== from) {
-      throw new LyfError(`User ${from} cannot update another user ${id}`, 403);
-    }
-
-    const user = new UserEntity(id);
-    await user.load();
-    await user.update(changes);
-
-    // PRE-COMMIT (update other items like notifications)
-    this.checkDailyNotifications(user, changes);
-    this.checkTimezoneChange(user, changes);
-
-    this.logger.debug(`User ${id} safely updated their own data`);
-
-    await user.save();
-    return user;
-  }
-
-  async processFriendshipUpdate(id: ID, changes: Partial<User>, from: ID) {
-    if (id !== from) {
-      throw new LyfError(`User ${from} cannot update another user ${id}`, 403);
-    }
-
-    const user = new UserEntity(id);
-    await user.load();
-    await user.update(changes);
-
-    // PRE-COMMIT (update other items like notifications)
-    this.checkDailyNotifications(user, changes);
-    this.checkTimezoneChange(user, changes);
-
-    this.logger.debug(`User ${id} safely updated their own data`);
-
-    await user.save();
-    return user;
-  }
-
-  // --- ITEMS --- //
-
-  // --- NOTES --- //
-
   // --- HELPERS --- //
 
   private checkDailyNotifications(user: UserEntity, changes: Partial<User>) {
     const notificationsTimeChange = changes.daily_notification_time;
 
-    if (!notificationsTimeChange) {
+    if (notificationsTimeChange === null) {
       reminderService.removeDailyNotifications(user);
-    } else {
+    }
+
+    if (notificationsTimeChange) {
       reminderService.updateDailyNotifications(user, notificationsTimeChange);
     }
   }
