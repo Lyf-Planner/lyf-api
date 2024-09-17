@@ -46,7 +46,7 @@ export class UserHandlers {
     const userService = new UserService();
 
     try {
-      const user = await userService.getEntity(user_id, include);
+      const user = await userService.getEntity(user_id, include || '');
       user.directlyModify({ last_updated: new Date() });
 
       res.status(200).json(await user.export()).end();
