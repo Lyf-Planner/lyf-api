@@ -25,7 +25,9 @@ export class SocialItemService extends SocialService<ItemUserRelation> {
       user_id_fk: user_id,
       invite_pending: invited,
       permission,
-      sorting_rank: 0
+      sorting_rank: 0,
+      show_in_upcoming: undefined,
+      notification_mins: undefined
     };
 
     await relation.create(dbObject, ItemUserRelation.filter);

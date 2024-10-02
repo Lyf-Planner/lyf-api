@@ -143,11 +143,17 @@ export class ItemService extends EntityService<ItemDbObject> {
       collaborative: false,
       title: 'Swipe Me Left!',
       tz,
+      note_id: undefined,
+      template_id: undefined,
       type: ItemType.Event,
       status: ItemStatus.Upcoming,
       date: formatDateData(getStartOfCurrentWeek(tz)),
       day: undefined,
-      desc: "Tap the leaf icon in the top corner for guides and tips on getting started.\n\nLet's setup your timetable!"
+      time: undefined,
+      end_time: undefined,
+      desc: "Tap the leaf icon in the top corner for guides and tips on getting started.\n\nLet's setup your timetable!",
+      url: undefined,
+      location: undefined
     };
 
     const introItem = new ItemEntity(userIntroItem.id);
@@ -163,12 +169,18 @@ export class ItemService extends EntityService<ItemDbObject> {
       id: uuid(),
       collaborative: false,
       title: 'Setup My Lyf Timetable',
+      note_id: undefined,
+      template_id: undefined,
       tz,
       type: ItemType.Task,
       status: ItemStatus.Upcoming,
       date: formatDateData(getStartOfCurrentWeek(tz)),
       day: undefined,
-      desc: "- Open my Routine, enter everything I do each week\n- Move back to my Calendar\n- Add all the events I have planned, and any tasks I need to do\n  - If unsure on a date, add to Upcoming Events or To Do List"
+      time: undefined,
+      end_time: undefined,
+      desc: "- Open my Routine, enter everything I do each week\n- Move back to my Calendar\n- Add all the events I have planned, and any tasks I need to do\n  - If unsure on a date, add to Upcoming Events or To Do List",
+      url: undefined,
+      location: undefined
     };
 
     const timetableItem = new ItemEntity(userIntroItem.id);
@@ -207,7 +219,9 @@ export class ItemService extends EntityService<ItemDbObject> {
       last_updated: new Date(),
       invite_pending: false,
       permission: Permission.Owner,
-      sorting_rank: rank || 0
+      sorting_rank: rank || 0,
+      show_in_upcoming: undefined,
+      notification_mins: undefined
     };
   }
 
