@@ -9,20 +9,20 @@ describe('user model tests', () => {
   let item: ItemEntity;
   let itemRelation: UserItemRelation;
 
-  beforeAll(async () => {
-    // Setup suite context data
-    user = new UserEntity('test');
-    const initialData = await createTestUser();
-    await user.create(initialData, UserEntity.filter);
+  // beforeAll(async () => {
+  //   // Setup suite context data
+  //   user = new UserEntity('test');
+  //   const initialData = await createTestUser();
+  //   await user.create(initialData, UserEntity.filter);
 
-    item = new ItemEntity(item1_id);
-    const initialItem = createTestItem1();
-    await item.create(initialItem, ItemEntity.filter);
+  //   item = new ItemEntity(item1_id);
+  //   const initialItem = createTestItem1();
+  //   await item.create(initialItem, ItemEntity.filter);
 
-    itemRelation = new UserItemRelation('test', item1_id);
-    const initialRelation = createItem1Relation();
-    itemRelation.create(initialRelation, UserItemRelation.filter);
-  });
+  //   itemRelation = new UserItemRelation('test', item1_id);
+  //   const initialRelation = createItem1Relation();
+  //   itemRelation.create(initialRelation, UserItemRelation.filter);
+  // });
 
   afterAll(async () => {
     // Cleanup
