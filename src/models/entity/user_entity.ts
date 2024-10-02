@@ -53,7 +53,8 @@ export class UserEntity extends BaseEntity<UserDbObject> {
       event_notification_mins: object.event_notification_mins,
       pass_hash: object.pass_hash,
       expo_tokens: object.expo_tokens,
-      weather_data: object.weather_data
+      weather_data: object.weather_data,
+      auto_day_finishing: object.auto_day_finishing
     };
 
     return ObjectUtils.stripUndefinedFields(objectFilter);

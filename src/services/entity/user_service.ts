@@ -40,7 +40,9 @@ export class UserService extends EntityService<UserDbObject> {
       pfp_url: undefined,
       daily_notification_time: '08:30',
       persistent_daily_notification: false,
-      event_notification_mins: 5
+      event_notification_mins: 5,
+      weather_data: true,
+      auto_day_finishing: true,
     };
 
     const user = new UserEntity(userCreationData.id);
