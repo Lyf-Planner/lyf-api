@@ -13,7 +13,7 @@ COPY tsconfig.json ./tsconfig.json
 
   # Clone submodules - couldn't figure out `git submodule update --init --recursive`
 RUN git config --global url."https://178695055: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@github.com/".insteadOf "https://github.com/"
-RUN rm -rf ./src/types/schema && git clone https://github.com/Lyf-Planner/lyf-schema.git ./src/types/schema
+RUN rm -rf ./schema && git clone https://github.com/Lyf-Planner/lyf-schema.git ./schema
 
 RUN yarn build
 
@@ -22,6 +22,7 @@ FROM node:18-alpine
 
 COPY --from=base ./node_modules ./node_modules
 COPY --from=base ./build/src ./src
+COPY --from=base ./build/schema ./schema
 
 EXPOSE 8000
 
