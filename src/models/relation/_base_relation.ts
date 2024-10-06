@@ -1,5 +1,5 @@
-import { DbEntityObject, DbRelationObject } from '../../types/schema/database';
-import { ID } from '../../types/schema/database/abstract';
+import { DbEntityObject, DbRelationObject } from '../../../schema/database';
+import { ID } from '../../../schema/database/abstract';
 import { BaseModel } from '../_base_model';
 import { BaseEntity } from '../entity/_base_entity';
 

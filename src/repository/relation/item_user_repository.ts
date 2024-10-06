@@ -1,7 +1,7 @@
 import { ID } from '../../types/mongo_schema/abstract';
-import { ItemDbObject } from '../../types/schema/database/items';
-import { ItemUserRelationshipDbObject, Permission } from '../../types/schema/database/items_on_users';
-import { UserDbObject } from '../../types/schema/database/user';
+import { ItemDbObject } from '../../../schema/database/items';
+import { ItemUserRelationshipDbObject, Permission } from '../../../schema/database/items_on_users';
+import { UserDbObject } from '../../../schema/database/user';
 import { daysOfWeek } from '../../utils/dates';
 import { RelationRepository } from './_relation_repository';
 

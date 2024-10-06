@@ -1,7 +1,7 @@
-import { ID } from '../../types/schema/database/abstract';
-import { UserFriendshipDbObject, UserFriendshipStatus } from '../../types/schema/database/user_friendships';
-import { FriendshipAction } from '../../types/schema/util/social';
-import { ExposedUser, UserFriend } from '../../types/schema/user';
+import { ID } from '../../../schema/database/abstract';
+import { UserFriendshipDbObject, UserFriendshipStatus } from '../../../schema/database/user_friendships';
+import { FriendshipAction } from '../../../schema/util/social';
+import { ExposedUser, UserFriend } from '../../../schema/user';
 import { UserEntity } from '../../models/entity/user_entity';
 import { UserFriendRelation } from '../../models/relation/user_friend';
 import { Logger } from '../../utils/logging';

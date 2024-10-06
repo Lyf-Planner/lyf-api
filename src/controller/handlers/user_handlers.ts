@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { User } from '../../types/schema/user';
+import { User } from '../../../schema/user';
 import { AuthService } from '../../services/auth_service';
 import { UserService } from '../../services/entity/user_service';
 import { FriendshipService, FriendshipUpdate } from '../../services/relation/friendship_service';
@@ -14,10 +14,10 @@ import {
   updateFriendshipBody,
   updateMeBody
 } from '../validators/user_validators';
-import { UserDbObject } from '../../types/schema/database/user';
-import { ID, Identifiable } from '../../types/schema/database/abstract';
+import { UserDbObject } from '../../../schema/database/user';
+import { ID, Identifiable } from '../../../schema/database/abstract';
 import { NotificationService } from '../../services/entity/notification_service';
-import { NotificationDbObject } from '../../types/schema/database/notifications';
+import { NotificationDbObject } from '../../../schema/database/notifications';
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
@@ -77,6 +77,25 @@ export class UserHandlers {
   }
 
   protected async getUserNotifications(req: Request, res: Response) {
+    const { limit } = req.query as { limit: string };
+    const requestorId = getMiddlewareVars(res).user_id;
+
+    logger.debug(`Retreiving notifications of ${requestorId}`);
+
+    const notificationService = new NotificationService();
+
+    try {
+      const notifications = await notificationService.getUserNotifications(requestorId, Number(limit));
+
+      res.status(200).json(notifications).end();
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
+    }
+  }
+
+  protected async getNoticeboard(req: Request, res: Response) {
     const { limit } = req.query as { limit: string };
     const requestorId = getMiddlewareVars(res).user_id;
 

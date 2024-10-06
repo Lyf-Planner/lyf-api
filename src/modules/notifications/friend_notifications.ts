@@ -3,9 +3,9 @@ import { ExpoPushMessage } from 'expo-server-sdk';
 import { UserEntity } from '../../models/entity/user_entity';
 import { Logger } from '../../utils/logging';
 import { ExpoPushService } from './expo_push_service';
-import { ID } from '../../types/schema/database/abstract';
+import { ID } from '../../../schema/database/abstract';
 import { UserFriendRelation } from '../../models/relation/user_friend';
-import { NotificationRelatedData, NotificationType } from '../../types/schema/database/notifications';
+import { NotificationRelatedData, NotificationType } from '../../../schema/database/notifications';
 
 export class FriendNotifications {
   public static async newFriendRequest(friendship: UserFriendRelation) {

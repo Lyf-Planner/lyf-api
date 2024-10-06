@@ -1,6 +1,6 @@
-import { ID } from '../../types/schema/database/abstract';
-import { NotificationDbObject } from '../../types/schema/database/notifications';
-import { Notification } from '../../types/schema/notifications';
+import { ID } from '../../../schema/database/abstract';
+import { NotificationDbObject } from '../../../schema/database/notifications';
+import { Notification } from '../../../schema/notifications';
 import { NotificationRepository } from '../../repository/entity/notification_repository';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';

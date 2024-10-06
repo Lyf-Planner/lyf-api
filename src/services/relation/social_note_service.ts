@@ -1,7 +1,7 @@
 import { ID } from '../../types/mongo_schema/abstract';
-import { Permission } from '../../types/schema/database/items_on_users';
-import { NoteUserRelationshipDbObject } from '../../types/schema/database/notes_on_users';
-import { SocialAction } from '../../types/schema/util/social';
+import { Permission } from '../../../schema/database/items_on_users';
+import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
+import { SocialAction } from '../../../schema/util/social';
 import { NoteEntity } from '../../models/entity/note_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { NoteUserRelation } from '../../models/relation/note_related_user';

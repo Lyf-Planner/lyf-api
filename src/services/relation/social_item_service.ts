@@ -1,6 +1,6 @@
 import { ID } from '../../types/mongo_schema/abstract';
-import { ItemUserRelationshipDbObject, Permission } from '../../types/schema/database/items_on_users';
-import { SocialAction } from '../../types/schema/util/social';
+import { ItemUserRelationshipDbObject, Permission } from '../../../schema/database/items_on_users';
+import { SocialAction } from '../../../schema/util/social';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { SocialRelation } from '../../models/relation/_social_relation';

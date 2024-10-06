@@ -1,8 +1,8 @@
 import { v4 as uuid } from 'uuid';
 
-import { ItemDbObject, ItemStatus, ItemType } from '../../src/types/schema/database/items';
-import { ItemUserRelationshipDbObject, Permission } from '../../src/types/schema/database/items_on_users';
-import { UserDbObject } from '../../src/types/schema/database/user';
+import { ItemDbObject, ItemStatus, ItemType } from '../../schema/database/items';
+import { ItemUserRelationshipDbObject, Permission } from '../../schema/database/items_on_users';
+import { UserDbObject } from '../../schema/database/user';
 import { AuthService } from '../../src/services/auth_service';
 
 export const createTestUser = async (): Promise<Partial<UserDbObject>> => {

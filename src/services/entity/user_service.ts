@@ -1,6 +1,6 @@
-import { ID } from '../../types/schema/database/abstract';
-import { UserDbObject } from '../../types/schema/database/user';
-import { ExposedUser, PublicUser, User } from '../../types/schema/user';
+import { ID } from '../../../schema/database/abstract';
+import { UserDbObject } from '../../../schema/database/user';
+import { ExposedUser, PublicUser, User } from '../../../schema/user';
 import { UserEntity } from '../../models/entity/user_entity';
 import { UserRepository } from '../../repository/entity/user_repository';
 import { formatDateData } from '../../utils/dates';

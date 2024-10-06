@@ -1,9 +1,9 @@
-import { ID } from '../../types/schema/database/abstract';
-import { ItemDbObject } from '../../types/schema/database/items';
-import { Permission } from '../../types/schema/database/items_on_users';
-import { NoteDbObject } from '../../types/schema/database/notes';
-import { ItemRelatedUser } from '../../types/schema/items';
-import { SocialAction } from '../../types/schema/util/social';
+import { ID } from '../../../schema/database/abstract';
+import { ItemDbObject } from '../../../schema/database/items';
+import { Permission } from '../../../schema/database/items_on_users';
+import { NoteDbObject } from '../../../schema/database/notes';
+import { ItemRelatedUser } from '../../../schema/items';
+import { SocialAction } from '../../../schema/util/social';
 import { SocialEntity, SocialRelation } from '../../models/entity/_social_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { ItemUserRelation } from '../../models/relation/item_related_user';

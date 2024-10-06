@@ -1,5 +1,5 @@
-import { Entity } from '../../types/schema';
-import { DbEntityObject, DbObject } from '../../types/schema/database';
+import { Entity } from '../../../schema';
+import { DbEntityObject, DbObject } from '../../../schema/database';
 import { EntityRepository } from '../../repository/entity/_entity_repository';
 import { LyfError } from '../../utils/lyf_error';
 import { ObjectUtils } from '../../utils/object';

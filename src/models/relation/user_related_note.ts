@@ -1,10 +1,10 @@
-import { DbRelationFields, DbRelationObject } from '../../types/schema/database';
-import { ID } from '../../types/schema/database/abstract';
-import { ItemUserRelations } from '../../types/schema/database/items_on_users';
-import { NoteDbObject } from '../../types/schema/database/notes';
-import { NoteUserRelations, NoteUserRelationshipDbObject } from '../../types/schema/database/notes_on_users';
-import { Note } from '../../types/schema/notes';
-import { UserRelatedNote } from '../../types/schema/user';
+import { DbRelationFields, DbRelationObject } from '../../../schema/database';
+import { ID } from '../../../schema/database/abstract';
+import { ItemUserRelations } from '../../../schema/database/items_on_users';
+import { NoteDbObject } from '../../../schema/database/notes';
+import { NoteUserRelations, NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
+import { Note } from '../../../schema/notes';
+import { UserRelatedNote } from '../../../schema/user';
 import { NoteRepository } from '../../repository/entity/note_repository';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
