@@ -18,6 +18,7 @@ import { UserDbObject } from '../../../schema/database/user';
 import { ID, Identifiable } from '../../../schema/database/abstract';
 import { NotificationService } from '../../services/entity/notification_service';
 import { NotificationDbObject } from '../../../schema/database/notifications';
+import { NoticeService } from '../../services/entity/notice_service';
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
@@ -95,18 +96,15 @@ export class UserHandlers {
     }
   }
 
-  protected async getNoticeboard(req: Request, res: Response) {
-    const { limit } = req.query as { limit: string };
-    const requestorId = getMiddlewareVars(res).user_id;
-
-    logger.debug(`Retreiving notifications of ${requestorId}`);
-
-    const notificationService = new NotificationService();
+  protected async getNotices(req: Request, res: Response) {
+    const { version, exclude } = req.query as { version: string, exclude: string };
+    const noticeService = new NoticeService();
 
     try {
-      const notifications = await notificationService.getUserNotifications(requestorId, Number(limit));
+      const excludeList = exclude.split(',');
+      const notices = await noticeService.getNotices(version, excludeList);
 
-      res.status(200).json(notifications).end();
+      res.status(200).json(notices).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);
