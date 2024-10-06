@@ -1,4 +1,4 @@
-import { ID } from '../../types/mongo_schema/abstract';
+import { ID } from '../../../schema/mongo_schema/abstract';
 import { Permission } from '../../../schema/database/items_on_users';
 import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
 import { SocialAction } from '../../../schema/util/social';

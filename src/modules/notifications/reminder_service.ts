@@ -1,8 +1,8 @@
 import { ExpoPushMessage } from 'expo-server-sdk';
 import moment from 'moment-timezone';
 
-import { ItemStatus } from '../../types/mongo_schema/list';
-import { DaysOfWeek } from '../../types/mongo_schema/timetable';
+import { ItemStatus } from '../../../schema/mongo_schema/list';
+import { DaysOfWeek } from '../../../schema/mongo_schema/timetable';
 import { ItemType } from '../../../schema/database/items';
 import mongoDb from '../../db/mongo/mongo_db';
 import { ItemEntity } from '../../models/entity/item_entity';

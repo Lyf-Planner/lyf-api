@@ -1,4 +1,4 @@
-import { ID } from '../../types/mongo_schema/abstract';
+import { ID } from '../../../schema/mongo_schema/abstract';
 import { ItemDbObject } from '../../../schema/database/items';
 import { ItemUserRelationshipDbObject, Permission } from '../../../schema/database/items_on_users';
 import { UserDbObject } from '../../../schema/database/user';
