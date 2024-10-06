@@ -8,7 +8,7 @@ import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { BaseService } from '../_base_service';
 import { UserService } from '../entity/user_service';
-import { FriendNotifications } from '../../modules/notifications/friend_notifications';
+import { FriendNotifications } from '../../modules/notification_scheduling/friend_notifications';
 
 export type FriendshipUpdate = {
   user_id: ID;

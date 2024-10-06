@@ -7,7 +7,7 @@ import { formatDateData } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { AuthService } from '../auth_service';
-import reminderService from '../../modules/notifications/reminder_service';
+import reminderService from '../../modules/notification_scheduling/reminder_service';
 import { EntityService } from './_entity_service';
 import { ItemService } from './item_service';
 
