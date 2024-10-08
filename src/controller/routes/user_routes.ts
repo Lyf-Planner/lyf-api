@@ -12,7 +12,6 @@ export class UserEndpoints extends UserHandlers {
     server.get(ROUTE_PREFIX + '/autoLogin', this.autoLogin);
     server.get(ROUTE_PREFIX + '/get', this.getUser);
     server.get(ROUTE_PREFIX + '/notifications', this.getUserNotifications);
-    server.get(ROUTE_PREFIX + '/notices', this.getNotices)
 
     server.post(ROUTE_PREFIX + '/create', nSecondLimiter(20), this.createUser);
     server.post(ROUTE_PREFIX + '/update', this.updateMe);
