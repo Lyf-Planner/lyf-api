@@ -15,6 +15,7 @@ import env from './envManager';
 import reminderService from './modules/notification_scheduling/reminder_service';
 import { Logger, LoggingLevel } from './utils/logging';
 import { seedLatest } from './db/pg/seed_manager';
+import { PublicEndpoints } from './controller/routes/public_routes';
 
 export const server = express();
 
@@ -41,9 +42,10 @@ server.set('trust proxy', 1 /* number of proxies between user and server (expres
 export const serverInitialised = new Promise(async (resolve, reject) => {
   try {
     // Initialise endpoints
-    new UserEndpoints(server);
     new ItemEndpoints(server);
+    new PublicEndpoints(server);
     new NoteEndpoints(server);
+    new UserEndpoints(server);
 
     // Initialise services
     await mongoDb.init();

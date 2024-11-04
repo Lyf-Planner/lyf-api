@@ -31,7 +31,8 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
       title: object.title,
       type: object.type,
       content: object.content,
-      collaborative: object.collaborative
+      collaborative: object.collaborative,
+      parent_id: object.parent_id
     };
 
     return ObjectUtils.stripUndefinedFields(objectFilter);

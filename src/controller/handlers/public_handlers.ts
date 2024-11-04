@@ -9,6 +9,8 @@ export class PublicHandlers {
     const { version, exclude } = req.query as { version: string, exclude: string };
     const noticeService = new NoticeService();
 
+    logger.debug(`Fetching notices for version ${version} excluding ${exclude}`);
+
     try {
       const excludeList = exclude.split(',');
       const notices = await noticeService.getNotices(version, excludeList);
