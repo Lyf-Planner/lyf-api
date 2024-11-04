@@ -1,7 +1,7 @@
-import { ID } from '../../types/schema/database/abstract';
-import { NoteDbObject } from '../../types/schema/database/notes';
-import { NoteUserRelationshipDbObject } from '../../types/schema/database/notes_on_users';
-import { UserDbObject } from '../../types/schema/database/user';
+import { ID } from '../../../schema/database/abstract';
+import { NoteDbObject } from '../../../schema/database/notes';
+import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
+import { UserDbObject } from '../../../schema/database/user';
 import { RelationRepository } from './_relation_repository';
 
 const TABLE_NAME = 'notes_on_users';

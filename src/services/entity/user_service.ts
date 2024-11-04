@@ -1,13 +1,13 @@
-import { ID } from '../../types/schema/database/abstract';
-import { UserDbObject } from '../../types/schema/database/user';
-import { ExposedUser, PublicUser, User } from '../../types/schema/user';
+import { ID } from '../../../schema/database/abstract';
+import { UserDbObject } from '../../../schema/database/user';
+import { ExposedUser, PublicUser, User } from '../../../schema/user';
 import { UserEntity } from '../../models/entity/user_entity';
 import { UserRepository } from '../../repository/entity/user_repository';
 import { formatDateData } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { AuthService } from '../auth_service';
-import reminderService from '../../modules/notifications/reminder_service';
+import reminderService from '../../modules/notification_scheduling/reminder_service';
 import { EntityService } from './_entity_service';
 import { ItemService } from './item_service';
 
@@ -40,7 +40,9 @@ export class UserService extends EntityService<UserDbObject> {
       pfp_url: undefined,
       daily_notification_time: '08:30',
       persistent_daily_notification: false,
-      event_notification_mins: 5
+      event_notification_mins: 5,
+      weather_data: true,
+      auto_day_finishing: true,
     };
 
     const user = new UserEntity(userCreationData.id);

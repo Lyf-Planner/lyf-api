@@ -8,7 +8,7 @@ import { API_PREFIX } from '../utils';
 
 const logger = new Logger('AuthMiddleware');
 const TOKEN_PREFIX = 'Bearer ';
-const EXCLUDED_ENDPOINTS = ['/users/login', '/users/create'].map((x) => API_PREFIX + x);
+const EXCLUDED_ENDPOINTS = ['/users/login', '/users/create', 'users/notices'].map((x) => API_PREFIX + x);
 
 export const authoriseHeader = (
   req: Request,

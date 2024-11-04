@@ -1,14 +1,14 @@
 import { v4 as uuid } from 'uuid';
 
-import { ItemDbObject, ItemStatus, ItemType } from '../../src/types/schema/database/items';
-import { ItemUserRelationshipDbObject, Permission } from '../../src/types/schema/database/items_on_users';
-import { UserDbObject } from '../../src/types/schema/database/user';
+import { ItemDbObject, ItemStatus, ItemType } from '../../schema/database/items';
+import { ItemUserRelationshipDbObject, Permission } from '../../schema/database/items_on_users';
+import { UserDbObject } from '../../schema/database/user';
 import { AuthService } from '../../src/services/auth_service';
 
-export const createTestUser = async (): Promise<UserDbObject> => {
+export const createTestUser = async (): Promise<Partial<UserDbObject>> => {
   const creationTime = new Date();
 
-  const user: UserDbObject = {
+  const user: Partial<UserDbObject> = {
     id: 'test',
     tz: 'Australia/Melbourne',
     created: creationTime,
@@ -22,7 +22,7 @@ export const createTestUser = async (): Promise<UserDbObject> => {
 };
 
 export const item1_id = uuid();
-export const createTestItem1 = (): ItemDbObject => {
+export const createTestItem1 = (): Partial<ItemDbObject> => {
   const creationTime = new Date();
 
   return {
@@ -37,7 +37,7 @@ export const createTestItem1 = (): ItemDbObject => {
   };
 };
 
-export const createItem1Relation = (): ItemUserRelationshipDbObject => {
+export const createItem1Relation = (): Partial<ItemUserRelationshipDbObject> => {
   const creationTime = new Date();
 
   return {

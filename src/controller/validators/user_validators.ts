@@ -1,11 +1,11 @@
 import Expo from 'expo-server-sdk';
 import { body, query } from 'express-validator';
 
-import { ID } from '../../types/schema/database/abstract';
-import { Note } from '../../types/schema/notes';
+import { ID } from '../../../schema/database/abstract';
+import { Note } from '../../../schema/notes';
 import { FriendshipUpdate } from '../../services/relation/friendship_service';
 import { isValidTimeZone } from './utils';
-import { FriendshipAction } from '../../types/schema/util/social';
+import { FriendshipAction } from '../../../schema/util/social';
 
 // GET
 

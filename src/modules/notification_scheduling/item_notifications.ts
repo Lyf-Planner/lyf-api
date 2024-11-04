@@ -1,13 +1,13 @@
 import { ExpoPushMessage } from 'expo-server-sdk';
 import debouncer from 'signature-debouncer';
 
-import { ItemStatus } from '../../types/schema/database/items';
+import { ItemStatus } from '../../../schema/database/items';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { formatDate, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { ExpoPushService } from './expo_push_service';
-import { NotificationRelatedData, NotificationType } from '../../types/schema/database/notifications';
+import { NotificationRelatedData, NotificationType } from '../../../schema/database/notifications';
 import { ItemUserRelation } from '../../models/relation/item_related_user';
 import { SocialUpdate } from '../../services/relation/_social_service';
 

@@ -1,7 +1,7 @@
 import { Kysely, PostgresDialect } from 'kysely';
 import { Pool, PoolConfig } from 'pg';
 
-import { Database } from '../../types/schema/database';
+import { Database } from '../../../schema/database';
 import env from '../../envManager';
 import { Logger } from '../../utils/logging';
 

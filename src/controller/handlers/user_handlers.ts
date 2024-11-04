@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { User } from '../../types/schema/user';
+import { User } from '../../../schema/user';
 import { AuthService } from '../../services/auth_service';
 import { UserService } from '../../services/entity/user_service';
 import { FriendshipService, FriendshipUpdate } from '../../services/relation/friendship_service';
@@ -14,10 +14,11 @@ import {
   updateFriendshipBody,
   updateMeBody
 } from '../validators/user_validators';
-import { UserDbObject } from '../../types/schema/database/user';
-import { ID, Identifiable } from '../../types/schema/database/abstract';
+import { UserDbObject } from '../../../schema/database/user';
+import { ID, Identifiable } from '../../../schema/database/abstract';
 import { NotificationService } from '../../services/entity/notification_service';
-import { NotificationDbObject } from '../../types/schema/database/notifications';
+import { NotificationDbObject } from '../../../schema/database/notifications';
+import { NoticeService } from '../../services/entity/notice_service';
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {

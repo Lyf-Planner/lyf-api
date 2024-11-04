@@ -1,17 +1,17 @@
 import { v4 as uuid } from 'uuid';
 
-import { ID } from '../../types/schema/database/abstract';
-import { ItemDbObject, ItemStatus, ItemType } from '../../types/schema/database/items';
-import { ItemUserRelationshipDbObject, Permission } from '../../types/schema/database/items_on_users';
-import { UserRelatedItem } from '../../types/schema/user';
+import { ID } from '../../../schema/database/abstract';
+import { ItemDbObject, ItemStatus, ItemType } from '../../../schema/database/items';
+import { ItemUserRelationshipDbObject, Permission } from '../../../schema/database/items_on_users';
+import { UserRelatedItem } from '../../../schema/user';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { ItemUserRelation } from '../../models/relation/item_related_user';
 import { formatDateData, getStartOfCurrentWeek } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
-import { SocialItemNotifications } from '../../modules/notifications/item_notifications';
-import reminderService from '../../modules/notifications/reminder_service';
+import { SocialItemNotifications } from '../../modules/notification_scheduling/item_notifications';
+import reminderService from '../../modules/notification_scheduling/reminder_service';
 import { EntityService } from './_entity_service';
 import { UserService } from './user_service';
 import { UserItemRelation } from '../../models/relation/user_related_item';
@@ -143,11 +143,17 @@ export class ItemService extends EntityService<ItemDbObject> {
       collaborative: false,
       title: 'Swipe Me Left!',
       tz,
+      note_id: undefined,
+      template_id: undefined,
       type: ItemType.Event,
       status: ItemStatus.Upcoming,
       date: formatDateData(getStartOfCurrentWeek(tz)),
       day: undefined,
-      desc: "Tap the leaf icon in the top corner for guides and tips on getting started.\n\nLet's setup your timetable!"
+      time: undefined,
+      end_time: undefined,
+      desc: "Tap the leaf icon in the top corner for guides and tips on getting started.\n\nLet's setup your timetable!",
+      url: undefined,
+      location: undefined
     };
 
     const introItem = new ItemEntity(userIntroItem.id);
@@ -163,12 +169,18 @@ export class ItemService extends EntityService<ItemDbObject> {
       id: uuid(),
       collaborative: false,
       title: 'Setup My Lyf Timetable',
+      note_id: undefined,
+      template_id: undefined,
       tz,
       type: ItemType.Task,
       status: ItemStatus.Upcoming,
       date: formatDateData(getStartOfCurrentWeek(tz)),
       day: undefined,
-      desc: "- Open my Routine, enter everything I do each week\n- Move back to my Calendar\n- Add all the events I have planned, and any tasks I need to do\n  - If unsure on a date, add to Upcoming Events or To Do List"
+      time: undefined,
+      end_time: undefined,
+      desc: "- Open my Routine, enter everything I do each week\n- Move back to my Calendar\n- Add all the events I have planned, and any tasks I need to do\n  - If unsure on a date, add to Upcoming Events or To Do List",
+      url: undefined,
+      location: undefined
     };
 
     const timetableItem = new ItemEntity(userIntroItem.id);
@@ -207,7 +219,9 @@ export class ItemService extends EntityService<ItemDbObject> {
       last_updated: new Date(),
       invite_pending: false,
       permission: Permission.Owner,
-      sorting_rank: rank || 0
+      sorting_rank: rank || 0,
+      show_in_upcoming: undefined,
+      notification_mins: undefined
     };
   }
 

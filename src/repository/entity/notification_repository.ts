@@ -1,5 +1,5 @@
-import { ID } from '../../types/schema/database/abstract';
-import { NotificationDbObject } from '../../types/schema/database/notifications';
+import { ID } from '../../../schema/database/abstract';
+import { NotificationDbObject } from '../../../schema/database/notifications';
 import { EntityRepository } from './_entity_repository';
 
 const TABLE_NAME = 'notifications';

@@ -1,14 +1,14 @@
-import { ID } from '../../types/schema/database/abstract';
-import { UserFriendshipDbObject, UserFriendshipStatus } from '../../types/schema/database/user_friendships';
-import { FriendshipAction } from '../../types/schema/util/social';
-import { ExposedUser, UserFriend } from '../../types/schema/user';
+import { ID } from '../../../schema/database/abstract';
+import { UserFriendshipDbObject, UserFriendshipStatus } from '../../../schema/database/user_friendships';
+import { FriendshipAction } from '../../../schema/util/social';
+import { ExposedUser, UserFriend } from '../../../schema/user';
 import { UserEntity } from '../../models/entity/user_entity';
 import { UserFriendRelation } from '../../models/relation/user_friend';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { BaseService } from '../_base_service';
 import { UserService } from '../entity/user_service';
-import { FriendNotifications } from '../../modules/notifications/friend_notifications';
+import { FriendNotifications } from '../../modules/notification_scheduling/friend_notifications';
 
 export type FriendshipUpdate = {
   user_id: ID;

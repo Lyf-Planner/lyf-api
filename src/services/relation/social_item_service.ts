@@ -1,6 +1,6 @@
-import { ID } from '../../types/mongo_schema/abstract';
-import { ItemUserRelationshipDbObject, Permission } from '../../types/schema/database/items_on_users';
-import { SocialAction } from '../../types/schema/util/social';
+import { ID } from '../../../schema/mongo_schema/abstract';
+import { ItemUserRelationshipDbObject, Permission } from '../../../schema/database/items_on_users';
+import { SocialAction } from '../../../schema/util/social';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { SocialRelation } from '../../models/relation/_social_relation';
@@ -9,7 +9,7 @@ import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { ItemService } from '../entity/item_service';
 import { UserService } from '../entity/user_service';
-import { SocialItemNotifications } from '../../modules/notifications/item_notifications';
+import { SocialItemNotifications } from '../../modules/notification_scheduling/item_notifications';
 import { SocialService, SocialUpdate } from './_social_service';
 
 export class SocialItemService extends SocialService<ItemUserRelation> {
@@ -25,7 +25,9 @@ export class SocialItemService extends SocialService<ItemUserRelation> {
       user_id_fk: user_id,
       invite_pending: invited,
       permission,
-      sorting_rank: 0
+      sorting_rank: 0,
+      show_in_upcoming: undefined,
+      notification_mins: undefined
     };
 
     await relation.create(dbObject, ItemUserRelation.filter);

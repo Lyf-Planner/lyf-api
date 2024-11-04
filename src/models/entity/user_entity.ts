@@ -1,13 +1,13 @@
 import moment from 'moment-timezone';
-import { ID } from '../../types/schema/database/abstract';
-import { UserDbObject, UserExposedFields, UserPublicFields, UserSensitiveFields } from '../../types/schema/database/user';
-import { UserFriendshipStatus } from '../../types/schema/database/user_friendships';
+import { ID } from '../../../schema/database/abstract';
+import { UserDbObject, UserExposedFields, UserPublicFields, UserSensitiveFields } from '../../../schema/database/user';
+import { UserFriendshipStatus } from '../../../schema/database/user_friendships';
 import {
   ExposedUser,
   PublicUser,
   UserFriend,
   UserNotification
-} from '../../types/schema/user';
+} from '../../../schema/user';
 import { UserRepository } from '../../repository/entity/user_repository';
 import { ItemUserRepository } from '../../repository/relation/item_user_repository';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
@@ -23,7 +23,7 @@ import { ObjectUtils } from '../../utils/object';
 import { LyfError } from '../../utils/lyf_error';
 import { NotificationRepository } from '../../repository/entity/notification_repository';
 import { NotificationEntity } from './notification_entity';
-import { Notification } from '../../types/schema/notifications';
+import { Notification } from '../../../schema/notifications';
 
 export type UserModelRelations = {
   items: UserItemRelation[];
@@ -53,7 +53,8 @@ export class UserEntity extends BaseEntity<UserDbObject> {
       event_notification_mins: object.event_notification_mins,
       pass_hash: object.pass_hash,
       expo_tokens: object.expo_tokens,
-      weather_data: object.weather_data
+      weather_data: object.weather_data,
+      auto_day_finishing: object.auto_day_finishing
     };
 
     return ObjectUtils.stripUndefinedFields(objectFilter);

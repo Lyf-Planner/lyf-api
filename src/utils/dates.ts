@@ -1,7 +1,7 @@
 import moment from 'moment-timezone';
 
 import { LyfError } from './lyf_error';
-import { DateString } from '../types/schema/util/dates';
+import { DateString } from '../../schema/util/dates';
 
 const oneSecond = 1000;
 const oneMinute = oneSecond * 60;
