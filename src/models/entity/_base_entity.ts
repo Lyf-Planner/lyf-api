@@ -81,6 +81,7 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
 
   public async save() {
     if (!ObjectUtils.isEmpty(this.changes)) {
+      this.logger.debug('saving changes; ' + JSON.stringify({ ...this.changes }));
       await this.repository.update(this._id, this.changes);
     }
 
@@ -92,6 +93,7 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
       throw new LyfError('Model was updated before being loaded', 500);
     }
 
+    this.logger.debug('updating user with changes: ' + JSON.stringify(changes));
     this.changes = changes;
     this.base = { ...this.base, ...changes };
   }
