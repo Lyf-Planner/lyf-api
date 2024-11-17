@@ -83,7 +83,7 @@ export class UserService extends EntityService<UserDbObject> {
 
     const user = new UserEntity(id);
     await user.load();
-    await user.update(changes);
+    await user.update(UserEntity.filter(changes));
 
     // PRE-COMMIT (update other items like notifications)
     this.checkDailyNotifications(user, changes);
