@@ -1,6 +1,6 @@
 import { ID } from '../../../schema/database/abstract';
 import { Permission } from '../../../schema/database/items_on_users';
-import { NoteDbObject } from '../../../schema/database/notes';
+import { NoteDbObject, NoteType } from '../../../schema/database/notes';
 import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
 import { UserRelatedNote } from '../../../schema/user';
 import { NoteEntity } from '../../models/entity/note_entity';
@@ -17,6 +17,11 @@ export class NoteService extends EntityService<NoteDbObject> {
   async getEntity(note_id: ID, user_id: ID, include?: string) {
     const userNote = new UserNoteRelation(user_id, note_id);
     await userNote.load();
+
+    // for list notes, always include the related items
+    if (userNote.getRelatedEntity().type() === NoteType.ListOnly) {
+      include = include ? include + ",items" : "items";
+    }
 
     if (include) {
       await userNote.getRelatedEntity().fetchRelations(include);

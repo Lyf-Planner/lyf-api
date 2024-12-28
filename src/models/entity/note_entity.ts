@@ -106,4 +106,8 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
   title() {
     return this.base!.title;
   }
+
+  type() {
+    return this.base!.type;
+  }
 }
