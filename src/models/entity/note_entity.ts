@@ -99,7 +99,11 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
   }
 
   // --- HELPERS --- //
-  public getRelations() {
+  getRelations() {
     return this.relations;
+  }
+
+  title() {
+    return this.base!.title;
   }
 }

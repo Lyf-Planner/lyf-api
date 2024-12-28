@@ -5,6 +5,7 @@ import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_
 import { UserRelatedNote } from '../../../schema/user';
 import { NoteEntity } from '../../models/entity/note_entity';
 import { NoteUserRelation } from '../../models/relation/note_related_user';
+import { UserNoteRelation } from '../../models/relation/user_related_note';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { EntityService } from './_entity_service';
@@ -13,12 +14,15 @@ import { UserService } from './user_service';
 export class NoteService extends EntityService<NoteDbObject> {
   protected logger = Logger.of(NoteService);
 
-  async getEntity(note_id: ID, include?: string) {
-    const note = new NoteEntity(note_id);
-    await note.fetchRelations(include);
-    await note.load();
+  async getEntity(note_id: ID, user_id: ID, include?: string) {
+    const userNote = new UserNoteRelation(user_id, note_id);
+    await userNote.load();
 
-    return note;
+    if (include) {
+      await userNote.getRelatedEntity().fetchRelations(include);
+    }
+
+    return userNote;
   }
 
   async processCreation(note_input: NoteDbObject, from: ID) {

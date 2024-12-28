@@ -8,6 +8,7 @@ import { NoteUserRelation } from '../../models/relation/note_related_user';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { SocialService, SocialUpdate } from './_social_service';
+import { SocialNoteNotifications } from '../../modules/notification_scheduling/note_notifications';
 
 export class SocialNoteService extends SocialService<NoteUserRelation> {
   protected logger = Logger.of(SocialNoteService);
@@ -44,12 +45,12 @@ export class SocialNoteService extends SocialService<NoteUserRelation> {
       case SocialAction.Invite:
         this.logger.info(`User ${update.user_id} invited to note ${update.entity_id} by ${from}`);
         modifiedRelation = await this.inviteUser(update.user_id, fromUser, update.permission!);
-        // SocialItemNotifications.newItemInvite(targetUser, fromUser, item);
+        SocialNoteNotifications.newNoteInvite(fromUser, modifiedRelation);
         break;
       case SocialAction.Accept:
         this.logger.info(`User ${from} accepted invitation to note ${update.entity_id}`);
         modifiedRelation = await this.acceptInvite(fromUser);
-        // SocialItemNotifications.newItemUser(fromUser, item);
+        SocialNoteNotifications.newNoteUser(fromUser, modifiedRelation);
         break;
       case SocialAction.Decline:
         this.logger.info(`User ${from} declined invitation to note ${update.entity_id}`);
@@ -73,14 +74,14 @@ export class SocialNoteService extends SocialService<NoteUserRelation> {
 
   protected async updateIsCollaborative(note_id: ID) {
     try {
-      const item = new NoteEntity(note_id);
-      await item.fetchRelations("users");
+      const note = new NoteEntity(note_id);
+      await note.fetchRelations("users");
 
-      const numUsers = item.getRelations().users?.length
+      const numUsers = note.getRelations().users?.length
       const collaborative = !!numUsers && numUsers > 1
-      await item.directlyModify({ collaborative })
+      await note.directlyModify({ collaborative })
     } catch (error) {
-      this.logger.error(`Failed to update collaborative flag on item ${note_id}`)
+      this.logger.error(`Failed to update collaborative flag on note ${note_id}`)
     }
   }
 }

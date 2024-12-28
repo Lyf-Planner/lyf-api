@@ -66,7 +66,7 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
     };
   }
 
-  public async load(relations: object): Promise<void> {
+  public async load(relations?: object): Promise<void> {
     this.base = await this.repository.findByCompositeId(this._entityId, this._id);
     await this.relatedEntity.load();
   }
