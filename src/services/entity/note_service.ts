@@ -48,10 +48,9 @@ export class NoteService extends EntityService<NoteDbObject> {
     await note.fetchRelations();
     await note.load();
 
-    const noteUsers = note.getRelations().users as NoteUserRelation[];
-    const noteDeleter = noteUsers.find((x) => x.entityId() === from_id);
+    const notePermission = await note.getPermission(from_id)
 
-    if (noteDeleter && noteDeleter.permission() === Permission.Owner) {
+    if (notePermission && notePermission.permission === Permission.Owner) {
       await note.delete();
     } else {
       throw new LyfError('Notes can only be deleted by their owner', 403);

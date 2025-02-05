@@ -43,23 +43,54 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     return ObjectUtils.stripUndefinedFields(objectFilter);
   }
 
-  // We override deletion because Items are referenced directly instead of via a relation
+  // Override Item deletion because they are referenced directly instead of via a relation
   // We need to call delete on those items so they delete their relations first!
+  //
+  // Override Note deletion because we only fetch the relations that are our children,
+  // Instead of relations with our parents as well - hence need to delete all relations properly.
   async delete(softDelete = false) {
     for (const item of this.relations.items || []) {
       await item.fetchRelations();
       await item.delete();
     }
 
-    for (const noteRelation of this.relations.notes || []) {
-      await noteRelation.delete();
-    }
+    const noteChildRepository = new NoteChildRepository();
+    noteChildRepository.deleteAllRelations(this._id);
 
-    await this.recurseRelations(CommandType.Delete, ['items']);
+    await this.recurseRelations(CommandType.Delete, ['items', 'notes']);
 
     if (!softDelete) {
       await this.repository.delete(this._id);
     }
+  }
+
+  async getPermission(requestor: ID) {
+    // getting permissions to a note is a special case, because of it's file system
+    // we check the user is either on the note, or has a permission on this notes' ancestor
+
+    const relatedUsers = this.relations.users;
+    if (!relatedUsers) {
+      console.warn('exported user note without loading users!');
+      return;
+    }
+
+    const noteRelatedUser = relatedUsers.find((user) => user.entityId() === requestor);
+    if (noteRelatedUser) {
+      console.debug('using direct permission');
+      const notePermission = noteRelatedUser.extractRelation();
+      return notePermission;
+    }
+
+    this.logger.debug('using ancestor permission');
+    const ancestorPermissions = await this.repository.findAncestorPermissions(this._id, requestor);
+    
+    const hasAncestorPermission = ancestorPermissions.length > 0;
+    if (hasAncestorPermission) {
+      const nearestPermission = ancestorPermissions.sort((a, b) => a.distance - b.distance)[0];
+      return NoteUserRelation.filter(nearestPermission);
+    }
+    
+    return null;
   }
 
   async exportWithPermission(requestor: ID, provided_permission?: NoteUserRelations): Promise<UserRelatedNote> {
@@ -73,34 +104,8 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
       }
     }
 
-    // getting permissions to a note is a special case, because of it's file system
-    // we check the user is either on the note, or has a permission on this notes' ancestor
-
-    const relatedUsers = this.relations.users;
-    if (!relatedUsers || relatedUsers.length === 0) {
-      console.warn('exported user note without loading users!');
-    } else {
-      console.info({ relatedUsers });
-    }
-    const noteRelatedUser = relatedUsers?.find((user) => user.entityId() === requestor);
-    if (noteRelatedUser) {
-      console.debug('using direct permission')
-      const notePermission = noteRelatedUser.extractRelation();
-      return {
-        ...exportedNote,
-        ...notePermission
-      }
-    }
-
-    this.logger.debug('using ancestor permission')
-    const ancestorPermissions = await this.repository.findAncestorPermissions(this._id, requestor);
-    ancestorPermissions.sort((a, b) => a.distance - b.distance);
-    const hasAncestorPermission = ancestorPermissions.length > 0;
-
-    let notePermission: NoteUserRelations;
-    if (hasAncestorPermission) {
-      notePermission = NoteUserRelation.filter(ancestorPermissions[0]);
-    } else {
+    const notePermission = await this.getPermission(requestor);
+    if (!notePermission) {
       throw new LyfError('User tried to load a note they should not have access to', 401);
     }
 
@@ -119,6 +124,7 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
   async fetchRelations(include?: string | undefined): Promise<void> {
     const toLoad = include ? this.parseInclusions(include) : ['items', 'notes', 'users'];
+    console.log({ toLoad });
 
     // always load items for list notes
     if (toLoad.includes('items') || this.base?.type === NoteType.ListOnly) {

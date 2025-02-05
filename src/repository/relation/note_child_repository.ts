@@ -38,4 +38,13 @@ export class NoteChildRepository extends RelationRepository<NoteChildDbObject> {
       .where('parent_id', '=', parent_id)
       .execute();
   }
+  
+  async deleteAllRelations(note_id: ID) {
+    await this.db
+      .deleteFrom(this.table_name)
+      .where((eb) =>
+        eb.or([eb('child_id', '=', note_id), eb('parent_id', '=', note_id)])
+      )
+      .execute();
+  }
 }
