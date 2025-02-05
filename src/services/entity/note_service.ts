@@ -4,7 +4,10 @@ import { NoteDbObject } from '../../../schema/database/notes';
 import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
 import { UserRelatedNote } from '../../../schema/user';
 import { NoteEntity } from '../../models/entity/note_entity';
+import { NoteChildRelation } from '../../models/relation/note_child';
 import { NoteUserRelation } from '../../models/relation/note_related_user';
+import { UserNoteRelation } from '../../models/relation/user_related_note';
+import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { EntityService } from './_entity_service';
@@ -21,13 +24,19 @@ export class NoteService extends EntityService<NoteDbObject> {
     return note;
   }
 
-  async processCreation(note_input: NoteDbObject, from: ID) {
+  async processCreation(note_input: NoteDbObject, from: ID, parent_id?: ID) {
     const note = new NoteEntity(note_input.id);
     await note.create(note_input, NoteEntity.filter);
 
     const relationship = new NoteUserRelation(note_input.id, from);
     const relationshipObject = this.defaultNoteOwner(note.id(), from);
     await relationship.create(relationshipObject, NoteUserRelation.filter);
+
+    if (parent_id) {
+      const parentRelationship = new NoteChildRelation(parent_id, note_input.id);
+      const parentRelationshipObject = { ...note_input, child_id: note_input.id, parent_id, distance: 1 };
+      await parentRelationship.create(parentRelationshipObject);
+    }
 
     await note.fetchRelations();
     await note.load();
@@ -67,14 +76,13 @@ export class NoteService extends EntityService<NoteDbObject> {
   }
 
   async getUserNotes(user_id: ID) {
-    // Validate the requestor has permission - must be themselves or a Best Friend
-    const user = await new UserService().getEntity(user_id, "notes");
-    const userRelatedNotes = user.getRelations().notes || [];
-    const exportedNotes = [];
+    const noteUserRepository = new NoteUserRepository();
+    const rootNotes = await noteUserRepository.findRootNotes(user_id)
+    const exportedNotes: UserRelatedNote[] = [];
 
-    for (const note of userRelatedNotes) {
-      // TODO: Rework the synchronous command types to not return promises
-      exportedNotes.push(await note.export())
+    for (const rootNoteRelation of rootNotes) {
+      const userNoteRelation = new UserNoteRelation(user_id, rootNoteRelation.note_id_fk, rootNoteRelation)
+      exportedNotes.push(await userNoteRelation.export())
     }
 
     return exportedNotes;

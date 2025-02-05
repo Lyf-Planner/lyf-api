@@ -44,6 +44,19 @@ export class NoteUserRepository extends RelationRepository<NoteUserRelationshipD
       .execute();
   }
 
+  async findRootNotes(
+    user_id: string
+  ): Promise<(NoteDbObject & NoteUserRelationshipDbObject)[]> {
+    return await this.db
+      .selectFrom('notes')
+      .leftJoin('note_children', 'notes.id', 'note_children.child_id')
+      .where('note_children.child_id', 'is', null)
+      .innerJoin('notes_on_users', 'notes.id', 'notes_on_users.note_id_fk')
+      .selectAll('notes')
+      .selectAll('notes_on_users')
+      .execute();
+  }
+
   async updateRelation(
     note_id_fk: ID,
     user_id_fk: ID,

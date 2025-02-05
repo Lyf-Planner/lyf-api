@@ -60,10 +60,7 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
       permission: this.base!.permission
     }
 
-    return {
-      ...await this.relatedEntity.export(undefined, true) as Note,
-      ...relationFields
-    };
+    return await this.relatedEntity.exportWithPermission(this._id, relationFields);
   }
 
   public async load(relations: object): Promise<void> {

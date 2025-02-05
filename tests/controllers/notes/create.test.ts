@@ -2,7 +2,7 @@ import request from 'supertest';
 
 import { server, serverInitialised } from '../../../src/index';
 import { authoriseTestUser } from '../users/utils';
-import { testNoteCreation, testNoteExport } from './_testdata';
+import { testNoteCreation, testNoteExport } from './_factory';
 
 describe('Test Note Endpoints', () => {
   let authToken: string = '';
