@@ -21,7 +21,6 @@ export class NoteEndpoints extends NoteHandlers {
     server.get(ROUTE_PREFIX + '/myNotes', this.getUserNotes)
 
     server.post(ROUTE_PREFIX + '/create', this.createNote);
-
     server.post(ROUTE_PREFIX + '/update', this.updateNote);
     server.post(ROUTE_PREFIX + '/updateSocial', this.updateNoteSocial);
   }
