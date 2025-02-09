@@ -3,7 +3,7 @@ import { NoteType } from '../../../schema/database/notes';
 
 export const testNoteCreation = {
   title: 'test note',
-  type: NoteType.NoteOnly
+  type: NoteType.ListOnly
 };
 
 export const testNoteCreatorRelationship = {
@@ -17,7 +17,7 @@ export const testNoteExport = {
   created: expect.any(Date),
   last_updated: expect.any(Date),
   title: 'test note',
-  type: NoteType.NoteOnly,
+  type: NoteType.ListOnly,
   note: null,
   // Items
   items: [],

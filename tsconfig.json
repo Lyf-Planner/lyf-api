@@ -18,7 +18,6 @@
   "compileOnSave": true,
   "include": [
     "src",
-    "tests",
     "schema"
   ],
   "exclude": [

@@ -7,6 +7,8 @@ import { Logger } from '../../utils/logging';
 import { getMiddlewareVars } from '../utils';
 import { UserRelatedNote } from '../../../schema/user';
 import { LyfError } from '../../utils/lyf_error';
+import { SocialUpdate } from '../../services/relation/_social_service';
+import { SocialNoteService } from '../../services/relation/social_note_service';
 
 export class NoteHandlers {
   protected async createNote(req: Request, res: Response) {
@@ -45,6 +47,25 @@ export class NoteHandlers {
     }
   }
 
+  async updateNoteSocial(req: Request, res: Response) {
+    const update = req.body as SocialUpdate;
+    const fromId = getMiddlewareVars(res).user_id;
+
+    const socialNoteService = new SocialNoteService();
+
+    try {
+      const resultingRelation = await socialNoteService.processUpdate(fromId, update);
+      res.status(200).json(
+        resultingRelation ? await resultingRelation.export() : null
+      )
+      .end();
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
+    }
+  }
+
   protected async deleteNote(req: Request, res: Response) {
     const { note_id } = req.query as { note_id: string };
     const user_id = getMiddlewareVars(res).user_id;
@@ -71,8 +92,8 @@ export class NoteHandlers {
 
     try {
       const service = new NoteService();
-      const note = await service.getEntity(id, include);
-      res.status(200).json(await note.exportWithPermission(user_id)).end();
+      const note = await service.getEntity(id, user_id, include);
+      res.status(200).json(await note.export(user_id)).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);

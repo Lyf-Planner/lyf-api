@@ -25,9 +25,5 @@ export class ItemEndpoints extends ItemHandlers {
     server.post(ROUTE_PREFIX + '/create', nSecondLimiter(30, 60), this.createItem);
     server.post(ROUTE_PREFIX + '/update', this.updateItem);
     server.post(ROUTE_PREFIX + '/updateSocial', this.updateItemSocial);
-
-    // server.post("/addressItemSuggestion");
-    // server.post("/addItemComment");
-    // server.post("/editItemComment");
   }
 }

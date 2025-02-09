@@ -168,4 +168,12 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
   getRelations() {
     return this.relations;
   }
+
+  title() {
+    return this.base!.title;
+  }
+
+  type() {
+    return this.base!.type;
+  }
 }
