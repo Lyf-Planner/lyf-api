@@ -64,6 +64,13 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     }
   }
 
+  static async getPermission(note_id: ID, requestor: ID) {
+    const note = new NoteEntity(note_id);
+    await note.attachUsers();
+
+    return note.getPermission(requestor);
+  }
+
   async getPermission(requestor: ID) {
     // getting permissions to a note is a special case, because of it's file system
     // we check the user is either on the note, or has a permission on this notes' ancestor
@@ -127,32 +134,45 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
     // always load items for list notes
     if (toLoad.includes('items') || this.base?.type === NoteType.ListOnly) {
-      const itemsRepo = new ItemRepository();
-      const itemObjects = await itemsRepo.findByNoteId(this._id);
-      const itemRelations: ItemEntity[] = [];
-
-      for (const itemObject of itemObjects) {
-        const itemRelation = new ItemEntity(itemObject.id, itemObject);
-        itemRelations.push(itemRelation);
-      }
-      this.relations.items = itemRelations;
+      await this.attachItems();
     }
 
     // always load notes for folders
     if (toLoad.includes('notes') || this.base?.type === NoteType.Folder) {
-      const noteChildrenRepo = new NoteChildRepository();
-      const noteChildrenObjects = await noteChildrenRepo.findFolderChildren(this._id);
-      const noteChildren: NoteChildRelation[] = [];
-
-      for (const note of noteChildrenObjects) {
-        const childNote = new NoteChildRelation(note.parent_id, note.child_id, note);
-        noteChildren.push(childNote);
-      }
-      this.relations.notes = noteChildren;
+      await this.attachNotes();
     }
 
     if (toLoad.includes('users')) {
-      const noteUsersRepo = new NoteUserRepository();
+      await this.attachUsers();
+    }
+  }
+
+  async attachItems() {
+    const itemsRepo = new ItemRepository();
+    const itemObjects = await itemsRepo.findByNoteId(this._id);
+    const itemRelations: ItemEntity[] = [];
+
+    for (const itemObject of itemObjects) {
+      const itemRelation = new ItemEntity(itemObject.id, itemObject);
+      itemRelations.push(itemRelation);
+    }
+    this.relations.items = itemRelations;
+  }
+
+  async attachNotes() {
+    const noteChildrenRepo = new NoteChildRepository();
+    const noteChildrenObjects = await noteChildrenRepo.findFolderChildren(this._id);
+    const noteChildren: NoteChildRelation[] = [];
+
+    for (const note of noteChildrenObjects) {
+      const childNote = new NoteChildRelation(note.parent_id, note.child_id, note);
+      noteChildren.push(childNote);
+    }
+    this.relations.notes = noteChildren;
+  }
+
+  async attachUsers() {
+    const noteUsersRepo = new NoteUserRepository();
       const relationObjects = await noteUsersRepo.findNoteRelatedUsers(this._id);
       const userRelations: NoteUserRelation[] = [];
 
@@ -161,7 +181,6 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
         userRelations.push(userRelation);
       }
       this.relations.users = userRelations;
-    }
   }
 
   // --- HELPERS --- //

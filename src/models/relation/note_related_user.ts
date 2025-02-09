@@ -10,6 +10,7 @@ import { PublicUser } from '../../../schema/user';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
 import { ObjectUtils } from '../../utils/object';
+import { NoteEntity } from '../entity/note_entity';
 import { UserEntity } from '../entity/user_entity';
 import { SocialRelation } from './_social_relation';
 
@@ -68,7 +69,12 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
   }
 
   public async load(): Promise<void> {
-    this.base = await this.repository.findByCompositeId(this._id, this._entityId);
+    const userRelation = await NoteEntity.getPermission(this._id, this._entityId)
+    if (!userRelation) {
+      return;
+    }
+
+    this.base = userRelation;
     await this.relatedEntity.load();
   }
 
