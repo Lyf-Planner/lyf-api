@@ -15,15 +15,12 @@ import { EntityService } from './_entity_service';
 export class NoteService extends EntityService<NoteDbObject> {
   protected logger = Logger.of(NoteService);
 
-  async getEntity(note_id: ID, user_id: ID, include: string | undefined) {
-    const userNote = new UserNoteRelation(user_id, note_id);
-    await userNote.load();
+  async getEntity(note_id: ID, include?: string) {
+    const note = new NoteEntity(note_id);
+    await note.fetchRelations(include);
+    await note.load();
 
-    if (include) {
-      await userNote.getRelatedEntity().fetchRelations(include);
-    }
-
-    return userNote;
+    return note;
   }
 
   async processCreation(note_input: NoteDbObject, from: ID, parent_id?: ID) {

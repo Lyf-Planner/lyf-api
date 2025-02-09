@@ -92,8 +92,8 @@ export class NoteHandlers {
 
     try {
       const service = new NoteService();
-      const note = await service.getEntity(id, user_id, include);
-      res.status(200).json(await note.export(user_id)).end();
+      const note = await service.getEntity(id, include);
+      res.status(200).json(await note.exportWithPermission(user_id)).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);
