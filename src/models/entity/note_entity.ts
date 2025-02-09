@@ -124,7 +124,6 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
   async fetchRelations(include?: string | undefined): Promise<void> {
     const toLoad = include ? this.parseInclusions(include) : ['items', 'notes', 'users'];
-    console.log({ toLoad });
 
     // always load items for list notes
     if (toLoad.includes('items') || this.base?.type === NoteType.ListOnly) {

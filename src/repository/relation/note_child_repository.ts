@@ -14,12 +14,22 @@ export class NoteChildRepository extends RelationRepository<NoteChildDbObject> {
     super(TABLE_NAME);
   }
 
+  async findFolderDescendants(parent_id: ID): Promise<(NoteDbObject & NoteChildDbObject)[]> {
+    return await this.db
+      .selectFrom(TABLE_NAME)
+      .innerJoin('notes', 'notes.id', 'child_id')
+      .selectAll()
+      .where((eb) => eb('parent_id', '=', parent_id))
+      .execute();
+  }
+
   async findFolderChildren(parent_id: ID): Promise<(NoteDbObject & NoteChildDbObject)[]> {
     return await this.db
       .selectFrom(TABLE_NAME)
       .innerJoin('notes', 'notes.id', 'child_id')
       .selectAll()
       .where((eb) => eb('parent_id', '=', parent_id))
+      .where((eb) => eb('distance', '=', 1))
       .execute();
   }
 
