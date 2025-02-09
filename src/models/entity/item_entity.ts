@@ -21,7 +21,7 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
   protected repository = new ItemRepository();
 
   protected relations: Partial<ItemModelRelations> = {};
-  protected template?: ItemEntity; // TODO: Proper item-to-item relation
+  protected template?: ItemEntity;
 
   static filter(object: any): ItemDbObject {
     const objectFilter: Required<ItemDbObject> = {

@@ -4,24 +4,20 @@ import { NoteDbObject, NoteType } from '../../../schema/database/notes';
 import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
 import { UserRelatedNote } from '../../../schema/user';
 import { NoteEntity } from '../../models/entity/note_entity';
+import { NoteChildRelation } from '../../models/relation/note_child';
 import { NoteUserRelation } from '../../models/relation/note_related_user';
 import { UserNoteRelation } from '../../models/relation/user_related_note';
+import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { EntityService } from './_entity_service';
-import { UserService } from './user_service';
 
 export class NoteService extends EntityService<NoteDbObject> {
   protected logger = Logger.of(NoteService);
 
-  async getEntity(note_id: ID, user_id: ID, include?: string) {
+  async getEntity(note_id: ID, user_id: ID, include: string | undefined) {
     const userNote = new UserNoteRelation(user_id, note_id);
     await userNote.load();
-
-    // for list notes, always include the related items
-    if (userNote.getRelatedEntity().type() === NoteType.ListOnly) {
-      include = include ? include + ",items" : "items";
-    }
 
     if (include) {
       await userNote.getRelatedEntity().fetchRelations(include);
@@ -30,13 +26,19 @@ export class NoteService extends EntityService<NoteDbObject> {
     return userNote;
   }
 
-  async processCreation(note_input: NoteDbObject, from: ID) {
+  async processCreation(note_input: NoteDbObject, from: ID, parent_id?: ID) {
     const note = new NoteEntity(note_input.id);
     await note.create(note_input, NoteEntity.filter);
 
     const relationship = new NoteUserRelation(note_input.id, from);
     const relationshipObject = this.defaultNoteOwner(note.id(), from);
     await relationship.create(relationshipObject, NoteUserRelation.filter);
+
+    if (parent_id) {
+      const parentRelationship = new NoteChildRelation(parent_id, note_input.id);
+      const parentRelationshipObject = { ...note_input, child_id: note_input.id, parent_id, distance: 1 };
+      await parentRelationship.create(parentRelationshipObject);
+    }
 
     await note.fetchRelations();
     await note.load();
@@ -48,10 +50,9 @@ export class NoteService extends EntityService<NoteDbObject> {
     await note.fetchRelations();
     await note.load();
 
-    const noteUsers = note.getRelations().users as NoteUserRelation[];
-    const noteDeleter = noteUsers.find((x) => x.entityId() === from_id);
+    const notePermission = await note.getPermission(from_id)
 
-    if (noteDeleter && noteDeleter.permission() === Permission.Owner) {
+    if (notePermission && notePermission.permission === Permission.Owner) {
       await note.delete();
     } else {
       throw new LyfError('Notes can only be deleted by their owner', 403);
@@ -76,14 +77,13 @@ export class NoteService extends EntityService<NoteDbObject> {
   }
 
   async getUserNotes(user_id: ID) {
-    // Validate the requestor has permission - must be themselves or a Best Friend
-    const user = await new UserService().getEntity(user_id, "notes");
-    const userRelatedNotes = user.getRelations().notes || [];
-    const exportedNotes = [];
+    const noteUserRepository = new NoteUserRepository();
+    const rootNotes = await noteUserRepository.findRootNotes(user_id)
+    const exportedNotes: UserRelatedNote[] = [];
 
-    for (const note of userRelatedNotes) {
-      // TODO: Rework the synchronous command types to not return promises
-      exportedNotes.push(await note.export())
+    for (const rootNoteRelation of rootNotes) {
+      const userNoteRelation = new UserNoteRelation(user_id, rootNoteRelation.note_id_fk, rootNoteRelation)
+      exportedNotes.push(await userNoteRelation.export())
     }
 
     return exportedNotes;
