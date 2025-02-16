@@ -42,23 +42,39 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
     return ObjectUtils.stripUndefinedFields(objectFilter);
   }
-
-  // Override Item deletion because they are referenced directly instead of via a relation
-  // We need to call delete on those items so they delete their relations first!
-  //
-  // Override Note deletion because we only fetch the relations that are our children,
-  // Instead of relations with our parents as well - hence need to delete all relations properly.
+    
+  // note we don't recurse relations here, and do each manually
   async delete(softDelete = false) {
     for (const item of this.relations.items || []) {
       await item.fetchRelations();
       await item.delete();
     }
 
-    const noteChildRepository = new NoteChildRepository();
-    noteChildRepository.deleteAllRelations(this._id);
+    // Delete user relations, but not users
+    const noteUserRepository = new NoteUserRepository();
+    const relatedUserDeletion = noteUserRepository.deleteAllNoteRelations(this._id);
 
-    await this.recurseRelations(CommandType.Delete, ['items', 'notes']);
+    if (!this.relations.notes) {
+      await this.fetchRelations('notes');
+    }
+    
+    // Delete child notes recursively
+    const relatedNoteDeletion = new Promise(async (resolve) => {
+      for (const relatedNote of this.relations.notes!) {
+        // only delete children, as to not be cyclic / infinitely recursive
+        if (relatedNote.parent_id() === this._id) {
+          await relatedNote.getRelatedEntity().delete();
+        }
+      }
 
+      // delete any remaining relations with parents
+      const noteChildRepository = new NoteChildRepository();
+      await noteChildRepository.deleteAllRelations(this._id);
+      resolve(true);
+    });
+
+    await Promise.all([relatedUserDeletion, relatedNoteDeletion])
+  
     if (!softDelete) {
       await this.repository.delete(this._id);
     }
@@ -83,7 +99,6 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
     const noteRelatedUser = relatedUsers.find((user) => user.entityId() === requestor);
     if (noteRelatedUser) {
-      console.debug('using direct permission');
       const notePermission = noteRelatedUser.extractRelation();
       return notePermission;
     }
@@ -104,7 +119,6 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     const exportedNote = await this.export(requestor, true) as Note;
 
     if (provided_permission) {
-      console.debug('using provided permission');
       return {
         ...exportedNote,
         ...provided_permission

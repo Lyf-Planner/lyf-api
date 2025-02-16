@@ -22,6 +22,13 @@ export class NoteUserRepository extends RelationRepository<NoteUserRelationshipD
       .execute();
   }
 
+  public async deleteAllNoteRelations(note_id: ID) {
+    await this.db
+    .deleteFrom(this.table_name)
+    .where('note_id_fk', '=', note_id)
+    .execute();
+  }
+
   async findNoteRelatedUsers(
     note_id: string
   ): Promise<(UserDbObject & NoteUserRelationshipDbObject)[]> {

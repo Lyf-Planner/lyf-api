@@ -115,4 +115,11 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
   // currently a no-op; these should only ever be created or deleted
   async save(): Promise<void> {}
 
+  parent_id() {
+    return this.base!.parent_id;
+  }
+
+  child_id() {
+    return this.base!.child_id
+  }
 }
