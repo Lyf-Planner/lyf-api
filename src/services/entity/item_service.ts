@@ -36,7 +36,6 @@ export class ItemService extends EntityService<ItemDbObject> {
     const exportedTimetable = [];
 
     for (const item of timetableItems) {
-      // TODO: Rework the synchronous command types to not return promises
       exportedTimetable.push(await item.export())
     }
 

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { Identifiable } from '../../../schema/database/abstract';
+import { ID, Identifiable } from '../../../schema/database/abstract';
 import { NoteDbObject } from '../../../schema/database/notes';
 import { NoteService } from '../../services/entity/note_service';
 import { Logger } from '../../utils/logging';
@@ -12,16 +12,16 @@ import { SocialNoteService } from '../../services/relation/social_note_service';
 
 export class NoteHandlers {
   protected async createNote(req: Request, res: Response) {
-    const noteInput = req.body as NoteDbObject;
+    const noteInput = req.body as NoteDbObject & { parent_id?: ID };
     const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Creating note ${noteInput.title} from user ${user_id}`);
 
     try {
-      const service = new NoteService();
-      const note = await service.processCreation(noteInput, user_id);
+      const note = await new NoteService().processCreation(noteInput, user_id, noteInput.parent_id);
 
-      res.status(201).json(await note.export()).end();
+      const result = await note.exportWithPermission(user_id);
+      res.status(201).json(result).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);
@@ -39,7 +39,7 @@ export class NoteHandlers {
       const service = new NoteService();
       const note = await service.processUpdate(noteChanges.id, noteChanges, user_id);
 
-      res.status(200).json(await note.export()).end();
+      res.status(200).json(await note.exportWithPermission(user_id)).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);
@@ -92,8 +92,8 @@ export class NoteHandlers {
 
     try {
       const service = new NoteService();
-      const note = await service.getEntity(id, user_id, include);
-      res.status(200).json(await note.export(user_id)).end();
+      const note = await service.getEntity(id, include);
+      res.status(200).json(await note.exportWithPermission(user_id)).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);

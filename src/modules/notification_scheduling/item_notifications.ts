@@ -226,7 +226,7 @@ export class SocialItemNotifications {
     category: DebounceSignatures
   ) {
     debouncer.run(
-      async () => await func(),
+      func,
       {
         item_id,
         user_id,
