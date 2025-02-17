@@ -49,7 +49,7 @@ export class NoteService extends EntityService<NoteDbObject> {
 
     const notePermission = await note.getPermission(from_id)
 
-    // TODO LYF-356: Make it so Editors can delete notes in folders, but not folders themselves
+    // TODO LYF-371: Make it so Editors can delete notes in folders, but not folders themselves
     if (notePermission && (
       notePermission.permission === Permission.Owner || 
       notePermission.permission === Permission.Editor
