@@ -7,6 +7,7 @@ import { NoteEntity } from '../../models/entity/note_entity';
 import { NoteChildRelation } from '../../models/relation/note_child';
 import { NoteUserRelation } from '../../models/relation/note_related_user';
 import { UserNoteRelation } from '../../models/relation/user_related_note';
+import { NoteChildRepository } from '../../repository/relation/note_child_repository';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
@@ -17,10 +18,46 @@ export class NoteService extends EntityService<NoteDbObject> {
 
   async getEntity(note_id: ID, include?: string) {
     const note = new NoteEntity(note_id);
-    await note.fetchRelations(include);
     await note.load();
+    await note.fetchRelations(include);
 
     return note;
+  }
+
+  async moveNote(note_id: ID, parent_id: ID, requestor: ID) {
+    const note = await this.getEntity(note_id, 'users');
+    note.exportWithPermission(requestor) // this asserts we have permission
+
+    // there's a lot of room for optimisation here
+    // at the moment, we start by deleting all relations
+    const noteChildRepository = new NoteChildRepository();
+    await noteChildRepository.deleteAllRelations(note_id)
+
+    // then create a relation with the new parent, and all of it's parents
+    const parentDbRelations = await noteChildRepository.findAncestors(parent_id)
+
+    const parentRelation = new NoteChildRelation(parent_id, note_id)
+    await parentRelation.create({
+      created: new Date(),
+      last_updated: new Date(),
+      child_id: note_id,
+      parent_id,
+      distance: 1
+    })
+    
+    await Promise.all(
+      parentDbRelations.map((parentDbRelation) => {
+        const ancestorRelation = new NoteChildRelation(parentDbRelation.parent_id, note_id)
+
+        return ancestorRelation.create({
+          created: new Date(),
+          last_updated: new Date(),
+          child_id: note_id,
+          parent_id: parentDbRelation.parent_id,
+          distance: parentDbRelation.distance + 1
+        })
+      })
+    )
   }
 
   async processCreation(note_input: NoteDbObject, from: ID, parent_id?: ID) {

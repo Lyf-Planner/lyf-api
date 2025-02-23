@@ -29,43 +29,6 @@ export class NoteHandlers {
     }
   }
 
-  protected async updateNote(req: Request, res: Response) {
-    const noteChanges = req.body as Partial<UserRelatedNote> & Identifiable;
-    const user_id = getMiddlewareVars(res).user_id;
-
-    logger.debug(`Updating note ${noteChanges.id} from user ${user_id}`);
-
-    try {
-      const service = new NoteService();
-      const note = await service.processUpdate(noteChanges.id, noteChanges, user_id);
-
-      res.status(200).json(await note.exportWithPermission(user_id)).end();
-    } catch (error) {
-      const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
-      res.status((lyfError.code || 500)).end(lyfError.message);
-    }
-  }
-
-  async updateNoteSocial(req: Request, res: Response) {
-    const update = req.body as SocialUpdate;
-    const fromId = getMiddlewareVars(res).user_id;
-
-    const socialNoteService = new SocialNoteService();
-
-    try {
-      const resultingRelation = await socialNoteService.processUpdate(fromId, update);
-      res.status(200).json(
-        resultingRelation ? await resultingRelation.export() : null
-      )
-      .end();
-    } catch (error) {
-      const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
-      res.status((lyfError.code || 500)).end(lyfError.message);
-    }
-  }
-
   protected async deleteNote(req: Request, res: Response) {
     const { note_id } = req.query as { note_id: string };
     const user_id = getMiddlewareVars(res).user_id;
@@ -112,6 +75,61 @@ export class NoteHandlers {
       const notes = await service.getUserNotes(user_id);
 
       res.status(200).json(notes).end();
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
+    }
+  }
+
+  protected async moveNote(req: Request, res: Response) {
+    const { note_id, new_parent_id } = req.body as { note_id: ID, new_parent_id: ID};
+    const user_id = getMiddlewareVars(res).user_id;
+
+    logger.debug(`Updating note ${note_id} from user ${user_id}`);
+
+    try {
+      const service = new NoteService();
+      await service.moveNote(note_id, new_parent_id, user_id);
+
+      res.status(200).end();
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
+    }
+  }
+
+  protected async updateNote(req: Request, res: Response) {
+    const noteChanges = req.body as Partial<UserRelatedNote> & Identifiable;
+    const user_id = getMiddlewareVars(res).user_id;
+
+    logger.debug(`Updating note ${noteChanges.id} from user ${user_id}`);
+
+    try {
+      const service = new NoteService();
+      const note = await service.processUpdate(noteChanges.id, noteChanges, user_id);
+
+      res.status(200).json(await note.exportWithPermission(user_id)).end();
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
+    }
+  }
+
+  async updateNoteSocial(req: Request, res: Response) {
+    const update = req.body as SocialUpdate;
+    const fromId = getMiddlewareVars(res).user_id;
+
+    const socialNoteService = new SocialNoteService();
+
+    try {
+      const resultingRelation = await socialNoteService.processUpdate(fromId, update);
+      res.status(200).json(
+        resultingRelation ? await resultingRelation.export() : null
+      )
+      .end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);

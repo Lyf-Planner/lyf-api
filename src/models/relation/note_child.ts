@@ -75,6 +75,12 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
     await this.repository.deleteRelation(this._entityId, this._id);
   }
 
+  async extractBase(): Promise<NoteChildDbObject> {
+    return {
+      ...this.base as NoteChildDbObject
+    };
+  }
+
   async extract(): Promise<NoteChildDbObject & NoteDbObject> {
     return {
       ...await this.relatedEntity.extract(false) as NoteDbObject,

@@ -18,8 +18,8 @@ export class UserService extends EntityService<UserDbObject> {
 
   async getEntity(user_id: string, include?: string) {
     const user = new UserEntity(user_id);
-    await user.fetchRelations(include);
     await user.load();
+    await user.fetchRelations(include);
 
     return user;
   }

@@ -21,8 +21,8 @@ export class ItemService extends EntityService<ItemDbObject> {
 
   async getEntity(item_id: ID, include?: string) {
     const item = new ItemEntity(item_id);
-    await item.fetchRelations(include);
     await item.load();
+    await item.fetchRelations(include);
 
     return item;
   }
