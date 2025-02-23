@@ -18,8 +18,8 @@ export class NoteService extends EntityService<NoteDbObject> {
 
   async getEntity(note_id: ID, include?: string) {
     const note = new NoteEntity(note_id);
-    await note.fetchRelations(include);
     await note.load();
+    await note.fetchRelations(include);
 
     return note;
   }
