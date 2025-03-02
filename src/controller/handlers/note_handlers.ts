@@ -100,6 +100,27 @@ export class NoteHandlers {
     }
   }
 
+  protected async sortNotes(req: Request, res: Response) {
+    const { parent_id, preferences } = req.body as {
+      parent_id: ID, 
+      preferences: ID[]
+    };
+    const user_id = getMiddlewareVars(res).user_id;
+
+    logger.debug(`Sorting children of note ${parent_id} from user ${user_id}`);
+
+    try {
+      const service = new NoteService();
+      const parentNote = await service.sortChildren(parent_id, preferences, user_id);
+
+      res.status(200).json(parentNote).end();
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
+    }
+  }
+
   protected async updateNote(req: Request, res: Response) {
     const noteChanges = req.body as Partial<UserRelatedNote> & Identifiable;
     const user_id = getMiddlewareVars(res).user_id;

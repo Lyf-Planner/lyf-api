@@ -37,7 +37,8 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
       title: object.title,
       type: object.type,
       content: object.content,
-      collaborative: object.collaborative
+      collaborative: object.collaborative,
+      default_sorting_rank: object.default_sorting_rank
     };
 
     return ObjectUtils.stripUndefinedFields(objectFilter);
@@ -153,7 +154,7 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
     // always load notes for folders
     if (toLoad.includes('notes') || this.base?.type === NoteType.Folder) {
-      await this.attachNotes();
+      await this.attachChildNotes();
     }
 
     if (toLoad.includes('users')) {
@@ -173,7 +174,7 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     this.relations.items = itemRelations;
   }
 
-  async attachNotes() {
+  async attachChildNotes() {
     const noteChildrenRepo = new NoteChildRepository();
     const noteChildrenObjects = await noteChildrenRepo.findFolderChildren(this._id);
     const noteChildren: NoteChildRelation[] = [];

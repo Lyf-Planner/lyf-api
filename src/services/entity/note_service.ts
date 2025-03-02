@@ -28,36 +28,38 @@ export class NoteService extends EntityService<NoteDbObject> {
     const note = await this.getEntity(note_id, 'users');
     note.exportWithPermission(requestor) // this asserts we have permission
 
-    // there's a lot of room for optimisation here
-    // at the moment, we start by deleting all relations
-    const noteChildRepository = new NoteChildRepository();
-    await noteChildRepository.deleteAllRelations(note_id)
+    // this is so bad, let's just redo it
 
-    // then create a relation with the new parent, and all of it's parents
-    const parentDbRelations = await noteChildRepository.findAncestors(parent_id)
+    // // there's a lot of room for optimisation here
+    // // at the moment, we start by deleting all relations
+    // const noteChildRepository = new NoteChildRepository();
+    // await noteChildRepository.deleteAllRelations(note_id)
 
-    const parentRelation = new NoteChildRelation(parent_id, note_id)
-    await parentRelation.create({
-      created: new Date(),
-      last_updated: new Date(),
-      child_id: note_id,
-      parent_id,
-      distance: 1
-    })
+    // // then create a relation with the new parent, and all of it's parents
+    // const parentDbRelations = await noteChildRepository.findAncestors(parent_id)
+
+    // const parentRelation = new NoteChildRelation(parent_id, note_id)
+    // await parentRelation.create({
+    //   created: new Date(),
+    //   last_updated: new Date(),
+    //   child_id: note_id,
+    //   parent_id,
+    //   distance: 1
+    // })
     
-    await Promise.all(
-      parentDbRelations.map((parentDbRelation) => {
-        const ancestorRelation = new NoteChildRelation(parentDbRelation.parent_id, note_id)
+    // await Promise.all(
+    //   parentDbRelations.map((parentDbRelation) => {
+    //     const ancestorRelation = new NoteChildRelation(parentDbRelation.parent_id, note_id)
 
-        return ancestorRelation.create({
-          created: new Date(),
-          last_updated: new Date(),
-          child_id: note_id,
-          parent_id: parentDbRelation.parent_id,
-          distance: parentDbRelation.distance + 1
-        })
-      })
-    )
+    //     return ancestorRelation.create({
+    //       created: new Date(),
+    //       last_updated: new Date(),
+    //       child_id: note_id,
+    //       parent_id: parentDbRelation.parent_id,
+    //       distance: parentDbRelation.distance + 1
+    //     })
+    //   })
+    // )
   }
 
   async processCreation(note_input: NoteDbObject, from: ID, parent_id?: ID) {
@@ -70,7 +72,13 @@ export class NoteService extends EntityService<NoteDbObject> {
 
     if (parent_id) {
       const parentRelationship = new NoteChildRelation(parent_id, note_input.id);
-      const parentRelationshipObject = { ...note_input, child_id: note_input.id, parent_id, distance: 1 };
+      const parentRelationshipObject = {
+        ...note_input,
+        child_id: note_input.id,
+        parent_id,
+        sorting_rank: note_input.default_sorting_rank,
+        distance: 1
+      };
       await parentRelationship.create(parentRelationshipObject);
     }
 
@@ -112,6 +120,33 @@ export class NoteService extends EntityService<NoteDbObject> {
 
     await note.save();
     return note;
+  }
+
+  async sortChildren(parent_id: ID, preferences: ID[], requestor: ID) {
+    const parentNote = new NoteEntity(parent_id);
+    await parentNote.load();
+    await parentNote.fetchRelations();
+
+    if (!await parentNote.getPermission(requestor)) {
+      throw new LyfError('unauthorised', 401);
+    }
+   
+    if (!parentNote.getRelations().notes) {
+      throw new LyfError('unable to load children of note ' + parent_id, 500);
+    }
+
+    const childNotes = parentNote.getRelations().notes || [];
+
+    for (const childNote of childNotes) {
+      const newRank = preferences.indexOf(childNote.id())
+
+      if (newRank !== -1) {
+        await childNote.update({ sorting_rank: newRank })
+        await childNote.save();
+      }
+    }
+
+    return parentNote.exportWithPermission(requestor)
   }
 
   async getUserNotes(user_id: ID) {

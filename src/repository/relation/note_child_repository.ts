@@ -57,4 +57,20 @@ export class NoteChildRepository extends RelationRepository<NoteChildDbObject> {
       )
       .execute();
   }
+
+  async updateRelation(
+    child_id: ID,
+    parent_id: ID,
+    changes: Partial<NoteChildDbObject>
+  ) {
+    return await this.db
+      .updateTable(TABLE_NAME)
+      .where((eb) => eb.and([
+        eb('child_id', '=', child_id),
+        eb('parent_id', '=', parent_id)
+      ]))
+      .set(changes)
+      .returningAll()
+      .execute();
+  }
 }
