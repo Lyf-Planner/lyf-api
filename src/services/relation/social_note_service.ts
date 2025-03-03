@@ -22,7 +22,8 @@ export class SocialNoteService extends SocialService<NoteUserRelation> {
       note_id_fk: id,
       user_id_fk: user_id,
       invite_pending: invited,
-      permission
+      permission,
+      sorting_rank_preference: -1, // trick to make this appear at the top of the users root notes :)
     };
 
     await relation.create(dbObject, NoteUserRelation.filter);

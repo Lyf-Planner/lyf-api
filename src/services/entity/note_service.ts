@@ -1,13 +1,12 @@
 import { ID } from '../../../schema/database/abstract';
 import { Permission } from '../../../schema/database/items_on_users';
-import { NoteDbObject, NoteType } from '../../../schema/database/notes';
+import { NoteDbObject } from '../../../schema/database/notes';
 import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
 import { UserRelatedNote } from '../../../schema/user';
 import { NoteEntity } from '../../models/entity/note_entity';
 import { NoteChildRelation } from '../../models/relation/note_child';
 import { NoteUserRelation } from '../../models/relation/note_related_user';
 import { UserNoteRelation } from '../../models/relation/user_related_note';
-import { NoteChildRepository } from '../../repository/relation/note_child_repository';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
@@ -62,12 +61,12 @@ export class NoteService extends EntityService<NoteDbObject> {
     // )
   }
 
-  async processCreation(note_input: NoteDbObject, from: ID, parent_id?: ID) {
+  async processCreation(note_input: NoteDbObject, from: ID, sorting_rank: number, parent_id?: ID) {
     const note = new NoteEntity(note_input.id);
     await note.create(note_input, NoteEntity.filter);
 
     const relationship = new NoteUserRelation(note_input.id, from);
-    const relationshipObject = this.defaultNoteOwner(note.id(), from);
+    const relationshipObject = this.defaultNoteOwner(note.id(), from, sorting_rank);
     await relationship.create(relationshipObject, NoteUserRelation.filter);
 
     if (parent_id) {
@@ -76,7 +75,7 @@ export class NoteService extends EntityService<NoteDbObject> {
         ...note_input,
         child_id: note_input.id,
         parent_id,
-        sorting_rank: note_input.default_sorting_rank,
+        sorting_rank: sorting_rank,
         distance: 1
       };
       await parentRelationship.create(parentRelationshipObject);
@@ -106,20 +105,24 @@ export class NoteService extends EntityService<NoteDbObject> {
   }
 
   async processUpdate(id: ID, changes: Partial<UserRelatedNote>, from: ID) {
-    const note = new NoteEntity(id);
 
-    await note.fetchRelations();
-    await note.load();
-    await note.update(changes);
+    this.logger.info(`Processing changeset ${JSON.stringify(changes)} on item ${id}`);
+
+    const noteRelation = new UserNoteRelation(from, id);
+    await noteRelation.load();
+    await noteRelation.getRelatedEntity().fetchRelations();
 
     // SAFETY CHECKS
     // 1. Cannot update as a Viewer or Invited
-    this.throwIfReadOnly(note, from);
+    this.throwIfReadOnly(noteRelation, from);
+
+    await noteRelation.update(changes);
 
     this.logger.debug(`User ${from} safely updated note ${id}`);
 
-    await note.save();
-    return note;
+    await noteRelation.save();
+    await noteRelation.getRelatedEntity().save();
+    return noteRelation;
   }
 
   async sortChildren(parent_id: ID, preferences: ID[], requestor: ID) {
@@ -139,7 +142,6 @@ export class NoteService extends EntityService<NoteDbObject> {
 
     for (const childNote of childNotes) {
       const newRank = preferences.indexOf(childNote.child_id())
-
       if (newRank !== -1) {
         await childNote.update({ sorting_rank: newRank })
         await childNote.save();
@@ -162,27 +164,22 @@ export class NoteService extends EntityService<NoteDbObject> {
     return exportedNotes;
   }
 
-  private defaultNoteOwner(note_id: ID, user_id: ID): NoteUserRelationshipDbObject {
+  private defaultNoteOwner(note_id: ID, user_id: ID, sorting_rank: number): NoteUserRelationshipDbObject {
     return {
       user_id_fk: user_id,
       note_id_fk: note_id,
       created: new Date(),
       last_updated: new Date(),
       invite_pending: false,
-      permission: Permission.Owner
+      permission: Permission.Owner,
+      sorting_rank_preference: sorting_rank
     };
   }
 
-  private async throwIfReadOnly(note: NoteEntity, user_id: ID) {
-    const noteUsers = note.getRelations().users as NoteUserRelation[];
+  private async throwIfReadOnly(note: UserNoteRelation, user_id: ID) {
+    const relation = await note.getRelatedEntity().getPermission(user_id);
 
-    const permitted = noteUsers.some((x) =>
-      x.entityId() === user_id &&
-      x.permission() !== Permission.ReadOnly &&
-      !x.invited()
-    );
-
-    if (!permitted) {
+    if (!relation || relation.permission === Permission.ReadOnly) {
       throw new LyfError(`User ${user_id} does not have permission to edit item ${note.id()}`, 403);
     }
   }

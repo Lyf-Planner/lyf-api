@@ -27,7 +27,8 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
       created: object.created,
       last_updated: object.last_updated,
       invite_pending: object.invite_pending,
-      permission: object.permission
+      permission: object.permission,
+      sorting_rank_preference: object.sorting_rank_preference
     };
     
     return ObjectUtils.stripUndefinedFields(objectFilter);
@@ -60,6 +61,7 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
     const relationFields: NoteUserRelations = {
       invite_pending: this.base!.invite_pending,
       permission: this.base!.permission,
+      sorting_rank_preference: this.base!.sorting_rank_preference
     }
 
     return {

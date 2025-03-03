@@ -12,13 +12,13 @@ import { SocialNoteService } from '../../services/relation/social_note_service';
 
 export class NoteHandlers {
   protected async createNote(req: Request, res: Response) {
-    const noteInput = req.body as NoteDbObject & { parent_id?: ID };
+    const noteInput = req.body as NoteDbObject & { sorting_rank_preference: number, parent_id?: ID };
     const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Creating note ${noteInput.title} from user ${user_id}`);
 
     try {
-      const note = await new NoteService().processCreation(noteInput, user_id, noteInput.parent_id);
+      const note = await new NoteService().processCreation(noteInput, user_id, noteInput.sorting_rank_preference, noteInput.parent_id);
 
       const result = await note.exportWithPermission(user_id);
       res.status(201).json(result).end();
@@ -131,8 +131,8 @@ export class NoteHandlers {
     try {
       const service = new NoteService();
       const note = await service.processUpdate(noteChanges.id, noteChanges, user_id);
-      const payload = await note.exportWithPermission(user_id)
-      res.status(200).json().end();
+      const payload = await note.export(user_id)
+      res.status(200).json(payload).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);

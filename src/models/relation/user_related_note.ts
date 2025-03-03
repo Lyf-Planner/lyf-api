@@ -25,7 +25,8 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
       created: object.created,
       last_updated: object.last_updated,
       invite_pending: object.invite_pending,
-      permission: object.permission
+      permission: object.permission,
+      sorting_rank_preference: object.sorting_rank_preference
     };
 
     return ObjectUtils.stripUndefinedFields(objectFilter);
@@ -57,7 +58,8 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
   public async export(requestor?: string | undefined): Promise<UserRelatedNote> {
     const relationFields: NoteUserRelations = {
       invite_pending: this.base!.invite_pending,
-      permission: this.base!.permission
+      permission: this.base!.permission,
+      sorting_rank_preference: this.base!.sorting_rank_preference
     }
 
     return await this.relatedEntity.exportWithPermission(this._id, relationFields);
@@ -69,7 +71,10 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
   }
 
   public async update(changes: Partial<UserRelatedNote>): Promise<void> {
-    const relationFieldUpdates = UserNoteRelation.filter(changes);
+    const relationFieldUpdates = {
+      // only this field is allowed, the others are social fields and should be handled on those endpoints
+      sorting_rank_preference: changes.sorting_rank_preference || this.base!.sorting_rank_preference
+    };
     const entityUpdates = NoteEntity.filter(changes);
 
     this.changes = relationFieldUpdates;
