@@ -109,7 +109,7 @@ export class ItemHandlers {
     try {
       const service = new ItemService();
       const item = await service.getEntity(id, include);
-      const result = await item.export(user_id);
+      const result = await item.exportWithPermission(user_id);
 
       res.status(200).json(result).end();
     } catch (error) {

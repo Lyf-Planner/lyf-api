@@ -56,7 +56,8 @@ export class NoteHandlers {
     try {
       const service = new NoteService();
       const note = await service.getEntity(id, include);
-      res.status(200).json(await note.exportWithPermission(user_id)).end();
+      const payload = await note.exportWithPermission(user_id)
+      res.status(200).json(payload).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);
@@ -130,8 +131,8 @@ export class NoteHandlers {
     try {
       const service = new NoteService();
       const note = await service.processUpdate(noteChanges.id, noteChanges, user_id);
-
-      res.status(200).json(await note.exportWithPermission(user_id)).end();
+      const payload = await note.exportWithPermission(user_id)
+      res.status(200).json().end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);

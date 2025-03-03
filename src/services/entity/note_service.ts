@@ -138,7 +138,7 @@ export class NoteService extends EntityService<NoteDbObject> {
     const childNotes = parentNote.getRelations().notes || [];
 
     for (const childNote of childNotes) {
-      const newRank = preferences.indexOf(childNote.id())
+      const newRank = preferences.indexOf(childNote.child_id())
 
       if (newRank !== -1) {
         await childNote.update({ sorting_rank: newRank })

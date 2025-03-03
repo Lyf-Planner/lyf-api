@@ -13,7 +13,6 @@ import { ObjectUtils } from '../../utils/object';
 import { CommandType } from '../command_types';
 import { NoteChildRelation } from '../relation/note_child';
 import { NoteUserRelation } from '../relation/note_related_user';
-import { UserNoteRelation } from '../relation/user_related_note';
 import { SocialEntity } from './_social_entity';
 import { ItemEntity } from './item_entity';
 
@@ -92,6 +91,10 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     // getting permissions to a note is a special case, because of it's file system
     // we check the user is either on the note, or has a permission on this notes' ancestor
 
+    if (!this.relations.users) {
+      await this.attachUsers();
+    }
+
     const relatedUsers = this.relations.users;
     if (!relatedUsers) {
       console.warn('exported user note without loading users!');
@@ -137,10 +140,10 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     }
   }
 
-  async export(requestor?: ID, with_relations: boolean = true): Promise<Note | NoteDbObject> {
+  async export(requestor: ID, with_relations: boolean = true): Promise<Note | NoteDbObject> {
     return {
       ...this.base!,
-      relations: await this.recurseRelations(CommandType.Export)
+      relations: with_relations ? await this.recurseRelations(CommandType.Export, [], requestor) : {}
     };
   }
 
@@ -188,14 +191,14 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
   async attachUsers() {
     const noteUsersRepo = new NoteUserRepository();
-      const relationObjects = await noteUsersRepo.findNoteRelatedUsers(this._id);
-      const userRelations: NoteUserRelation[] = [];
+    const relationObjects = await noteUsersRepo.findNoteRelatedUsers(this._id);
+    const userRelations: NoteUserRelation[] = [];
 
-      for (const relationObject of relationObjects) {
-        const userRelation = new NoteUserRelation(relationObject.note_id_fk, relationObject.user_id_fk, relationObject);
-        userRelations.push(userRelation);
-      }
-      this.relations.users = userRelations;
+    for (const relationObject of relationObjects) {
+      const userRelation = new NoteUserRelation(relationObject.note_id_fk, relationObject.user_id_fk, relationObject);
+      userRelations.push(userRelation);
+    }
+    this.relations.users = userRelations;
   }
 
   // --- HELPERS --- //

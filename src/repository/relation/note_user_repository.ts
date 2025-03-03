@@ -63,6 +63,9 @@ export class NoteUserRepository extends RelationRepository<NoteUserRelationshipD
       .execute();
   }
 
+  // root notes are notes where:
+  // - the user has a relation with the note
+  // - the user does not have a relation with any parents, if they exist
   async findRootNotes(
     user_id: string
   ): Promise<(NoteDbObject & NoteUserRelationshipDbObject)[]> {
@@ -82,7 +85,7 @@ export class NoteUserRepository extends RelationRepository<NoteUserRelationshipD
       .where('notes_on_users.user_id_fk', '=', user_id)
       // And where there is no parent with permission (the join is null).
       .where('nou.note_id_fk', 'is', null)
-      // Select only the note columns.
+      // Select only the relevant columns
       .selectAll('notes')
       .selectAll('notes_on_users')
       .execute();

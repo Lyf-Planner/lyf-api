@@ -48,7 +48,7 @@ export abstract class BaseModel<T extends DbObject> {
       case CommandType.Delete:
         return await model.delete();
       case CommandType.Export:
-        return await model.export();
+        return await model.export(payload);
       case CommandType.Extract:
         return await model.extract();
       case CommandType.Load:

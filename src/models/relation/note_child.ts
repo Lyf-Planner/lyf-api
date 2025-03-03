@@ -93,14 +93,16 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
     return await this.relatedEntity.exportWithPermission(requestor);
   }
 
-  async export(requestor: string | undefined): Promise<ChildNote> {
+  async export(requestor: string): Promise<ChildNote> {
     const relationFields = {
       parent_id: this.base!.parent_id,
       sorting_rank: this.base!.sorting_rank
     }
 
+    // we don't exportWithPermission here, because a NoteChild will always be loaded from a NoteEntity
+    // in turn the NoteEntity will always be the one checking permission, such that permission to the child is implied
     return {
-      ...await this.relatedEntity.exportWithPermission(requestor || '') as UserRelatedNote,
+      ...await this.relatedEntity.export(requestor, false) as NoteDbObject,
       ...relationFields
     };
   }
