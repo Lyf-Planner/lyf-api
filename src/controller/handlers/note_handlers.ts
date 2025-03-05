@@ -84,7 +84,7 @@ export class NoteHandlers {
   }
 
   protected async moveNote(req: Request, res: Response) {
-    const { note_id, new_parent_id } = req.body as { note_id: ID, new_parent_id: ID};
+    const { note_id, new_parent_id } = req.body as { note_id: ID, new_parent_id: ID | 'root' };
     const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Updating note ${note_id} from user ${user_id}`);

@@ -7,6 +7,7 @@ import { NoteEntity } from '../../models/entity/note_entity';
 import { NoteChildRelation } from '../../models/relation/note_child';
 import { NoteUserRelation } from '../../models/relation/note_related_user';
 import { UserNoteRelation } from '../../models/relation/user_related_note';
+import { NoteChildRepository } from '../../repository/relation/note_child_repository';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
@@ -23,42 +24,62 @@ export class NoteService extends EntityService<NoteDbObject> {
     return note;
   }
 
-  async moveNote(note_id: ID, parent_id: ID, requestor: ID) {
+  async moveNote(note_id: ID, parent_id: ID | 'root', requestor: ID) {
     const note = await this.getEntity(note_id, 'users');
-    note.exportWithPermission(requestor) // this asserts we have permission
+    const permission = await note.getPermission(requestor);
 
-    // this is so bad, let's just redo it
+    if (!permission) {
+      throw new LyfError('Unauthorised', 403);
+    }
 
-    // // there's a lot of room for optimisation here
-    // // at the moment, we start by deleting all relations
-    // const noteChildRepository = new NoteChildRepository();
-    // await noteChildRepository.deleteAllRelations(note_id)
+    // start by deleting all parents that i have access to
+    // this avoids the pitfall where i move the note, and it disappears for other users who have it in their private folder
+    const noteChildRepository = new NoteChildRepository();
+    await noteChildRepository.deleteParentsUserCanAccess(note_id, requestor);
 
-    // // then create a relation with the new parent, and all of it's parents
-    // const parentDbRelations = await noteChildRepository.findAncestors(parent_id)
+    // i also need to delete the relationship this notes children may have with any parents i have access
 
-    // const parentRelation = new NoteChildRelation(parent_id, note_id)
-    // await parentRelation.create({
-    //   created: new Date(),
-    //   last_updated: new Date(),
-    //   child_id: note_id,
-    //   parent_id,
-    //   distance: 1
-    // })
-    
-    // await Promise.all(
-    //   parentDbRelations.map((parentDbRelation) => {
-    //     const ancestorRelation = new NoteChildRelation(parentDbRelation.parent_id, note_id)
+    if (parent_id === 'root') {
+      // check the definition of a root note;
+      // all we need to do here is ensure we have a direct relation, since parents are deleted
+      const directlyRelatedUsers = await NoteUserRelation.getDirectlyRelatedUsers(note_id);
+      const hasDirectRelation = directlyRelatedUsers.map((user) => user.id).includes(requestor);
 
-    //     return ancestorRelation.create({
-    //       created: new Date(),
-    //       last_updated: new Date(),
-    //       child_id: note_id,
-    //       parent_id: parentDbRelation.parent_id,
-    //       distance: parentDbRelation.distance + 1
-    //     })
-    //   })
-    // )
+      if (!hasDirectRelation) {
+        const relationship = new NoteUserRelation(note_id, requestor);
+        const relationshipObject = this.defaultNoteOwner(note.id(), requestor, -1);
+        await relationship.create(relationshipObject, NoteUserRelation.filter);
+      }
+    } else {
+      // create a relation with the new parent, and all of it's parents
+      const parentDbRelations = await noteChildRepository.findAncestors(parent_id)
+
+      const parentRelation = new NoteChildRelation(parent_id, note_id)
+      await parentRelation.create({
+        created: new Date(),
+        last_updated: new Date(),
+        child_id: note_id,
+        parent_id,
+        distance: 1,
+        sorting_rank: 0
+      })
+      
+      await Promise.all(
+        parentDbRelations.map((parentDbRelation) => {
+          const ancestorRelation = new NoteChildRelation(parentDbRelation.parent_id, note_id)
+
+          return ancestorRelation.create({
+            created: new Date(),
+            last_updated: new Date(),
+            child_id: note_id,
+            parent_id: parentDbRelation.parent_id,
+            distance: parentDbRelation.distance + 1,
+            sorting_rank: 0
+          })
+        })
+      )
+    }
+   
   }
 
   async processCreation(note_input: NoteDbObject, from: ID, sorting_rank: number, parent_id?: ID) {

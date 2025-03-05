@@ -34,6 +34,11 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
     return ObjectUtils.stripUndefinedFields(objectFilter);
   }
 
+  static async getDirectlyRelatedUsers(note_id: ID) {
+    const repository = new NoteUserRepository();
+    return await repository.findDirectlyRelatedUsers(note_id);
+  }
+
   constructor(id: ID, entity_id: ID, object?: NoteUserRelationshipDbObject & UserDbObject) {
     super(id, entity_id);
 
