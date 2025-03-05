@@ -42,41 +42,17 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     return ObjectUtils.stripUndefinedFields(objectFilter);
   }
     
-  // note we don't recurse relations here, and do each manually
-  async delete(softDelete = false) {
-    for (const item of this.relations.items || []) {
-      await item.fetchRelations();
-      await item.delete();
-    }
-
+  // soft deletion is implied here
+  async delete() {
     // Delete user relations, but not users
     const noteUserRepository = new NoteUserRepository();
     const relatedUserDeletion = noteUserRepository.deleteAllNoteRelations(this._id);
 
-    if (!this.relations.notes) {
-      await this.fetchRelations('notes');
-    }
-    
-    // Delete child notes recursively
-    const relatedNoteDeletion = new Promise(async (resolve) => {
-      for (const relatedNote of this.relations.notes!) {
-        // only delete children, as to not be cyclic / infinitely recursive
-        if (relatedNote.parent_id() === this._id) {
-          await relatedNote.getRelatedEntity().delete();
-        }
-      }
-
-      // delete any remaining relations with parents
-      const noteChildRepository = new NoteChildRepository();
-      await noteChildRepository.deleteAllRelations(this._id);
-      resolve(true);
-    });
+    // delete any remaining relations with parents
+    const noteChildRepository = new NoteChildRepository();
+    const relatedNoteDeletion = noteChildRepository.deleteAllParents(this._id);
 
     await Promise.all([relatedUserDeletion, relatedNoteDeletion])
-  
-    if (!softDelete) {
-      await this.repository.delete(this._id);
-    }
   }
 
   static async getPermission(note_id: ID, requestor: ID) {
