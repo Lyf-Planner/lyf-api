@@ -44,9 +44,9 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     
   // soft deletion is implied here
   async delete() {
-    // Delete user relations, but not users
+    // Delete directly related user relations, but not users or inherited relations
     const noteUserRepository = new NoteUserRepository();
-    const relatedUserDeletion = noteUserRepository.deleteAllNoteRelations(this._id);
+    const relatedUserDeletion = noteUserRepository.deleteAllDirectRelations(this._id);
 
     // delete any remaining relations with parents
     const noteChildRepository = new NoteChildRepository();

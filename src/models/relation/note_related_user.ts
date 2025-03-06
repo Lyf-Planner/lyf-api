@@ -1,4 +1,3 @@
-import { DbRelationFields, DbRelationObject } from '../../../schema/database';
 import { ID } from '../../../schema/database/abstract';
 import {
   NoteUserRelations,
@@ -9,6 +8,7 @@ import { NoteRelatedUser } from '../../../schema/notes';
 import { PublicUser } from '../../../schema/user';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
+import { LyfError } from '../../utils/lyf_error';
 import { ObjectUtils } from '../../utils/object';
 import { NoteEntity } from '../entity/note_entity';
 import { UserEntity } from '../entity/user_entity';
@@ -52,6 +52,17 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
   }
 
   public async delete(): Promise<void> {
+    if (!this.base) {
+      throw new LyfError('note relation must be loaded before deleting', 500);
+    }
+
+    // when the permission is inherited, we should use the ids on the base data we get and delete the inherited permission.
+    if (this.base.note_id_fk !== this._id || this.base.user_id_fk !== this._entityId) {
+      this.logger.warn('deleting inherited relation');
+      await this.repository.deleteRelation(this.base.note_id_fk, this.base.user_id_fk);
+      return;
+    }
+
     await this.repository.deleteRelation(this._id, this._entityId);
   }
 

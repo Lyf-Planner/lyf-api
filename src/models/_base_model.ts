@@ -59,4 +59,8 @@ export abstract class BaseModel<T extends DbObject> {
         return await model.update(payload);
     }
   }
+
+  public hasBase() {
+    return !!this.base;
+  }
 }
