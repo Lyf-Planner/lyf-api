@@ -37,8 +37,6 @@ export class NoteService extends EntityService<NoteDbObject> {
     const noteChildRepository = new NoteChildRepository();
     await noteChildRepository.deleteParentsUserCanAccess(note_id, requestor);
 
-    // i also need to delete the relationship this notes children may have with any parents i have access
-
     if (parent_id === 'root') {
       // check the definition of a root note;
       // all we need to do here is ensure we have a direct relation, since parents are deleted

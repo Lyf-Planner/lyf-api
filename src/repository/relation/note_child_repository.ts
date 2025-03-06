@@ -73,39 +73,58 @@ export class NoteChildRepository extends RelationRepository<NoteChildDbObject> {
     user_id: ID
   ): Promise<void> {
     const result = await this.db
-      // (1) CTE: user_accessible_notes
-      .with('user_accessible_notes', (db) =>
+      // 1) subtree_of_note:
+      //    In a closure table that stores *all* levels of ancestry/descendancy,
+      //    rows with parent_id = noteId represent *every* descendant, 
+      //    plus we explicitly union the note itself from the 'notes' table.
+      .with('subtree_of_note', (db) =>
+        // Start with the note itself
         db
-          // Get the note_ids of all notes I have a direct relationship with
-          .selectFrom('notes_on_users as uon')
-          .select('uon.note_id_fk as note_id')
-          .where('uon.user_id_fk', '=', user_id)
-          // Get the note_ids of all notes I have an inherited relationship with
+          .selectFrom('notes')
+          .where('notes.id', '=', note_id)
+          .select('notes.id as note_id')
+          // Union all child rows from note_children
           .unionAll(
             db
               .selectFrom('note_children as nc')
-              .innerJoin('notes_on_users as uon', 'nc.parent_id', 'uon.note_id_fk')
               .select(['nc.child_id as note_id'])
-              .where('uon.user_id_fk', '=', user_id)
+              .where('nc.parent_id', '=', note_id)
           )
       )
-      // (2) CTE: descendants_of_note
-      .with('descendants_of_note', (db) =>
+
+      // 2) user_accessible_notes:
+      //    All notes the user can access (directly or by being a child 
+      //    of a note they can access), EXCLUDING any note that's in subtree_of_note.
+      .with('user_accessible_notes', (db) =>
+        // Direct permission
         db
-          .selectFrom('note_children as nc')
-          .select('nc.child_id')
-          .where('nc.parent_id', '=', note_id)
+          .selectFrom('notes_on_users as nou')
+          .select('nou.note_id_fk as note_id')
+          .where('nou.user_id_fk', '=', user_id)
+          .where('nou.note_id_fk', 'not in', (db) =>
+            db.selectFrom('subtree_of_note').select('subtree_of_note.note_id')
+          )
+          // Union in the "child-of-accessible-parent" notes
+          .unionAll(
+            db
+              .selectFrom('note_children as nc')
+              .innerJoin('notes_on_users as nou', 'nc.parent_id', 'nou.note_id_fk')
+              .select(['nc.child_id as note_id'])
+              .where('nou.user_id_fk', '=', user_id)
+              .where('nc.child_id', 'not in', (db) =>
+                db.selectFrom('subtree_of_note').select('subtree_of_note.note_id')
+              )
+          )
       )
-      // (3) Delete statement
+
+      // 3) Delete rows from the closure table
+      //    child_id is in the subtree, parent_id is a user-accessible note (outside the subtree).
       .deleteFrom('note_children')
-      .where((eb) => eb.or([
-        eb('child_id', '=', note_id),
-        eb(
-          'child_id',
-          'in',
-          (db) => db.selectFrom('descendants_of_note').select('descendants_of_note.child_id')
-        )
-      ]))
+      .where(
+        'child_id',
+        'in',
+        (db) => db.selectFrom('subtree_of_note').select('subtree_of_note.note_id')
+      )
       .where(
         'parent_id',
         'in',
