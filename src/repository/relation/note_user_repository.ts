@@ -82,24 +82,49 @@ export class NoteUserRepository extends RelationRepository<NoteUserRelationshipD
     user_id: string
   ): Promise<(NoteDbObject & NoteUserRelationshipDbObject)[]> {
     const result = await this.db
-      .selectFrom('notes')
-      // Join to get notes with direct permission.
-      .innerJoin('notes_on_users', 'notes.id', 'notes_on_users.note_id_fk')
-      // Left join to the note_children table to see if a note has any parents.
-      .leftJoin('note_children', 'notes.id', 'note_children.child_id')
-      // Left join to see if the user has permission for that parent.
-      .leftJoin('notes_on_users as nou', (join) =>
+      .with('user_accessible_notes', (db) =>
+        db
+          // 1. Direct permission
+          .selectFrom('notes_on_users as nou')
+          .where('nou.user_id_fk', '=', user_id)
+          .select('nou.note_id_fk as note_id')
+          // 2. Inherited permission
+          .unionAll(
+            db
+              .selectFrom('note_children as nc')
+              .innerJoin('notes_on_users as nou', 'nc.parent_id', 'nou.note_id_fk')
+              .where('nou.user_id_fk', '=', user_id)
+              .select(['nc.child_id as note_id'])
+          )
+      )
+      // Now select root notes:
+      .selectFrom('notes as n')
+      // restrict to user-accessible notes
+      .innerJoin('user_accessible_notes as uan', 'n.id', 'uan.note_id')
+      // also join the user-note relationship row for the same user
+      .innerJoin('notes_on_users as nou', (join) =>
         join
-          .onRef('note_children.parent_id', '=', 'nou.note_id_fk')
+          // Compare columns: nou.note_id_fk = n.id
+          .onRef('nou.note_id_fk', '=', 'n.id')
+      
+          // Compare a column to a parameter: nou.user_id_fk = userId
           .on('nou.user_id_fk', '=', user_id)
       )
-      // Filter to only include rows where the user has direct permission.
-      .where('notes_on_users.user_id_fk', '=', user_id)
-      // And where there is no parent with permission (the join is null).
-      .where('nou.note_id_fk', 'is', null)
-      // Select only the relevant columns
-      .selectAll('notes')
-      .selectAll('notes_on_users')
+      // root = no accessible parent
+      .where((eb) =>
+        eb.not(
+          eb.exists(
+            (db) => db
+              .selectFrom('note_children as nc')
+              .innerJoin('user_accessible_notes as uan2', 'nc.parent_id', 'uan2.note_id')
+              .select('nc.child_id')
+              .whereRef('nc.child_id', '=', 'n.id')
+          )
+        )
+      )
+      // get all columns from notes and notes_on_users
+      .selectAll('n')
+      .selectAll('nou')
       .execute();
 
     return result;

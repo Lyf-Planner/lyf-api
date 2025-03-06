@@ -49,33 +49,9 @@ export class NoteService extends EntityService<NoteDbObject> {
         await relationship.create(relationshipObject, NoteUserRelation.filter);
       }
     } else {
+      // for the note and all it's descendants,
       // create a relation with the new parent, and all of it's parents
-      const parentDbRelations = await noteChildRepository.findAncestors(parent_id)
-
-      const parentRelation = new NoteChildRelation(parent_id, note_id)
-      await parentRelation.create({
-        created: new Date(),
-        last_updated: new Date(),
-        child_id: note_id,
-        parent_id,
-        distance: 1,
-        sorting_rank: 0
-      })
-      
-      await Promise.all(
-        parentDbRelations.map((parentDbRelation) => {
-          const ancestorRelation = new NoteChildRelation(parentDbRelation.parent_id, note_id)
-
-          return ancestorRelation.create({
-            created: new Date(),
-            last_updated: new Date(),
-            child_id: note_id,
-            parent_id: parentDbRelation.parent_id,
-            distance: parentDbRelation.distance + 1,
-            sorting_rank: 0
-          })
-        })
-      )
+      await noteChildRepository.attachSubtree(note_id, parent_id);
     }
    
   }
