@@ -80,9 +80,14 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
       sorting_rank_preference: this.base!.sorting_rank_preference
     }
 
+    const serialiserOnlyFields = {
+      inherited_from: this.inheritedFrom()
+    }
+
     return {
       ...await this.relatedEntity.export('', false) as PublicUser,
-      ...relationFields
+      ...relationFields,
+      ...serialiserOnlyFields
     };
   }
 
@@ -109,6 +114,18 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
   public async save(): Promise<void> {
     if (!ObjectUtils.isEmpty(this.changes)) {
       await this.repository.updateRelation(this._id, this._entityId, this.changes);
+    }
+  }
+
+  public inheritedFrom() {
+    if (!this.base) {
+      throw new LyfError('cannot determine if permission is inherited', 500);
+    }
+
+    if (this.base.note_id_fk !== this._id) {
+      return this.base.note_id_fk;
+    } else {
+      return this._id;
     }
   }
 }

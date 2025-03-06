@@ -1,11 +1,7 @@
-import { DbRelationFields, DbRelationObject } from '../../../schema/database';
 import { ID } from '../../../schema/database/abstract';
-import { ItemUserRelations } from '../../../schema/database/items_on_users';
 import { NoteDbObject } from '../../../schema/database/notes';
 import { NoteUserRelations, NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
-import { Note } from '../../../schema/notes';
 import { UserRelatedNote } from '../../../schema/user';
-import { NoteRepository } from '../../repository/entity/note_repository';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
 import { ObjectUtils } from '../../utils/object';
@@ -71,10 +67,10 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
   }
 
   public async update(changes: Partial<UserRelatedNote>): Promise<void> {
-    const relationFieldUpdates = {
+    const relationFieldUpdates = changes.sorting_rank_preference ? {
       // only this field is allowed, the others are social fields and should be handled on those endpoints
-      sorting_rank_preference: changes.sorting_rank_preference || this.base!.sorting_rank_preference
-    };
+      sorting_rank_preference: changes.sorting_rank_preference
+    } : {};
     const entityUpdates = NoteEntity.filter(changes);
 
     this.changes = relationFieldUpdates;
