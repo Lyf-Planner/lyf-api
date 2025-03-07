@@ -81,19 +81,19 @@ export class NoteService extends EntityService<NoteDbObject> {
     return note;
   }
 
-  async processDeletion(note_id: string, from_id: string) {
+  async processDeletion(note_id: string, from_id: string, delete_contents = true) {
     const note = new NoteEntity(note_id);
     await note.fetchRelations();
     await note.load();
 
     const notePermission = await note.getPermission(from_id)
 
-    // TODO LYF-371: Make it so Editors can delete notes in folders, but not folders themselves
+    // TODO LYF-384: Make it so Editors can delete notes in folders, but not folders themselves
     if (notePermission && (
       notePermission.permission === Permission.Owner || 
       notePermission.permission === Permission.Editor
     )) {
-      await note.delete();
+      await note.delete(delete_contents);
     } else {
       throw new LyfError('Notes can only be deleted by their owner', 403);
     }

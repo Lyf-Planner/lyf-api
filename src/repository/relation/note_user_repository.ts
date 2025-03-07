@@ -29,6 +29,19 @@ export class NoteUserRepository extends RelationRepository<NoteUserRelationshipD
     .execute();
   }
 
+  public async deleteAllDirectDescendantRelations(note_id: ID) {
+    await this.db
+    .with('subtree_of_note', (db) =>
+      db
+        .selectFrom('note_children')
+        .select('note_children.child_id as note_id')
+        .where('note_children.parent_id', '=', note_id)
+    )
+    .deleteFrom(this.table_name)
+    .where('note_id_fk', 'in', 'subtree_of_note')
+    .execute();
+  }
+
   async findDirectlyRelatedUsers(
     note_id: string
   ): Promise<(UserDbObject & NoteUserRelationshipDbObject)[]> {

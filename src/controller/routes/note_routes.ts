@@ -1,14 +1,6 @@
 import express from 'express';
 
 import { NoteHandlers } from '../handlers/note_handlers';
-import { validate } from '../middleware/validation_middleware';
-import {
-  createNoteValidator,
-  deleteNoteValidator,
-  getNotesValidator,
-  getNoteValidator,
-  updateNoteValidator
-} from '../validators/note_validators';
 import { API_PREFIX } from '../utils';
 
 const ROUTE_PREFIX = API_PREFIX + '/notes'
