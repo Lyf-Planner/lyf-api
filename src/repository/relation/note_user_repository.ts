@@ -38,7 +38,11 @@ export class NoteUserRepository extends RelationRepository<NoteUserRelationshipD
         .where('note_children.parent_id', '=', note_id)
     )
     .deleteFrom(this.table_name)
-    .where('note_id_fk', 'in', 'subtree_of_note')
+    .where(
+      'note_id_fk',
+      'in',
+      (db) => db.selectFrom('subtree_of_note').select('subtree_of_note.note_id')
+    )
     .execute();
   }
 
