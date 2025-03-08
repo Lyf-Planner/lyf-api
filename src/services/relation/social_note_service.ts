@@ -22,7 +22,8 @@ export class SocialNoteService extends SocialService<NoteUserRelation> {
       note_id_fk: id,
       user_id_fk: user_id,
       invite_pending: invited,
-      permission
+      permission,
+      sorting_rank_preference: -1, // trick to make this appear at the top of the users root notes :)
     };
 
     await relation.create(dbObject, NoteUserRelation.filter);
@@ -54,14 +55,22 @@ export class SocialNoteService extends SocialService<NoteUserRelation> {
         break;
       case SocialAction.Decline:
         this.logger.info(`User ${from} declined invitation to note ${update.entity_id}`);
-        modifiedRelation = await this.removeUser(update.user_id, fromUser);
-        break;
       case SocialAction.Cancel:
       case SocialAction.Remove:
         this.logger.info(
           `User ${from} removing user ${update.user_id} from note ${update.entity_id}`
         );
-        modifiedRelation = await this.removeUser(update.user_id, fromUser);
+        const targetRelation = new NoteUserRelation(update.entity_id, update.user_id);
+        // we have to load this one, unlike in the social_item_service
+        // this is because note relations can be inherited, and deletion relies on loading data in to delete an inherited relation.
+        await targetRelation.load();
+
+        if (!targetRelation.hasBase()) {
+          this.logger.warn(`user does not have relation with note ${update.entity_id}, returning early`);
+          return null;
+        }
+
+        modifiedRelation = await this.removeUser(targetRelation, fromUser);
         break;
       default:
         throw new LyfError(`Invalid social note update - action was ${update.action}`, 400);
@@ -77,7 +86,7 @@ export class SocialNoteService extends SocialService<NoteUserRelation> {
       const note = new NoteEntity(note_id);
       await note.fetchRelations("users");
 
-      const numUsers = note.getRelations().users?.length
+      const numUsers = note.getRelations().users?.length;
       const collaborative = !!numUsers && numUsers > 1
       await note.directlyModify({ collaborative })
     } catch (error) {

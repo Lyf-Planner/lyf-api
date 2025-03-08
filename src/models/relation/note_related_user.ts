@@ -1,4 +1,3 @@
-import { DbRelationFields, DbRelationObject } from '../../../schema/database';
 import { ID } from '../../../schema/database/abstract';
 import {
   NoteUserRelations,
@@ -9,6 +8,7 @@ import { NoteRelatedUser } from '../../../schema/notes';
 import { PublicUser } from '../../../schema/user';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
+import { LyfError } from '../../utils/lyf_error';
 import { ObjectUtils } from '../../utils/object';
 import { NoteEntity } from '../entity/note_entity';
 import { UserEntity } from '../entity/user_entity';
@@ -27,10 +27,16 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
       created: object.created,
       last_updated: object.last_updated,
       invite_pending: object.invite_pending,
-      permission: object.permission
+      permission: object.permission,
+      sorting_rank_preference: object.sorting_rank_preference
     };
     
     return ObjectUtils.stripUndefinedFields(objectFilter);
+  }
+
+  static async getDirectlyRelatedUsers(note_id: ID) {
+    const repository = new NoteUserRepository();
+    return await repository.findDirectlyRelatedUsers(note_id);
   }
 
   constructor(id: ID, entity_id: ID, object?: NoteUserRelationshipDbObject & UserDbObject) {
@@ -46,6 +52,17 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
   }
 
   public async delete(): Promise<void> {
+    if (!this.base) {
+      throw new LyfError('note relation must be loaded before deleting', 500);
+    }
+
+    // when the permission is inherited, we should use the ids on the base data we get and delete the inherited permission.
+    if (this.base.note_id_fk !== this._id || this.base.user_id_fk !== this._entityId) {
+      this.logger.warn('deleting inherited relation');
+      await this.repository.deleteRelation(this.base.note_id_fk, this.base.user_id_fk);
+      return;
+    }
+
     await this.repository.deleteRelation(this._id, this._entityId);
   }
 
@@ -60,11 +77,17 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
     const relationFields: NoteUserRelations = {
       invite_pending: this.base!.invite_pending,
       permission: this.base!.permission,
+      sorting_rank_preference: this.base!.sorting_rank_preference
+    }
+
+    const serialiserOnlyFields = {
+      inherited_from: this.inheritedFrom()
     }
 
     return {
       ...await this.relatedEntity.export('', false) as PublicUser,
-      ...relationFields
+      ...relationFields,
+      ...serialiserOnlyFields
     };
   }
 
@@ -91,6 +114,18 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
   public async save(): Promise<void> {
     if (!ObjectUtils.isEmpty(this.changes)) {
       await this.repository.updateRelation(this._id, this._entityId, this.changes);
+    }
+  }
+
+  public inheritedFrom() {
+    if (!this.base) {
+      throw new LyfError('cannot determine if permission is inherited', 500);
+    }
+
+    if (this.base.note_id_fk !== this._id) {
+      return this.base.note_id_fk;
+    } else {
+      return this._id;
     }
   }
 }

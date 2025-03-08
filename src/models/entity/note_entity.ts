@@ -13,7 +13,6 @@ import { ObjectUtils } from '../../utils/object';
 import { CommandType } from '../command_types';
 import { NoteChildRelation } from '../relation/note_child';
 import { NoteUserRelation } from '../relation/note_related_user';
-import { UserNoteRelation } from '../relation/user_related_note';
 import { SocialEntity } from './_social_entity';
 import { ItemEntity } from './item_entity';
 
@@ -43,41 +42,21 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     return ObjectUtils.stripUndefinedFields(objectFilter);
   }
     
-  // note we don't recurse relations here, and do each manually
-  async delete(softDelete = false) {
-    for (const item of this.relations.items || []) {
-      await item.fetchRelations();
-      await item.delete();
-    }
-
-    // Delete user relations, but not users
+  // soft deletion is implied here
+  async delete(delete_contents = true) {
+    // Delete directly related user relations, including user relations on sub-notes
     const noteUserRepository = new NoteUserRepository();
-    const relatedUserDeletion = noteUserRepository.deleteAllNoteRelations(this._id);
-
-    if (!this.relations.notes) {
-      await this.fetchRelations('notes');
+    let relatedUserDeletion = noteUserRepository.deleteAllDirectRelations(this._id);
+    if (delete_contents) {
+      relatedUserDeletion = noteUserRepository.deleteAllDirectDescendantRelations(this._id);
     }
     
-    // Delete child notes recursively
-    const relatedNoteDeletion = new Promise(async (resolve) => {
-      for (const relatedNote of this.relations.notes!) {
-        // only delete children, as to not be cyclic / infinitely recursive
-        if (relatedNote.parent_id() === this._id) {
-          await relatedNote.getRelatedEntity().delete();
-        }
-      }
 
-      // delete any remaining relations with parents
-      const noteChildRepository = new NoteChildRepository();
-      await noteChildRepository.deleteAllRelations(this._id);
-      resolve(true);
-    });
+    // delete any remaining relations with parents
+    const noteChildRepository = new NoteChildRepository();
+    const relatedNoteDeletion = noteChildRepository.deleteAllParents(this._id);
 
     await Promise.all([relatedUserDeletion, relatedNoteDeletion])
-  
-    if (!softDelete) {
-      await this.repository.delete(this._id);
-    }
   }
 
   static async getPermission(note_id: ID, requestor: ID) {
@@ -90,6 +69,10 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
   async getPermission(requestor: ID) {
     // getting permissions to a note is a special case, because of it's file system
     // we check the user is either on the note, or has a permission on this notes' ancestor
+
+    if (!this.relations.users) {
+      await this.attachUsers();
+    }
 
     const relatedUsers = this.relations.users;
     if (!relatedUsers) {
@@ -136,10 +119,10 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     }
   }
 
-  async export(requestor?: ID, with_relations: boolean = true): Promise<Note | NoteDbObject> {
+  async export(requestor: ID, with_relations: boolean = true): Promise<Note | NoteDbObject> {
     return {
       ...this.base!,
-      relations: await this.recurseRelations(CommandType.Export)
+      relations: with_relations ? await this.recurseRelations(CommandType.Export, [], requestor) : {}
     };
   }
 
@@ -153,7 +136,7 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
     // always load notes for folders
     if (toLoad.includes('notes') || this.base?.type === NoteType.Folder) {
-      await this.attachNotes();
+      await this.attachChildNotes();
     }
 
     if (toLoad.includes('users')) {
@@ -173,7 +156,7 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     this.relations.items = itemRelations;
   }
 
-  async attachNotes() {
+  async attachChildNotes() {
     const noteChildrenRepo = new NoteChildRepository();
     const noteChildrenObjects = await noteChildrenRepo.findFolderChildren(this._id);
     const noteChildren: NoteChildRelation[] = [];
@@ -187,14 +170,14 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
   async attachUsers() {
     const noteUsersRepo = new NoteUserRepository();
-      const relationObjects = await noteUsersRepo.findNoteRelatedUsers(this._id);
-      const userRelations: NoteUserRelation[] = [];
+    const relationObjects = await noteUsersRepo.findNoteRelatedUsers(this._id);
+    const userRelations: NoteUserRelation[] = [];
 
-      for (const relationObject of relationObjects) {
-        const userRelation = new NoteUserRelation(relationObject.note_id_fk, relationObject.user_id_fk, relationObject);
-        userRelations.push(userRelation);
-      }
-      this.relations.users = userRelations;
+    for (const relationObject of relationObjects) {
+      const userRelation = new NoteUserRelation(relationObject.note_id_fk, relationObject.user_id_fk, relationObject);
+      userRelations.push(userRelation);
+    }
+    this.relations.users = userRelations;
   }
 
   // --- HELPERS --- //

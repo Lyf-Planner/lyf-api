@@ -50,6 +50,7 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
   public async recurseRelations<K>(
     command: CommandType,
     exclude_relations?: string[],
+    payload?: unknown
   ): Promise<Record<string, K | K[]>> {
     const recursedRelations: Record<string, K | K[]> = {};
 
@@ -62,9 +63,7 @@ export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> 
       if (Array.isArray(value)) {
         const relationArray = [];
         for (const model of value) {
-          let relevantPayload;
-
-          relationArray.push((await this.handleCommand(command, model, relevantPayload)) as K);
+          relationArray.push((await this.handleCommand(command, model, payload)) as K);
         }
 
         recursedRelations[key] = relationArray;

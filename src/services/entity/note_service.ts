@@ -1,6 +1,6 @@
 import { ID } from '../../../schema/database/abstract';
 import { Permission } from '../../../schema/database/items_on_users';
-import { NoteDbObject, NoteType } from '../../../schema/database/notes';
+import { NoteDbObject } from '../../../schema/database/notes';
 import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
 import { UserRelatedNote } from '../../../schema/user';
 import { NoteEntity } from '../../models/entity/note_entity';
@@ -24,53 +24,55 @@ export class NoteService extends EntityService<NoteDbObject> {
     return note;
   }
 
-  async moveNote(note_id: ID, parent_id: ID, requestor: ID) {
+  async moveNote(note_id: ID, parent_id: ID | 'root', requestor: ID) {
     const note = await this.getEntity(note_id, 'users');
-    note.exportWithPermission(requestor) // this asserts we have permission
+    const permission = await note.getPermission(requestor);
 
-    // there's a lot of room for optimisation here
-    // at the moment, we start by deleting all relations
+    if (!permission) {
+      throw new LyfError('Unauthorised', 403);
+    }
+
+    // start by deleting all parents that i have access to
+    // this avoids the pitfall where i move the note, and it disappears for other users who have it in their private folder
     const noteChildRepository = new NoteChildRepository();
-    await noteChildRepository.deleteAllRelations(note_id)
+    await noteChildRepository.deleteParentsUserCanAccess(note_id, requestor);
 
-    // then create a relation with the new parent, and all of it's parents
-    const parentDbRelations = await noteChildRepository.findAncestors(parent_id)
+    if (parent_id === 'root') {
+      // check the definition of a root note;
+      // all we need to do here is ensure we have a direct relation, since parents are deleted
+      const directlyRelatedUsers = await NoteUserRelation.getDirectlyRelatedUsers(note_id);
+      const hasDirectRelation = directlyRelatedUsers.map((user) => user.id).includes(requestor);
 
-    const parentRelation = new NoteChildRelation(parent_id, note_id)
-    await parentRelation.create({
-      created: new Date(),
-      last_updated: new Date(),
-      child_id: note_id,
-      parent_id,
-      distance: 1
-    })
-    
-    await Promise.all(
-      parentDbRelations.map((parentDbRelation) => {
-        const ancestorRelation = new NoteChildRelation(parentDbRelation.parent_id, note_id)
-
-        return ancestorRelation.create({
-          created: new Date(),
-          last_updated: new Date(),
-          child_id: note_id,
-          parent_id: parentDbRelation.parent_id,
-          distance: parentDbRelation.distance + 1
-        })
-      })
-    )
+      if (!hasDirectRelation) {
+        const relationship = new NoteUserRelation(note_id, requestor);
+        const relationshipObject = this.defaultNoteOwner(note.id(), requestor, -1);
+        await relationship.create(relationshipObject, NoteUserRelation.filter);
+      }
+    } else {
+      // for the note and all it's descendants,
+      // create a relation with the new parent, and all of it's parents
+      await noteChildRepository.attachSubtree(note_id, parent_id);
+    }
+   
   }
 
-  async processCreation(note_input: NoteDbObject, from: ID, parent_id?: ID) {
+  async processCreation(note_input: NoteDbObject, from: ID, sorting_rank: number, parent_id?: ID) {
     const note = new NoteEntity(note_input.id);
     await note.create(note_input, NoteEntity.filter);
 
     const relationship = new NoteUserRelation(note_input.id, from);
-    const relationshipObject = this.defaultNoteOwner(note.id(), from);
+    const relationshipObject = this.defaultNoteOwner(note.id(), from, sorting_rank);
     await relationship.create(relationshipObject, NoteUserRelation.filter);
 
     if (parent_id) {
       const parentRelationship = new NoteChildRelation(parent_id, note_input.id);
-      const parentRelationshipObject = { ...note_input, child_id: note_input.id, parent_id, distance: 1 };
+      const parentRelationshipObject = {
+        ...note_input,
+        child_id: note_input.id,
+        parent_id,
+        sorting_rank: sorting_rank,
+        distance: 1
+      };
       await parentRelationship.create(parentRelationshipObject);
     }
 
@@ -79,39 +81,69 @@ export class NoteService extends EntityService<NoteDbObject> {
     return note;
   }
 
-  async processDeletion(note_id: string, from_id: string) {
+  async processDeletion(note_id: string, from_id: string, delete_contents = true) {
     const note = new NoteEntity(note_id);
     await note.fetchRelations();
     await note.load();
 
     const notePermission = await note.getPermission(from_id)
 
-    // TODO LYF-371: Make it so Editors can delete notes in folders, but not folders themselves
+    // TODO LYF-384: Make it so Editors can delete notes in folders, but not folders themselves
     if (notePermission && (
       notePermission.permission === Permission.Owner || 
       notePermission.permission === Permission.Editor
     )) {
-      await note.delete();
+      await note.delete(delete_contents);
     } else {
       throw new LyfError('Notes can only be deleted by their owner', 403);
     }
   }
 
   async processUpdate(id: ID, changes: Partial<UserRelatedNote>, from: ID) {
-    const note = new NoteEntity(id);
 
-    await note.fetchRelations();
-    await note.load();
-    await note.update(changes);
+    this.logger.info(`Processing changeset ${JSON.stringify(changes)} on item ${id}`);
+
+    const noteRelation = new UserNoteRelation(from, id);
+    await noteRelation.load();
+    await noteRelation.getRelatedEntity().fetchRelations();
 
     // SAFETY CHECKS
     // 1. Cannot update as a Viewer or Invited
-    this.throwIfReadOnly(note, from);
+    this.throwIfReadOnly(noteRelation, from);
+
+    await noteRelation.update(changes);
 
     this.logger.debug(`User ${from} safely updated note ${id}`);
 
-    await note.save();
-    return note;
+    await noteRelation.save();
+    await noteRelation.getRelatedEntity().save();
+    return noteRelation;
+  }
+
+  async sortChildren(parent_id: ID, preferences: ID[], requestor: ID) {
+    const parentNote = new NoteEntity(parent_id);
+    await parentNote.load();
+    await parentNote.fetchRelations();
+
+    if (!await parentNote.getPermission(requestor)) {
+      throw new LyfError('unauthorised', 401);
+    }
+   
+    if (!parentNote.getRelations().notes) {
+      throw new LyfError('unable to load children of note ' + parent_id, 500);
+    }
+
+    const childNotes = parentNote.getRelations().notes || [];
+
+    for (const childNote of childNotes) {
+      const newRank = preferences.indexOf(childNote.child_id())
+      if (newRank !== -1) {
+        await childNote.update({ sorting_rank: newRank })
+        await childNote.save();
+      }
+    }
+
+    return parentNote.exportWithPermission(requestor)
   }
 
   async getUserNotes(user_id: ID) {
@@ -127,27 +159,22 @@ export class NoteService extends EntityService<NoteDbObject> {
     return exportedNotes;
   }
 
-  private defaultNoteOwner(note_id: ID, user_id: ID): NoteUserRelationshipDbObject {
+  private defaultNoteOwner(note_id: ID, user_id: ID, sorting_rank: number): NoteUserRelationshipDbObject {
     return {
       user_id_fk: user_id,
       note_id_fk: note_id,
       created: new Date(),
       last_updated: new Date(),
       invite_pending: false,
-      permission: Permission.Owner
+      permission: Permission.Owner,
+      sorting_rank_preference: sorting_rank
     };
   }
 
-  private async throwIfReadOnly(note: NoteEntity, user_id: ID) {
-    const noteUsers = note.getRelations().users as NoteUserRelation[];
+  private async throwIfReadOnly(note: UserNoteRelation, user_id: ID) {
+    const relation = await note.getRelatedEntity().getPermission(user_id);
 
-    const permitted = noteUsers.some((x) =>
-      x.entityId() === user_id &&
-      x.permission() !== Permission.ReadOnly &&
-      !x.invited()
-    );
-
-    if (!permitted) {
+    if (!relation || relation.permission === Permission.ReadOnly) {
       throw new LyfError(`User ${user_id} does not have permission to edit item ${note.id()}`, 403);
     }
   }

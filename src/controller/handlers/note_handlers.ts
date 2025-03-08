@@ -12,13 +12,13 @@ import { SocialNoteService } from '../../services/relation/social_note_service';
 
 export class NoteHandlers {
   protected async createNote(req: Request, res: Response) {
-    const noteInput = req.body as NoteDbObject & { parent_id?: ID };
+    const noteInput = req.body as NoteDbObject & { sorting_rank_preference: number, parent_id?: ID };
     const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Creating note ${noteInput.title} from user ${user_id}`);
 
     try {
-      const note = await new NoteService().processCreation(noteInput, user_id, noteInput.parent_id);
+      const note = await new NoteService().processCreation(noteInput, user_id, noteInput.sorting_rank_preference, noteInput.parent_id);
 
       const result = await note.exportWithPermission(user_id);
       res.status(201).json(result).end();
@@ -56,7 +56,8 @@ export class NoteHandlers {
     try {
       const service = new NoteService();
       const note = await service.getEntity(id, include);
-      res.status(200).json(await note.exportWithPermission(user_id)).end();
+      const payload = await note.exportWithPermission(user_id)
+      res.status(200).json(payload).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);
@@ -83,7 +84,7 @@ export class NoteHandlers {
   }
 
   protected async moveNote(req: Request, res: Response) {
-    const { note_id, new_parent_id } = req.body as { note_id: ID, new_parent_id: ID};
+    const { note_id, new_parent_id } = req.body as { note_id: ID, new_parent_id: ID | 'root' };
     const user_id = getMiddlewareVars(res).user_id;
 
     logger.debug(`Updating note ${note_id} from user ${user_id}`);
@@ -100,6 +101,27 @@ export class NoteHandlers {
     }
   }
 
+  protected async sortNotes(req: Request, res: Response) {
+    const { parent_id, preferences } = req.body as {
+      parent_id: ID, 
+      preferences: ID[]
+    };
+    const user_id = getMiddlewareVars(res).user_id;
+
+    logger.debug(`Sorting children of note ${parent_id} from user ${user_id}`);
+
+    try {
+      const service = new NoteService();
+      const parentNote = await service.sortChildren(parent_id, preferences, user_id);
+
+      res.status(200).json(parentNote).end();
+    } catch (error) {
+      const lyfError = error as LyfError;
+      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      res.status((lyfError.code || 500)).end(lyfError.message);
+    }
+  }
+
   protected async updateNote(req: Request, res: Response) {
     const noteChanges = req.body as Partial<UserRelatedNote> & Identifiable;
     const user_id = getMiddlewareVars(res).user_id;
@@ -109,8 +131,8 @@ export class NoteHandlers {
     try {
       const service = new NoteService();
       const note = await service.processUpdate(noteChanges.id, noteChanges, user_id);
-
-      res.status(200).json(await note.exportWithPermission(user_id)).end();
+      const payload = await note.export(user_id)
+      res.status(200).json(payload).end();
     } catch (error) {
       const lyfError = error as LyfError;
       logger.error((lyfError.code || 500) + " - " + lyfError.message);

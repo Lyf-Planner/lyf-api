@@ -1,14 +1,6 @@
 import express from 'express';
 
 import { NoteHandlers } from '../handlers/note_handlers';
-import { validate } from '../middleware/validation_middleware';
-import {
-  createNoteValidator,
-  deleteNoteValidator,
-  getNotesValidator,
-  getNoteValidator,
-  updateNoteValidator
-} from '../validators/note_validators';
 import { API_PREFIX } from '../utils';
 
 const ROUTE_PREFIX = API_PREFIX + '/notes'
@@ -22,6 +14,7 @@ export class NoteEndpoints extends NoteHandlers {
 
     server.post(ROUTE_PREFIX + '/create', this.createNote);
     server.post(ROUTE_PREFIX + '/move', this.moveNote);
+    server.post(ROUTE_PREFIX + '/sort', this.sortNotes)
     server.post(ROUTE_PREFIX + '/update', this.updateNote);
     server.post(ROUTE_PREFIX + '/updateSocial', this.updateNoteSocial);
   }

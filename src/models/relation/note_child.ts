@@ -32,7 +32,8 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
       child_id: object.child_id,
       created: object.created,
       last_updated: object.last_updated,
-      distance: object.distance
+      distance: object.distance,
+      sorting_rank: object.sorting_rank
     };
 
     return ObjectUtils.stripUndefinedFields(objectFilter);
@@ -92,13 +93,16 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
     return await this.relatedEntity.exportWithPermission(requestor);
   }
 
-  async export(requestor: string | undefined): Promise<ChildNote> {
+  async export(requestor: string): Promise<ChildNote> {
     const relationFields = {
-      parent_id: this.base!.parent_id
+      parent_id: this.base!.parent_id,
+      sorting_rank: this.base!.sorting_rank
     }
 
+    // we don't exportWithPermission here, because a NoteChild will always be loaded from a NoteEntity
+    // in turn the NoteEntity will always be the one checking permission, such that permission to the child is implied
     return {
-      ...await this.relatedEntity.export(requestor) as Note,
+      ...await this.relatedEntity.export(requestor, false) as NoteDbObject,
       ...relationFields
     };
   }
@@ -108,7 +112,7 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
     await this.relatedEntity.load();
   }
 
-  async update(changes: Partial<UserFriend>): Promise<void> {
+  async update(changes: Partial<ChildNote>): Promise<void> {
     const relationFieldUpdates = NoteChildRelation.filter(changes);
   
     this.changes = relationFieldUpdates;
@@ -118,8 +122,9 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
     };
   }
 
-  // currently a no-op; these should only ever be created or deleted
-  async save(): Promise<void> {}
+  async save(): Promise<void> {
+    await this.repository.updateRelation(this._entityId, this._id, this.base!)
+  }
 
   parent_id() {
     return this.base!.parent_id;

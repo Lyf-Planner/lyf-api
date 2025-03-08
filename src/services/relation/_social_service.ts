@@ -71,14 +71,12 @@ export abstract class SocialService<T extends SocialRelation> extends BaseServic
     return item_relation;
   }
 
-  public async removeUser(removed_user: ID, remover_relation: T) {
-    if (remover_relation.entityId() !== removed_user && remover_relation.permission() !== Permission.Owner) {
+  public async removeUser(removed_relation: T, remover_relation: T) {
+    if (remover_relation.entityId() !== removed_relation.entityId() && remover_relation.permission() !== Permission.Owner) {
       throw new LyfError('You must be the Owner to remove another user!', 403);
     }
   
-    // TODO: Will this mess up Note user removing
-    const deletedRelation = new ItemUserRelation(remover_relation.id(), removed_user);
-    await deletedRelation.delete();
+    await removed_relation.delete();
     return null;
   }
 }

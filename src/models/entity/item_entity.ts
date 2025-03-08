@@ -50,14 +50,18 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
     return ObjectUtils.stripUndefinedFields(objectFilter);
   }
 
-  public async export(requestor?: ID, with_relations: boolean = true): Promise<Item|ItemDbObject> {
+  public async exportWithPermission(requestor: ID, with_relations: boolean = true) {
     const relatedUsers = this.relations.users;
     const relatedUserIds = relatedUsers?.map((x) => x.entityId());
 
-    if (requestor && !relatedUserIds?.includes(requestor)) {
+    if (!relatedUserIds?.includes(requestor)) {
       throw new LyfError('User tried to load an item they should not have access to', 401);
     }
 
+    return await this.export(requestor, with_relations);
+  }
+
+  public async export(requestor?: ID, with_relations: boolean = true): Promise<Item|ItemDbObject> {
     if (with_relations) {
       return {
         ...this.base!,

@@ -59,14 +59,13 @@ export class SocialItemService extends SocialService<ItemUserRelation> {
         break;
       case SocialAction.Decline:
         this.logger.info(`User ${from} declined invitation to item ${update.entity_id}`);
-        modifiedRelation = await this.removeUser(update.user_id, fromUser);
-        break;
       case SocialAction.Cancel:
       case SocialAction.Remove:
         this.logger.info(
           `User ${from} removing user ${update.user_id} from item ${update.entity_id}`
         );
-        modifiedRelation = await this.removeUser(update.user_id, fromUser);
+        const targetRelation = new ItemUserRelation(update.user_id, update.entity_id);
+        modifiedRelation = await this.removeUser(targetRelation, fromUser);
         break;
       default:
         throw new LyfError(`Invalid social item update - action was ${update.action}`, 400);
