@@ -14,7 +14,7 @@ export class NoticeService extends EntityService<NoticeDbObject> {
   async getNotices(version: ID, exclude: ID[]) {
     const repository = new NoticeRepository();
 
-    const notices = await repository.findByVersion(version);
+    const notices = await repository.findByMajorVersion(version);
 
     return notices.filter((notice) => !exclude.includes(notice.id) && !NoticeEntity.isExpired(notice));
   }
