@@ -32,6 +32,8 @@ export class NoteService extends EntityService<NoteDbObject> {
       throw new LyfError('Unauthorised', 403);
     }
 
+    this.logger.info(`moving note ${note_id} to ${parent_id}`);
+
     // start by deleting all parents that i have access to
     // this avoids the pitfall where i move the note, and it disappears for other users who have it in their private folder
     const noteChildRepository = new NoteChildRepository();
