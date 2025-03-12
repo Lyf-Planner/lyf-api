@@ -49,6 +49,6 @@ export class NoticeEntity extends BaseEntity<NoticeDbObject> {
       return false;
     }
 
-    return new Date(notice.expiry).getTime() > new Date().getTime();
+    return new Date(notice.expiry).getTime() < new Date().getTime();
   }
 }
