@@ -67,17 +67,18 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
   }
 
   public async update(changes: Partial<UserRelatedNote>): Promise<void> {
-    const relationFieldUpdates = changes.sorting_rank_preference ? {
+    const relationFieldUpdates = changes.sorting_rank_preference !== undefined ? {
       // only this field is allowed, the others are social fields and should be handled on those endpoints
       sorting_rank_preference: changes.sorting_rank_preference
     } : {};
-    const entityUpdates = NoteEntity.filter(changes);
 
     this.changes = relationFieldUpdates;
     this.base = {
       ...this.base!,
       ...relationFieldUpdates
     };
+
+    const entityUpdates = NoteEntity.filter(changes);
     this.relatedEntity.update(entityUpdates);
   }
 
