@@ -26,6 +26,7 @@ export class NoticeEntity extends BaseEntity<NoticeDbObject> {
       content: object.content,
       image_url: object.image_url,
       expiry: object.expiry,
+      rank: object.rank
     };
 
     return ObjectUtils.stripUndefinedFields(objectFilter);
