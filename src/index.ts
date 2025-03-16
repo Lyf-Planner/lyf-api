@@ -9,13 +9,12 @@ import { NoteEndpoints } from './controller/routes/note_routes';
 import { UserEndpoints } from './controller/routes/user_routes';
 import { authoriseHeader } from './controller/middleware/auth_middleware';
 import mongoDb from './db/mongo/mongo_db';
-import { migrateToLatest } from './db/pg/migration_manager';
 import postgresDb from './db/pg/postgres_db';
 import env from './envManager';
 import reminderService from './modules/notification_scheduling/reminder_service';
 import { Logger, LoggingLevel } from './utils/logging';
-import { seedLatest } from './db/pg/seed_manager';
 import { PublicEndpoints } from './controller/routes/public_routes';
+import { migrateDatabase } from './db/migration_manager';
 
 export const server = express();
 
@@ -48,9 +47,11 @@ export const serverInitialised = new Promise(async (resolve, reject) => {
     new NoteEndpoints(server);
 
     // Initialise services
-    await mongoDb.init();
-    await reminderService.init();
-    await migrateToLatest();
+    await Promise.all([
+      mongoDb.init(),
+      reminderService.init(),
+      migrateDatabase(),
+    ]);
 
     resolve(true);
   } catch (err) {
