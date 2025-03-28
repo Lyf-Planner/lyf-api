@@ -183,4 +183,4 @@ export class UserHandlers {
   }
 }
 
-const logger = Logger.of(UserHandlers);
+const logger = Logger.of(UserHandlers.name);

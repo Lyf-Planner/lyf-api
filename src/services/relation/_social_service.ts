@@ -52,6 +52,7 @@ export abstract class SocialService<T extends SocialRelation> extends BaseServic
       await newRelation.getRelatedEntity().load()
       return newRelation;
     } catch (error) {
+      this.logger.error(`${invited_user} is already a member of this item`, error);
       throw new LyfError(`${invited_user} is already a member of this item`, 400)
     }
   }

@@ -18,7 +18,7 @@ type PushNotificationParams = {
 
 export class ExpoPushService {
   private expo: Expo = new Expo();
-  private logger = Logger.of(ExpoPushService);
+  private logger = Logger.of(ExpoPushService.name);
 
   public async pushNotificationToExpo({
     messages,

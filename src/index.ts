@@ -38,7 +38,7 @@ const PORT = env.port;
 
 server.set('trust proxy', 1 /* number of proxies between user and server (express-rate-limit) */);
 
-export const serverInitialised = new Promise(async (resolve, reject) => {
+export const serverInitialised = new Promise((resolve, reject) => {
   try {
     // Initialise endpoints
     new PublicEndpoints(server);
@@ -47,13 +47,15 @@ export const serverInitialised = new Promise(async (resolve, reject) => {
     new NoteEndpoints(server);
 
     // Initialise services
-    await Promise.all([
+    Promise.all([
       mongoDb.init(),
       reminderService.init(),
       migrateDatabase()
-    ]);
-
-    resolve(true);
+    ])
+      .then(() => resolve(true))
+      .catch((error) => {
+        throw new Error(error);
+      });
   } catch (err) {
     reject(err);
   }

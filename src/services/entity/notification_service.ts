@@ -8,8 +8,8 @@ import { LyfError } from '../../utils/lyf_error';
 
 import { EntityService } from './_entity_service';
 
-export class NotificationService extends EntityService<NotificationDbObject> {
-  protected logger = Logger.of(NotificationService);
+export class NotificationService extends EntityService {
+  protected logger = Logger.of(NotificationService.name);
 
   async getUserNotifications(to: ID, limit?: number) {
     const user = new UserEntity(to)

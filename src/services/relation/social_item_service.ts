@@ -11,7 +11,7 @@ import { LyfError } from '../../utils/lyf_error';
 import { SocialService, SocialUpdate } from './_social_service';
 
 export class SocialItemService extends SocialService<ItemUserRelation> {
-  protected logger = Logger.of(SocialItemService);
+  protected logger = Logger.of(SocialItemService.name);
 
   protected async createDefaultRelation(id: ID, user_id: ID, permission: Permission, invited: boolean) {
     const relation = new ItemUserRelation(id, user_id);
@@ -82,7 +82,7 @@ export class SocialItemService extends SocialService<ItemUserRelation> {
       const collaborative = !!numUsers && numUsers > 1
       await item.directlyModify({ collaborative })
     } catch (error) {
-      this.logger.error(`Failed to update collaborative flag on item ${item_id}`)
+      this.logger.error(`Failed to update collaborative flag on item ${item_id}`, error)
     }
   }
 }

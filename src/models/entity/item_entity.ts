@@ -6,6 +6,7 @@ import { ItemUserRepository } from '../../repository/relation/item_user_reposito
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { ObjectUtils } from '../../utils/object';
+import { Extension } from '../../utils/types';
 import { CommandType } from '../command_types';
 import { ItemUserRelation } from '../relation/item_related_user';
 
@@ -16,14 +17,14 @@ export type ItemModelRelations = {
 };
 
 export class ItemEntity extends SocialEntity<ItemDbObject> {
-  protected logger = Logger.of(ItemEntity);
+  protected logger = Logger.of(ItemEntity.name);
   protected repository = new ItemRepository();
 
   protected relations: Partial<ItemModelRelations> = {};
   protected template?: ItemEntity;
 
-  static filter(object: any): ItemDbObject {
-    const objectFilter: Required<ItemDbObject> = {
+  static filter(object: Extension<ItemDbObject>): ItemDbObject {
+    const objectFilter: ItemDbObject = {
       id: object.id,
       created: object.created,
       last_updated: object.last_updated,
@@ -41,7 +42,7 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
       note_id: object.note_id,
       url: object.url,
       location: object.location,
-      default_show_in_upcoming: object.show_in_upcoming,
+      default_show_in_upcoming: object.default_show_in_upcoming,
       default_notification_mins: object.default_notification_mins,
       default_sorting_rank: object.default_sorting_rank
     };
@@ -91,6 +92,16 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
       }
       this.relations.users = userRelations;
     }
+  }
+
+  public async update(changes: Partial<ItemDbObject>): Promise<void> {
+    const updatedBase = ItemEntity.filter({
+      ...this.base!,
+      ...changes
+    });
+
+    this.changes = updatedBase;
+    this.base = updatedBase;
   }
 
   // --- HELPERS --- //

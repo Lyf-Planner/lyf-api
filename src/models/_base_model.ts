@@ -3,6 +3,8 @@ import { DbObject } from '../../schema/database';
 import { ID } from '../../schema/database/abstract';
 import { BaseRepository } from '../repository/_base_repository';
 import { Logger } from '../utils/logging';
+import { LyfError } from '../utils/lyf_error';
+import { Extension } from '../utils/types';
 
 import { CommandType } from './command_types';
 
@@ -19,7 +21,7 @@ export abstract class BaseModel<T extends DbObject> {
     return this._id;
   }
 
-  public async create(db_object: T, filter: (object: any) => T) {
+  public async create(db_object: T, filter: (object: Extension<T>) => T) {
     if (filter) {
       db_object = filter(db_object);
     }
@@ -44,20 +46,29 @@ export abstract class BaseModel<T extends DbObject> {
     }
   }
 
-  public async handleCommand(command: CommandType, model: BaseModel<DbObject>, payload?: any) {
+  public async handleCommand(command: CommandType, model: BaseModel<DbObject>, payload?: unknown) {
     switch (command) {
       case CommandType.Delete:
         return await model.delete();
       case CommandType.Export:
-        return await model.export(payload);
+        if (payload && typeof payload !== 'string') {
+          throw new LyfError('type of payload should be string for export', 500);
+        }
+        return await model.export(payload as string | undefined);
       case CommandType.Extract:
         return await model.extract();
       case CommandType.Load:
-        return await model.load(payload);
+        if (payload && typeof payload !== 'object') {
+          throw new LyfError('type of payload should be object for load', 500);
+        }
+        return await model.load(payload as object);
       case CommandType.Save:
         return await model.save();
       case CommandType.Update:
-        return await model.update(payload);
+        if (payload && typeof payload !== 'object') {
+          throw new LyfError('type of payload should be string for export', 500);
+        }
+        return await model.update(payload as object);
     }
   }
 

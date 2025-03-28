@@ -15,6 +15,7 @@ import { daysInRange } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { ObjectUtils } from '../../utils/object';
+import { Extension } from '../../utils/types';
 import { CommandType } from '../command_types';
 import { UserFriendRelation } from '../relation/user_friend';
 import { UserItemRelation } from '../relation/user_related_item';
@@ -31,12 +32,12 @@ export type UserModelRelations = {
 };
 
 export class UserEntity extends BaseEntity<UserDbObject> {
-  protected logger = Logger.of(UserEntity);
+  protected logger = Logger.of(UserEntity.name);
   protected repository = new UserRepository();
 
   protected relations: Partial<UserModelRelations> = {};
 
-  static filter(object: any): UserDbObject {
+  static filter(object: Extension<UserDbObject>): UserDbObject {
     const objectFilter: Required<UserDbObject> = {
       id: object.id,
       created: object.created,
@@ -73,6 +74,16 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     }
 
     return this.stripSensitiveFields();
+  }
+
+  public async update(changes: Partial<UserDbObject>): Promise<void> {
+    const updatedBase = UserEntity.filter({
+      ...this.base!,
+      ...changes
+    });
+
+    this.changes = updatedBase;
+    this.base = updatedBase;
   }
 
   // --- Helpers ---
@@ -186,9 +197,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
       throw new LyfError('checked blocked on a user without loading relations', 500);
     }
 
-    return this.relations.users.some((x) => {
-      x.entityId() === user_id && x.blockedByEntity()
-    })
+    return this.relations.users.some((x) => x.entityId() === user_id && x.blockedByEntity());
   }
 
   blockedByMe(user_id: string) {
@@ -196,9 +205,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
       throw new LyfError('checked blocked on a user without loading relations', 500);
     }
 
-    return this.relations.users.some((x) => {
-      x.entityId() === user_id && x.blockedByMe()
-    })
+    return this.relations.users.some((x) => x.entityId() === user_id && x.blockedByMe());
   }
 
   timezone() {
@@ -245,7 +252,12 @@ export class UserEntity extends BaseEntity<UserDbObject> {
   }
 
   private stripSensitiveFields() {
-    const { pass_hash, expo_tokens, ...exported } = this.base!;
+    const {
+      pass_hash: _pass_hash,
+      expo_tokens: _expo_tokens,
+      ...exported
+    } = this.base!;
+
     return exported;
   }
 }

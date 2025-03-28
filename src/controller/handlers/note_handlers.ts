@@ -160,4 +160,4 @@ export class NoteHandlers {
   }
 }
 
-const logger = Logger.of(NoteHandlers);
+const logger = Logger.of(NoteHandlers.name);

@@ -10,6 +10,7 @@ import { NoteUserRepository } from '../../repository/relation/note_user_reposito
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { ObjectUtils } from '../../utils/object';
+import { Extension } from '../../utils/types';
 import { CommandType } from '../command_types';
 import { NoteChildRelation } from '../relation/note_child';
 import { NoteUserRelation } from '../relation/note_related_user';
@@ -24,13 +25,13 @@ export type NoteModelRelations = {
 };
 
 export class NoteEntity extends SocialEntity<NoteDbObject> {
-  protected logger = Logger.of(NoteEntity);
+  protected logger = Logger.of(NoteEntity.name);
   protected repository = new NoteRepository();
 
   protected relations: Partial<NoteModelRelations> = {};
 
-  static filter(object: any): NoteDbObject {
-    const objectFilter: Required<NoteDbObject> = {
+  static filter(object: Extension<NoteDbObject>): NoteDbObject {
+    const objectFilter: NoteDbObject = {
       id: object.id,
       created: object.created,
       last_updated: object.last_updated,
@@ -178,6 +179,16 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
       userRelations.push(userRelation);
     }
     this.relations.users = userRelations;
+  }
+
+  public async update(changes: Partial<NoteDbObject>): Promise<void> {
+    const updatedBase = NoteEntity.filter({
+      ...this.base!,
+      ...changes
+    });
+
+    this.changes = updatedBase;
+    this.base = updatedBase;
   }
 
   // --- HELPERS --- //

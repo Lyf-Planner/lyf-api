@@ -5,18 +5,19 @@ import { UserRelatedNote } from '../../../schema/user';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
 import { ObjectUtils } from '../../utils/object';
+import { Extension } from '../../utils/types';
 import { NoteEntity } from '../entity/note_entity';
 
 import { BaseRelation } from './_base_relation';
 
 export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject, NoteEntity> {
-  protected logger: Logger = Logger.of(UserNoteRelation);
+  protected logger: Logger = Logger.of(UserNoteRelation.name);
 
   protected relatedEntity: NoteEntity;
   protected repository = new NoteUserRepository();
 
-  static filter(object: any): NoteUserRelationshipDbObject {
-    const objectFilter: Required<NoteUserRelationshipDbObject> = {
+  static filter(object: Extension<NoteUserRelationshipDbObject>): NoteUserRelationshipDbObject {
+    const objectFilter: NoteUserRelationshipDbObject = {
       note_id_fk: object.note_id_fk,
       user_id_fk: object.user_id_fk,
       created: object.created,
@@ -78,7 +79,10 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
       ...relationFieldUpdates
     };
 
-    const entityUpdates = NoteEntity.filter(changes);
+    const entityUpdates = NoteEntity.filter({
+      ...await this.relatedEntity.extract() as NoteDbObject,
+      ...changes
+    });
     this.relatedEntity.update(entityUpdates);
   }
 

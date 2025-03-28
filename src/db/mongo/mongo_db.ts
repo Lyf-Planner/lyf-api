@@ -13,7 +13,7 @@ import { Collection } from './mongo_collection';
 // However, Mongo is still used by Agenda.js to store cron scheduled data (namely, notifications)
 
 export class MongoDatabase {
-  private logger = Logger.of(MongoDatabase);
+  private logger = Logger.of(MongoDatabase.name);
   private connected = false;
 
   private client: MongoClient;

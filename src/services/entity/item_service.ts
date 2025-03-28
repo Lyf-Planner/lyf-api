@@ -17,8 +17,8 @@ import { LyfError } from '../../utils/lyf_error';
 import { EntityService } from './_entity_service';
 import { UserService } from './user_service';
 
-export class ItemService extends EntityService<ItemDbObject> {
-  protected logger = Logger.of(ItemService);
+export class ItemService extends EntityService {
+  protected logger = Logger.of(ItemService.name);
 
   async getEntity(item_id: ID, include?: string) {
     const item = new ItemEntity(item_id);

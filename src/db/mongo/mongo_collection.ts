@@ -11,7 +11,7 @@ import { Logger } from '../../utils/logging';
 
 export class Collection<T extends DBObject> {
   protected collection: mongoCollection;
-  private logger = Logger.of(Collection<T>);
+  private logger = Logger.of((Collection<T>).name);
 
   constructor(collectionName: string, db: Db) {
     this.collection = db.collection(collectionName);

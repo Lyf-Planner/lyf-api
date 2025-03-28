@@ -235,4 +235,4 @@ export class SocialItemNotifications {
   }
 }
 
-const logger = Logger.of(SocialItemNotifications);
+const logger = Logger.of(SocialItemNotifications.name);

@@ -12,8 +12,8 @@ import { AuthService } from '../auth_service';
 import { EntityService } from './_entity_service';
 import { ItemService } from './item_service';
 
-export class UserService extends EntityService<UserDbObject> {
-  protected logger = Logger.of(UserService);
+export class UserService extends EntityService {
+  protected logger = Logger.of(UserService.name);
 
   // --- USERS --- //
 
@@ -84,7 +84,7 @@ export class UserService extends EntityService<UserDbObject> {
 
     const user = new UserEntity(id);
     await user.load();
-    await user.update(UserEntity.filter(changes));
+    await user.update(changes);
 
     // PRE-COMMIT (update other items like notifications)
     this.checkDailyNotifications(user, changes);

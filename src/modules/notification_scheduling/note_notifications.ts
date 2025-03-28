@@ -67,4 +67,4 @@ export class SocialNoteNotifications {
   }
 }
 
-const logger = Logger.of(SocialNoteNotifications);
+const logger = Logger.of(SocialNoteNotifications.name);

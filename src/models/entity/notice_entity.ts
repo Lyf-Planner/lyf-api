@@ -3,6 +3,7 @@ import { NoticeDbObject } from '../../../schema/database/notices';
 import { NoticeRepository } from '../../repository/entity/notice_repository';
 import { Logger } from '../../utils/logging';
 import { ObjectUtils } from '../../utils/object';
+import { Extension } from '../../utils/types';
 
 import { BaseEntity } from './_base_entity';
 
@@ -11,13 +12,13 @@ import { BaseEntity } from './_base_entity';
 // For the most part we just pass on db objects instead of wrapping with this.
 
 export class NoticeEntity extends BaseEntity<NoticeDbObject> {
-  protected logger = Logger.of(NoticeEntity);
+  protected logger = Logger.of(NoticeEntity.name);
   protected repository = new NoticeRepository();
 
   protected relations = {};
 
-  static filter(object: any): NoticeDbObject {
-    const objectFilter: Required<NoticeDbObject> = {
+  static filter(object: Extension<NoticeDbObject>): NoticeDbObject {
+    const objectFilter: NoticeDbObject = {
       id: object.id,
       created: object.created,
       last_updated: object.last_updated,
@@ -43,6 +44,16 @@ export class NoticeEntity extends BaseEntity<NoticeDbObject> {
 
   public getRelations() {
     // No implementation
+  }
+
+  public async update(changes: Partial<NoticeDbObject>): Promise<void> {
+    const updatedBase = NoticeEntity.filter({
+      ...this.base!,
+      ...changes
+    });
+
+    this.changes = updatedBase;
+    this.base = updatedBase;
   }
 
   static isExpired(notice: NoticeDbObject) {

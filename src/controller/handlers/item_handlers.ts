@@ -169,4 +169,4 @@ export class ItemHandlers {
   }
 }
 
-const logger = Logger.of(ItemHandlers);
+const logger = Logger.of(ItemHandlers.name);

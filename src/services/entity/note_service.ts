@@ -14,8 +14,8 @@ import { LyfError } from '../../utils/lyf_error';
 
 import { EntityService } from './_entity_service';
 
-export class NoteService extends EntityService<NoteDbObject> {
-  protected logger = Logger.of(NoteService);
+export class NoteService extends EntityService {
+  protected logger = Logger.of(NoteService.name);
 
   async getEntity(note_id: ID, include?: string) {
     const note = new NoteEntity(note_id);

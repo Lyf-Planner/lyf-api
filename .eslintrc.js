@@ -52,6 +52,7 @@ const typescriptRules = {
   indent: ['error', 2, { SwitchCase: 1 }],
   'key-spacing': ['error', { mode: 'strict' }],
   'keyword-spacing': ['error', { before: true, after: true }],
+  'no-fallthrough': 'off',
   'no-case-declarations': 'off',
   'no-constant-condition': ['error', { checkLoops: false }],
   'no-multi-spaces': ['error', { ignoreEOLComments: true }],

@@ -10,18 +10,19 @@ import { NoteUserRepository } from '../../repository/relation/note_user_reposito
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { ObjectUtils } from '../../utils/object';
+import { Extension } from '../../utils/types';
 import { NoteEntity } from '../entity/note_entity';
 import { UserEntity } from '../entity/user_entity';
 
 import { SocialRelation } from './_social_relation';
 
 export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObject, UserEntity> {
-  protected logger: Logger = Logger.of(NoteUserRelation);
+  protected logger: Logger = Logger.of(NoteUserRelation.name);
 
   protected relatedEntity: UserEntity;
   protected repository = new NoteUserRepository();
 
-  static filter(object: any): NoteUserRelationshipDbObject {
+  static filter(object: Extension<NoteUserRelationshipDbObject>): NoteUserRelationshipDbObject {
     const objectFilter: Required<NoteUserRelationshipDbObject> = {
       note_id_fk: object.note_id_fk,
       user_id_fk: object.user_id_fk,
@@ -102,13 +103,13 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
   }
 
   public async update(changes: Partial<NoteRelatedUser>): Promise<void> {
-    const relationFieldUpdates = NoteUserRelation.filter(changes);
-
-    this.changes = relationFieldUpdates;
-    this.base = {
+    const updatedBase = NoteUserRelation.filter({
       ...this.base!,
-      ...relationFieldUpdates
-    };
+      ...changes
+    });
+
+    this.changes = updatedBase;
+    this.base = updatedBase;
   }
 
   public async save(): Promise<void> {

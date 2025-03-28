@@ -12,7 +12,7 @@ import { LyfError } from '../../utils/lyf_error';
 import { SocialService, SocialUpdate } from './_social_service';
 
 export class SocialNoteService extends SocialService<NoteUserRelation> {
-  protected logger = Logger.of(SocialNoteService);
+  protected logger = Logger.of(SocialNoteService.name);
 
   protected async createDefaultRelation(id: ID, user_id: ID, permission: Permission, invited: boolean) {
     const relation = new NoteUserRelation(id, user_id);
@@ -91,7 +91,7 @@ export class SocialNoteService extends SocialService<NoteUserRelation> {
       const collaborative = !!numUsers && numUsers > 1
       await note.directlyModify({ collaborative })
     } catch (error) {
-      this.logger.error(`Failed to update collaborative flag on note ${note_id}`)
+      this.logger.error(`Failed to update collaborative flag on note ${note_id}`, error)
     }
   }
 }

@@ -6,18 +6,19 @@ import { UserRelatedNote } from '../../../schema/user';
 import { NoteChildRepository } from '../../repository/relation/note_child_repository';
 import { Logger } from '../../utils/logging';
 import { ObjectUtils } from '../../utils/object';
+import { Extension } from '../../utils/types';
 import { NoteEntity } from '../entity/note_entity';
 
 import { BaseRelation } from './_base_relation';
 
 export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntity> {
-  protected logger: Logger = Logger.of(NoteChildRelation);
+  protected logger: Logger = Logger.of(NoteChildRelation.name);
 
   // the child note is treated as the relatedEntity - they are the target in this tables context
   protected relatedEntity: NoteEntity;
   protected repository = new NoteChildRepository();
 
-  static filter(object: any): NoteChildDbObject {
+  static filter(object: Extension<NoteChildDbObject>): NoteChildDbObject {
     const objectFilter: Required<NoteChildDbObject> = {
       parent_id: object.parent_id,
       child_id: object.child_id,
@@ -103,13 +104,13 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
   }
 
   async update(changes: Partial<ChildNote>): Promise<void> {
-    const relationFieldUpdates = NoteChildRelation.filter(changes);
-
-    this.changes = relationFieldUpdates;
-    this.base = {
+    const updatedBase = NoteChildRelation.filter({
       ...this.base!,
-      ...relationFieldUpdates
-    };
+      ...changes
+    });
+
+    this.changes = updatedBase;
+    this.base = updatedBase;
   }
 
   async save(): Promise<void> {

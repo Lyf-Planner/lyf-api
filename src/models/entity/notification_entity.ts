@@ -5,6 +5,7 @@ import { NotificationRepository } from '../../repository/entity/notification_rep
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { ObjectUtils } from '../../utils/object';
+import { Extension } from '../../utils/types';
 
 import { BaseEntity } from './_base_entity';
 import { UserEntity } from './user_entity';
@@ -14,13 +15,13 @@ export type NotificationModelRelations = {
 };
 
 export class NotificationEntity extends BaseEntity<NotificationDbObject> {
-  protected logger = Logger.of(NotificationEntity);
+  protected logger = Logger.of(NotificationEntity.name);
   protected repository = new NotificationRepository();
 
   protected relations: Partial<NotificationModelRelations> = {};
 
-  static filter(object: any): NotificationDbObject {
-    const objectFilter: Required<NotificationDbObject> = {
+  static filter(object: Extension<NotificationDbObject>): NotificationDbObject {
+    const objectFilter: NotificationDbObject = {
       id: object.id,
       created: object.created,
       last_updated: object.last_updated,
@@ -44,6 +45,16 @@ export class NotificationEntity extends BaseEntity<NotificationDbObject> {
     }
 
     return this.base!;
+  }
+
+  public async update(changes: Partial<NotificationDbObject>): Promise<void> {
+    const updatedBase = NotificationEntity.filter({
+      ...this.base!,
+      ...changes
+    });
+
+    this.changes = updatedBase;
+    this.base = updatedBase;
   }
 
   public async fetchRelations(include?: string | undefined): Promise<void> {

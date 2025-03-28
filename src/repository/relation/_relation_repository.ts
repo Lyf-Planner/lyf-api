@@ -8,7 +8,7 @@ export abstract class RelationRepository<T extends DbRelationObject> extends Bas
   protected abstract readonly pk_b: DbPrimaryKey;
 
   // These have their own implementation so we don't mess up the order of pks submitted as args
-  protected abstract deleteRelation(...args: any[]): Promise<void>;
+  protected abstract deleteRelation(...args: unknown[]): Promise<void>;
 
   async findByCompositeId(id_a: ID, id_b: ID): Promise<T | undefined> {
     const result = await this.db

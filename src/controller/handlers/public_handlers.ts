@@ -22,4 +22,4 @@ export class PublicHandlers {
   }
 }
 
-const logger = Logger.of(PublicHandlers);
+const logger = Logger.of(PublicHandlers.name);

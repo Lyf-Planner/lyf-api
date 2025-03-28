@@ -13,7 +13,7 @@ export type FriendshipUpdate = {
 };
 
 export class FriendshipService extends BaseService {
-  public logger = Logger.of(FriendshipService);
+  public logger = Logger.of(FriendshipService.name);
 
   async processUpdate(from_id: ID, update: FriendshipUpdate) {
     // Can't address yourself
@@ -66,7 +66,8 @@ export class FriendshipService extends BaseService {
     try {
       await friendship.create(newFriendship, UserFriendRelation.filter);
       await friendship.getRelatedEntity().load();
-    } catch (e) {
+    } catch (error) {
+      this.logger.error('friendship record already exists', error);
       throw new LyfError(`Friendship between ${id1} and ${id2} already exists!`, 400);
     }
   }
@@ -95,8 +96,8 @@ export class FriendshipService extends BaseService {
       }
 
       await friendship.save()
-    } catch (e) {
-      this.logger.warn('Block status requested on non-existent friendship, creating now');
+    } catch (error) {
+      this.logger.warn('Block status requested on non-existent friendship, creating now', error);
       await this.createFriendship(friendship, desiredStatus);
     }
   }

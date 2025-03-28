@@ -1,19 +1,21 @@
 import { Entity } from '../../../schema';
 import { DbEntityObject, DbObject } from '../../../schema/database';
 import { EntityRepository } from '../../repository/entity/_entity_repository';
+import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { ObjectUtils } from '../../utils/object';
 import { BaseModel } from '../_base_model';
 import { CommandType } from '../command_types';
 
-type EntityRelations = Record<string, BaseModel<DbObject> | BaseModel<DbObject>[]>
+export type EntityRelations = Record<string, BaseModel<DbObject> | BaseModel<DbObject>[]>
 
 export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> {
+  protected abstract logger: Logger;
   protected relations: EntityRelations = {};
   protected abstract repository: EntityRepository<T>;
 
   public abstract fetchRelations(include?: string): Promise<void>;
-  public abstract getRelations(): any;
+  public abstract getRelations(): EntityRelations | void;
 
   public async delete(softDelete = false) {
     await this.recurseRelations(CommandType.Delete);

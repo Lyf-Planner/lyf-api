@@ -58,4 +58,4 @@ export class FriendNotifications {
   }
 }
 
-const logger = Logger.of(FriendNotifications);
+const logger = Logger.of(FriendNotifications.name);

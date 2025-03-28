@@ -22,7 +22,7 @@ import { ExpoPushService } from './expo_push_service';
 const agenda = require('agenda');
 
 export class ReminderService {
-  private logger = Logger.of(ReminderService);
+  private logger = Logger.of(ReminderService.name);
   private agendaInstance = new agenda({
     mongo: mongoDb.getDb(),
     db: { collection: 'cron-jobs' },
