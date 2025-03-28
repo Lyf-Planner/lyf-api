@@ -7,14 +7,15 @@ import { UserRelatedItem } from '../../../schema/user';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { ItemUserRelation } from '../../models/relation/item_related_user';
+import { UserItemRelation } from '../../models/relation/user_related_item';
+import { SocialItemNotifications } from '../../modules/notification_scheduling/item_notifications';
+import reminderService from '../../modules/notification_scheduling/reminder_service';
 import { formatDateData, getStartOfCurrentWeek } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
-import { SocialItemNotifications } from '../../modules/notification_scheduling/item_notifications';
-import reminderService from '../../modules/notification_scheduling/reminder_service';
+
 import { EntityService } from './_entity_service';
 import { UserService } from './user_service';
-import { UserItemRelation } from '../../models/relation/user_related_item';
 
 export class ItemService extends EntityService<ItemDbObject> {
   protected logger = Logger.of(ItemService);
@@ -29,7 +30,7 @@ export class ItemService extends EntityService<ItemDbObject> {
 
   async getTimetable(user_id: ID, start_date: string) {
     // Validate the requestor has permission - must be themselves or a Best Friend
-    const user = await new UserService().getEntity(user_id, "");
+    const user = await new UserService().getEntity(user_id, '');
 
     await user.fetchItemsInFuture(start_date);
     const timetableItems = user.getRelations().items || [];
@@ -45,7 +46,7 @@ export class ItemService extends EntityService<ItemDbObject> {
   async processCreation(
     item_input: UserRelatedItem,
     user_id: ID,
-    sorting_rank: number,
+    sorting_rank: number
   ) {
     // Create the item, as well as any user relations and note relations
     const item = new ItemEntity(item_input.id);
@@ -150,7 +151,7 @@ export class ItemService extends EntityService<ItemDbObject> {
       day: undefined,
       time: undefined,
       end_time: undefined,
-      desc: "Tap the leaf icon in the top corner for guides and tips on getting started.\n\nLet's setup your timetable!",
+      desc: 'Tap the leaf icon in the top corner for guides and tips on getting started.\n\nLet\'s setup your timetable!',
       url: undefined,
       location: undefined
     };
@@ -177,7 +178,7 @@ export class ItemService extends EntityService<ItemDbObject> {
       day: undefined,
       time: undefined,
       end_time: undefined,
-      desc: "- Open my Routine, enter everything I do each week\n- Move back to my Calendar\n- Add all the events I have planned, and any tasks I need to do\n  - If unsure on a date, add to Upcoming Events or To Do List",
+      desc: '- Open my Routine, enter everything I do each week\n- Move back to my Calendar\n- Add all the events I have planned, and any tasks I need to do\n  - If unsure on a date, add to Upcoming Events or To Do List',
       url: undefined,
       location: undefined
     };
@@ -226,7 +227,7 @@ export class ItemService extends EntityService<ItemDbObject> {
 
   private async handleNotificationChanges(changes: Partial<UserRelatedItem>, item: ItemEntity, user: UserEntity) {
     if (changes.notification_mins) {
-      this.logger.debug("Handling notification changes to item");
+      this.logger.debug('Handling notification changes to item');
       await reminderService.updateEventNotification(item, user, changes.notification_mins);
     }
   }
@@ -236,16 +237,16 @@ export class ItemService extends EntityService<ItemDbObject> {
 
     // Update when notifications should send
     if (timeChangesDetected) {
-      this.logger.debug("Handling time changes to item");
-        // Case: date or time was deleted
-        if (changes.time === null || changes.date === null) {
-          await this.removeAllNotifications(item);
-        } else {
-          await this.updateAllNotifications(item);
-        }
+      this.logger.debug('Handling time changes to item');
+      // Case: date or time was deleted
+      if (changes.time === null || changes.date === null) {
+        await this.removeAllNotifications(item);
+      } else {
+        await this.updateAllNotifications(item);
       }
+    }
 
-      // Notify any other users of a change!
+    // Notify any other users of a change!
     if (changes.time) {
       await SocialItemNotifications.handleTimeChange(user, item);
     }
@@ -259,7 +260,7 @@ export class ItemService extends EntityService<ItemDbObject> {
 
     // Notify any other users of a change!
     if (statusChanged) {
-      this.logger.debug("Handling status change to item");
+      this.logger.debug('Handling status change to item');
       await SocialItemNotifications.handleStatusChange(from, item);
     }
   }

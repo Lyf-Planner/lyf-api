@@ -13,6 +13,7 @@ import { ObjectUtils } from '../../utils/object';
 import { CommandType } from '../command_types';
 import { NoteChildRelation } from '../relation/note_child';
 import { NoteUserRelation } from '../relation/note_related_user';
+
 import { SocialEntity } from './_social_entity';
 import { ItemEntity } from './item_entity';
 
@@ -41,7 +42,7 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
     return ObjectUtils.stripUndefinedFields(objectFilter);
   }
-    
+
   // soft deletion is implied here
   async delete(delete_contents = true) {
     // Delete directly related user relations, including user relations on sub-notes
@@ -50,7 +51,6 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     if (delete_contents) {
       relatedUserDeletion = noteUserRepository.deleteAllDirectDescendantRelations(this._id);
     }
-    
 
     // delete any remaining relations with parents
     const noteChildRepository = new NoteChildRepository();
@@ -88,13 +88,13 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
     this.logger.debug('using ancestor permission');
     const ancestorPermissions = await this.repository.findAncestorPermissions(this._id, requestor);
-    
+
     const hasAncestorPermission = ancestorPermissions.length > 0;
     if (hasAncestorPermission) {
       const nearestPermission = ancestorPermissions.sort((a, b) => a.distance - b.distance)[0];
       return NoteUserRelation.filter(nearestPermission);
     }
-    
+
     return null;
   }
 

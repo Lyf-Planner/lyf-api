@@ -5,10 +5,11 @@ import { SocialAction } from '../../../schema/util/social';
 import { NoteEntity } from '../../models/entity/note_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { NoteUserRelation } from '../../models/relation/note_related_user';
+import { SocialNoteNotifications } from '../../modules/notification_scheduling/note_notifications';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
+
 import { SocialService, SocialUpdate } from './_social_service';
-import { SocialNoteNotifications } from '../../modules/notification_scheduling/note_notifications';
 
 export class SocialNoteService extends SocialService<NoteUserRelation> {
   protected logger = Logger.of(SocialNoteService);
@@ -23,7 +24,7 @@ export class SocialNoteService extends SocialService<NoteUserRelation> {
       user_id_fk: user_id,
       invite_pending: invited,
       permission,
-      sorting_rank_preference: -1, // trick to make this appear at the top of the users root notes :)
+      sorting_rank_preference: -1 // trick to make this appear at the top of the users root notes :)
     };
 
     await relation.create(dbObject, NoteUserRelation.filter);
@@ -84,7 +85,7 @@ export class SocialNoteService extends SocialService<NoteUserRelation> {
   protected async updateIsCollaborative(note_id: ID) {
     try {
       const note = new NoteEntity(note_id);
-      await note.fetchRelations("users");
+      await note.fetchRelations('users');
 
       const numUsers = note.getRelations().users?.length;
       const collaborative = !!numUsers && numUsers > 1

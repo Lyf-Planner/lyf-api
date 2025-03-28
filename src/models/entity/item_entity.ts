@@ -1,8 +1,6 @@
 import { ID } from '../../../schema/database/abstract';
 import { ItemDbObject } from '../../../schema/database/items';
-import { NoteDbObject } from '../../../schema/database/notes';
 import { Item } from '../../../schema/items';
-import { Note } from '../../../schema/notes';
 import { ItemRepository } from '../../repository/entity/item_repository';
 import { ItemUserRepository } from '../../repository/relation/item_user_repository';
 import { Logger } from '../../utils/logging';
@@ -10,6 +8,7 @@ import { LyfError } from '../../utils/lyf_error';
 import { ObjectUtils } from '../../utils/object';
 import { CommandType } from '../command_types';
 import { ItemUserRelation } from '../relation/item_related_user';
+
 import { SocialEntity } from './_social_entity';
 
 export type ItemModelRelations = {
@@ -44,7 +43,7 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
       location: object.location,
       default_show_in_upcoming: object.show_in_upcoming,
       default_notification_mins: object.default_notification_mins,
-      default_sorting_rank: object.default_sorting_rank,
+      default_sorting_rank: object.default_sorting_rank
     };
 
     return ObjectUtils.stripUndefinedFields(objectFilter);
@@ -147,7 +146,7 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
   type() {
     return this.base!.type;
   }
-  
+
   noteId() {
     return this.base!.note_id;
   }

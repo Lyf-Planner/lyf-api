@@ -5,10 +5,8 @@ import { LyfError } from '../../utils/lyf_error';
 import { ObjectUtils } from '../../utils/object';
 import { BaseModel } from '../_base_model';
 import { CommandType } from '../command_types';
-import { BaseRelation } from '../relation/_base_relation';
 
-type EntityRelations = Record<string, BaseModel<DbObject> | BaseModel<DbObject>[]> 
-
+type EntityRelations = Record<string, BaseModel<DbObject> | BaseModel<DbObject>[]>
 
 export abstract class BaseEntity<T extends DbEntityObject> extends BaseModel<T> {
   protected relations: EntityRelations = {};

@@ -11,6 +11,7 @@ import { NoteChildRepository } from '../../repository/relation/note_child_reposi
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
+
 import { EntityService } from './_entity_service';
 
 export class NoteService extends EntityService<NoteDbObject> {
@@ -55,7 +56,6 @@ export class NoteService extends EntityService<NoteDbObject> {
       // create a relation with the new parent, and all of it's parents
       await noteChildRepository.attachSubtree(note_id, parent_id);
     }
-   
   }
 
   async processCreation(note_input: NoteDbObject, from: ID, sorting_rank: number, parent_id?: ID) {
@@ -72,7 +72,7 @@ export class NoteService extends EntityService<NoteDbObject> {
         ...note_input,
         child_id: note_input.id,
         parent_id,
-        sorting_rank: sorting_rank,
+        sorting_rank,
         distance: 1
       };
       await parentRelationship.create(parentRelationshipObject);
@@ -92,7 +92,7 @@ export class NoteService extends EntityService<NoteDbObject> {
 
     // TODO LYF-384: Make it so Editors can delete notes in folders, but not folders themselves
     if (notePermission && (
-      notePermission.permission === Permission.Owner || 
+      notePermission.permission === Permission.Owner ||
       notePermission.permission === Permission.Editor
     )) {
       await note.delete(delete_contents);
@@ -102,7 +102,6 @@ export class NoteService extends EntityService<NoteDbObject> {
   }
 
   async processUpdate(id: ID, changes: Partial<UserRelatedNote>, from: ID) {
-
     this.logger.info(`Processing changeset ${JSON.stringify(changes)} on item ${id}`);
 
     const noteRelation = new UserNoteRelation(from, id);
@@ -130,9 +129,9 @@ export class NoteService extends EntityService<NoteDbObject> {
     if (!await parentNote.getPermission(requestor)) {
       throw new LyfError('unauthorised', 401);
     }
-   
+
     if (!parentNote.getRelations().notes) {
-      throw new LyfError('unable to load children of note ' + parent_id, 500);
+      throw new LyfError(`unable to load children of note ${parent_id}`, 500);
     }
 
     const childNotes = parentNote.getRelations().notes || [];

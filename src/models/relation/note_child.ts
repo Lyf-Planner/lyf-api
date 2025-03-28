@@ -1,22 +1,13 @@
-import { DbRelationFields, DbRelationObject } from '../../../schema/database';
 import { ID } from '../../../schema/database/abstract';
 import { NoteChildDbObject } from '../../../schema/database/note_children';
 import { NoteDbObject } from '../../../schema/database/notes';
-import { UserDbObject } from '../../../schema/database/user';
-import {
-  UserFriendshipDbObject,
-  UserFriendshipRelations,
-  UserFriendshipStatus
-} from '../../../schema/database/user_friendships';
-import { ChildNote, Note } from '../../../schema/notes';
-import { PublicUser, UserFriend, UserRelatedNote } from '../../../schema/user';
-import { UserRepository } from '../../repository/entity/user_repository';
+import { ChildNote } from '../../../schema/notes';
+import { UserRelatedNote } from '../../../schema/user';
 import { NoteChildRepository } from '../../repository/relation/note_child_repository';
-import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
 import { Logger } from '../../utils/logging';
 import { ObjectUtils } from '../../utils/object';
 import { NoteEntity } from '../entity/note_entity';
-import { UserEntity } from '../entity/user_entity';
+
 import { BaseRelation } from './_base_relation';
 
 export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntity> {
@@ -52,14 +43,14 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
 
   async create(db_object: NoteChildDbObject) {
     const validatedObj = NoteChildRelation.filter(db_object);
-    
+
     const uploaded = await this.repository.create(validatedObj);
     this.base = uploaded;
-    
+
     // find all ancestors of the parent to also create the child relation with
     // this is how we improve query times for hierarchical permissions
     const ancestors = await this.repository.findAncestors(validatedObj.parent_id);
-    
+
     let ancestorDistance = 1;
     for (const ancestor of ancestors) {
       ancestorDistance += 1;
@@ -70,7 +61,6 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
       });
     }
   }
-
 
   async delete(): Promise<void> {
     await this.repository.deleteRelation(this._entityId, this._id);
@@ -114,7 +104,7 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
 
   async update(changes: Partial<ChildNote>): Promise<void> {
     const relationFieldUpdates = NoteChildRelation.filter(changes);
-  
+
     this.changes = relationFieldUpdates;
     this.base = {
       ...this.base!,

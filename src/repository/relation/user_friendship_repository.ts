@@ -1,7 +1,7 @@
 import { ID } from '../../../schema/database/abstract';
 import { UserDbObject } from '../../../schema/database/user';
 import { UserFriendshipDbObject } from '../../../schema/database/user_friendships';
-import { ObjectUtils } from '../../utils/object';
+
 import { RelationRepository } from './_relation_repository';
 
 const TABLE_NAME = 'user_friendships';

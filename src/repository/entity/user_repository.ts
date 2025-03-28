@@ -1,5 +1,6 @@
 import { ID } from '../../../schema/database/abstract';
 import { UserDbObject } from '../../../schema/database/user';
+
 import { EntityRepository } from './_entity_repository';
 
 const TABLE_NAME = 'users';

@@ -1,8 +1,11 @@
-import { FileMigrationProvider, Migrator } from 'kysely';
 
 import { promises as fs } from 'fs';
 import * as path from 'path';
+
+import { FileMigrationProvider, Migrator } from 'kysely';
+
 import { Logger } from '../utils/logging';
+
 import postgresDb from './pg/postgres_db';
 
 export const migrator = new Migrator({

@@ -1,6 +1,7 @@
+import assert from 'assert';
+
 import { NextFunction, Request, Response } from 'express';
 
-import assert from 'assert';
 import { AuthService } from '../../services/auth_service';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';

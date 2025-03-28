@@ -4,17 +4,17 @@ import { Request, Response } from 'express';
 import express from 'express';
 import bodyParserErrorHandler from 'express-body-parser-error-handler';
 
+import { authoriseHeader } from './controller/middleware/auth_middleware';
 import { ItemEndpoints } from './controller/routes/item_routes';
 import { NoteEndpoints } from './controller/routes/note_routes';
+import { PublicEndpoints } from './controller/routes/public_routes';
 import { UserEndpoints } from './controller/routes/user_routes';
-import { authoriseHeader } from './controller/middleware/auth_middleware';
+import { migrateDatabase } from './db/migration_manager';
 import mongoDb from './db/mongo/mongo_db';
 import postgresDb from './db/pg/postgres_db';
 import env from './envManager';
 import reminderService from './modules/notification_scheduling/reminder_service';
 import { Logger, LoggingLevel } from './utils/logging';
-import { PublicEndpoints } from './controller/routes/public_routes';
-import { migrateDatabase } from './db/migration_manager';
 
 export const server = express();
 
@@ -50,7 +50,7 @@ export const serverInitialised = new Promise(async (resolve, reject) => {
     await Promise.all([
       mongoDb.init(),
       reminderService.init(),
-      migrateDatabase(),
+      migrateDatabase()
     ]);
 
     resolve(true);

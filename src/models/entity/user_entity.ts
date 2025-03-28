@@ -1,29 +1,27 @@
-import moment from 'moment-timezone';
 import { ID } from '../../../schema/database/abstract';
 import { UserDbObject, UserExposedFields, UserPublicFields, UserSensitiveFields } from '../../../schema/database/user';
 import { UserFriendshipStatus } from '../../../schema/database/user_friendships';
 import {
   ExposedUser,
   PublicUser,
-  UserFriend,
-  UserNotification
+  UserFriend
 } from '../../../schema/user';
+import { NotificationRepository } from '../../repository/entity/notification_repository';
 import { UserRepository } from '../../repository/entity/user_repository';
 import { ItemUserRepository } from '../../repository/relation/item_user_repository';
 import { NoteUserRepository } from '../../repository/relation/note_user_repository';
 import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
 import { daysInRange } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
+import { LyfError } from '../../utils/lyf_error';
+import { ObjectUtils } from '../../utils/object';
 import { CommandType } from '../command_types';
 import { UserFriendRelation } from '../relation/user_friend';
 import { UserItemRelation } from '../relation/user_related_item';
 import { UserNoteRelation } from '../relation/user_related_note';
+
 import { BaseEntity } from './_base_entity';
-import { ObjectUtils } from '../../utils/object';
-import { LyfError } from '../../utils/lyf_error';
-import { NotificationRepository } from '../../repository/entity/notification_repository';
 import { NotificationEntity } from './notification_entity';
-import { Notification } from '../../../schema/notifications';
 
 export type UserModelRelations = {
   items: UserItemRelation[];
@@ -66,7 +64,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     if (requestor && !selfRequested) {
       return await this.exportAsPublicUser(requestor);
     }
-    
+
     if (with_relations) {
       return {
         ...this.stripSensitiveFields(),
@@ -231,7 +229,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     if (with_relations) {
       // When exporting a public user, expose only a users friends when requested by a friend
       const { users } = await this.recurseRelations(CommandType.Export) as { users?: UserFriend[] }
-    
+
       const requestorIsFriend = users && users.some((x) => x.id === requestor_id);
       const relations = requestorIsFriend ? {
         users: users.filter((x) => x.status === UserFriendshipStatus.Friends)

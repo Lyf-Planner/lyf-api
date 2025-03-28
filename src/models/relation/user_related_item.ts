@@ -1,4 +1,3 @@
-import { DbRelationFields, DbRelationObject } from '../../../schema/database';
 import { ID } from '../../../schema/database/abstract';
 import { ItemDbObject } from '../../../schema/database/items';
 import {
@@ -11,6 +10,7 @@ import { ItemUserRepository } from '../../repository/relation/item_user_reposito
 import { Logger } from '../../utils/logging';
 import { ObjectUtils } from '../../utils/object';
 import { ItemEntity } from '../entity/item_entity';
+
 import { BaseRelation } from './_base_relation';
 
 export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject, ItemEntity> {
@@ -44,7 +44,6 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
     } else {
       this.relatedEntity = new ItemEntity(entity_id);
     }
-    
   }
 
   public async delete(): Promise<void> {
@@ -66,7 +65,7 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
       show_in_upcoming: this.base!.show_in_upcoming,
       notification_mins: this.base!.notification_mins
     }
-      
+
     return {
       // No need to add the requestor
       // The permission is implied by the relationship existing at all

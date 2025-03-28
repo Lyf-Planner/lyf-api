@@ -1,4 +1,3 @@
-import { DbRelationFields, DbRelationObject } from '../../../schema/database';
 import { ID } from '../../../schema/database/abstract';
 import { UserDbObject } from '../../../schema/database/user';
 import {
@@ -7,11 +6,11 @@ import {
   UserFriendshipStatus
 } from '../../../schema/database/user_friendships';
 import { PublicUser, UserFriend } from '../../../schema/user';
-import { UserRepository } from '../../repository/entity/user_repository';
 import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
 import { Logger } from '../../utils/logging';
 import { ObjectUtils } from '../../utils/object';
 import { UserEntity } from '../entity/user_entity';
+
 import { BaseRelation } from './_base_relation';
 
 export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, UserEntity> {
@@ -72,7 +71,7 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
 
   public async update(changes: Partial<UserFriend>): Promise<void> {
     const relationFieldUpdates = UserFriendRelation.filter(changes);
-  
+
     this.changes = relationFieldUpdates;
     this.base = {
       ...this.base!,

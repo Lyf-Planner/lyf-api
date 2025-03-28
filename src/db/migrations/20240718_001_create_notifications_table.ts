@@ -17,8 +17,8 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('related_id', 'text')
     .execute();
 
-    await db.schema.createIndex('notification_to_index').on('notifications').column('to').execute();
-    await db.schema.createIndex('notification_created_index').on('notifications').column('created').execute();
+  await db.schema.createIndex('notification_to_index').on('notifications').column('to').execute();
+  await db.schema.createIndex('notification_created_index').on('notifications').column('created').execute();
 }
 
 export async function down(db: Kysely<any>): Promise<void> {

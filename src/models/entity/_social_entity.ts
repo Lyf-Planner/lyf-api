@@ -2,6 +2,7 @@ import { ItemDbObject } from '../../../schema/database/items';
 import { NoteDbObject } from '../../../schema/database/notes';
 import { ItemUserRelation } from '../relation/item_related_user';
 import { NoteUserRelation } from '../relation/note_related_user';
+
 import { BaseEntity } from './_base_entity';
 
 export type SocialRelations = {
@@ -10,7 +11,7 @@ export type SocialRelations = {
 
 export type SocialRelation = NoteUserRelation|ItemUserRelation;
 
-export type SocialEntityObject =  ItemDbObject|NoteDbObject;
+export type SocialEntityObject = ItemDbObject|NoteDbObject;
 
 export abstract class SocialEntity<T extends SocialEntityObject> extends BaseEntity<T> {
   async getUsers() {

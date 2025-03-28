@@ -1,11 +1,11 @@
 import { ExpoPushMessage } from 'expo-server-sdk';
 
-import { UserEntity } from '../../models/entity/user_entity';
-import { Logger } from '../../utils/logging';
-import { ExpoPushService } from './expo_push_service';
-import { ID } from '../../../schema/database/abstract';
-import { UserFriendRelation } from '../../models/relation/user_friend';
 import { NotificationRelatedData, NotificationType } from '../../../schema/database/notifications';
+import { UserEntity } from '../../models/entity/user_entity';
+import { UserFriendRelation } from '../../models/relation/user_friend';
+import { Logger } from '../../utils/logging';
+
+import { ExpoPushService } from './expo_push_service';
 
 export class FriendNotifications {
   public static async newFriendRequest(friendship: UserFriendRelation) {
@@ -29,7 +29,7 @@ export class FriendNotifications {
       to_id: toUser.id(),
       from_id: fromUser.id(),
       related_data: NotificationRelatedData.User,
-      related_id: fromUser.id(),
+      related_id: fromUser.id()
     });
   }
 
@@ -53,7 +53,7 @@ export class FriendNotifications {
       to_id: toUser.id(),
       from_id: fromUser.id(),
       related_data: NotificationRelatedData.User,
-      related_id: fromUser.id(),
+      related_id: fromUser.id()
     });
   }
 }

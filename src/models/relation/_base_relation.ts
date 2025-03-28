@@ -15,7 +15,9 @@ export abstract class BaseRelation<T extends DbRelationObject, K extends BaseEnt
     this._entityId = entity_id;
   }
 
-  public entityId() { return this._entityId; }
+  public entityId() {
+    return this._entityId;
+  }
   public extractRelation() {
     return this.base!;
   }

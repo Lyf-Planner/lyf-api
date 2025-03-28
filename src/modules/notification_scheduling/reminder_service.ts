@@ -1,22 +1,23 @@
 import { ExpoPushMessage } from 'expo-server-sdk';
 import moment from 'moment-timezone';
 
+import { ItemType } from '../../../schema/database/items';
+import { NotificationRelatedData, NotificationType } from '../../../schema/database/notifications';
 import { ItemStatus } from '../../../schema/mongo_schema/list';
 import { DaysOfWeek } from '../../../schema/mongo_schema/timetable';
-import { ItemType } from '../../../schema/database/items';
 import mongoDb from '../../db/mongo/mongo_db';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';
 import { ItemUserRelation } from '../../models/relation/item_related_user';
 import { UserItemRelation } from '../../models/relation/user_related_item';
+import { ItemService } from '../../services/entity/item_service';
+import { UserService } from '../../services/entity/user_service';
 import { formatDateData, isFutureDate, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { pluralisedQuantity } from '../../utils/text';
-import { ItemService } from '../../services/entity/item_service';
-import { UserService } from '../../services/entity/user_service';
+
 import { ExpoPushService } from './expo_push_service';
-import { NotificationRelatedData, NotificationType } from '../../../schema/database/notifications';
 
 const agenda = require('agenda');
 
@@ -226,7 +227,7 @@ export class ReminderService {
       );
       await new ExpoPushService().pushNotificationToExpo({
         messages: [message],
-        type: NotificationType.ItemReminder, 
+        type: NotificationType.ItemReminder,
         to_id: userId,
         save: false // these have no real data, saving these would just be noise
       });
@@ -288,17 +289,17 @@ export class ReminderService {
 
       const subtext = mins_before
         ? `In ${pluralisedQuantity(
-            mins_before,
-            'minute'
-          )} (at ${TwentyFourHourToAMPM(time)})`
+          mins_before,
+          'minute'
+        )} (at ${TwentyFourHourToAMPM(time)})`
         : `Now (${TwentyFourHourToAMPM(time)})`;
 
       this.logger.info(`Sending scheduled notification ${id} to ${user_id}`);
 
       const message = this.formatExpoPushMessage(to, title, subtext);
       await new ExpoPushService().pushNotificationToExpo({
-        messages: [message], 
-        type: NotificationType.ItemReminder, 
+        messages: [message],
+        type: NotificationType.ItemReminder,
         to_id: user_id,
         related_data: NotificationRelatedData.Item,
         related_id: item_id
@@ -316,7 +317,7 @@ export class ReminderService {
   }
 
   private getUniqueJobId = (prefix: string, suffix: string) => {
-    return prefix + ':' + suffix;
+    return `${prefix}:${suffix}`;
   }
 
   private formatExpoPushMessage(to: string[], title: string, body: string) {

@@ -1,14 +1,11 @@
 import { ID } from '../../../schema/database/abstract';
 import { UserFriendshipDbObject, UserFriendshipStatus } from '../../../schema/database/user_friendships';
 import { FriendshipAction } from '../../../schema/util/social';
-import { ExposedUser, UserFriend } from '../../../schema/user';
-import { UserEntity } from '../../models/entity/user_entity';
 import { UserFriendRelation } from '../../models/relation/user_friend';
+import { FriendNotifications } from '../../modules/notification_scheduling/friend_notifications';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { BaseService } from '../_base_service';
-import { UserService } from '../entity/user_service';
-import { FriendNotifications } from '../../modules/notification_scheduling/friend_notifications';
 
 export type FriendshipUpdate = {
   user_id: ID;
@@ -63,7 +60,7 @@ export class FriendshipService extends BaseService {
       user2_id_fk: id2,
       created: new Date(),
       last_updated: new Date(),
-      status: status
+      status
     };
 
     try {
@@ -83,7 +80,7 @@ export class FriendshipService extends BaseService {
 
     try {
       await friendship.load();
-      const status = (await friendship.extract()).status;
+      const { status } = await friendship.extract();
 
       const requiredForMutualBlock = friendship.id() === id1
         ? UserFriendshipStatus.BlockedBySecond

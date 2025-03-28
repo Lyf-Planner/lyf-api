@@ -2,6 +2,7 @@ import { ID } from '../../../schema/database/abstract';
 import { NoteChildDbObject } from '../../../schema/database/note_children';
 import { NoteDbObject } from '../../../schema/database/notes';
 import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
+
 import { EntityRepository } from './_entity_repository';
 
 const TABLE_NAME = 'notes';
@@ -20,5 +21,4 @@ export class NoteRepository extends EntityRepository<NoteDbObject> {
       .selectAll()
       .execute();
   }
-
 }

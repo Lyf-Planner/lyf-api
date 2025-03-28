@@ -38,7 +38,7 @@ export abstract class EntityRepository<T extends DbEntityObject> extends BaseRep
     if (!updated) {
       throw new LyfError(`Did not find db object ${id} to update in ${this.table_name}`, 404);
     }
-    
+
     return updated as T;
   }
 }

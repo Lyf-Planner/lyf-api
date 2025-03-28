@@ -1,4 +1,3 @@
-import { DbRelationFields, DbRelationObject } from '../../../schema/database';
 import { ID } from '../../../schema/database/abstract';
 import { ItemUserRelations, ItemUserRelationshipDbObject } from '../../../schema/database/items_on_users';
 import { UserDbObject, UserPublicFields } from '../../../schema/database/user';
@@ -7,6 +6,7 @@ import { ItemUserRepository } from '../../repository/relation/item_user_reposito
 import { Logger } from '../../utils/logging';
 import { ObjectUtils } from '../../utils/object';
 import { UserEntity } from '../entity/user_entity';
+
 import { SocialRelation } from './_social_relation';
 
 export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObject, UserEntity> {

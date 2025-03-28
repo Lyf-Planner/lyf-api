@@ -3,6 +3,7 @@ import { NoticeDbObject } from '../../../schema/database/notices';
 import { NoticeRepository } from '../../repository/entity/notice_repository';
 import { Logger } from '../../utils/logging';
 import { ObjectUtils } from '../../utils/object';
+
 import { BaseEntity } from './_base_entity';
 
 // This is mostly just here for consistency
@@ -39,7 +40,6 @@ export class NoticeEntity extends BaseEntity<NoticeDbObject> {
   public async fetchRelations(include?: string | undefined): Promise<void> {
     // No relations
   }
-
 
   public getRelations() {
     // No implementation

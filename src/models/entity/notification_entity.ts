@@ -5,6 +5,7 @@ import { NotificationRepository } from '../../repository/entity/notification_rep
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { ObjectUtils } from '../../utils/object';
+
 import { BaseEntity } from './_base_entity';
 import { UserEntity } from './user_entity';
 
@@ -48,7 +49,6 @@ export class NotificationEntity extends BaseEntity<NotificationDbObject> {
   public async fetchRelations(include?: string | undefined): Promise<void> {
     // Fetching users from a notification makes no sense - it is the leaf of a tree
   }
-
 
   public getRelations() {
     // No implementation

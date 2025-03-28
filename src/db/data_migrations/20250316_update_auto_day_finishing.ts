@@ -1,4 +1,5 @@
 import { Kysely } from 'kysely';
+
 import { LyfError } from '../../utils/lyf_error';
 
 export async function up(db: Kysely<any>): Promise<void> {

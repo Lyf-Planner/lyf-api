@@ -12,6 +12,7 @@ import { LyfError } from '../../utils/lyf_error';
 import { ObjectUtils } from '../../utils/object';
 import { NoteEntity } from '../entity/note_entity';
 import { UserEntity } from '../entity/user_entity';
+
 import { SocialRelation } from './_social_relation';
 
 export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObject, UserEntity> {
@@ -30,7 +31,7 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
       permission: object.permission,
       sorting_rank_preference: object.sorting_rank_preference
     };
-    
+
     return ObjectUtils.stripUndefinedFields(objectFilter);
   }
 
@@ -48,7 +49,6 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
     } else {
       this.relatedEntity = new UserEntity(entity_id);
     }
-
   }
 
   public async delete(): Promise<void> {

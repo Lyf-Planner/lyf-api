@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 
+import { NoticeService } from '../../services/entity/notice_service';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
-import { NoticeService } from '../../services/entity/notice_service';
 
 export class PublicHandlers {
   protected async getNotices(req: Request, res: Response) {
@@ -16,7 +16,7 @@ export class PublicHandlers {
       res.status(200).json(notices).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }

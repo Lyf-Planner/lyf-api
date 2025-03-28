@@ -6,6 +6,7 @@ import { NoteUserRepository } from '../../repository/relation/note_user_reposito
 import { Logger } from '../../utils/logging';
 import { ObjectUtils } from '../../utils/object';
 import { NoteEntity } from '../entity/note_entity';
+
 import { BaseRelation } from './_base_relation';
 
 export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject, NoteEntity> {
@@ -37,7 +38,6 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
     } else {
       this.relatedEntity = new NoteEntity(entity_id);
     }
-    
   }
 
   public async delete(): Promise<void> {

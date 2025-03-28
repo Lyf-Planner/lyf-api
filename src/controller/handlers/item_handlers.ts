@@ -1,18 +1,16 @@
 import { Request, Response } from 'express';
 import PQueue from 'p-queue';
 
-import { Item } from '../../../schema/items';
+import { Identifiable } from '../../../schema/database/abstract';
+import { UserRelatedItem } from '../../../schema/user';
+import { WeatherService } from '../../modules/weather/weather_service';
 import { ItemService } from '../../services/entity/item_service';
+import { UserService } from '../../services/entity/user_service';
 import { SocialUpdate } from '../../services/relation/_social_service';
 import { SocialItemService } from '../../services/relation/social_item_service';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
 import { getMiddlewareVars } from '../utils';
-import { UserRelatedItem } from '../../../schema/user';
-import { ItemDbObject } from '../../../schema/database/items';
-import { ID, Identifiable } from '../../../schema/database/abstract';
-import { UserService } from '../../services/entity/user_service';
-import { WeatherService } from '../../modules/weather/weather_service';
 
 const itemUpdateQueue = new PQueue({ concurrency: 1 });
 
@@ -20,7 +18,7 @@ export class ItemHandlers {
   static async _queuedUpdateItem(req: Request, res: Response) {
     const changes = req.body as Partial<UserRelatedItem> & Identifiable;
     const item_id = changes.id;
-    const user_id = getMiddlewareVars(res).user_id;
+    const { user_id } = getMiddlewareVars(res);
 
     logger.debug(`Updating item ${item_id} from user ${user_id}`);
 
@@ -36,7 +34,7 @@ export class ItemHandlers {
       res.status(200).json(await item.export()).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
@@ -52,10 +50,10 @@ export class ItemHandlers {
       res.status(200).json(resultingRelation
         ? await resultingRelation.export()
         : null)
-      .end();
+        .end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
@@ -64,7 +62,7 @@ export class ItemHandlers {
     // Users only type a name in a section (implying type) to create an item
     // Should reevaluate this if we ever grant API access!
     const input = req.body as UserRelatedItem;
-    const user_id = getMiddlewareVars(res).user_id;
+    const { user_id } = getMiddlewareVars(res);
 
     logger.debug(`Creating item ${input.title} from user ${user_id}`);
 
@@ -75,14 +73,14 @@ export class ItemHandlers {
       res.status(201).json(await item.export()).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
   protected async deleteItem(req: Request, res: Response) {
     const { item_id } = req.query as { item_id: string };
-    const user_id = getMiddlewareVars(res).user_id;
+    const { user_id } = getMiddlewareVars(res);
 
     logger.debug(`Deleting item ${item_id} as requested by ${user_id}`);
 
@@ -94,14 +92,14 @@ export class ItemHandlers {
       res.status(204).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
   protected async getItem(req: Request, res: Response) {
     const { id, include } = req.query as { id: string, include: string };
-    const user_id = getMiddlewareVars(res).user_id;
+    const { user_id } = getMiddlewareVars(res);
 
     logger.debug(`Retrieving item ${id} for user ${user_id}`);
 
@@ -114,7 +112,7 @@ export class ItemHandlers {
       res.status(200).json(result).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
@@ -133,7 +131,7 @@ export class ItemHandlers {
       res.status(200).json(timetable).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
@@ -150,14 +148,14 @@ export class ItemHandlers {
         lon: parseFloat(lon)
       }
 
-      const user = await new UserService().getEntity(requestor_id, "");
+      const user = await new UserService().getEntity(requestor_id, '');
 
       const weatherData = await WeatherService.getWeather(user, start_date, end_date, coordinates);
-      
+
       res.status(200).json(weatherData).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }

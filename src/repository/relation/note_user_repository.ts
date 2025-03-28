@@ -2,6 +2,7 @@ import { ID } from '../../../schema/database/abstract';
 import { NoteDbObject } from '../../../schema/database/notes';
 import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
 import { UserDbObject } from '../../../schema/database/user';
+
 import { RelationRepository } from './_relation_repository';
 
 const TABLE_NAME = 'notes_on_users';
@@ -24,50 +25,50 @@ export class NoteUserRepository extends RelationRepository<NoteUserRelationshipD
 
   public async deleteAllDirectRelations(note_id: ID) {
     await this.db
-    .deleteFrom(this.table_name)
-    .where('note_id_fk', '=', note_id)
-    .execute();
+      .deleteFrom(this.table_name)
+      .where('note_id_fk', '=', note_id)
+      .execute();
   }
 
   public async deleteAllDirectDescendantRelations(note_id: ID) {
     await this.db
-    .with('subtree_of_note', (db) =>
-      db
-        .selectFrom('note_children')
-        .select('note_children.child_id as note_id')
-        .where('note_children.parent_id', '=', note_id)
-    )
-    .deleteFrom(this.table_name)
-    .where(
-      'note_id_fk',
-      'in',
-      (db) => db.selectFrom('subtree_of_note').select('subtree_of_note.note_id')
-    )
-    .execute();
+      .with('subtree_of_note', (db) =>
+        db
+          .selectFrom('note_children')
+          .select('note_children.child_id as note_id')
+          .where('note_children.parent_id', '=', note_id)
+      )
+      .deleteFrom(this.table_name)
+      .where(
+        'note_id_fk',
+        'in',
+        (db) => db.selectFrom('subtree_of_note').select('subtree_of_note.note_id')
+      )
+      .execute();
   }
 
   async findDirectlyRelatedUsers(
     note_id: string
   ): Promise<(UserDbObject & NoteUserRelationshipDbObject)[]> {
     return await this.db
-    .selectFrom('users')
-    .innerJoin('notes_on_users', 'users.id', 'notes_on_users.user_id_fk')
-    .where('note_id_fk', '=', note_id)
-    .selectAll('users')
-    .selectAll('notes_on_users')
-    .execute();
+      .selectFrom('users')
+      .innerJoin('notes_on_users', 'users.id', 'notes_on_users.user_id_fk')
+      .where('note_id_fk', '=', note_id)
+      .selectAll('users')
+      .selectAll('notes_on_users')
+      .execute();
   }
 
   async findNoteRelatedUsers(
     note_id: string
   ): Promise<(UserDbObject & NoteUserRelationshipDbObject)[]> {
     return await this.db
-    .selectFrom('users')
-    .distinctOn('users.id')
-    .innerJoin('notes_on_users', 'users.id', 'notes_on_users.user_id_fk')
-    .where((eb) =>
+      .selectFrom('users')
+      .distinctOn('users.id')
+      .innerJoin('notes_on_users', 'users.id', 'notes_on_users.user_id_fk')
+      .where((eb) =>
         eb.or([
-          eb('notes_on_users.note_id_fk', '=', note_id), 
+          eb('notes_on_users.note_id_fk', '=', note_id),
           eb('notes_on_users.note_id_fk', 'in', (eb2) =>
             eb2
               .selectFrom('note_children')
@@ -75,10 +76,10 @@ export class NoteUserRepository extends RelationRepository<NoteUserRelationshipD
               .where('child_id', '=', note_id)
           )
         ])
-    )
-    .selectAll('users')
-    .selectAll('notes_on_users')
-    .execute();
+      )
+      .selectAll('users')
+      .selectAll('notes_on_users')
+      .execute();
   }
 
   async findUserRelatedNotes(
@@ -123,7 +124,7 @@ export class NoteUserRepository extends RelationRepository<NoteUserRelationshipD
         join
           // Compare columns: nou.note_id_fk = n.id
           .onRef('nou.note_id_fk', '=', 'n.id')
-      
+
           // Compare a column to a parameter: nou.user_id_fk = userId
           .on('nou.user_id_fk', '=', user_id)
       )

@@ -1,15 +1,13 @@
-import { ID } from '../../../schema/mongo_schema/abstract';
 import { ItemUserRelationshipDbObject, Permission } from '../../../schema/database/items_on_users';
+import { ID } from '../../../schema/mongo_schema/abstract';
 import { SocialAction } from '../../../schema/util/social';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';
-import { SocialRelation } from '../../models/relation/_social_relation';
 import { ItemUserRelation } from '../../models/relation/item_related_user';
+import { SocialItemNotifications } from '../../modules/notification_scheduling/item_notifications';
 import { Logger } from '../../utils/logging';
 import { LyfError } from '../../utils/lyf_error';
-import { ItemService } from '../entity/item_service';
-import { UserService } from '../entity/user_service';
-import { SocialItemNotifications } from '../../modules/notification_scheduling/item_notifications';
+
 import { SocialService, SocialUpdate } from './_social_service';
 
 export class SocialItemService extends SocialService<ItemUserRelation> {
@@ -78,7 +76,7 @@ export class SocialItemService extends SocialService<ItemUserRelation> {
   protected async updateIsCollaborative(item_id: ID) {
     try {
       const item = new ItemEntity(item_id);
-      await item.fetchRelations("users");
+      await item.fetchRelations('users');
 
       const numUsers = item.getRelations().users?.length
       const collaborative = !!numUsers && numUsers > 1

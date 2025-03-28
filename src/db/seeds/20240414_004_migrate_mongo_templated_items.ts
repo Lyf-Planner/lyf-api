@@ -118,7 +118,7 @@
 //   let pgItem = await db.selectFrom('items')
 //     .selectAll()
 //     .where('id', '=', pgUserItem.item_id_fk)
-//     .executeTakeFirst(); 
+//     .executeTakeFirst();
 //   if (!pgItem) {
 //     console.log("ITEM", item.id, 'IS MISSING PG ITEM!!');
 //     await insertAsPgItem(item, db);

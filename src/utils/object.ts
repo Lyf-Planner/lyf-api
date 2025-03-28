@@ -1,5 +1,5 @@
 export class ObjectUtils {
-  static isEmpty(obj: Object) {
+  static isEmpty(obj: object) {
     return Object.keys(obj).length === 0 && obj.constructor === Object;
   }
 

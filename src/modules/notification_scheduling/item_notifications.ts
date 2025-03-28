@@ -2,14 +2,14 @@ import { ExpoPushMessage } from 'expo-server-sdk';
 import debouncer from 'signature-debouncer';
 
 import { ItemStatus } from '../../../schema/database/items';
+import { NotificationRelatedData, NotificationType } from '../../../schema/database/notifications';
 import { ItemEntity } from '../../models/entity/item_entity';
 import { UserEntity } from '../../models/entity/user_entity';
+import { ItemUserRelation } from '../../models/relation/item_related_user';
 import { formatDate, TwentyFourHourToAMPM } from '../../utils/dates';
 import { Logger } from '../../utils/logging';
+
 import { ExpoPushService } from './expo_push_service';
-import { NotificationRelatedData, NotificationType } from '../../../schema/database/notifications';
-import { ItemUserRelation } from '../../models/relation/item_related_user';
-import { SocialUpdate } from '../../services/relation/_social_service';
 
 export enum DebounceSignatures {
   'DateChange' = 'DateChange',
@@ -134,7 +134,7 @@ export class SocialItemNotifications {
       from_id: fromUser.id(),
       related_data: NotificationRelatedData.Item,
       related_id: item.id()
-    });    
+    });
   }
 
   static async newItemUser(fromRelation: ItemUserRelation, _toRelation: ItemUserRelation) {
@@ -207,8 +207,6 @@ export class SocialItemNotifications {
         related_data: NotificationRelatedData.Item,
         related_id: item.id()
       });
-
-      
 
       SocialItemNotifications.debounceItemMessage(
         func,

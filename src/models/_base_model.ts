@@ -3,6 +3,7 @@ import { DbObject } from '../../schema/database';
 import { ID } from '../../schema/database/abstract';
 import { BaseRepository } from '../repository/_base_repository';
 import { Logger } from '../utils/logging';
+
 import { CommandType } from './command_types';
 
 export abstract class BaseModel<T extends DbObject> {
