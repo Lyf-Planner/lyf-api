@@ -19,16 +19,6 @@ const importRules = {
       },
       groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
       'newlines-between': 'always',
-      pathGroups: [
-        {
-          pattern: '{react,react-native,react-dom,react-router,react-router-dom}',
-          group: 'builtin'
-        },
-        {
-          pattern: 'react-dom/**',
-          group: 'builtin'
-        }
-      ],
       pathGroupsExcludedImportTypes: []
     }
   ],
@@ -96,8 +86,6 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'plugin:react/recommended',
-    'plugin:react-native/all'
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
