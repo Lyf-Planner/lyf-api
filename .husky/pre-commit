@@ -1,6 +1,0 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-if [ "$PRECOMMIT" = "true" ]; then
-    yarn lint:fix
-fi
