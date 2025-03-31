@@ -28,7 +28,7 @@ export class Logger {
       return;
     }
 
-    const str = `${new Date().toISOString()} verbose [${this.name}] ${content} ${JSON.stringify(data)}`;
+    const str = `${new Date().toISOString()} verbose [${this.name}] ${content} ${data ? JSON.stringify(data) : ''}`;
     console.log(str);
   }
 
@@ -36,7 +36,7 @@ export class Logger {
     if (Logger.level > LoggingLevel.DEBUG) {
       return;
     }
-    const str = `${new Date().toISOString()} debug  [${this.name}] ${content} ${JSON.stringify(data)}`;
+    const str = `${new Date().toISOString()} debug  [${this.name}] ${content} ${data ? JSON.stringify(data) : ''}`;
     console.log(str);
   }
 
@@ -44,7 +44,7 @@ export class Logger {
     if (Logger.level > LoggingLevel.INFO) {
       return;
     }
-    const str = `${new Date().toISOString()} info  [${this.name}] ${content} ${JSON.stringify(data)}`;
+    const str = `${new Date().toISOString()} info  [${this.name}] ${content} ${data ? JSON.stringify(data) : ''}`;
     console.log(str);
   }
 
@@ -52,7 +52,7 @@ export class Logger {
     if (Logger.level > LoggingLevel.WARN) {
       return;
     }
-    const str = `${new Date().toISOString()} warn  [${this.name}] ${content} ${JSON.stringify(data)}`;
+    const str = `${new Date().toISOString()} warn  [${this.name}] ${content} ${data ? JSON.stringify(data) : ''}`;
     console.log(str);
   }
 
@@ -60,12 +60,12 @@ export class Logger {
     if (Logger.level > LoggingLevel.ERROR) {
       return;
     }
-    const str = `${new Date().toISOString()} error [${this.name}] ${content} ${JSON.stringify(data)}`;
+    const str = `${new Date().toISOString()} error [${this.name}] ${content} ${data ? JSON.stringify(data) : ''}`;
     console.log(str);
   }
 
   public fatal(content: string, data?: unknown) {
-    const str = `${new Date().toISOString()} fatal [${this.name}] ${content} ${JSON.stringify(data)}`;
+    const str = `${new Date().toISOString()} fatal [${this.name}] ${content} ${data ? JSON.stringify(data) : ''}`;
     console.log(str);
   }
 }

@@ -4,7 +4,7 @@ import { BaseEntity } from '@/models/entity/_base_entity';
 import { NoticeRepository } from '@/repository/entity/notice_repository';
 import { Logger } from '@/utils/logging';
 import { ObjectUtils } from '@/utils/object';
-import { Extension } from '@/utils/types';
+import { Includes } from '@/utils/types';
 
 // This is mostly just here for consistency
 // Notices have no wrapping functionality or relations,
@@ -16,7 +16,7 @@ export class NoticeEntity extends BaseEntity<NoticeDbObject> {
 
   protected relations = {};
 
-  static filter(object: Extension<NoticeDbObject>): NoticeDbObject {
+  static filter(object: Includes<NoticeDbObject>): NoticeDbObject {
     const objectFilter: NoticeDbObject = {
       id: object.id,
       created: object.created,

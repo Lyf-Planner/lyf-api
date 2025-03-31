@@ -9,7 +9,7 @@ import { BaseRelation } from '@/models/relation/_base_relation';
 import { NoteChildRepository } from '@/repository/relation/note_child_repository';
 import { Logger } from '@/utils/logging';
 import { ObjectUtils } from '@/utils/object';
-import { Extension } from '@/utils/types';
+import { Includes } from '@/utils/types';
 
 export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntity> {
   protected logger: Logger = Logger.of(NoteChildRelation.name);
@@ -18,7 +18,7 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
   protected relatedEntity: NoteEntity;
   protected repository = new NoteChildRepository();
 
-  static filter(object: Extension<NoteChildDbObject>): NoteChildDbObject {
+  static filter(object: Includes<NoteChildDbObject>): NoteChildDbObject {
     const objectFilter: Required<NoteChildDbObject> = {
       parent_id: object.parent_id,
       child_id: object.child_id,

@@ -4,7 +4,7 @@ import { Export } from '#/index';
 import { BaseRepository } from '@/repository/_base_repository';
 import { Logger } from '@/utils/logging';
 import { LyfError } from '@/utils/lyf_error';
-import { Extension } from '@/utils/types';
+import { Includes } from '@/utils/types';
 
 export enum CommandType {
   Delete,
@@ -28,7 +28,7 @@ export abstract class BaseModel<T extends DbObject> {
     return this._id;
   }
 
-  public async create(db_object: T, filter: (object: Extension<T>) => T) {
+  public async create(db_object: T, filter: (object: Includes<T>) => T) {
     if (filter) {
       db_object = filter(db_object);
     }

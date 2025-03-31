@@ -21,7 +21,7 @@ import { daysInRange } from '@/utils/dates';
 import { Logger } from '@/utils/logging';
 import { LyfError } from '@/utils/lyf_error';
 import { ObjectUtils } from '@/utils/object';
-import { Extension } from '@/utils/types';
+import { Includes } from '@/utils/types';
 
 export type UserModelRelations = {
   items: UserItemRelation[];
@@ -36,7 +36,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
 
   protected relations: Partial<UserModelRelations> = {};
 
-  static filter(object: Extension<UserDbObject>): UserDbObject {
+  static filter(object: Includes<UserDbObject>): UserDbObject {
     const objectFilter: Required<UserDbObject> = {
       id: object.id,
       created: object.created,

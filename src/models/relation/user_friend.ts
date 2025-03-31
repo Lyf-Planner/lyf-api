@@ -11,7 +11,7 @@ import { BaseRelation } from '@/models/relation/_base_relation';
 import { UserFriendshipRepository } from '@/repository/relation/user_friendship_repository';
 import { Logger } from '@/utils/logging';
 import { ObjectUtils } from '@/utils/object';
-import { Extension } from '@/utils/types';
+import { Includes } from '@/utils/types';
 
 export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, UserEntity> {
   protected logger: Logger = Logger.of(UserFriendRelation.name);
@@ -19,7 +19,7 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
   protected relatedEntity: UserEntity;
   protected repository = new UserFriendshipRepository();
 
-  static filter(object: Extension<UserFriendshipDbObject>): UserFriendshipDbObject {
+  static filter(object: Includes<UserFriendshipDbObject>): UserFriendshipDbObject {
     const objectFilter: Required<UserFriendshipDbObject> = {
       user1_id_fk: object.user1_id_fk,
       user2_id_fk: object.user2_id_fk,

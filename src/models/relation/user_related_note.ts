@@ -7,7 +7,7 @@ import { BaseRelation } from '@/models/relation/_base_relation';
 import { NoteUserRepository } from '@/repository/relation/note_user_repository';
 import { Logger } from '@/utils/logging';
 import { ObjectUtils } from '@/utils/object';
-import { Extension } from '@/utils/types';
+import { Includes } from '@/utils/types';
 
 export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject, NoteEntity> {
   protected logger: Logger = Logger.of(UserNoteRelation.name);
@@ -15,7 +15,7 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
   protected relatedEntity: NoteEntity;
   protected repository = new NoteUserRepository();
 
-  static filter(object: Extension<NoteUserRelationshipDbObject>): NoteUserRelationshipDbObject {
+  static filter(object: Includes<NoteUserRelationshipDbObject>): NoteUserRelationshipDbObject {
     const objectFilter: NoteUserRelationshipDbObject = {
       note_id_fk: object.note_id_fk,
       user_id_fk: object.user_id_fk,

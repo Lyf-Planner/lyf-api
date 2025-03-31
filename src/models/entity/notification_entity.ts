@@ -7,7 +7,7 @@ import { NotificationRepository } from '@/repository/entity/notification_reposit
 import { Logger } from '@/utils/logging';
 import { LyfError } from '@/utils/lyf_error';
 import { ObjectUtils } from '@/utils/object';
-import { Extension } from '@/utils/types';
+import { Includes } from '@/utils/types';
 
 export type NotificationModelRelations = {
   to: UserEntity[];
@@ -19,7 +19,7 @@ export class NotificationEntity extends BaseEntity<NotificationDbObject> {
 
   protected relations: Partial<NotificationModelRelations> = {};
 
-  static filter(object: Extension<NotificationDbObject>): NotificationDbObject {
+  static filter(object: Includes<NotificationDbObject>): NotificationDbObject {
     const objectFilter: NotificationDbObject = {
       id: object.id,
       created: object.created,

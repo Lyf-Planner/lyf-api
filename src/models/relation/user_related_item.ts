@@ -12,7 +12,7 @@ import { BaseRelation } from '@/models/relation/_base_relation';
 import { ItemUserRepository } from '@/repository/relation/item_user_repository';
 import { Logger } from '@/utils/logging';
 import { ObjectUtils } from '@/utils/object';
-import { Extension } from '@/utils/types';
+import { Includes } from '@/utils/types';
 
 export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject, ItemEntity> {
   protected logger: Logger = Logger.of(UserItemRelation.name);
@@ -20,7 +20,7 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
   protected relatedEntity: ItemEntity;
   protected repository = new ItemUserRepository();
 
-  static filter(object: Extension<ItemUserRelationshipDbObject>): ItemUserRelationshipDbObject {
+  static filter(object: Includes<ItemUserRelationshipDbObject>): ItemUserRelationshipDbObject {
     const objectFilter: Required<ItemUserRelationshipDbObject> = {
       created: object.created,
       last_updated: object.last_updated,

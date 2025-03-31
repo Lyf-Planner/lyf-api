@@ -9,7 +9,7 @@ import { ItemUserRepository } from '@/repository/relation/item_user_repository';
 import { Logger } from '@/utils/logging';
 import { LyfError } from '@/utils/lyf_error';
 import { ObjectUtils } from '@/utils/object';
-import { Extension } from '@/utils/types';
+import { Includes } from '@/utils/types';
 
 export type ItemModelRelations = {
   users: ItemUserRelation[];
@@ -22,7 +22,7 @@ export class ItemEntity extends SocialEntity<ItemDbObject> {
   protected relations: Partial<ItemModelRelations> = {};
   protected template?: ItemEntity;
 
-  static filter(object: Extension<ItemDbObject>): ItemDbObject {
+  static filter(object: Includes<ItemDbObject>): ItemDbObject {
     const objectFilter: ItemDbObject = {
       id: object.id,
       created: object.created,

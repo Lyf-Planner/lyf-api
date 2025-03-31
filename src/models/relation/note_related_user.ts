@@ -13,7 +13,7 @@ import { NoteUserRepository } from '@/repository/relation/note_user_repository';
 import { Logger } from '@/utils/logging';
 import { LyfError } from '@/utils/lyf_error';
 import { ObjectUtils } from '@/utils/object';
-import { Extension } from '@/utils/types';
+import { Includes } from '@/utils/types';
 
 export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObject, UserEntity> {
   protected logger: Logger = Logger.of(NoteUserRelation.name);
@@ -21,7 +21,7 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
   protected relatedEntity: UserEntity;
   protected repository = new NoteUserRepository();
 
-  static filter(object: Extension<NoteUserRelationshipDbObject>): NoteUserRelationshipDbObject {
+  static filter(object: Includes<NoteUserRelationshipDbObject>): NoteUserRelationshipDbObject {
     const objectFilter: Required<NoteUserRelationshipDbObject> = {
       note_id_fk: object.note_id_fk,
       user_id_fk: object.user_id_fk,

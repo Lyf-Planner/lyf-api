@@ -15,7 +15,7 @@ import { NoteUserRepository } from '@/repository/relation/note_user_repository';
 import { Logger } from '@/utils/logging';
 import { LyfError } from '@/utils/lyf_error';
 import { ObjectUtils } from '@/utils/object';
-import { Extension } from '@/utils/types';
+import { Includes } from '@/utils/types';
 
 export type NoteModelRelations = {
   items: ItemEntity[];
@@ -29,7 +29,7 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
   protected relations: Partial<NoteModelRelations> = {};
 
-  static filter(object: Extension<NoteDbObject>): NoteDbObject {
+  static filter(object: Includes<NoteDbObject>): NoteDbObject {
     const objectFilter: NoteDbObject = {
       id: object.id,
       created: object.created,
