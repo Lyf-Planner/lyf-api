@@ -1,15 +1,14 @@
 import { ExpoPushMessage } from 'expo-server-sdk';
 import debouncer from 'signature-debouncer';
 
-import { ItemStatus } from '../../../schema/database/items';
-import { NotificationRelatedData, NotificationType } from '../../../schema/database/notifications';
-import { ItemEntity } from '../../models/entity/item_entity';
-import { UserEntity } from '../../models/entity/user_entity';
-import { ItemUserRelation } from '../../models/relation/item_related_user';
-import { formatDate, TwentyFourHourToAMPM } from '../../utils/dates';
-import { Logger } from '../../utils/logging';
-
-import { ExpoPushService } from './expo_push_service';
+import { ItemStatus } from '#/database/items';
+import { NotificationRelatedData, NotificationType } from '#/database/notifications';
+import { ItemEntity } from '@/models/entity/item_entity';
+import { UserEntity } from '@/models/entity/user_entity';
+import { ItemUserRelation } from '@/models/relation/item_related_user';
+import { ExpoPushService } from '@/modules/notification_scheduling/expo_push_service';
+import { formatDate, TwentyFourHourToAMPM } from '@/utils/dates';
+import { Logger } from '@/utils/logging';
 
 export enum DebounceSignatures {
   'DateChange' = 'DateChange',

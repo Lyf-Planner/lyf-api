@@ -13,7 +13,12 @@
     "types": [
       "jest",
       "node"
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "#/*": ["schema/*"]
+    },
   },
   "compileOnSave": true,
   "include": [
@@ -22,8 +27,5 @@
   ],
   "exclude": [
     "node_modules"
-  ],
-  "paths": {
-      "@/*": ["src/*"],
-    },
+  ]
 }

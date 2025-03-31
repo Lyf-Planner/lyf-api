@@ -1,12 +1,11 @@
 import { Db, MongoClient, ServerApiVersion } from 'mongodb';
+import { ListItem } from 'schema/mongo_schema/list';
 
-import { ListItem } from '../../../schema/mongo_schema/list';
-import { Note } from '../../../schema/mongo_schema/notes';
-import { User } from '../../../schema/mongo_schema/user';
-import env from '../../envManager';
-import { Logger } from '../../utils/logging';
-
-import { Collection } from './mongo_collection';
+import { Note } from '#/mongo_schema/notes';
+import { User } from '#/mongo_schema/user';
+import { Collection } from '@/db/mongo/mongo_collection';
+import env from '@/envManager';
+import { Logger } from '@/utils/logging';
 
 // Note:
 // Mongo used to be the main database, but that is now Postgres

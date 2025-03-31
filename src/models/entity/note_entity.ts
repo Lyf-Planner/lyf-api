@@ -1,22 +1,21 @@
-import { ID } from '../../../schema/database/abstract';
-import { NoteDbObject, NoteType } from '../../../schema/database/notes';
-import { NoteUserRelations } from '../../../schema/database/notes_on_users';
-import { Note } from '../../../schema/notes';
-import { UserRelatedNote } from '../../../schema/user';
-import { ItemRepository } from '../../repository/entity/item_repository';
-import { NoteRepository } from '../../repository/entity/note_repository';
-import { NoteChildRepository } from '../../repository/relation/note_child_repository';
-import { NoteUserRepository } from '../../repository/relation/note_user_repository';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { ObjectUtils } from '../../utils/object';
-import { Extension } from '../../utils/types';
-import { CommandType } from '../command_types';
-import { NoteChildRelation } from '../relation/note_child';
-import { NoteUserRelation } from '../relation/note_related_user';
-
-import { SocialEntity } from './_social_entity';
-import { ItemEntity } from './item_entity';
+import { ID } from '#/database/abstract';
+import { NoteDbObject, NoteType } from '#/database/notes';
+import { NoteUserRelations } from '#/database/notes_on_users';
+import { Note } from '#/notes';
+import { UserRelatedNote } from '#/user';
+import { CommandType } from '@/models/_base_model';
+import { SocialEntity } from '@/models/entity/_social_entity';
+import { ItemEntity } from '@/models/entity/item_entity';
+import { NoteChildRelation } from '@/models/relation/note_child';
+import { NoteUserRelation } from '@/models/relation/note_related_user';
+import { ItemRepository } from '@/repository/entity/item_repository';
+import { NoteRepository } from '@/repository/entity/note_repository';
+import { NoteChildRepository } from '@/repository/relation/note_child_repository';
+import { NoteUserRepository } from '@/repository/relation/note_user_repository';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
+import { ObjectUtils } from '@/utils/object';
+import { Extension } from '@/utils/types';
 
 export type NoteModelRelations = {
   items: ItemEntity[];

@@ -1,20 +1,19 @@
-import { ID } from '../../../schema/database/abstract';
+import { ID } from '#/database/abstract';
 import {
   NoteUserRelations,
   NoteUserRelationshipDbObject
-} from '../../../schema/database/notes_on_users';
-import { UserDbObject } from '../../../schema/database/user';
-import { NoteRelatedUser } from '../../../schema/notes';
-import { PublicUser } from '../../../schema/user';
-import { NoteUserRepository } from '../../repository/relation/note_user_repository';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { ObjectUtils } from '../../utils/object';
-import { Extension } from '../../utils/types';
-import { NoteEntity } from '../entity/note_entity';
-import { UserEntity } from '../entity/user_entity';
-
-import { SocialRelation } from './_social_relation';
+} from '#/database/notes_on_users';
+import { UserDbObject } from '#/database/user';
+import { NoteRelatedUser } from '#/notes';
+import { PublicUser } from '#/user';
+import { NoteEntity } from '@/models/entity/note_entity';
+import { UserEntity } from '@/models/entity/user_entity';
+import { SocialRelation } from '@/models/relation/_social_relation';
+import { NoteUserRepository } from '@/repository/relation/note_user_repository';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
+import { ObjectUtils } from '@/utils/object';
+import { Extension } from '@/utils/types';
 
 export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObject, UserEntity> {
   protected logger: Logger = Logger.of(NoteUserRelation.name);

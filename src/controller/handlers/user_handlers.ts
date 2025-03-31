@@ -1,20 +1,20 @@
 import { Request, Response } from 'express';
 
-import { Identifiable } from '../../../schema/database/abstract';
-import { NotificationDbObject } from '../../../schema/database/notifications';
-import { UserDbObject } from '../../../schema/database/user';
-import { AuthService } from '../../services/auth_service';
-import { NotificationService } from '../../services/entity/notification_service';
-import { UserService } from '../../services/entity/user_service';
-import { FriendshipService, FriendshipUpdate } from '../../services/relation/friendship_service';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { InclusionString, getMiddlewareVars } from '../utils';
+import { Identifiable } from '#/database/abstract';
+import { NotificationDbObject } from '#/database/notifications';
+import { UserDbObject } from '#/database/user';
 import {
   deleteMeBody,
   getUserQuery,
   loginQuery
-} from '../validators/user_validators';
+} from '@/controller/input_validators/user_validators';
+import { InclusionString, getMiddlewareVars } from '@/controller/utils';
+import { AuthService } from '@/services/auth_service';
+import { NotificationService } from '@/services/entity/notification_service';
+import { UserService } from '@/services/entity/user_service';
+import { FriendshipService, FriendshipUpdate } from '@/services/relation/friendship_service';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {

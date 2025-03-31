@@ -1,7 +1,7 @@
 import express from 'express';
 
-import { PublicHandlers } from '../handlers/public_handlers';
-import { API_PREFIX, nSecondLimiter } from '../utils';
+import { PublicHandlers } from '@/controller/handlers/public_handlers';
+import { API_PREFIX, nSecondLimiter } from '@/controller/utils';
 
 const ROUTE_PREFIX = `${API_PREFIX}/public`
 

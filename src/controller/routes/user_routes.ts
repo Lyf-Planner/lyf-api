@@ -1,7 +1,7 @@
 import express from 'express';
 
-import { UserHandlers } from '../handlers/user_handlers';
-import { API_PREFIX, nSecondLimiter } from '../utils';
+import { UserHandlers } from '@/controller/handlers/user_handlers';
+import { API_PREFIX, nSecondLimiter } from '@/controller/utils';
 
 const ROUTE_PREFIX = `${API_PREFIX}/users`
 

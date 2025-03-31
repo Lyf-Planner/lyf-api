@@ -1,9 +1,9 @@
-import { ID } from '../../../schema/database/abstract';
-import { NoteDbObject } from '../../../schema/database/notes';
-import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
-import { UserDbObject } from '../../../schema/database/user';
 
-import { RelationRepository } from './_relation_repository';
+import { ID } from '#/database/abstract';
+import { NoteDbObject } from '#/database/notes';
+import { NoteUserRelationshipDbObject } from '#/database/notes_on_users';
+import { UserDbObject } from '#/database/user';
+import { RelationRepository } from '@/repository/relation/_relation_repository';
 
 const TABLE_NAME = 'notes_on_users';
 

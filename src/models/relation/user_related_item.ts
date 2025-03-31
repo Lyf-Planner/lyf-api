@@ -1,18 +1,18 @@
-import { ID } from '../../../schema/database/abstract';
-import { ItemDbObject } from '../../../schema/database/items';
+
+import { ID } from '#/database/abstract';
+import { ItemDbObject } from '#/database/items';
 import {
   ItemUserRelations,
   ItemUserRelationshipDbObject
-} from '../../../schema/database/items_on_users';
-import { Item } from '../../../schema/items';
-import { UserRelatedItem } from '../../../schema/user';
-import { ItemUserRepository } from '../../repository/relation/item_user_repository';
-import { Logger } from '../../utils/logging';
-import { ObjectUtils } from '../../utils/object';
-import { Extension } from '../../utils/types';
-import { ItemEntity } from '../entity/item_entity';
-
-import { BaseRelation } from './_base_relation';
+} from '#/database/items_on_users';
+import { Item } from '#/items';
+import { UserRelatedItem } from '#/user';
+import { ItemEntity } from '@/models/entity/item_entity';
+import { BaseRelation } from '@/models/relation/_base_relation';
+import { ItemUserRepository } from '@/repository/relation/item_user_repository';
+import { Logger } from '@/utils/logging';
+import { ObjectUtils } from '@/utils/object';
+import { Extension } from '@/utils/types';
 
 export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject, ItemEntity> {
   protected logger: Logger = Logger.of(UserItemRelation.name);

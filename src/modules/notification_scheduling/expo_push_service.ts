@@ -1,10 +1,10 @@
 import { Expo, ExpoPushMessage } from 'expo-server-sdk';
 import { v4 as uuid } from 'uuid';
 
-import { ID } from '../../../schema/database/abstract';
-import { NotificationDbObject, NotificationRelatedData, NotificationType } from '../../../schema/database/notifications';
-import { NotificationService } from '../../services/entity/notification_service';
-import { Logger } from '../../utils/logging';
+import { ID } from '#/database/abstract';
+import { NotificationDbObject, NotificationRelatedData, NotificationType } from '#/database/notifications';
+import { NotificationService } from '@/services/entity/notification_service';
+import { Logger } from '@/utils/logging';
 
 type PushNotificationParams = {
   messages: ExpoPushMessage[],

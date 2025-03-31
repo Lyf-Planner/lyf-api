@@ -1,6 +1,6 @@
 import { Kysely } from 'kysely';
 
-import { Database } from '../../../schema/database';
+import { Database } from '#/database';
 
 // the sorting rank that gets used in the root should be a user preference
 // this should not be inherent to the note as that will cause users to muck up each other's roots

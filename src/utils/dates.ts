@@ -1,8 +1,7 @@
 import moment from 'moment-timezone';
+import { DateString } from 'schema/util/dates';
 
-import { DateString } from '../../schema/util/dates';
-
-import { LyfError } from './lyf_error';
+import { LyfError } from '@/utils/lyf_error';
 
 const oneSecond = 1000;
 const oneMinute = oneSecond * 60;
@@ -107,4 +106,12 @@ export function getStartOfCurrentWeek(tz: string) {
     .toDate()
     .setHours(0, 0, 0, 0);
   return new Date(start);
+}
+
+export function isValidTimeZone(tz: string) {
+  if (!moment.tz.zone(tz)) {
+    throw new LyfError(`Unknown time zone ID: ${tz}`, 400);
+  } else {
+    return true;
+  }
 }

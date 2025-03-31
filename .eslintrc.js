@@ -4,6 +4,12 @@ const importRules = {
   'import/default': 'off',
   'import/namespace': 'off',
   'import/no-named-as-default': 'off',
+  'no-restricted-imports': [
+    "error",
+    {
+      "patterns": ["./*", "../*"]
+    }
+  ],
   'import/order': [
     'error',
     {

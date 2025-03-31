@@ -1,15 +1,15 @@
-import { ID } from '../../../schema/database/abstract';
-import { NoteChildDbObject } from '../../../schema/database/note_children';
-import { NoteDbObject } from '../../../schema/database/notes';
-import { ChildNote } from '../../../schema/notes';
-import { UserRelatedNote } from '../../../schema/user';
-import { NoteChildRepository } from '../../repository/relation/note_child_repository';
-import { Logger } from '../../utils/logging';
-import { ObjectUtils } from '../../utils/object';
-import { Extension } from '../../utils/types';
-import { NoteEntity } from '../entity/note_entity';
 
-import { BaseRelation } from './_base_relation';
+import { ID } from '#/database/abstract';
+import { NoteChildDbObject } from '#/database/note_children';
+import { NoteDbObject } from '#/database/notes';
+import { ChildNote } from '#/notes';
+import { UserRelatedNote } from '#/user';
+import { NoteEntity } from '@/models/entity/note_entity';
+import { BaseRelation } from '@/models/relation/_base_relation';
+import { NoteChildRepository } from '@/repository/relation/note_child_repository';
+import { Logger } from '@/utils/logging';
+import { ObjectUtils } from '@/utils/object';
+import { Extension } from '@/utils/types';
 
 export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntity> {
   protected logger: Logger = Logger.of(NoteChildRelation.name);

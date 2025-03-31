@@ -1,7 +1,7 @@
 import { Application } from 'express';
 
-import { ItemHandlers } from '../handlers/item_handlers';
-import { API_PREFIX, nSecondLimiter } from '../utils';
+import { ItemHandlers } from '@/controller/handlers/item_handlers';
+import { API_PREFIX, nSecondLimiter } from '@/controller/utils';
 
 const ROUTE_PREFIX = `${API_PREFIX}/items`
 

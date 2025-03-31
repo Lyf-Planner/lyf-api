@@ -1,14 +1,13 @@
-import { ID } from '../../../schema/database/abstract';
-import { NotificationDbObject } from '../../../schema/database/notifications';
-import { Notification } from '../../../schema/notifications';
-import { NotificationRepository } from '../../repository/entity/notification_repository';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { ObjectUtils } from '../../utils/object';
-import { Extension } from '../../utils/types';
-
-import { BaseEntity } from './_base_entity';
-import { UserEntity } from './user_entity';
+import { ID } from '#/database/abstract';
+import { NotificationDbObject } from '#/database/notifications';
+import { Notification } from '#/notifications';
+import { BaseEntity } from '@/models/entity/_base_entity';
+import { UserEntity } from '@/models/entity/user_entity';
+import { NotificationRepository } from '@/repository/entity/notification_repository';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
+import { ObjectUtils } from '@/utils/object';
+import { Extension } from '@/utils/types';
 
 export type NotificationModelRelations = {
   to: UserEntity[];

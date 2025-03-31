@@ -1,4 +1,4 @@
-import { BaseService } from '../_base_service';
+import { BaseService } from '@/services/_base_service';
 
 export abstract class EntityService extends BaseService {
   public abstract processCreation(...args: unknown[]): Promise<unknown>;

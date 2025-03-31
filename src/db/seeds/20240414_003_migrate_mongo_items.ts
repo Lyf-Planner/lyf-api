@@ -1,9 +1,9 @@
 // import { Kysely } from 'kysely';
 
 // import { ListItem as MongoItem, ListItemTypes } from '../../types/mongo_schema/list';
-// import { ItemDbObject as PostgresItem, ItemType } from '../../types/schema/database/items';
+// import { ItemDbObject as PostgresItem, ItemType } from '#/database/items';
 // import mongoDb from '../mongo/mongo_db';
-// import { ItemUserRelationshipDbObject, Permission as ItemUserPermission } from '../../types/schema/database/items_on_users';
+// import { ItemUserRelationshipDbObject, Permission as ItemUserPermission } from '#/database/items_on_users';
 // import { Permission, UserAccess } from '../../types/mongo_schema/social';
 
 // export async function up(db: Kysely<any>): Promise<void> {

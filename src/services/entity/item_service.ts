@@ -1,21 +1,20 @@
 import { v4 as uuid } from 'uuid';
 
-import { ID } from '../../../schema/database/abstract';
-import { ItemDbObject, ItemStatus, ItemType } from '../../../schema/database/items';
-import { ItemUserRelationshipDbObject, Permission } from '../../../schema/database/items_on_users';
-import { UserRelatedItem } from '../../../schema/user';
-import { ItemEntity } from '../../models/entity/item_entity';
-import { UserEntity } from '../../models/entity/user_entity';
-import { ItemUserRelation } from '../../models/relation/item_related_user';
-import { UserItemRelation } from '../../models/relation/user_related_item';
-import { SocialItemNotifications } from '../../modules/notification_scheduling/item_notifications';
-import reminderService from '../../modules/notification_scheduling/reminder_service';
-import { formatDateData, getStartOfCurrentWeek } from '../../utils/dates';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-
-import { EntityService } from './_entity_service';
-import { UserService } from './user_service';
+import { ID } from '#/database/abstract';
+import { ItemDbObject, ItemStatus, ItemType } from '#/database/items';
+import { ItemUserRelationshipDbObject, Permission } from '#/database/items_on_users';
+import { UserRelatedItem } from '#/user';
+import { ItemEntity } from '@/models/entity/item_entity';
+import { UserEntity } from '@/models/entity/user_entity';
+import { ItemUserRelation } from '@/models/relation/item_related_user';
+import { UserItemRelation } from '@/models/relation/user_related_item';
+import { SocialItemNotifications } from '@/modules/notification_scheduling/item_notifications';
+import reminderService from '@/modules/notification_scheduling/reminder_service';
+import { EntityService } from '@/services/entity/_entity_service';
+import { UserService } from '@/services/entity/user_service';
+import { formatDateData, getStartOfCurrentWeek } from '@/utils/dates';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
 
 export class ItemService extends EntityService {
   protected logger = Logger.of(ItemService.name);

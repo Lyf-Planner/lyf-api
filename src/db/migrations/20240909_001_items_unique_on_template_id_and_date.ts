@@ -1,6 +1,6 @@
 import { Kysely } from 'kysely';
 
-import { Database } from '../../../schema/database';
+import { Database } from '#/database';
 
 export async function up(db: Kysely<Database>): Promise<void> {
   // Delete existing duplicate data, then add the constraint

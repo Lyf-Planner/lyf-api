@@ -1,12 +1,12 @@
 import moment from 'moment-timezone';
 import { OpenWeatherAPI } from 'openweather-api-node';
 
-import { DateString } from '../../../schema/util/dates';
-import { Coordinates } from '../../../schema/util/weather';
-import env from '../../envManager';
-import { UserEntity } from '../../models/entity/user_entity';
-import { allDatesBetween, daysDifferenceBetween, formatDateData } from '../../utils/dates';
-import { Logger } from '../../utils/logging';
+import { DateString } from '#/util/dates';
+import { Coordinates } from '#/util/weather';
+import env from '@/envManager';
+import { UserEntity } from '@/models/entity/user_entity';
+import { allDatesBetween, daysDifferenceBetween, formatDateData } from '@/utils/dates';
+import { Logger } from '@/utils/logging';
 
 const weatherInterface = new OpenWeatherAPI({
   key: env.openWeatherApiKey,

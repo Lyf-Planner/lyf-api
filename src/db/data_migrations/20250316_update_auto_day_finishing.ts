@@ -1,7 +1,7 @@
 import { Kysely } from 'kysely';
 
-import { Database } from '../../../schema/database';
-import { LyfError } from '../../utils/lyf_error';
+import { Database } from '#/database';
+import { LyfError } from '@/utils/lyf_error';
 
 export async function up(db: Kysely<Database>): Promise<void> {
   await db
@@ -11,6 +11,6 @@ export async function up(db: Kysely<Database>): Promise<void> {
 }
 
 export async function down(db: Kysely<Database>): Promise<void> {
-  console.error('cannot roll back data migrations');
+  console.error('cannot roll back this data migration');
   throw new LyfError('Irreversible Migration!', 500);
 }

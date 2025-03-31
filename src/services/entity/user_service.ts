@@ -1,16 +1,15 @@
-import { ID } from '../../../schema/database/abstract';
-import { UserDbObject } from '../../../schema/database/user';
-import { ExposedUser, PublicUser, User } from '../../../schema/user';
-import { UserEntity } from '../../models/entity/user_entity';
-import reminderService from '../../modules/notification_scheduling/reminder_service';
-import { UserRepository } from '../../repository/entity/user_repository';
-import { formatDateData } from '../../utils/dates';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { AuthService } from '../auth_service';
-
-import { EntityService } from './_entity_service';
-import { ItemService } from './item_service';
+import { ID } from '#/database/abstract';
+import { UserDbObject } from '#/database/user';
+import { ExposedUser, PublicUser, User } from '#/user';
+import { UserEntity } from '@/models/entity/user_entity';
+import reminderService from '@/modules/notification_scheduling/reminder_service';
+import { UserRepository } from '@/repository/entity/user_repository';
+import { AuthService } from '@/services/auth_service';
+import { EntityService } from '@/services/entity/_entity_service';
+import { ItemService } from '@/services/entity/item_service';
+import { formatDateData } from '@/utils/dates';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
 
 export class UserService extends EntityService {
   protected logger = Logger.of(UserService.name);

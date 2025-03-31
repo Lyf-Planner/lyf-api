@@ -1,11 +1,10 @@
-import { ID } from '../../../schema/database/abstract';
-import { NoticeDbObject } from '../../../schema/database/notices';
-import { NoticeRepository } from '../../repository/entity/notice_repository';
-import { Logger } from '../../utils/logging';
-import { ObjectUtils } from '../../utils/object';
-import { Extension } from '../../utils/types';
-
-import { BaseEntity } from './_base_entity';
+import { ID } from '#/database/abstract';
+import { NoticeDbObject } from '#/database/notices';
+import { BaseEntity } from '@/models/entity/_base_entity';
+import { NoticeRepository } from '@/repository/entity/notice_repository';
+import { Logger } from '@/utils/logging';
+import { ObjectUtils } from '@/utils/object';
+import { Extension } from '@/utils/types';
 
 // This is mostly just here for consistency
 // Notices have no wrapping functionality or relations,

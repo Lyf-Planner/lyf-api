@@ -2,8 +2,8 @@ import assert from 'assert';
 
 import { Collection as mongoCollection, Db } from 'mongodb';
 
-import { DBObject, ID } from '../../../schema/mongo_schema/abstract';
-import { Logger } from '../../utils/logging';
+import { DBObject, ID } from '#/mongo_schema/abstract';
+import { Logger } from '@/utils/logging';
 
 // Note:
 // This class purely acts as the data access layer

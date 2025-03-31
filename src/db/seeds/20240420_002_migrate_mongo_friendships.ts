@@ -1,12 +1,12 @@
 // import { Kysely } from 'kysely';
 
 // import { User as MongoUser } from '../../types/mongo_schema/user';
-// import { ID, Timestamps } from '../../types/schema/database/abstract';
-// import { UserDbObject } from '../../types/schema/database/user';
+// import { ID, Timestamps } from '#/database/abstract';
+// import { UserDbObject } from '#/database/user';
 // import {
 //   UserFriendshipDbObject,
 //   UserFriendshipStatus
-// } from '../../types/schema/database/user_friendships';
+// } from '#/database/user_friendships';
 // import mongoDb from '../mongo/mongo_db';
 
 // interface TempRelationship {

@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 
-import { ID, Identifiable } from '../../../schema/database/abstract';
-import { NoteDbObject } from '../../../schema/database/notes';
-import { UserRelatedNote } from '../../../schema/user';
-import { NoteService } from '../../services/entity/note_service';
-import { SocialUpdate } from '../../services/relation/_social_service';
-import { SocialNoteService } from '../../services/relation/social_note_service';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { getMiddlewareVars } from '../utils';
+import { ID, Identifiable } from '#/database/abstract';
+import { NoteDbObject } from '#/database/notes';
+import { UserRelatedNote } from '#/user';
+import { getMiddlewareVars } from '@/controller/utils';
+import { NoteService } from '@/services/entity/note_service';
+import { SocialUpdate } from '@/services/relation/_social_service';
+import { SocialNoteService } from '@/services/relation/social_note_service';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
 
 export class NoteHandlers {
   protected async createNote(req: Request, res: Response) {

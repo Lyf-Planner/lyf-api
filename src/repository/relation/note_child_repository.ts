@@ -1,10 +1,9 @@
 import { sql } from 'kysely';
 
-import { NoteChildDbObject, NoteChildPrimaryKey } from '../../../schema/database/note_children';
-import { NoteDbObject } from '../../../schema/database/notes';
-import { ID } from '../../../schema/mongo_schema/abstract';
-
-import { RelationRepository } from './_relation_repository';
+import { NoteChildDbObject, NoteChildPrimaryKey } from '#/database/note_children';
+import { NoteDbObject } from '#/database/notes';
+import { ID } from '#/mongo_schema/abstract';
+import { RelationRepository } from '@/repository/relation/_relation_repository';
 
 const TABLE_NAME = 'note_children';
 

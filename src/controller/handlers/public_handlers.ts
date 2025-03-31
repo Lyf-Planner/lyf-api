@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 
-import { NoticeService } from '../../services/entity/notice_service';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
+import { NoticeService } from '@/services/entity/notice_service';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
 
 export class PublicHandlers {
   protected async getNotices(req: Request, res: Response) {

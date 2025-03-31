@@ -1,9 +1,9 @@
 import { Kysely, PostgresDialect } from 'kysely';
 import { Pool, PoolConfig } from 'pg';
 
-import { Database } from '../../../schema/database';
-import env from '../../envManager';
-import { Logger } from '../../utils/logging';
+import { Database } from '#/database';
+import env from '@/envManager';
+import { Logger } from '@/utils/logging';
 
 const PG_POOL_MAX = 10;
 const logger = new Logger('PostgresDb');

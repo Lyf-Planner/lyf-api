@@ -1,7 +1,7 @@
 import express from 'express';
 
-import { NoteHandlers } from '../handlers/note_handlers';
-import { API_PREFIX } from '../utils';
+import { NoteHandlers } from '@/controller/handlers/note_handlers';
+import { API_PREFIX } from '@/controller/utils';
 
 const ROUTE_PREFIX = `${API_PREFIX}/notes`
 

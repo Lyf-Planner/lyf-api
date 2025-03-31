@@ -1,11 +1,11 @@
-import { ID } from '../../../schema/database/abstract';
-import { UserFriendshipDbObject, UserFriendshipStatus } from '../../../schema/database/user_friendships';
-import { FriendshipAction } from '../../../schema/util/social';
-import { UserFriendRelation } from '../../models/relation/user_friend';
-import { FriendNotifications } from '../../modules/notification_scheduling/friend_notifications';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { BaseService } from '../_base_service';
+import { ID } from '#/database/abstract';
+import { UserFriendshipDbObject, UserFriendshipStatus } from '#/database/user_friendships';
+import { FriendshipAction } from '#/util/social';
+import { UserFriendRelation } from '@/models/relation/user_friend';
+import { FriendNotifications } from '@/modules/notification_scheduling/friend_notifications';
+import { BaseService } from '@/services/_base_service';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
 
 export type FriendshipUpdate = {
   user_id: ID;

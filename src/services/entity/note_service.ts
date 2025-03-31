@@ -1,18 +1,17 @@
-import { ID } from '../../../schema/database/abstract';
-import { Permission } from '../../../schema/database/items_on_users';
-import { NoteDbObject } from '../../../schema/database/notes';
-import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
-import { UserRelatedNote } from '../../../schema/user';
-import { NoteEntity } from '../../models/entity/note_entity';
-import { NoteChildRelation } from '../../models/relation/note_child';
-import { NoteUserRelation } from '../../models/relation/note_related_user';
-import { UserNoteRelation } from '../../models/relation/user_related_note';
-import { NoteChildRepository } from '../../repository/relation/note_child_repository';
-import { NoteUserRepository } from '../../repository/relation/note_user_repository';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-
-import { EntityService } from './_entity_service';
+import { ID } from '#/database/abstract';
+import { Permission } from '#/database/items_on_users';
+import { NoteDbObject } from '#/database/notes';
+import { NoteUserRelationshipDbObject } from '#/database/notes_on_users';
+import { UserRelatedNote } from '#/user';
+import { NoteEntity } from '@/models/entity/note_entity';
+import { NoteChildRelation } from '@/models/relation/note_child';
+import { NoteUserRelation } from '@/models/relation/note_related_user';
+import { UserNoteRelation } from '@/models/relation/user_related_note';
+import { NoteChildRepository } from '@/repository/relation/note_child_repository';
+import { NoteUserRepository } from '@/repository/relation/note_user_repository';
+import { EntityService } from '@/services/entity/_entity_service';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
 
 export class NoteService extends EntityService {
   protected logger = Logger.of(NoteService.name);

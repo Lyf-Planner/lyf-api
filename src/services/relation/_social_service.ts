@@ -1,12 +1,13 @@
-import { ID } from '../../../schema/database/abstract';
-import { ItemDbObject } from '../../../schema/database/items';
-import { Permission } from '../../../schema/database/items_on_users';
-import { NoteDbObject } from '../../../schema/database/notes';
-import { SocialAction } from '../../../schema/util/social';
-import { SocialEntity, SocialRelation } from '../../models/entity/_social_entity';
-import { UserEntity } from '../../models/entity/user_entity';
-import { LyfError } from '../../utils/lyf_error';
-import { BaseService } from '../_base_service';
+
+import { ID } from '#/database/abstract';
+import { ItemDbObject } from '#/database/items';
+import { Permission } from '#/database/items_on_users';
+import { NoteDbObject } from '#/database/notes';
+import { SocialAction } from '#/util/social';
+import { SocialEntity, SocialRelation } from '@/models/entity/_social_entity';
+import { UserEntity } from '@/models/entity/user_entity';
+import { BaseService } from '@/services/_base_service';
+import { LyfError } from '@/utils/lyf_error';
 
 type AnySocialObject = ItemDbObject|NoteDbObject;
 

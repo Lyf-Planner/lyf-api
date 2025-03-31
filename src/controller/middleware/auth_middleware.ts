@@ -2,10 +2,10 @@ import assert from 'assert';
 
 import { NextFunction, Request, Response } from 'express';
 
-import { AuthService } from '../../services/auth_service';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { API_PREFIX } from '../utils';
+import { API_PREFIX } from '@/controller/utils';
+import { AuthService } from '@/services/auth_service';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
 
 const logger = new Logger('AuthMiddleware');
 const TOKEN_PREFIX = 'Bearer ';

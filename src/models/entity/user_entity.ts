@@ -1,28 +1,27 @@
-import { ID } from '../../../schema/database/abstract';
-import { UserDbObject, UserExposedFields, UserPublicFields, UserSensitiveFields } from '../../../schema/database/user';
-import { UserFriendshipStatus } from '../../../schema/database/user_friendships';
+import { ID } from '#/database/abstract';
+import { UserDbObject, UserExposedFields, UserPublicFields, UserSensitiveFields } from '#/database/user';
+import { UserFriendshipStatus } from '#/database/user_friendships';
 import {
   ExposedUser,
   PublicUser,
   UserFriend
-} from '../../../schema/user';
-import { NotificationRepository } from '../../repository/entity/notification_repository';
-import { UserRepository } from '../../repository/entity/user_repository';
-import { ItemUserRepository } from '../../repository/relation/item_user_repository';
-import { NoteUserRepository } from '../../repository/relation/note_user_repository';
-import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
-import { daysInRange } from '../../utils/dates';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { ObjectUtils } from '../../utils/object';
-import { Extension } from '../../utils/types';
-import { CommandType } from '../command_types';
-import { UserFriendRelation } from '../relation/user_friend';
-import { UserItemRelation } from '../relation/user_related_item';
-import { UserNoteRelation } from '../relation/user_related_note';
-
-import { BaseEntity } from './_base_entity';
-import { NotificationEntity } from './notification_entity';
+} from '#/user';
+import { CommandType } from '@/models/_base_model';
+import { BaseEntity } from '@/models/entity/_base_entity';
+import { NotificationEntity } from '@/models/entity/notification_entity';
+import { UserFriendRelation } from '@/models/relation/user_friend';
+import { UserItemRelation } from '@/models/relation/user_related_item';
+import { UserNoteRelation } from '@/models/relation/user_related_note';
+import { NotificationRepository } from '@/repository/entity/notification_repository';
+import { UserRepository } from '@/repository/entity/user_repository';
+import { ItemUserRepository } from '@/repository/relation/item_user_repository';
+import { NoteUserRepository } from '@/repository/relation/note_user_repository';
+import { UserFriendshipRepository } from '@/repository/relation/user_friendship_repository';
+import { daysInRange } from '@/utils/dates';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
+import { ObjectUtils } from '@/utils/object';
+import { Extension } from '@/utils/types';
 
 export type UserModelRelations = {
   items: UserItemRelation[];

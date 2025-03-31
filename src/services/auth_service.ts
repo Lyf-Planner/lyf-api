@@ -1,11 +1,10 @@
 import { compare, hash } from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 
-import env from '../envManager';
-import { UserEntity } from '../models/entity/user_entity';
-import { LyfError } from '../utils/lyf_error';
-
-import { UserService } from './entity/user_service';
+import env from '@/envManager';
+import { UserEntity } from '@/models/entity/user_entity';
+import { UserService } from '@/services/entity/user_service';
+import { LyfError } from '@/utils/lyf_error';
 
 export class AuthService {
   static async loginUser(user_id: string, password: string, include?: string) {

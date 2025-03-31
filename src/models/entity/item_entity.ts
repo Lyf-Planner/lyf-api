@@ -1,16 +1,15 @@
-import { ID } from '../../../schema/database/abstract';
-import { ItemDbObject } from '../../../schema/database/items';
-import { Item } from '../../../schema/items';
-import { ItemRepository } from '../../repository/entity/item_repository';
-import { ItemUserRepository } from '../../repository/relation/item_user_repository';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { ObjectUtils } from '../../utils/object';
-import { Extension } from '../../utils/types';
-import { CommandType } from '../command_types';
-import { ItemUserRelation } from '../relation/item_related_user';
-
-import { SocialEntity } from './_social_entity';
+import { ID } from '#/database/abstract';
+import { ItemDbObject } from '#/database/items';
+import { Item } from '#/items';
+import { CommandType } from '@/models/_base_model';
+import { SocialEntity } from '@/models/entity/_social_entity';
+import { ItemUserRelation } from '@/models/relation/item_related_user';
+import { ItemRepository } from '@/repository/entity/item_repository';
+import { ItemUserRepository } from '@/repository/relation/item_user_repository';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
+import { ObjectUtils } from '@/utils/object';
+import { Extension } from '@/utils/types';
 
 export type ItemModelRelations = {
   users: ItemUserRelation[];

@@ -1,18 +1,17 @@
-import { ID } from '../../../schema/database/abstract';
-import { UserDbObject } from '../../../schema/database/user';
+import { ID } from '#/database/abstract';
+import { UserDbObject } from '#/database/user';
 import {
   UserFriendshipDbObject,
   UserFriendshipRelations,
   UserFriendshipStatus
-} from '../../../schema/database/user_friendships';
-import { PublicUser, UserFriend } from '../../../schema/user';
-import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
-import { Logger } from '../../utils/logging';
-import { ObjectUtils } from '../../utils/object';
-import { Extension } from '../../utils/types';
-import { UserEntity } from '../entity/user_entity';
-
-import { BaseRelation } from './_base_relation';
+} from '#/database/user_friendships';
+import { PublicUser, UserFriend } from '#/user';
+import { UserEntity } from '@/models/entity/user_entity';
+import { BaseRelation } from '@/models/relation/_base_relation';
+import { UserFriendshipRepository } from '@/repository/relation/user_friendship_repository';
+import { Logger } from '@/utils/logging';
+import { ObjectUtils } from '@/utils/object';
+import { Extension } from '@/utils/types';
 
 export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, UserEntity> {
   protected logger: Logger = Logger.of(UserFriendRelation.name);

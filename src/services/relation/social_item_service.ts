@@ -1,14 +1,13 @@
-import { ItemUserRelationshipDbObject, Permission } from '../../../schema/database/items_on_users';
-import { ID } from '../../../schema/mongo_schema/abstract';
-import { SocialAction } from '../../../schema/util/social';
-import { ItemEntity } from '../../models/entity/item_entity';
-import { UserEntity } from '../../models/entity/user_entity';
-import { ItemUserRelation } from '../../models/relation/item_related_user';
-import { SocialItemNotifications } from '../../modules/notification_scheduling/item_notifications';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-
-import { SocialService, SocialUpdate } from './_social_service';
+import { ItemUserRelationshipDbObject, Permission } from '#/database/items_on_users';
+import { ID } from '#/mongo_schema/abstract';
+import { SocialAction } from '#/util/social';
+import { ItemEntity } from '@/models/entity/item_entity';
+import { UserEntity } from '@/models/entity/user_entity';
+import { ItemUserRelation } from '@/models/relation/item_related_user';
+import { SocialItemNotifications } from '@/modules/notification_scheduling/item_notifications';
+import { SocialService, SocialUpdate } from '@/services/relation/_social_service';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
 
 export class SocialItemService extends SocialService<ItemUserRelation> {
   protected logger = Logger.of(SocialItemService.name);

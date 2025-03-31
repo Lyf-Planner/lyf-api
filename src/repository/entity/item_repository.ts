@@ -1,6 +1,5 @@
-import { ItemDbObject } from '../../../schema/database/items';
-
-import { EntityRepository } from './_entity_repository';
+import { ItemDbObject } from '#/database/items';
+import { EntityRepository } from '@/repository/entity/_entity_repository';
 
 const TABLE_NAME = 'items';
 

@@ -1,14 +1,13 @@
-import { ID } from '../../../schema/database/abstract';
-import { NoteDbObject } from '../../../schema/database/notes';
-import { NoteUserRelations, NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
-import { UserRelatedNote } from '../../../schema/user';
-import { NoteUserRepository } from '../../repository/relation/note_user_repository';
-import { Logger } from '../../utils/logging';
-import { ObjectUtils } from '../../utils/object';
-import { Extension } from '../../utils/types';
-import { NoteEntity } from '../entity/note_entity';
-
-import { BaseRelation } from './_base_relation';
+import { ID } from '#/database/abstract';
+import { NoteDbObject } from '#/database/notes';
+import { NoteUserRelations, NoteUserRelationshipDbObject } from '#/database/notes_on_users';
+import { UserRelatedNote } from '#/user';
+import { NoteEntity } from '@/models/entity/note_entity';
+import { BaseRelation } from '@/models/relation/_base_relation';
+import { NoteUserRepository } from '@/repository/relation/note_user_repository';
+import { Logger } from '@/utils/logging';
+import { ObjectUtils } from '@/utils/object';
+import { Extension } from '@/utils/types';
 
 export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject, NoteEntity> {
   protected logger: Logger = Logger.of(UserNoteRelation.name);

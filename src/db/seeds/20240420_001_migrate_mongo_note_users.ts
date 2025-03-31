@@ -2,9 +2,9 @@
 
 // import { Note as MongoNote } from '../../types/mongo_schema/notes';
 // import { User as MongoUser } from '../../types/mongo_schema/user';
-// import { Permission } from '../../types/schema/database/items_on_users';
-// import { NoteUserRelationshipDbObject } from '../../types/schema/database/notes_on_users';
-// import { UserDbObject } from '../../types/schema/database/user';
+// import { Permission } from '#/database/items_on_users';
+// import { NoteUserRelationshipDbObject } from '#/database/notes_on_users';
+// import { UserDbObject } from '#/database/user';
 // import mongoDb from '../mongo/mongo_db';
 
 // export async function up(db: Kysely<any>): Promise<void> {

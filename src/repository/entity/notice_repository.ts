@@ -1,8 +1,7 @@
 import { sql } from 'kysely';
 
-import { NoticeDbObject } from '../../../schema/database/notices';
-
-import { EntityRepository } from './_entity_repository';
+import { NoticeDbObject } from '#/database/notices';
+import { EntityRepository } from '@/repository/entity/_entity_repository';
 
 const TABLE_NAME = 'notices';
 

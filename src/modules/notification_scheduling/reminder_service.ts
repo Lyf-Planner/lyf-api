@@ -1,23 +1,22 @@
 import { ExpoPushMessage } from 'expo-server-sdk';
 import moment from 'moment-timezone';
 
-import { ItemType } from '../../../schema/database/items';
-import { NotificationRelatedData, NotificationType } from '../../../schema/database/notifications';
-import { ItemStatus } from '../../../schema/mongo_schema/list';
-import { DaysOfWeek } from '../../../schema/mongo_schema/timetable';
-import mongoDb from '../../db/mongo/mongo_db';
-import { ItemEntity } from '../../models/entity/item_entity';
-import { UserEntity } from '../../models/entity/user_entity';
-import { ItemUserRelation } from '../../models/relation/item_related_user';
-import { UserItemRelation } from '../../models/relation/user_related_item';
-import { ItemService } from '../../services/entity/item_service';
-import { UserService } from '../../services/entity/user_service';
-import { formatDateData, isFutureDate, TwentyFourHourToAMPM } from '../../utils/dates';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { pluralisedQuantity } from '../../utils/text';
-
-import { ExpoPushService } from './expo_push_service';
+import { ItemType } from '#/database/items';
+import { NotificationRelatedData, NotificationType } from '#/database/notifications';
+import { ItemStatus } from '#/mongo_schema/list';
+import { DaysOfWeek } from '#/mongo_schema/timetable';
+import mongoDb from '@/db/mongo/mongo_db';
+import { ItemEntity } from '@/models/entity/item_entity';
+import { UserEntity } from '@/models/entity/user_entity';
+import { ItemUserRelation } from '@/models/relation/item_related_user';
+import { UserItemRelation } from '@/models/relation/user_related_item';
+import { ExpoPushService } from '@/modules/notification_scheduling/expo_push_service';
+import { ItemService } from '@/services/entity/item_service';
+import { UserService } from '@/services/entity/user_service';
+import { formatDateData, isFutureDate, TwentyFourHourToAMPM } from '@/utils/dates';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
+import { pluralisedQuantity } from '@/utils/text';
 
 const agenda = require('agenda');
 

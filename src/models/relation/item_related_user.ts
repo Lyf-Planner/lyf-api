@@ -1,14 +1,13 @@
-import { ID } from '../../../schema/database/abstract';
-import { ItemUserRelations, ItemUserRelationshipDbObject } from '../../../schema/database/items_on_users';
-import { UserDbObject, UserPublicFields } from '../../../schema/database/user';
-import { ItemRelatedUser } from '../../../schema/items';
-import { ItemUserRepository } from '../../repository/relation/item_user_repository';
-import { Logger } from '../../utils/logging';
-import { ObjectUtils } from '../../utils/object';
-import { Extension } from '../../utils/types';
-import { UserEntity } from '../entity/user_entity';
-
-import { SocialRelation } from './_social_relation';
+import { ID } from '#/database/abstract';
+import { ItemUserRelations, ItemUserRelationshipDbObject } from '#/database/items_on_users';
+import { UserDbObject, UserPublicFields } from '#/database/user';
+import { ItemRelatedUser } from '#/items';
+import { UserEntity } from '@/models/entity/user_entity';
+import { SocialRelation } from '@/models/relation/_social_relation';
+import { ItemUserRepository } from '@/repository/relation/item_user_repository';
+import { Logger } from '@/utils/logging';
+import { ObjectUtils } from '@/utils/object';
+import { Extension } from '@/utils/types';
 
 export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObject, UserEntity> {
   protected logger: Logger = Logger.of(ItemUserRelation.name);

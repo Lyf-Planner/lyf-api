@@ -1,12 +1,19 @@
-import { Export } from '../../schema';
-import { DbObject } from '../../schema/database';
-import { ID } from '../../schema/database/abstract';
-import { BaseRepository } from '../repository/_base_repository';
-import { Logger } from '../utils/logging';
-import { LyfError } from '../utils/lyf_error';
-import { Extension } from '../utils/types';
+import { DbObject } from '#/database';
+import { ID } from '#/database/abstract';
+import { Export } from '#/index';
+import { BaseRepository } from '@/repository/_base_repository';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
+import { Extension } from '@/utils/types';
 
-import { CommandType } from './command_types';
+export enum CommandType {
+  Delete,
+  Export,
+  Extract,
+  Load,
+  Save,
+  Update
+}
 
 export abstract class BaseModel<T extends DbObject> {
   protected _id: ID;
