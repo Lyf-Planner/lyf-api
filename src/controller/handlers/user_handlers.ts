@@ -1,24 +1,20 @@
 import { Request, Response } from 'express';
 
-import { User } from '../../../schema/user';
-import { AuthService } from '../../services/auth_service';
-import { UserService } from '../../services/entity/user_service';
-import { FriendshipService, FriendshipUpdate } from '../../services/relation/friendship_service';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { InclusionString, getMiddlewareVars } from '../utils';
+import { Identifiable } from '#/database/abstract';
+import { NotificationDbObject } from '#/database/notifications';
+import { UserDbObject } from '#/database/user';
 import {
   deleteMeBody,
   getUserQuery,
-  loginQuery,
-  updateFriendshipBody,
-  updateMeBody
-} from '../validators/user_validators';
-import { UserDbObject } from '../../../schema/database/user';
-import { ID, Identifiable } from '../../../schema/database/abstract';
-import { NotificationService } from '../../services/entity/notification_service';
-import { NotificationDbObject } from '../../../schema/database/notifications';
-import { NoticeService } from '../../services/entity/notice_service';
+  loginQuery
+} from '@/controller/input_validators/user_validators';
+import { InclusionString, getMiddlewareVars } from '@/controller/utils';
+import { AuthService } from '@/services/auth_service';
+import { NotificationService } from '@/services/entity/notification_service';
+import { UserService } from '@/services/entity/user_service';
+import { FriendshipService, FriendshipUpdate } from '@/services/relation/friendship_service';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
 
 export class UserHandlers {
   protected async login(req: Request, res: Response) {
@@ -27,19 +23,19 @@ export class UserHandlers {
     logger.debug(`Received login request for user ${user_id}`);
 
     try {
-      const { user, token } = await AuthService.loginUser(user_id, password, include || "");
+      const { user, token } = await AuthService.loginUser(user_id, password, include || '');
 
       res.status(200).json({ user, token }).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
   protected async autoLogin(req: Request, res: Response) {
     const { include } = req.query as InclusionString
-    const user_id = getMiddlewareVars(res).user_id;
+    const { user_id } = getMiddlewareVars(res);
 
     // The auth middleware has already done all the work here
     logger.debug(`Authorized autologin for user ${user_id}`);
@@ -53,7 +49,7 @@ export class UserHandlers {
       res.status(200).json(await user.export()).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
@@ -72,7 +68,7 @@ export class UserHandlers {
       res.status(200).json(user).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
@@ -91,7 +87,7 @@ export class UserHandlers {
       res.status(200).json(notifications).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
@@ -110,7 +106,7 @@ export class UserHandlers {
       res.status(200).json(notifications).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
@@ -127,7 +123,7 @@ export class UserHandlers {
       res.status(201).json({ user, token }).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
@@ -147,14 +143,14 @@ export class UserHandlers {
       res.status(200).json(updatedUser).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 
   protected async deleteMe(req: Request, res: Response) {
     const { password } = req.body as deleteMeBody;
-    const user_id = getMiddlewareVars(res).user_id;
+    const { user_id } = getMiddlewareVars(res);
 
     logger.info(`Received self-deletion request from ${user_id}`);
 
@@ -165,7 +161,7 @@ export class UserHandlers {
       res.status(204).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
@@ -181,10 +177,10 @@ export class UserHandlers {
       res.status(200).json(friendship).end();
     } catch (error) {
       const lyfError = error as LyfError;
-      logger.error((lyfError.code || 500) + " - " + lyfError.message);
+      logger.error(`${lyfError.code || 500} - ${lyfError.message}`);
       res.status((lyfError.code || 500)).end(lyfError.message);
     }
   }
 }
 
-const logger = Logger.of(UserHandlers);
+const logger = Logger.of(UserHandlers.name);

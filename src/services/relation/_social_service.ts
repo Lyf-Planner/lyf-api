@@ -1,19 +1,15 @@
-import { ID } from '../../../schema/database/abstract';
-import { ItemDbObject } from '../../../schema/database/items';
-import { Permission } from '../../../schema/database/items_on_users';
-import { NoteDbObject } from '../../../schema/database/notes';
-import { ItemRelatedUser } from '../../../schema/items';
-import { SocialAction } from '../../../schema/util/social';
-import { SocialEntity, SocialRelation } from '../../models/entity/_social_entity';
-import { UserEntity } from '../../models/entity/user_entity';
-import { ItemUserRelation } from '../../models/relation/item_related_user';
-import { NoteUserRelation } from '../../models/relation/note_related_user';
-import { UserFriendRelation } from '../../models/relation/user_friend';
-import { LyfError } from '../../utils/lyf_error';
-import { BaseService } from '../_base_service';
+
+import { ID } from '#/database/abstract';
+import { ItemDbObject } from '#/database/items';
+import { Permission } from '#/database/items_on_users';
+import { NoteDbObject } from '#/database/notes';
+import { SocialAction } from '#/util/social';
+import { SocialEntity, SocialRelation } from '@/models/entity/_social_entity';
+import { UserEntity } from '@/models/entity/user_entity';
+import { BaseService } from '@/services/_base_service';
+import { LyfError } from '@/utils/lyf_error';
 
 type AnySocialObject = ItemDbObject|NoteDbObject;
-
 
 export type SocialUpdate = {
   entity_id: ID;
@@ -29,10 +25,10 @@ export abstract class SocialService<T extends SocialRelation> extends BaseServic
   public abstract processUpdate(from: ID, update: SocialUpdate): Promise<T | null>;
 
   public async inviteUser(
-    invited_user: ID, 
-    inviter_relation: T, 
+    invited_user: ID,
+    inviter_relation: T,
     permission: Permission
-    ): Promise<T> {
+  ): Promise<T> {
     // User must be the owner or editor to do this! (currently)
     if (
       !inviter_relation ||
@@ -57,6 +53,7 @@ export abstract class SocialService<T extends SocialRelation> extends BaseServic
       await newRelation.getRelatedEntity().load()
       return newRelation;
     } catch (error) {
+      this.logger.error(`${invited_user} is already a member of this item`, error);
       throw new LyfError(`${invited_user} is already a member of this item`, 400)
     }
   }
@@ -75,7 +72,7 @@ export abstract class SocialService<T extends SocialRelation> extends BaseServic
     if (remover_relation.entityId() !== removed_relation.entityId() && remover_relation.permission() !== Permission.Owner) {
       throw new LyfError('You must be the Owner to remove another user!', 403);
     }
-  
+
     await removed_relation.delete();
     return null;
   }

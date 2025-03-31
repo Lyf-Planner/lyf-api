@@ -1,6 +1,8 @@
 import { sql, Kysely } from 'kysely';
 
-export async function up(db: Kysely<any>): Promise<void> {
+import { Database } from '#/database';
+
+export async function up(db: Kysely<Database>): Promise<void> {
   await db.schema
     .createTable('notifications')
     .addColumn('id', 'uuid', (col) => col.primaryKey().defaultTo(sql`gen_random_uuid()`))
@@ -17,10 +19,10 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('related_id', 'text')
     .execute();
 
-    await db.schema.createIndex('notification_to_index').on('notifications').column('to').execute();
-    await db.schema.createIndex('notification_created_index').on('notifications').column('created').execute();
+  await db.schema.createIndex('notification_to_index').on('notifications').column('to').execute();
+  await db.schema.createIndex('notification_created_index').on('notifications').column('created').execute();
 }
 
-export async function down(db: Kysely<any>): Promise<void> {
+export async function down(db: Kysely<Database>): Promise<void> {
   await db.schema.dropTable('notifications').execute();
 }

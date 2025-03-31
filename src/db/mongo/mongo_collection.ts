@@ -1,8 +1,9 @@
+import assert from 'assert';
+
 import { Collection as mongoCollection, Db } from 'mongodb';
 
-import assert from 'assert';
-import { DBObject, ID } from '../../../schema/mongo_schema/abstract';
-import { Logger } from '../../utils/logging';
+import { DBObject, ID } from '#/mongo_schema/abstract';
+import { Logger } from '@/utils/logging';
 
 // Note:
 // This class purely acts as the data access layer
@@ -10,7 +11,7 @@ import { Logger } from '../../utils/logging';
 
 export class Collection<T extends DBObject> {
   protected collection: mongoCollection;
-  private logger = Logger.of(Collection<T>);
+  private logger = Logger.of((Collection<T>).name);
 
   constructor(collectionName: string, db: Db) {
     this.collection = db.collection(collectionName);
@@ -76,7 +77,7 @@ export class Collection<T extends DBObject> {
   }
 
   public async getWhere(
-    condition: Object,
+    condition: object,
     acceptManyResults = false,
     throwOnUnfound = true
   ): Promise<T | T[] | null> {
@@ -133,7 +134,7 @@ export class Collection<T extends DBObject> {
 
   private async checkDuplicateExists(id: ID) {
     const search = await this.collection.findOne({ _id: id });
-    if (!!search) {
+    if (search) {
       return true;
     } else {
       return false;
@@ -167,7 +168,7 @@ export class Collection<T extends DBObject> {
     }
   }
 
-  private handleConditionUnfound(condition: Object, throwOnUnfound: boolean) {
+  private handleConditionUnfound(condition: object, throwOnUnfound: boolean) {
     const message = `No results were found for query of docs where ${condition}`;
     if (throwOnUnfound) {
       this.logger.error(message);

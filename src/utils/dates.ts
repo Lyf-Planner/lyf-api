@@ -1,7 +1,7 @@
 import moment from 'moment-timezone';
+import { DateString } from 'schema/util/dates';
 
-import { LyfError } from './lyf_error';
-import { DateString } from '../../schema/util/dates';
+import { LyfError } from '@/utils/lyf_error';
 
 const oneSecond = 1000;
 const oneMinute = oneSecond * 60;
@@ -13,7 +13,7 @@ export const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday
 export function TwentyFourHourToAMPM(time: string) {
   const [hours, mins] = time.split(':');
   const h = parseInt(hours);
-  return (h % 12 ? h % 12 : 12) + ':' + mins + (h >= 12 ? 'pm' : 'am');
+  return `${h % 12 ? h % 12 : 12}:${mins}${h >= 12 ? 'pm' : 'am'}`;
 }
 
 export function formatDateData(date: Date) {
@@ -24,7 +24,7 @@ export function getDayFromDate(date: Date) {
   return moment(date).format('dddd');
 }
 
-export function parseDateString(date: String) {
+export function parseDateString(date: string) {
   const data = date.split('-').map((x) => parseInt(x));
   return new Date(data[0], data[1] - 1, data[2]);
 }
@@ -35,9 +35,9 @@ export function formatDate(date: string) {
 }
 
 export function isFutureDate(date: Date, timezone: string) {
-    const localTime = moment().tz(timezone).toDate();
+  const localTime = moment().tz(timezone).toDate();
 
-    return localTime < date;
+  return localTime < date;
 }
 
 export const daysDifferenceBetween = (start: DateString, end: DateString) => {
@@ -50,11 +50,11 @@ export const daysDifferenceBetween = (start: DateString, end: DateString) => {
 export const allDatesBetween = (start: DateString, end: DateString, excludeFinal = false) => {
   // Note: is inclusive of both start and end date
 
-  if (end.localeCompare(start) < 0) { 
+  if (end.localeCompare(start) < 0) {
     return [];
   }
 
-  let dates: string[] = [];
+  const dates: string[] = [];
   let shiftingDate = start;
   while (shiftingDate.localeCompare(end) <= 0) {
     dates.push(shiftingDate);
@@ -106,4 +106,12 @@ export function getStartOfCurrentWeek(tz: string) {
     .toDate()
     .setHours(0, 0, 0, 0);
   return new Date(start);
+}
+
+export function isValidTimeZone(tz: string) {
+  if (!moment.tz.zone(tz)) {
+    throw new LyfError(`Unknown time zone ID: ${tz}`, 400);
+  } else {
+    return true;
+  }
 }

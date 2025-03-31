@@ -1,9 +1,9 @@
 import { sql } from 'kysely';
 
-import { ID } from '../../../schema/mongo_schema/abstract';
-import { RelationRepository } from './_relation_repository';
-import { NoteChildDbObject, NoteChildPrimaryKey, NoteChildRelations } from '../../../schema/database/note_children';
-import { NoteDbObject } from '../../../schema/database/notes';
+import { NoteChildDbObject, NoteChildPrimaryKey } from '#/database/note_children';
+import { NoteDbObject } from '#/database/notes';
+import { ID } from '#/mongo_schema/abstract';
+import { RelationRepository } from '@/repository/relation/_relation_repository';
 
 const TABLE_NAME = 'note_children';
 
@@ -15,7 +15,7 @@ export class NoteChildRepository extends RelationRepository<NoteChildDbObject> {
     super(TABLE_NAME);
   }
 
-  // this is part two of moving a note, 
+  // this is part two of moving a note,
   // we need to create a relation between the note and all it's descendents, with the parent and all it's ancestors
   async attachSubtree(note_id: ID, parent_id: ID) {
     await this.db
@@ -25,7 +25,7 @@ export class NoteChildRepository extends RelationRepository<NoteChildDbObject> {
           .selectFrom('note_children')
           .select([
             'note_children.parent_id as note_id',
-            'note_children.distance',
+            'note_children.distance'
           ])
           .where('note_children.child_id', '=', parent_id)
           // include the parent_id itself for easier calculation later
@@ -34,11 +34,11 @@ export class NoteChildRepository extends RelationRepository<NoteChildDbObject> {
               .selectFrom('notes')
               .select((eb) => [
                 eb.ref('notes.id').as('note_id'),
-                eb.val(0).as('distance'),
+                eb.val(0).as('distance')
               ])
               .where('notes.id', '=', parent_id)
           )
-          
+
       )
 
       // 2) subtree_of_note
@@ -47,7 +47,7 @@ export class NoteChildRepository extends RelationRepository<NoteChildDbObject> {
           .selectFrom('note_children')
           .select([
             'note_children.child_id as note_id',
-            'note_children.distance',
+            'note_children.distance'
           ])
           .where('note_children.parent_id', '=', note_id)
           // Optionally include noteId itself at distance=0 if not guaranteed:
@@ -56,7 +56,7 @@ export class NoteChildRepository extends RelationRepository<NoteChildDbObject> {
               .selectFrom('notes')
               .select((eb) => [
                 eb.ref('notes.id').as('note_id'),
-                eb.val(0).as('distance'),
+                eb.val(0).as('distance')
               ])
               .where('notes.id', '=', note_id)
           )
@@ -75,7 +75,7 @@ export class NoteChildRepository extends RelationRepository<NoteChildDbObject> {
             eb.ref('sub.note_id').as('child_id'),
             sql`anc.distance + 1 + sub.distance`.as('distance'),
             // cast to int in sql - this doesn't happen with distance because of the addition involved (i think)
-            sql`0::int`.as('sorting_rank'),
+            sql`0::int`.as('sorting_rank')
           ]))
       )
 
@@ -135,7 +135,7 @@ export class NoteChildRepository extends RelationRepository<NoteChildDbObject> {
   }
 
   async deleteAllParents(
-    note_id: ID,
+    note_id: ID
   ): Promise<void> {
     const result = await this.db
       .deleteFrom('note_children')
@@ -153,7 +153,7 @@ export class NoteChildRepository extends RelationRepository<NoteChildDbObject> {
     const result = await this.db
       // 1) subtree_of_note:
       //    In a closure table that stores *all* levels of ancestry/descendancy,
-      //    rows with parent_id = noteId represent *every* descendant, 
+      //    rows with parent_id = noteId represent *every* descendant,
       //    plus we explicitly union the note itself from the 'notes' table.
       .with('subtree_of_note', (db) =>
         // Start with the note itself
@@ -171,7 +171,7 @@ export class NoteChildRepository extends RelationRepository<NoteChildDbObject> {
       )
 
       // 2) user_accessible_notes:
-      //    All notes the user can access (directly or by being a child 
+      //    All notes the user can access (directly or by being a child
       //    of a note they can access), EXCLUDING any note that's in subtree_of_note.
       .with('user_accessible_notes', (db) =>
         // Direct permission
@@ -220,7 +220,7 @@ export class NoteChildRepository extends RelationRepository<NoteChildDbObject> {
       .where('parent_id', '=', parent_id)
       .execute();
   }
-  
+
   async deleteAllRelations(note_id: ID) {
     await this.db
       .deleteFrom(this.table_name)

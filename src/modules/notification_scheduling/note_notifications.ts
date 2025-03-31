@@ -1,10 +1,10 @@
 import { ExpoPushMessage } from 'expo-server-sdk';
 
-import { Logger } from '../../utils/logging';
-import { ExpoPushService } from './expo_push_service';
-import { NotificationRelatedData, NotificationType } from '../../../schema/database/notifications';
-import { NoteUserRelation } from '../../models/relation/note_related_user';
-import { NoteEntity } from '../../models/entity/note_entity';
+import { NotificationRelatedData, NotificationType } from '#/database/notifications';
+import { NoteEntity } from '@/models/entity/note_entity';
+import { NoteUserRelation } from '@/models/relation/note_related_user';
+import { ExpoPushService } from '@/modules/notification_scheduling/expo_push_service';
+import { Logger } from '@/utils/logging';
 
 export class SocialNoteNotifications {
   static async newNoteInvite(fromRelation: NoteUserRelation, toRelation: NoteUserRelation) {
@@ -31,7 +31,7 @@ export class SocialNoteNotifications {
       from_id: fromUser.id(),
       related_data: NotificationRelatedData.Note,
       related_id: note.id()
-    });    
+    });
   }
 
   static async newNoteUser(fromRelation: NoteUserRelation, _toRelation: NoteUserRelation) {
@@ -66,4 +66,4 @@ export class SocialNoteNotifications {
   }
 }
 
-const logger = Logger.of(SocialNoteNotifications);
+const logger = Logger.of(SocialNoteNotifications.name);

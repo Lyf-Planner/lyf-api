@@ -1,22 +1,23 @@
-import { ID } from '../../../schema/database/abstract';
-import { NoticeDbObject } from '../../../schema/database/notices';
-import { NoticeRepository } from '../../repository/entity/notice_repository';
-import { Logger } from '../../utils/logging';
-import { ObjectUtils } from '../../utils/object';
-import { BaseEntity } from './_base_entity';
+import { ID } from '#/database/abstract';
+import { NoticeDbObject } from '#/database/notices';
+import { BaseEntity } from '@/models/entity/_base_entity';
+import { NoticeRepository } from '@/repository/entity/notice_repository';
+import { Logger } from '@/utils/logging';
+import { ObjectUtils } from '@/utils/object';
+import { Includes } from '@/utils/types';
 
 // This is mostly just here for consistency
 // Notices have no wrapping functionality or relations,
 // For the most part we just pass on db objects instead of wrapping with this.
 
 export class NoticeEntity extends BaseEntity<NoticeDbObject> {
-  protected logger = Logger.of(NoticeEntity);
+  protected logger = Logger.of(NoticeEntity.name);
   protected repository = new NoticeRepository();
 
   protected relations = {};
 
-  static filter(object: any): NoticeDbObject {
-    const objectFilter: Required<NoticeDbObject> = {
+  static filter(object: Includes<NoticeDbObject>): NoticeDbObject {
+    const objectFilter: NoticeDbObject = {
       id: object.id,
       created: object.created,
       last_updated: object.last_updated,
@@ -40,9 +41,18 @@ export class NoticeEntity extends BaseEntity<NoticeDbObject> {
     // No relations
   }
 
-
   public getRelations() {
     // No implementation
+  }
+
+  public async update(changes: Partial<NoticeDbObject>): Promise<void> {
+    const updatedBase = NoticeEntity.filter({
+      ...this.base!,
+      ...changes
+    });
+
+    this.changes = updatedBase;
+    this.base = updatedBase;
   }
 
   static isExpired(notice: NoticeDbObject) {

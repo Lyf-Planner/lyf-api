@@ -1,17 +1,17 @@
-import { ID } from '../../../schema/database/abstract';
-import { Permission } from '../../../schema/database/items_on_users';
-import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
-import { SocialAction } from '../../../schema/util/social';
-import { NoteEntity } from '../../models/entity/note_entity';
-import { UserEntity } from '../../models/entity/user_entity';
-import { NoteUserRelation } from '../../models/relation/note_related_user';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { SocialService, SocialUpdate } from './_social_service';
-import { SocialNoteNotifications } from '../../modules/notification_scheduling/note_notifications';
+import { ID } from '#/database/abstract';
+import { Permission } from '#/database/items_on_users';
+import { NoteUserRelationshipDbObject } from '#/database/notes_on_users';
+import { SocialAction } from '#/util/social';
+import { NoteEntity } from '@/models/entity/note_entity';
+import { UserEntity } from '@/models/entity/user_entity';
+import { NoteUserRelation } from '@/models/relation/note_related_user';
+import { SocialNoteNotifications } from '@/modules/notification_scheduling/note_notifications';
+import { SocialService, SocialUpdate } from '@/services/relation/_social_service';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
 
 export class SocialNoteService extends SocialService<NoteUserRelation> {
-  protected logger = Logger.of(SocialNoteService);
+  protected logger = Logger.of(SocialNoteService.name);
 
   protected async createDefaultRelation(id: ID, user_id: ID, permission: Permission, invited: boolean) {
     const relation = new NoteUserRelation(id, user_id);
@@ -23,7 +23,7 @@ export class SocialNoteService extends SocialService<NoteUserRelation> {
       user_id_fk: user_id,
       invite_pending: invited,
       permission,
-      sorting_rank_preference: -1, // trick to make this appear at the top of the users root notes :)
+      sorting_rank_preference: -1 // trick to make this appear at the top of the users root notes
     };
 
     await relation.create(dbObject, NoteUserRelation.filter);
@@ -84,13 +84,13 @@ export class SocialNoteService extends SocialService<NoteUserRelation> {
   protected async updateIsCollaborative(note_id: ID) {
     try {
       const note = new NoteEntity(note_id);
-      await note.fetchRelations("users");
+      await note.fetchRelations('users');
 
       const numUsers = note.getRelations().users?.length;
       const collaborative = !!numUsers && numUsers > 1
       await note.directlyModify({ collaborative })
     } catch (error) {
-      this.logger.error(`Failed to update collaborative flag on note ${note_id}`)
+      this.logger.error(`Failed to update collaborative flag on note ${note_id}`, error)
     }
   }
 }

@@ -1,25 +1,26 @@
-import { DbRelationFields, DbRelationObject } from '../../../schema/database';
-import { ID } from '../../../schema/database/abstract';
-import { ItemDbObject } from '../../../schema/database/items';
+
+import { ID } from '#/database/abstract';
+import { ItemDbObject } from '#/database/items';
 import {
   ItemUserRelations,
   ItemUserRelationshipDbObject
-} from '../../../schema/database/items_on_users';
-import { Item } from '../../../schema/items';
-import { UserRelatedItem } from '../../../schema/user';
-import { ItemUserRepository } from '../../repository/relation/item_user_repository';
-import { Logger } from '../../utils/logging';
-import { ObjectUtils } from '../../utils/object';
-import { ItemEntity } from '../entity/item_entity';
-import { BaseRelation } from './_base_relation';
+} from '#/database/items_on_users';
+import { Item } from '#/items';
+import { UserRelatedItem } from '#/user';
+import { ItemEntity } from '@/models/entity/item_entity';
+import { BaseRelation } from '@/models/relation/_base_relation';
+import { ItemUserRepository } from '@/repository/relation/item_user_repository';
+import { Logger } from '@/utils/logging';
+import { ObjectUtils } from '@/utils/object';
+import { Includes } from '@/utils/types';
 
 export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject, ItemEntity> {
-  protected logger: Logger = Logger.of(UserItemRelation);
+  protected logger: Logger = Logger.of(UserItemRelation.name);
 
   protected relatedEntity: ItemEntity;
   protected repository = new ItemUserRepository();
 
-  static filter(object: any): ItemUserRelationshipDbObject {
+  static filter(object: Includes<ItemUserRelationshipDbObject>): ItemUserRelationshipDbObject {
     const objectFilter: Required<ItemUserRelationshipDbObject> = {
       created: object.created,
       last_updated: object.last_updated,
@@ -44,7 +45,6 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
     } else {
       this.relatedEntity = new ItemEntity(entity_id);
     }
-    
   }
 
   public async delete(): Promise<void> {
@@ -66,7 +66,7 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
       show_in_upcoming: this.base!.show_in_upcoming,
       notification_mins: this.base!.notification_mins
     }
-      
+
     return {
       // No need to add the requestor
       // The permission is implied by the relationship existing at all
@@ -81,15 +81,18 @@ export class UserItemRelation extends BaseRelation<ItemUserRelationshipDbObject,
   }
 
   public async update(changes: Partial<UserRelatedItem>): Promise<void> {
-    const relationFieldUpdates = UserItemRelation.filter(changes);
-    const entityUpdates = ItemEntity.filter(changes);
-
-    this.changes = relationFieldUpdates
-    this.base = {
+    const updatedBase = UserItemRelation.filter({
       ...this.base!,
-      ...relationFieldUpdates
-    };
+      ...changes
+    });
 
+    this.changes = updatedBase;
+    this.base = updatedBase;
+
+    const entityUpdates = ItemEntity.filter({
+      ...await this.relatedEntity.extract() as ItemDbObject,
+      ...changes
+    });
     this.relatedEntity.update(entityUpdates);
   }
 

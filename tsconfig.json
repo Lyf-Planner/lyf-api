@@ -13,7 +13,12 @@
     "types": [
       "jest",
       "node"
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "#/*": ["schema/*"]
+    },
   },
   "compileOnSave": true,
   "include": [

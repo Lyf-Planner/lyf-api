@@ -1,20 +1,20 @@
-import { ID } from '../../../schema/database/abstract';
-import { NotificationDbObject } from '../../../schema/database/notifications';
-import { Notification } from '../../../schema/notifications';
-import { NotificationEntity } from '../../models/entity/notification_entity';
-import { UserEntity } from '../../models/entity/user_entity';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { EntityService } from './_entity_service';
+import { ID } from '#/database/abstract';
+import { NotificationDbObject } from '#/database/notifications';
+import { Notification } from '#/notifications';
+import { NotificationEntity } from '@/models/entity/notification_entity';
+import { UserEntity } from '@/models/entity/user_entity';
+import { EntityService } from '@/services/entity/_entity_service';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
 
-export class NotificationService extends EntityService<NotificationDbObject> {
-  protected logger = Logger.of(NotificationService);
+export class NotificationService extends EntityService {
+  protected logger = Logger.of(NotificationService.name);
 
   async getUserNotifications(to: ID, limit?: number) {
     const user = new UserEntity(to)
     await user.fetchRelations('notifications', limit)
 
-    const notifications = user.getRelations().notifications
+    const { notifications } = user.getRelations()
     if (!notifications) {
       return [];
     }

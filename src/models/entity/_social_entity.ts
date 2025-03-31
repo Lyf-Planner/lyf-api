@@ -1,8 +1,8 @@
-import { ItemDbObject } from '../../../schema/database/items';
-import { NoteDbObject } from '../../../schema/database/notes';
-import { ItemUserRelation } from '../relation/item_related_user';
-import { NoteUserRelation } from '../relation/note_related_user';
-import { BaseEntity } from './_base_entity';
+import { ItemDbObject } from '#/database/items';
+import { NoteDbObject } from '#/database/notes';
+import { BaseEntity, EntityRelations } from '@/models/entity/_base_entity';
+import { ItemUserRelation } from '@/models/relation/item_related_user';
+import { NoteUserRelation } from '@/models/relation/note_related_user';
 
 export type SocialRelations = {
   users: SocialRelation;
@@ -10,9 +10,11 @@ export type SocialRelations = {
 
 export type SocialRelation = NoteUserRelation|ItemUserRelation;
 
-export type SocialEntityObject =  ItemDbObject|NoteDbObject;
+export type SocialEntityObject = ItemDbObject|NoteDbObject;
 
 export abstract class SocialEntity<T extends SocialEntityObject> extends BaseEntity<T> {
+  public abstract getRelations(): EntityRelations;
+
   async getUsers() {
     await this.fetchRelations('users');
     await this.load();

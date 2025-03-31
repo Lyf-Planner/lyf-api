@@ -1,6 +1,8 @@
-import { sql, Kysely } from 'kysely';
+import { Kysely } from 'kysely';
 
-export async function up(db: Kysely<any>): Promise<void> {
+import { Database } from '#/database';
+
+export async function up(db: Kysely<Database>): Promise<void> {
   // Delete existing duplicate data, then add the constraint
   // Step 1: Find the duplicate records based on `template_id` and `date`.
   const duplicates = await db
@@ -21,9 +23,9 @@ export async function up(db: Kysely<any>): Promise<void> {
       .limit(1);
 
     await db
-    .deleteFrom('items_on_users')
-    .where('item_id_fk', '=', subquery)
-    .execute();
+      .deleteFrom('items_on_users')
+      .where('item_id_fk', '=', subquery)
+      .execute();
 
     await db
       .deleteFrom('items')
@@ -33,14 +35,14 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   // Add unique constraint
   await db.schema
-  .alterTable('items')
-  .addUniqueConstraint('template_instance_per_day', ['template_id', 'date'])
-  .execute(); 
+    .alterTable('items')
+    .addUniqueConstraint('template_instance_per_day', ['template_id', 'date'])
+    .execute();
 }
 
-export async function down(db: Kysely<any>): Promise<void> {
+export async function down(db: Kysely<Database>): Promise<void> {
   await db.schema
-  .alterTable('items')
-  .dropConstraint('template_instance_per_day')
-  .execute();
+    .alterTable('items')
+    .dropConstraint('template_instance_per_day')
+    .execute();
 }

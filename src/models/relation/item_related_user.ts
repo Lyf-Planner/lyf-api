@@ -1,22 +1,22 @@
-import { DbRelationFields, DbRelationObject } from '../../../schema/database';
-import { ID } from '../../../schema/database/abstract';
-import { ItemUserRelations, ItemUserRelationshipDbObject } from '../../../schema/database/items_on_users';
-import { UserDbObject, UserPublicFields } from '../../../schema/database/user';
-import { ItemRelatedUser } from '../../../schema/items';
-import { ItemUserRepository } from '../../repository/relation/item_user_repository';
-import { Logger } from '../../utils/logging';
-import { ObjectUtils } from '../../utils/object';
-import { UserEntity } from '../entity/user_entity';
-import { SocialRelation } from './_social_relation';
+import { ID } from '#/database/abstract';
+import { ItemUserRelations, ItemUserRelationshipDbObject } from '#/database/items_on_users';
+import { UserDbObject, UserPublicFields } from '#/database/user';
+import { ItemRelatedUser } from '#/items';
+import { UserEntity } from '@/models/entity/user_entity';
+import { SocialRelation } from '@/models/relation/_social_relation';
+import { ItemUserRepository } from '@/repository/relation/item_user_repository';
+import { Logger } from '@/utils/logging';
+import { ObjectUtils } from '@/utils/object';
+import { Includes } from '@/utils/types';
 
 export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObject, UserEntity> {
-  protected logger: Logger = Logger.of(ItemUserRelation);
+  protected logger: Logger = Logger.of(ItemUserRelation.name);
 
   // This should be readonly, updates should be done through the Entity directly
   protected relatedEntity: UserEntity;
   protected repository = new ItemUserRepository();
 
-  static filter(object: any): ItemUserRelationshipDbObject {
+  static filter(object: Includes<ItemUserRelationshipDbObject>): ItemUserRelationshipDbObject {
     const objectFilter: Required<ItemUserRelationshipDbObject> = {
       created: object.created,
       last_updated: object.last_updated,
@@ -75,13 +75,13 @@ export class ItemUserRelation extends SocialRelation<ItemUserRelationshipDbObjec
   }
 
   public async update(changes: Partial<ItemRelatedUser>): Promise<void> {
-    const relationFieldUpdates = ItemUserRelation.filter(changes);
-
-    this.changes = relationFieldUpdates;
-    this.base = {
+    const updatedBase = ItemUserRelation.filter({
       ...this.base!,
-      ...relationFieldUpdates
-    };
+      ...changes
+    });
+
+    this.changes = updatedBase;
+    this.base = updatedBase;
   }
 
   public async save(): Promise<void> {

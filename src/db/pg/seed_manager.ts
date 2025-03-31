@@ -1,9 +1,11 @@
-import { FileMigrationProvider, Migrator } from 'kysely';
 
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import { Logger } from '../../utils/logging';
-import postgresDb from './postgres_db';
+
+import { FileMigrationProvider, Migrator } from 'kysely';
+
+import postgresDb from '@/db/pg/postgres_db';
+import { Logger } from '@/utils/logging';
 
 const log = new Logger('KyselyMigrator');
 
@@ -20,7 +22,7 @@ export async function seedLatest() {
       fs,
       path,
       // This needs to be an absolute path.
-      migrationFolder: path.join(__dirname, '../seeds')
+      migrationFolder: path.join(__dirname, '@/seeds')
     }),
     migrationTableName: 'seeds'
   });

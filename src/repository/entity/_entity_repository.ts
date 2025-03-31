@@ -1,7 +1,8 @@
-import { DatabaseEntities, DbEntityObject } from '../../../schema/database';
-import { ID } from '../../../schema/database/abstract';
-import { LyfError } from '../../utils/lyf_error';
-import { BaseRepository } from '../_base_repository';
+
+import { DatabaseEntities, DbEntityObject } from '#/database';
+import { ID } from '#/database/abstract';
+import { BaseRepository } from '@/repository/_base_repository';
+import { LyfError } from '@/utils/lyf_error';
 
 export abstract class EntityRepository<T extends DbEntityObject> extends BaseRepository<T> {
   public readonly pk = 'id';
@@ -38,7 +39,7 @@ export abstract class EntityRepository<T extends DbEntityObject> extends BaseRep
     if (!updated) {
       throw new LyfError(`Did not find db object ${id} to update in ${this.table_name}`, 404);
     }
-    
+
     return updated as T;
   }
 }

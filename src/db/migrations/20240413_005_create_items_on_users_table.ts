@@ -1,6 +1,8 @@
 import { sql, Kysely } from 'kysely';
 
-export async function up(db: Kysely<any>): Promise<void> {
+import { Database } from '#/database';
+
+export async function up(db: Kysely<Database>): Promise<void> {
   await db.schema
     .createTable('items_on_users')
     .addColumn('created', 'timestamptz', (col) => col.defaultTo(sql`now()`).notNull())
@@ -19,6 +21,6 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema.createIndex('item_user_user_id_index').on('items_on_users').column('user_id_fk').execute();
 }
 
-export async function down(db: Kysely<any>): Promise<void> {
+export async function down(db: Kysely<Database>): Promise<void> {
   await db.schema.dropTable('items_on_users').execute();
 }

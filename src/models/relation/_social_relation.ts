@@ -1,7 +1,7 @@
-import { ItemUserRelationshipDbObject } from '../../../schema/database/items_on_users';
-import { NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
-import { UserEntity } from '../entity/user_entity';
-import { BaseRelation } from './_base_relation';
+import { ItemUserRelationshipDbObject } from '#/database/items_on_users';
+import { NoteUserRelationshipDbObject } from '#/database/notes_on_users';
+import { UserEntity } from '@/models/entity/user_entity';
+import { BaseRelation } from '@/models/relation/_base_relation';
 
 export type SocialRelationObject = NoteUserRelationshipDbObject|ItemUserRelationshipDbObject;
 
@@ -16,5 +16,4 @@ export abstract class SocialRelation<
   permission() {
     return this.base!.permission;
   }
-
 }

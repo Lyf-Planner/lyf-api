@@ -1,7 +1,7 @@
 import { Kysely } from 'kysely';
 
-import { Database, DbObject } from '../../schema/database';
-import postgresDb from '../db/pg/postgres_db';
+import { Database, DbObject } from '#/database';
+import postgresDb from '@/db/pg/postgres_db';
 
 /**
  * Generic repository base class for basic CRUD operations.

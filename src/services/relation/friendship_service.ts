@@ -1,14 +1,11 @@
-import { ID } from '../../../schema/database/abstract';
-import { UserFriendshipDbObject, UserFriendshipStatus } from '../../../schema/database/user_friendships';
-import { FriendshipAction } from '../../../schema/util/social';
-import { ExposedUser, UserFriend } from '../../../schema/user';
-import { UserEntity } from '../../models/entity/user_entity';
-import { UserFriendRelation } from '../../models/relation/user_friend';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { BaseService } from '../_base_service';
-import { UserService } from '../entity/user_service';
-import { FriendNotifications } from '../../modules/notification_scheduling/friend_notifications';
+import { ID } from '#/database/abstract';
+import { UserFriendshipDbObject, UserFriendshipStatus } from '#/database/user_friendships';
+import { FriendshipAction } from '#/util/social';
+import { UserFriendRelation } from '@/models/relation/user_friend';
+import { FriendNotifications } from '@/modules/notification_scheduling/friend_notifications';
+import { BaseService } from '@/services/_base_service';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
 
 export type FriendshipUpdate = {
   user_id: ID;
@@ -16,7 +13,7 @@ export type FriendshipUpdate = {
 };
 
 export class FriendshipService extends BaseService {
-  public logger = Logger.of(FriendshipService);
+  public logger = Logger.of(FriendshipService.name);
 
   async processUpdate(from_id: ID, update: FriendshipUpdate) {
     // Can't address yourself
@@ -63,13 +60,14 @@ export class FriendshipService extends BaseService {
       user2_id_fk: id2,
       created: new Date(),
       last_updated: new Date(),
-      status: status
+      status
     };
 
     try {
       await friendship.create(newFriendship, UserFriendRelation.filter);
       await friendship.getRelatedEntity().load();
-    } catch (e) {
+    } catch (error) {
+      this.logger.error('friendship record already exists', error);
       throw new LyfError(`Friendship between ${id1} and ${id2} already exists!`, 400);
     }
   }
@@ -83,7 +81,7 @@ export class FriendshipService extends BaseService {
 
     try {
       await friendship.load();
-      const status = (await friendship.extract()).status;
+      const { status } = await friendship.extract();
 
       const requiredForMutualBlock = friendship.id() === id1
         ? UserFriendshipStatus.BlockedBySecond
@@ -98,8 +96,8 @@ export class FriendshipService extends BaseService {
       }
 
       await friendship.save()
-    } catch (e) {
-      this.logger.warn('Block status requested on non-existent friendship, creating now');
+    } catch (error) {
+      this.logger.warn('Block status requested on non-existent friendship, creating now', error);
       await this.createFriendship(friendship, desiredStatus);
     }
   }

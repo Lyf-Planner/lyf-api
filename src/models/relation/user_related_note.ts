@@ -1,21 +1,22 @@
-import { ID } from '../../../schema/database/abstract';
-import { NoteDbObject } from '../../../schema/database/notes';
-import { NoteUserRelations, NoteUserRelationshipDbObject } from '../../../schema/database/notes_on_users';
-import { UserRelatedNote } from '../../../schema/user';
-import { NoteUserRepository } from '../../repository/relation/note_user_repository';
-import { Logger } from '../../utils/logging';
-import { ObjectUtils } from '../../utils/object';
-import { NoteEntity } from '../entity/note_entity';
-import { BaseRelation } from './_base_relation';
+import { ID } from '#/database/abstract';
+import { NoteDbObject } from '#/database/notes';
+import { NoteUserRelations, NoteUserRelationshipDbObject } from '#/database/notes_on_users';
+import { UserRelatedNote } from '#/user';
+import { NoteEntity } from '@/models/entity/note_entity';
+import { BaseRelation } from '@/models/relation/_base_relation';
+import { NoteUserRepository } from '@/repository/relation/note_user_repository';
+import { Logger } from '@/utils/logging';
+import { ObjectUtils } from '@/utils/object';
+import { Includes } from '@/utils/types';
 
 export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject, NoteEntity> {
-  protected logger: Logger = Logger.of(UserNoteRelation);
+  protected logger: Logger = Logger.of(UserNoteRelation.name);
 
   protected relatedEntity: NoteEntity;
   protected repository = new NoteUserRepository();
 
-  static filter(object: any): NoteUserRelationshipDbObject {
-    const objectFilter: Required<NoteUserRelationshipDbObject> = {
+  static filter(object: Includes<NoteUserRelationshipDbObject>): NoteUserRelationshipDbObject {
+    const objectFilter: NoteUserRelationshipDbObject = {
       note_id_fk: object.note_id_fk,
       user_id_fk: object.user_id_fk,
       created: object.created,
@@ -37,7 +38,6 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
     } else {
       this.relatedEntity = new NoteEntity(entity_id);
     }
-    
   }
 
   public async delete(): Promise<void> {
@@ -78,7 +78,10 @@ export class UserNoteRelation extends BaseRelation<NoteUserRelationshipDbObject,
       ...relationFieldUpdates
     };
 
-    const entityUpdates = NoteEntity.filter(changes);
+    const entityUpdates = NoteEntity.filter({
+      ...await this.relatedEntity.extract() as NoteDbObject,
+      ...changes
+    });
     this.relatedEntity.update(entityUpdates);
   }
 

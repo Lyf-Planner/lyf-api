@@ -1,29 +1,27 @@
-import moment from 'moment-timezone';
-import { ID } from '../../../schema/database/abstract';
-import { UserDbObject, UserExposedFields, UserPublicFields, UserSensitiveFields } from '../../../schema/database/user';
-import { UserFriendshipStatus } from '../../../schema/database/user_friendships';
+import { ID } from '#/database/abstract';
+import { UserDbObject, UserExposedFields, UserPublicFields, UserSensitiveFields } from '#/database/user';
+import { UserFriendshipStatus } from '#/database/user_friendships';
 import {
   ExposedUser,
   PublicUser,
-  UserFriend,
-  UserNotification
-} from '../../../schema/user';
-import { UserRepository } from '../../repository/entity/user_repository';
-import { ItemUserRepository } from '../../repository/relation/item_user_repository';
-import { NoteUserRepository } from '../../repository/relation/note_user_repository';
-import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
-import { daysInRange } from '../../utils/dates';
-import { Logger } from '../../utils/logging';
-import { CommandType } from '../command_types';
-import { UserFriendRelation } from '../relation/user_friend';
-import { UserItemRelation } from '../relation/user_related_item';
-import { UserNoteRelation } from '../relation/user_related_note';
-import { BaseEntity } from './_base_entity';
-import { ObjectUtils } from '../../utils/object';
-import { LyfError } from '../../utils/lyf_error';
-import { NotificationRepository } from '../../repository/entity/notification_repository';
-import { NotificationEntity } from './notification_entity';
-import { Notification } from '../../../schema/notifications';
+  UserFriend
+} from '#/user';
+import { CommandType } from '@/models/_base_model';
+import { BaseEntity } from '@/models/entity/_base_entity';
+import { NotificationEntity } from '@/models/entity/notification_entity';
+import { UserFriendRelation } from '@/models/relation/user_friend';
+import { UserItemRelation } from '@/models/relation/user_related_item';
+import { UserNoteRelation } from '@/models/relation/user_related_note';
+import { NotificationRepository } from '@/repository/entity/notification_repository';
+import { UserRepository } from '@/repository/entity/user_repository';
+import { ItemUserRepository } from '@/repository/relation/item_user_repository';
+import { NoteUserRepository } from '@/repository/relation/note_user_repository';
+import { UserFriendshipRepository } from '@/repository/relation/user_friendship_repository';
+import { daysInRange } from '@/utils/dates';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
+import { ObjectUtils } from '@/utils/object';
+import { Includes } from '@/utils/types';
 
 export type UserModelRelations = {
   items: UserItemRelation[];
@@ -33,12 +31,12 @@ export type UserModelRelations = {
 };
 
 export class UserEntity extends BaseEntity<UserDbObject> {
-  protected logger = Logger.of(UserEntity);
+  protected logger = Logger.of(UserEntity.name);
   protected repository = new UserRepository();
 
   protected relations: Partial<UserModelRelations> = {};
 
-  static filter(object: any): UserDbObject {
+  static filter(object: Includes<UserDbObject>): UserDbObject {
     const objectFilter: Required<UserDbObject> = {
       id: object.id,
       created: object.created,
@@ -66,7 +64,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     if (requestor && !selfRequested) {
       return await this.exportAsPublicUser(requestor);
     }
-    
+
     if (with_relations) {
       return {
         ...this.stripSensitiveFields(),
@@ -75,6 +73,16 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     }
 
     return this.stripSensitiveFields();
+  }
+
+  public async update(changes: Partial<UserDbObject>): Promise<void> {
+    const updatedBase = UserEntity.filter({
+      ...this.base!,
+      ...changes
+    });
+
+    this.changes = updatedBase;
+    this.base = updatedBase;
   }
 
   // --- Helpers ---
@@ -188,9 +196,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
       throw new LyfError('checked blocked on a user without loading relations', 500);
     }
 
-    return this.relations.users.some((x) => {
-      x.entityId() === user_id && x.blockedByEntity()
-    })
+    return this.relations.users.some((x) => x.entityId() === user_id && x.blockedByEntity());
   }
 
   blockedByMe(user_id: string) {
@@ -198,9 +204,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
       throw new LyfError('checked blocked on a user without loading relations', 500);
     }
 
-    return this.relations.users.some((x) => {
-      x.entityId() === user_id && x.blockedByMe()
-    })
+    return this.relations.users.some((x) => x.entityId() === user_id && x.blockedByMe());
   }
 
   timezone() {
@@ -231,7 +235,7 @@ export class UserEntity extends BaseEntity<UserDbObject> {
     if (with_relations) {
       // When exporting a public user, expose only a users friends when requested by a friend
       const { users } = await this.recurseRelations(CommandType.Export) as { users?: UserFriend[] }
-    
+
       const requestorIsFriend = users && users.some((x) => x.id === requestor_id);
       const relations = requestorIsFriend ? {
         users: users.filter((x) => x.status === UserFriendshipStatus.Friends)
@@ -247,7 +251,12 @@ export class UserEntity extends BaseEntity<UserDbObject> {
   }
 
   private stripSensitiveFields() {
-    const { pass_hash, expo_tokens, ...exported } = this.base!;
+    const {
+      pass_hash: _pass_hash,
+      expo_tokens: _expo_tokens,
+      ...exported
+    } = this.base!;
+
     return exported;
   }
 }

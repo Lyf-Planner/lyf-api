@@ -15,57 +15,57 @@ export class Logger {
     this.level = level;
   }
 
-  public static of(arg: Function): Logger {
-    return new Logger(arg.name);
+  public static of(name: string): Logger {
+    return new Logger(name);
   }
 
   constructor(name: string) {
     this.name = name;
   }
 
-  public verbose(content: string) {
+  public verbose(content: string, data?: unknown) {
     if (Logger.level > LoggingLevel.VERBOSE) {
       return;
     }
 
-    const str = `${new Date().toISOString()} verbose [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} verbose [${this.name}] ${content} ${data ? JSON.stringify(data) : ''}`;
     console.log(str);
   }
 
-  public debug(content: string) {
+  public debug(content: string, data?: unknown) {
     if (Logger.level > LoggingLevel.DEBUG) {
       return;
     }
-    const str = `${new Date().toISOString()} debug  [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} debug  [${this.name}] ${content} ${data ? JSON.stringify(data) : ''}`;
     console.log(str);
   }
 
-  public info(content: string) {
+  public info(content: string, data?: unknown) {
     if (Logger.level > LoggingLevel.INFO) {
       return;
     }
-    const str = `${new Date().toISOString()} info  [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} info  [${this.name}] ${content} ${data ? JSON.stringify(data) : ''}`;
     console.log(str);
   }
 
-  public warn(content: string) {
+  public warn(content: string, data?: unknown) {
     if (Logger.level > LoggingLevel.WARN) {
       return;
     }
-    const str = `${new Date().toISOString()} warn  [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} warn  [${this.name}] ${content} ${data ? JSON.stringify(data) : ''}`;
     console.log(str);
   }
 
-  public error(content: string) {
+  public error(content: string, data?: unknown) {
     if (Logger.level > LoggingLevel.ERROR) {
       return;
     }
-    const str = `${new Date().toISOString()} error [${this.name}] ${content}`;
+    const str = `${new Date().toISOString()} error [${this.name}] ${content} ${data ? JSON.stringify(data) : ''}`;
     console.log(str);
   }
 
-  public fatal(content: string) {
-    const str = `${new Date().toISOString()} fatal [${this.name}] ${content}`;
+  public fatal(content: string, data?: unknown) {
+    const str = `${new Date().toISOString()} fatal [${this.name}] ${content} ${data ? JSON.stringify(data) : ''}`;
     console.log(str);
   }
 }

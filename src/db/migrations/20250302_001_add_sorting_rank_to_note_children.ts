@@ -1,6 +1,8 @@
-import { sql, Kysely } from 'kysely';
+import { Kysely } from 'kysely';
 
-export async function up(db: Kysely<any>): Promise<void> {
+import { Database } from '#/database';
+
+export async function up(db: Kysely<Database>): Promise<void> {
   await db.schema
     .alterTable('note_children')
     .addColumn('sorting_rank', 'integer', (col) => col.defaultTo('0'))
@@ -12,7 +14,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute();
 }
 
-export async function down(db: Kysely<any>): Promise<void> {
+export async function down(db: Kysely<Database>): Promise<void> {
   await db.schema.alterTable('note_children').dropColumn('sorting_rank').execute();
   await db.schema.alterTable('notes').dropColumn('default_sorting_rank').execute();
 }

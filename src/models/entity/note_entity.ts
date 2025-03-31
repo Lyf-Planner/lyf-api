@@ -1,20 +1,21 @@
-import { ID } from '../../../schema/database/abstract';
-import { NoteDbObject, NoteType } from '../../../schema/database/notes';
-import { NoteUserRelations } from '../../../schema/database/notes_on_users';
-import { Note } from '../../../schema/notes';
-import { UserRelatedNote } from '../../../schema/user';
-import { ItemRepository } from '../../repository/entity/item_repository';
-import { NoteRepository } from '../../repository/entity/note_repository';
-import { NoteChildRepository } from '../../repository/relation/note_child_repository';
-import { NoteUserRepository } from '../../repository/relation/note_user_repository';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { ObjectUtils } from '../../utils/object';
-import { CommandType } from '../command_types';
-import { NoteChildRelation } from '../relation/note_child';
-import { NoteUserRelation } from '../relation/note_related_user';
-import { SocialEntity } from './_social_entity';
-import { ItemEntity } from './item_entity';
+import { ID } from '#/database/abstract';
+import { NoteDbObject, NoteType } from '#/database/notes';
+import { NoteUserRelations } from '#/database/notes_on_users';
+import { Note } from '#/notes';
+import { UserRelatedNote } from '#/user';
+import { CommandType } from '@/models/_base_model';
+import { SocialEntity } from '@/models/entity/_social_entity';
+import { ItemEntity } from '@/models/entity/item_entity';
+import { NoteChildRelation } from '@/models/relation/note_child';
+import { NoteUserRelation } from '@/models/relation/note_related_user';
+import { ItemRepository } from '@/repository/entity/item_repository';
+import { NoteRepository } from '@/repository/entity/note_repository';
+import { NoteChildRepository } from '@/repository/relation/note_child_repository';
+import { NoteUserRepository } from '@/repository/relation/note_user_repository';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
+import { ObjectUtils } from '@/utils/object';
+import { Includes } from '@/utils/types';
 
 export type NoteModelRelations = {
   items: ItemEntity[];
@@ -23,13 +24,13 @@ export type NoteModelRelations = {
 };
 
 export class NoteEntity extends SocialEntity<NoteDbObject> {
-  protected logger = Logger.of(NoteEntity);
+  protected logger = Logger.of(NoteEntity.name);
   protected repository = new NoteRepository();
 
   protected relations: Partial<NoteModelRelations> = {};
 
-  static filter(object: any): NoteDbObject {
-    const objectFilter: Required<NoteDbObject> = {
+  static filter(object: Includes<NoteDbObject>): NoteDbObject {
+    const objectFilter: NoteDbObject = {
       id: object.id,
       created: object.created,
       last_updated: object.last_updated,
@@ -41,7 +42,7 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
     return ObjectUtils.stripUndefinedFields(objectFilter);
   }
-    
+
   // soft deletion is implied here
   async delete(delete_contents = true) {
     // Delete directly related user relations, including user relations on sub-notes
@@ -50,7 +51,6 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
     if (delete_contents) {
       relatedUserDeletion = noteUserRepository.deleteAllDirectDescendantRelations(this._id);
     }
-    
 
     // delete any remaining relations with parents
     const noteChildRepository = new NoteChildRepository();
@@ -88,13 +88,13 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
 
     this.logger.debug('using ancestor permission');
     const ancestorPermissions = await this.repository.findAncestorPermissions(this._id, requestor);
-    
+
     const hasAncestorPermission = ancestorPermissions.length > 0;
     if (hasAncestorPermission) {
       const nearestPermission = ancestorPermissions.sort((a, b) => a.distance - b.distance)[0];
       return NoteUserRelation.filter(nearestPermission);
     }
-    
+
     return null;
   }
 
@@ -178,6 +178,16 @@ export class NoteEntity extends SocialEntity<NoteDbObject> {
       userRelations.push(userRelation);
     }
     this.relations.users = userRelations;
+  }
+
+  public async update(changes: Partial<NoteDbObject>): Promise<void> {
+    const updatedBase = NoteEntity.filter({
+      ...this.base!,
+      ...changes
+    });
+
+    this.changes = updatedBase;
+    this.base = updatedBase;
   }
 
   // --- HELPERS --- //

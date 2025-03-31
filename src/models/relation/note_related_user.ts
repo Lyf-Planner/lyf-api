@@ -1,26 +1,27 @@
-import { ID } from '../../../schema/database/abstract';
+import { ID } from '#/database/abstract';
 import {
   NoteUserRelations,
   NoteUserRelationshipDbObject
-} from '../../../schema/database/notes_on_users';
-import { UserDbObject } from '../../../schema/database/user';
-import { NoteRelatedUser } from '../../../schema/notes';
-import { PublicUser } from '../../../schema/user';
-import { NoteUserRepository } from '../../repository/relation/note_user_repository';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { ObjectUtils } from '../../utils/object';
-import { NoteEntity } from '../entity/note_entity';
-import { UserEntity } from '../entity/user_entity';
-import { SocialRelation } from './_social_relation';
+} from '#/database/notes_on_users';
+import { UserDbObject } from '#/database/user';
+import { NoteRelatedUser } from '#/notes';
+import { PublicUser } from '#/user';
+import { NoteEntity } from '@/models/entity/note_entity';
+import { UserEntity } from '@/models/entity/user_entity';
+import { SocialRelation } from '@/models/relation/_social_relation';
+import { NoteUserRepository } from '@/repository/relation/note_user_repository';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
+import { ObjectUtils } from '@/utils/object';
+import { Includes } from '@/utils/types';
 
 export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObject, UserEntity> {
-  protected logger: Logger = Logger.of(NoteUserRelation);
+  protected logger: Logger = Logger.of(NoteUserRelation.name);
 
   protected relatedEntity: UserEntity;
   protected repository = new NoteUserRepository();
 
-  static filter(object: any): NoteUserRelationshipDbObject {
+  static filter(object: Includes<NoteUserRelationshipDbObject>): NoteUserRelationshipDbObject {
     const objectFilter: Required<NoteUserRelationshipDbObject> = {
       note_id_fk: object.note_id_fk,
       user_id_fk: object.user_id_fk,
@@ -30,7 +31,7 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
       permission: object.permission,
       sorting_rank_preference: object.sorting_rank_preference
     };
-    
+
     return ObjectUtils.stripUndefinedFields(objectFilter);
   }
 
@@ -48,7 +49,6 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
     } else {
       this.relatedEntity = new UserEntity(entity_id);
     }
-
   }
 
   public async delete(): Promise<void> {
@@ -102,13 +102,13 @@ export class NoteUserRelation extends SocialRelation<NoteUserRelationshipDbObjec
   }
 
   public async update(changes: Partial<NoteRelatedUser>): Promise<void> {
-    const relationFieldUpdates = NoteUserRelation.filter(changes);
-
-    this.changes = relationFieldUpdates;
-    this.base = {
+    const updatedBase = NoteUserRelation.filter({
       ...this.base!,
-      ...relationFieldUpdates
-    };
+      ...changes
+    });
+
+    this.changes = updatedBase;
+    this.base = updatedBase;
   }
 
   public async save(): Promise<void> {

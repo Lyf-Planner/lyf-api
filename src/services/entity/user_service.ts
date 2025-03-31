@@ -1,18 +1,18 @@
-import { ID } from '../../../schema/database/abstract';
-import { UserDbObject } from '../../../schema/database/user';
-import { ExposedUser, PublicUser, User } from '../../../schema/user';
-import { UserEntity } from '../../models/entity/user_entity';
-import { UserRepository } from '../../repository/entity/user_repository';
-import { formatDateData } from '../../utils/dates';
-import { Logger } from '../../utils/logging';
-import { LyfError } from '../../utils/lyf_error';
-import { AuthService } from '../auth_service';
-import reminderService from '../../modules/notification_scheduling/reminder_service';
-import { EntityService } from './_entity_service';
-import { ItemService } from './item_service';
+import { ID } from '#/database/abstract';
+import { UserDbObject } from '#/database/user';
+import { ExposedUser, PublicUser, User } from '#/user';
+import { UserEntity } from '@/models/entity/user_entity';
+import reminderService from '@/modules/notification_scheduling/reminder_service';
+import { UserRepository } from '@/repository/entity/user_repository';
+import { AuthService } from '@/services/auth_service';
+import { EntityService } from '@/services/entity/_entity_service';
+import { ItemService } from '@/services/entity/item_service';
+import { formatDateData } from '@/utils/dates';
+import { Logger } from '@/utils/logging';
+import { LyfError } from '@/utils/lyf_error';
 
-export class UserService extends EntityService<UserDbObject> {
-  protected logger = Logger.of(UserService);
+export class UserService extends EntityService {
+  protected logger = Logger.of(UserService.name);
 
   // --- USERS --- //
 
@@ -33,7 +33,7 @@ export class UserService extends EntityService<UserDbObject> {
       id: user_id,
       pass_hash,
       private: false,
-      tz: tz,
+      tz,
       expo_tokens: [],
       first_day: formatDateData(creationDate),
       display_name: undefined,
@@ -42,7 +42,7 @@ export class UserService extends EntityService<UserDbObject> {
       persistent_daily_notification: false,
       event_notification_mins: 5,
       weather_data: true,
-      auto_day_finishing: true,
+      auto_day_finishing: true
     };
 
     const user = new UserEntity(userCreationData.id);
@@ -50,7 +50,7 @@ export class UserService extends EntityService<UserDbObject> {
 
     await new ItemService().createUserIntroItems(user, tz);
 
-    await user.fetchRelations("items");
+    await user.fetchRelations('items');
     await user.load();
 
     return await user.export() as ExposedUser;
@@ -83,7 +83,7 @@ export class UserService extends EntityService<UserDbObject> {
 
     const user = new UserEntity(id);
     await user.load();
-    await user.update(UserEntity.filter(changes));
+    await user.update(changes);
 
     // PRE-COMMIT (update other items like notifications)
     this.checkDailyNotifications(user, changes);
@@ -95,7 +95,7 @@ export class UserService extends EntityService<UserDbObject> {
     return user.export(from);
   }
 
-  public async retrieveForUser(user_id: ID, requestor_id: ID, include?: string): Promise<ExposedUser | PublicUser> {    
+  public async retrieveForUser(user_id: ID, requestor_id: ID, include?: string): Promise<ExposedUser | PublicUser> {
     const user = await this.getEntity(user_id, include || '');
 
     return await user.export(requestor_id);

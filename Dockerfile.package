@@ -26,4 +26,4 @@ COPY --from=base ./build/schema ./schema
 
 EXPOSE 8000
 
-CMD [ "node", "src/index.js" ]
+CMD [ "node", "src/start.js" ]

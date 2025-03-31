@@ -1,26 +1,25 @@
-import { DbRelationFields, DbRelationObject } from '../../../schema/database';
-import { ID } from '../../../schema/database/abstract';
-import { UserDbObject } from '../../../schema/database/user';
+import { ID } from '#/database/abstract';
+import { UserDbObject } from '#/database/user';
 import {
   UserFriendshipDbObject,
   UserFriendshipRelations,
   UserFriendshipStatus
-} from '../../../schema/database/user_friendships';
-import { PublicUser, UserFriend } from '../../../schema/user';
-import { UserRepository } from '../../repository/entity/user_repository';
-import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
-import { Logger } from '../../utils/logging';
-import { ObjectUtils } from '../../utils/object';
-import { UserEntity } from '../entity/user_entity';
-import { BaseRelation } from './_base_relation';
+} from '#/database/user_friendships';
+import { PublicUser, UserFriend } from '#/user';
+import { UserEntity } from '@/models/entity/user_entity';
+import { BaseRelation } from '@/models/relation/_base_relation';
+import { UserFriendshipRepository } from '@/repository/relation/user_friendship_repository';
+import { Logger } from '@/utils/logging';
+import { ObjectUtils } from '@/utils/object';
+import { Includes } from '@/utils/types';
 
 export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, UserEntity> {
-  protected logger: Logger = Logger.of(UserFriendRelation);
+  protected logger: Logger = Logger.of(UserFriendRelation.name);
 
   protected relatedEntity: UserEntity;
   protected repository = new UserFriendshipRepository();
 
-  static filter(object: any): UserFriendshipDbObject {
+  static filter(object: Includes<UserFriendshipDbObject>): UserFriendshipDbObject {
     const objectFilter: Required<UserFriendshipDbObject> = {
       user1_id_fk: object.user1_id_fk,
       user2_id_fk: object.user2_id_fk,
@@ -71,13 +70,13 @@ export class UserFriendRelation extends BaseRelation<UserFriendshipDbObject, Use
   }
 
   public async update(changes: Partial<UserFriend>): Promise<void> {
-    const relationFieldUpdates = UserFriendRelation.filter(changes);
-  
-    this.changes = relationFieldUpdates;
-    this.base = {
+    const updatedBase = UserFriendRelation.filter({
       ...this.base!,
-      ...relationFieldUpdates
-    };
+      ...changes
+    });
+
+    this.changes = updatedBase;
+    this.base = updatedBase;
   }
 
   public async save(): Promise<void> {

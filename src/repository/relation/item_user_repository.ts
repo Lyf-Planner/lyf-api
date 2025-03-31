@@ -1,9 +1,10 @@
-import { ID } from '../../../schema/mongo_schema/abstract';
-import { ItemDbObject } from '../../../schema/database/items';
-import { ItemUserRelationshipDbObject, Permission } from '../../../schema/database/items_on_users';
-import { UserDbObject } from '../../../schema/database/user';
-import { daysOfWeek } from '../../utils/dates';
-import { RelationRepository } from './_relation_repository';
+
+import { ItemDbObject } from '#/database/items';
+import { ItemUserRelationshipDbObject } from '#/database/items_on_users';
+import { UserDbObject } from '#/database/user';
+import { ID } from '#/mongo_schema/abstract';
+import { RelationRepository } from '@/repository/relation/_relation_repository';
+import { daysOfWeek } from '@/utils/dates';
 
 const TABLE_NAME = 'items_on_users';
 
@@ -100,7 +101,7 @@ export class ItemUserRepository extends RelationRepository<ItemUserRelationshipD
   // Items filtered by future
   async findUserFutureItems(
     user_id: ID,
-    start_date: string,
+    start_date: string
   ): Promise<(ItemDbObject & ItemUserRelationshipDbObject)[]> {
     const result = await this.db
       .selectFrom('items')

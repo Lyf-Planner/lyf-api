@@ -1,32 +1,24 @@
-import { DbRelationFields, DbRelationObject } from '../../../schema/database';
-import { ID } from '../../../schema/database/abstract';
-import { NoteChildDbObject } from '../../../schema/database/note_children';
-import { NoteDbObject } from '../../../schema/database/notes';
-import { UserDbObject } from '../../../schema/database/user';
-import {
-  UserFriendshipDbObject,
-  UserFriendshipRelations,
-  UserFriendshipStatus
-} from '../../../schema/database/user_friendships';
-import { ChildNote, Note } from '../../../schema/notes';
-import { PublicUser, UserFriend, UserRelatedNote } from '../../../schema/user';
-import { UserRepository } from '../../repository/entity/user_repository';
-import { NoteChildRepository } from '../../repository/relation/note_child_repository';
-import { UserFriendshipRepository } from '../../repository/relation/user_friendship_repository';
-import { Logger } from '../../utils/logging';
-import { ObjectUtils } from '../../utils/object';
-import { NoteEntity } from '../entity/note_entity';
-import { UserEntity } from '../entity/user_entity';
-import { BaseRelation } from './_base_relation';
+
+import { ID } from '#/database/abstract';
+import { NoteChildDbObject } from '#/database/note_children';
+import { NoteDbObject } from '#/database/notes';
+import { ChildNote } from '#/notes';
+import { UserRelatedNote } from '#/user';
+import { NoteEntity } from '@/models/entity/note_entity';
+import { BaseRelation } from '@/models/relation/_base_relation';
+import { NoteChildRepository } from '@/repository/relation/note_child_repository';
+import { Logger } from '@/utils/logging';
+import { ObjectUtils } from '@/utils/object';
+import { Includes } from '@/utils/types';
 
 export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntity> {
-  protected logger: Logger = Logger.of(NoteChildRelation);
+  protected logger: Logger = Logger.of(NoteChildRelation.name);
 
   // the child note is treated as the relatedEntity - they are the target in this tables context
   protected relatedEntity: NoteEntity;
   protected repository = new NoteChildRepository();
 
-  static filter(object: any): NoteChildDbObject {
+  static filter(object: Includes<NoteChildDbObject>): NoteChildDbObject {
     const objectFilter: Required<NoteChildDbObject> = {
       parent_id: object.parent_id,
       child_id: object.child_id,
@@ -52,14 +44,14 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
 
   async create(db_object: NoteChildDbObject) {
     const validatedObj = NoteChildRelation.filter(db_object);
-    
+
     const uploaded = await this.repository.create(validatedObj);
     this.base = uploaded;
-    
+
     // find all ancestors of the parent to also create the child relation with
     // this is how we improve query times for hierarchical permissions
     const ancestors = await this.repository.findAncestors(validatedObj.parent_id);
-    
+
     let ancestorDistance = 1;
     for (const ancestor of ancestors) {
       ancestorDistance += 1;
@@ -70,7 +62,6 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
       });
     }
   }
-
 
   async delete(): Promise<void> {
     await this.repository.deleteRelation(this._entityId, this._id);
@@ -113,13 +104,13 @@ export class NoteChildRelation extends BaseRelation<NoteChildDbObject, NoteEntit
   }
 
   async update(changes: Partial<ChildNote>): Promise<void> {
-    const relationFieldUpdates = NoteChildRelation.filter(changes);
-  
-    this.changes = relationFieldUpdates;
-    this.base = {
+    const updatedBase = NoteChildRelation.filter({
       ...this.base!,
-      ...relationFieldUpdates
-    };
+      ...changes
+    });
+
+    this.changes = updatedBase;
+    this.base = updatedBase;
   }
 
   async save(): Promise<void> {

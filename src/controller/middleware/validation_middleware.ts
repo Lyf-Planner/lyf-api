@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { validationResult, ValidationChain } from 'express-validator';
 import { checkExact } from 'express-validator';
 
-import { Logger } from '../../utils/logging';
+import { Logger } from '@/utils/logging';
 
 const logger = new Logger('ValidationMiddleware');
 
