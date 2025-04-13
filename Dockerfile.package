@@ -1,28 +1,29 @@
-FROM node:18-alpine AS base
+# node-22
+FROM node:22.14.0@sha256:e5ddf893cc6aeab0e5126e4edae35aa43893e2836d1d246140167ccc2616f5d7 AS build
 
-RUN apk --no-cache update && \
-    apk --no-cache upgrade && \
-    apk --no-cache add git
+RUN apt-get update && \
+    apt-get install git
 
-# Install app dependencies + compile
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
 COPY src ./src
 COPY tsconfig.json ./tsconfig.json
 
-  # Clone submodules - couldn't figure out `git submodule update --init --recursive`
+# Clone submodules - couldn't figure out `git submodule update --init --recursive`
 RUN git config --global url."https://178695055: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@github.com/".insteadOf "https://github.com/"
 RUN rm -rf ./schema && git clone https://github.com/Lyf-Planner/lyf-schema.git ./schema
 
 RUN yarn build
 
-# Start production image build
-FROM node:18-alpine
+# node-22-slim
+FROM node:22.14.0-slim@sha256:1c18d9ab3af4585870b92e4dbc5cac5a0dc77dd13df1a5905cea89fc720eb05b AS runtime
 
-COPY --from=base ./node_modules ./node_modules
-COPY --from=base ./build/src ./src
-COPY --from=base ./build/schema ./schema
+COPY --from=build ./build/ ./
+COPY --from=build ./package.json ./package.json
+
+RUN yarn install --frozen-lockfile --production && \
+    yarn cache clean
 
 EXPOSE 8000
 
